@@ -1,5 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+
+// Mock useProfile before importing AppShell
+vi.mock("../../features/auth/useProfile", () => ({
+  useProfile: () => ({
+    profile: null,
+    isOwner: false,
+    isAuthenticated: false,
+    isLoading: false,
+    error: null,
+  }),
+}));
+
+// eslint-disable-next-line import/first
 import { AppShell } from "./AppShell";
 
 describe("AppShell", () => {

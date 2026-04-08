@@ -1,17 +1,12 @@
-import { PlaceholderPage } from "../components/ui/PlaceholderPage";
-
 export function AdminPage() {
   return (
-    <PlaceholderPage
-      eyebrow="Admin"
-      title="Owner-only content management"
-      description="The admin surface will manage games, tags, priorities, notes, and recommendation fields from the browser while relying on Supabase RLS for real security."
-      highlights={[
-        "Build fast table actions for edit, archive, hide, and status changes.",
-        "Support tag management and assignment without code edits.",
-        "Keep destructive actions explicit and validated.",
-      ]}
-      footer="Execution details live in docs/plans/admin-crud-and-tags.md."
-    />
+    <div className="space-y-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <h2 className="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
+        <p className="mt-2 text-gray-600">
+          Welcome to the admin area. Content management features will be available here.
+        </p>
+      </div>
+    </div>
   );
 }

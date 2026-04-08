@@ -7,11 +7,13 @@ import { NotFoundPage } from "../../pages/NotFoundPage";
 import { RecommendationsPage } from "../../pages/RecommendationsPage";
 import { ScenariosPage } from "../../pages/ScenariosPage";
 import { SignInPage } from "../../pages/SignInPage";
+import { RequireOwner } from "../../features/auth/RequireOwner";
 
 export type AppRouteDefinition = {
   path: string;
   label: string;
   showInNav: boolean;
+  requiresOwner?: boolean;
 };
 
 export const appRouteDefinitions: AppRouteDefinition[] = [
@@ -21,7 +23,7 @@ export const appRouteDefinitions: AppRouteDefinition[] = [
   { path: "/buy-order", label: "Buy Order", showInNav: true },
   { path: "/recommendations", label: "Recommendations", showInNav: true },
   { path: "/signin", label: "Sign In", showInNav: false },
-  { path: "/admin", label: "Admin", showInNav: true },
+  { path: "/admin", label: "Admin", showInNav: true, requiresOwner: true },
 ];
 
 export function AppRoutes() {
@@ -33,7 +35,14 @@ export function AppRoutes() {
       <Route path="/buy-order" element={<BuyOrderPage />} />
       <Route path="/recommendations" element={<RecommendationsPage />} />
       <Route path="/signin" element={<SignInPage />} />
-      <Route path="/admin" element={<AdminPage />} />
+      <Route
+        path="/admin"
+        element={
+          <RequireOwner>
+            <AdminPage />
+          </RequireOwner>
+        }
+      />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
