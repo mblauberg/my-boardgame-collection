@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "migrate:generate": "tsx scripts/generateSeedData.ts",
+    "migrate:import": "tsx scripts/importLegacyData.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -32,6 +34,7 @@
     "jsdom": "^29.0.2",
     "postcss": "^8.5.9",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.7",
     "vitest": "^4.1.3"

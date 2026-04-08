@@ -1,0 +1,1436 @@
+{
+  "games": [
+    {
+      "slug": "sky-team-exp",
+      "name": "Sky Team + Exp",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 2,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 8.2,
+      "bgg_weight": 2,
+      "category": "2P Co-op",
+      "summary": "SdJ 2024. Silent dice-placement co-op — land a plane together without discussing strategy. Tense, unique, endlessly replayable with expansion scenarios.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-1"
+    },
+    {
+      "slug": "wingspan",
+      "name": "Wingspan",
+      "status": "owned",
+      "players_min": 1,
+      "players_max": 5,
+      "play_time_min": 60,
+      "play_time_max": 60,
+      "bgg_rating": 8,
+      "bgg_weight": 2.4,
+      "category": "Engine Building",
+      "summary": "BGG Top 33. Bird sanctuary with cascading card combos. Beautiful production, excellent solo Automa. Your relaxed engine builder.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-2"
+    },
+    {
+      "slug": "the-crew-deep-sea",
+      "name": "The Crew: Deep Sea",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 5,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 8.1,
+      "bgg_weight": 2,
+      "category": "Co-op Trick-Taking",
+      "summary": "Peaked BGG #4. Co-op trick-taking with 32 escalating missions and limited communication. Under $15 — best value in modern gaming.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-3"
+    },
+    {
+      "slug": "scout",
+      "name": "Scout",
+      "status": "owned",
+      "players_min": 3,
+      "players_max": 5,
+      "play_time_min": 15,
+      "play_time_max": 15,
+      "bgg_rating": 7.8,
+      "bgg_weight": 1.4,
+      "category": "Card Climbing",
+      "summary": "SdJ nominee. Can't rearrange your hand — play combos or poach from opponents. Brilliant constraint, genuine decisions in 15 minutes.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-4"
+    },
+    {
+      "slug": "lotr-duel",
+      "name": "LOTR: Duel",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 2,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.8,
+      "bgg_weight": 2.2,
+      "category": "2P Strategy",
+      "summary": "7 Wonders Duel reimagined with LOTR theme + area control board. Card drafting pyramid with multiple victory conditions.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-5"
+    },
+    {
+      "slug": "harmonies",
+      "name": "Harmonies",
+      "status": "owned",
+      "players_min": 1,
+      "players_max": 4,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.7,
+      "bgg_weight": 1.9,
+      "category": "Spatial Puzzle",
+      "summary": "BGG Top 60. Stack coloured tokens into 3D patterns to attract animals. Gorgeous, peaceful, unique spatial puzzle with solo mode.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-6"
+    },
+    {
+      "slug": "ticket-to-ride-europe",
+      "name": "Ticket to Ride Europe",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 5,
+      "play_time_min": 45,
+      "play_time_max": 45,
+      "bgg_rating": 7.5,
+      "bgg_weight": 1.9,
+      "category": "Gateway / Route",
+      "summary": "Improved over the original with stations and tunnels. THE gateway game — converts non-gamers reliably with simple rules and satisfying routes.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-7"
+    },
+    {
+      "slug": "secret-hitler",
+      "name": "Secret Hitler",
+      "status": "owned",
+      "players_min": 5,
+      "players_max": 10,
+      "play_time_min": 45,
+      "play_time_max": 45,
+      "bgg_rating": 7.5,
+      "bgg_weight": 1.7,
+      "category": "Social Deduction",
+      "summary": "Policy-based hidden role game. Fascists infiltrate government while liberals investigate. Most accessible big-group deduction game.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-8"
+    },
+    {
+      "slug": "avalon-quest",
+      "name": "Avalon: Quest",
+      "status": "owned",
+      "players_min": 5,
+      "players_max": 10,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.5,
+      "bgg_weight": 1.7,
+      "category": "Social Deduction",
+      "summary": "Definitive edition with all expansions + updated art. Deeper than Secret Hitler — pure deduction with Merlin/assassin roles.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-9"
+    },
+    {
+      "slug": "sushi-go-party",
+      "name": "Sushi Go Party!",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 8,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 7.4,
+      "bgg_weight": 1.3,
+      "category": "Card Drafting",
+      "summary": "Pick-and-pass card drafting with customisable menus. Scales beautifully to 8 players. Easy to teach, surprisingly tactical.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-10"
+    },
+    {
+      "slug": "sea-salt-paper-exp",
+      "name": "Sea Salt & Paper + Exp",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 4,
+      "play_time_min": 25,
+      "play_time_max": 25,
+      "bgg_rating": 7.4,
+      "bgg_weight": 1.4,
+      "category": "Set Collection",
+      "summary": "Origami-art cards. Collect pairs and combos, decide: stop safely or push for more and risk opponents catching up.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-11"
+    },
+    {
+      "slug": "agent-avenue",
+      "name": "Agent Avenue",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 4,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.4,
+      "bgg_weight": 1.8,
+      "category": "Mid Strategy",
+      "summary": "SdJ 2025 recommended. 'I split, you choose' spy-themed set collection. One card face-up, one face-down — opponent picks.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-12"
+    },
+    {
+      "slug": "flip-7-with-a-vengeance",
+      "name": "Flip 7: With a Vengeance",
+      "status": "owned",
+      "players_min": 3,
+      "players_max": 6,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 7.4,
+      "bgg_weight": 1.1,
+      "category": "Push-Luck / Take-That",
+      "summary": "Meaner standalone sequel to SdJ-nominated Flip 7. Flip cards without repeating numbers — bust and lose everything. New steal/swap/freeze cards add cutthroat interaction.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-13"
+    },
+    {
+      "slug": "trio",
+      "name": "Trio",
+      "status": "owned",
+      "players_min": 3,
+      "players_max": 6,
+      "play_time_min": 15,
+      "play_time_max": 15,
+      "bgg_rating": 7.3,
+      "bgg_weight": 1,
+      "category": "Memory / Deduction",
+      "summary": "Tiny card game of memory and deduction. Find matching trios from face-down cards and opponents' hands. Travels anywhere.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-14"
+    },
+    {
+      "slug": "telestrations",
+      "name": "Telestrations",
+      "status": "owned",
+      "players_min": 4,
+      "players_max": 8,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.2,
+      "bgg_weight": 1,
+      "category": "Party / Drawing",
+      "summary": "Telephone meets Pictionary. Draw, pass, guess, pass. Guaranteed laughs from inevitable miscommunication chains.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-15"
+    },
+    {
+      "slug": "catan",
+      "name": "Catan",
+      "status": "owned",
+      "players_min": 3,
+      "players_max": 4,
+      "play_time_min": 75,
+      "play_time_max": 75,
+      "bgg_rating": 7.1,
+      "bgg_weight": 2.3,
+      "category": "Gateway Strategy",
+      "summary": "The original modern gateway. Trade resources, build settlements. Showing its age but still has cultural cachet.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-16"
+    },
+    {
+      "slug": "lost-cities",
+      "name": "Lost Cities",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 2,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.1,
+      "bgg_weight": 1.5,
+      "category": "2P Card Game",
+      "summary": "Play ascending cards to expeditions — start one and you're committed. Push-your-luck tension in a simple 2p card game.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-17"
+    },
+    {
+      "slug": "a-fake-artist",
+      "name": "A Fake Artist",
+      "status": "owned",
+      "players_min": 5,
+      "players_max": 10,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 7,
+      "bgg_weight": 1.1,
+      "category": "Party / Drawing",
+      "summary": "Everyone draws one line on a shared picture — but one player doesn't know the prompt. Social deduction through art.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-18"
+    },
+    {
+      "slug": "coup",
+      "name": "Coup",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 6,
+      "play_time_min": 15,
+      "play_time_max": 15,
+      "bgg_rating": 7,
+      "bgg_weight": 1.4,
+      "category": "Bluffing Micro",
+      "summary": "Claim roles, bluff, call bluffs, eliminate. 15-minute cutthroat deduction. Quick enough to play 3 rounds in a row.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-19"
+    },
+    {
+      "slug": "cockroach-poker",
+      "name": "Cockroach Poker",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 6,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 7,
+      "bgg_weight": 1,
+      "category": "Bluffing Filler",
+      "summary": "Pass a face-down card, claim what it is. Opponent must call your bluff or pass it on. Pure table banter.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-20"
+    },
+    {
+      "slug": "happy-salmon",
+      "name": "Happy Salmon",
+      "status": "owned",
+      "players_min": 3,
+      "players_max": 8,
+      "play_time_min": 2,
+      "play_time_max": 2,
+      "bgg_rating": 6.7,
+      "bgg_weight": 1,
+      "category": "Party / Physical",
+      "summary": "Frantic 2-minute matching game with high-fives and fist-bumps. Icebreaker energy, not a 'game' game.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-21"
+    },
+    {
+      "slug": "monopoly-deal",
+      "name": "Monopoly Deal",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 5,
+      "play_time_min": 15,
+      "play_time_max": 15,
+      "bgg_rating": 6.7,
+      "bgg_weight": 1.1,
+      "category": "Card Filler",
+      "summary": "Quick Monopoly-themed card game. Outclassed by Scout and SSP but universally known — useful at pubs.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-22"
+    },
+    {
+      "slug": "scrabble",
+      "name": "Scrabble",
+      "status": "owned",
+      "players_min": 2,
+      "players_max": 4,
+      "play_time_min": 90,
+      "play_time_max": 90,
+      "bgg_rating": 6.2,
+      "bgg_weight": 2,
+      "category": "Word Game",
+      "summary": "Classic word game. Polarising — vocabulary-dependent. Keep for the word nerds.",
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-23"
+    },
+    {
+      "slug": "heat",
+      "name": "Heat",
+      "status": "buy",
+      "players_min": 1,
+      "players_max": 6,
+      "play_time_min": 45,
+      "play_time_max": 45,
+      "bgg_rating": 8.2,
+      "bgg_weight": 2.2,
+      "category": "Racing",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-24"
+    },
+    {
+      "slug": "clank-catacombs",
+      "name": "Clank!: Catacombs",
+      "status": "buy",
+      "players_min": 2,
+      "players_max": 4,
+      "play_time_min": 60,
+      "play_time_max": 60,
+      "bgg_rating": 8.2,
+      "bgg_weight": 2.5,
+      "category": "Deck-Build Adventure",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-25"
+    },
+    {
+      "slug": "quacks",
+      "name": "Quacks",
+      "status": "buy",
+      "players_min": 2,
+      "players_max": 4,
+      "play_time_min": 45,
+      "play_time_max": 45,
+      "bgg_rating": 7.9,
+      "bgg_weight": 1.9,
+      "category": "Bag Building",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-26"
+    },
+    {
+      "slug": "pandemic-iberia",
+      "name": "Pandemic Iberia",
+      "status": "buy",
+      "players_min": 2,
+      "players_max": 5,
+      "play_time_min": 60,
+      "play_time_max": 60,
+      "bgg_rating": 7.7,
+      "bgg_weight": 2.6,
+      "category": "Co-op Strategy",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-27"
+    },
+    {
+      "slug": "codenames",
+      "name": "Codenames",
+      "status": "buy",
+      "players_min": 4,
+      "players_max": null,
+      "play_time_min": 15,
+      "play_time_max": 15,
+      "bgg_rating": 7.6,
+      "bgg_weight": 1.3,
+      "category": "Team Party / Word",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-28"
+    },
+    {
+      "slug": "patchwork",
+      "name": "Patchwork",
+      "status": "buy",
+      "players_min": 2,
+      "players_max": 2,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.6,
+      "bgg_weight": 1.6,
+      "category": "2P Puzzle",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-29"
+    },
+    {
+      "slug": "long-shot",
+      "name": "Long Shot",
+      "status": "buy",
+      "players_min": 1,
+      "players_max": 8,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.5,
+      "bgg_weight": 1.8,
+      "category": "Roll-Write / Betting",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-30"
+    },
+    {
+      "slug": "dune-imperium",
+      "name": "Dune: Imperium",
+      "status": "buy",
+      "players_min": 1,
+      "players_max": 4,
+      "play_time_min": 90,
+      "play_time_max": 90,
+      "bgg_rating": 8.6,
+      "bgg_weight": 3,
+      "category": "Heavy Deck-Worker",
+      "summary": null,
+      "rationale": null,
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-31"
+    },
+    {
+      "slug": "bomb-busters",
+      "name": "Bomb Busters",
+      "status": "new_rec",
+      "players_min": 2,
+      "players_max": 5,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.7,
+      "bgg_weight": 2,
+      "category": "Co-op Deduction",
+      "summary": null,
+      "rationale": "SdJ 2025 winner. 66 wire-cutting co-op scenarios. Anti-quarterbacking — everyone contributes equally. Different from The Crew (deduction vs trick-taking).",
+      "verdict": "BUY",
+      "verdict_color": "#059669",
+      "id": "game-32"
+    },
+    {
+      "slug": "decrypto",
+      "name": "Decrypto",
+      "status": "new_rec",
+      "players_min": 3,
+      "players_max": 8,
+      "play_time_min": 30,
+      "play_time_max": 30,
+      "bgg_rating": 7.8,
+      "bgg_weight": 1.8,
+      "category": "Team Code / Word",
+      "summary": null,
+      "rationale": "Team code-cracking. Give coded clues your team decodes while opponents intercept. Plays ALONGSIDE Codenames — different skill. Higher ceiling, rewards repeat plays.",
+      "verdict": "BUY",
+      "verdict_color": "#059669",
+      "id": "game-33"
+    },
+    {
+      "slug": "cascadia",
+      "name": "Cascadia",
+      "status": "new_rec",
+      "players_min": 1,
+      "players_max": 4,
+      "play_time_min": 45,
+      "play_time_max": 45,
+      "bgg_rating": 7.7,
+      "bgg_weight": 1.8,
+      "category": "Tile-Laying Puzzle",
+      "summary": null,
+      "rationale": "SdJ 2022. Tile + token drafting with Pacific NW wildlife. Different from Harmonies (flat tile-laying vs 3D stacking). Great solo. Gateway-friendly.",
+      "verdict": "BUY",
+      "verdict_color": "#059669",
+      "id": "game-34"
+    },
+    {
+      "slug": "just-one",
+      "name": "Just One",
+      "status": "new_rec",
+      "players_min": 3,
+      "players_max": 7,
+      "play_time_min": 20,
+      "play_time_max": 20,
+      "bgg_rating": 7.5,
+      "bgg_weight": 1,
+      "category": "Co-op Party / Word",
+      "summary": null,
+      "rationale": "SdJ 2019. Everyone writes a one-word clue — duplicates cancel. You have competitive party games but ZERO co-op party games. Completely different social energy.",
+      "verdict": "BUY",
+      "verdict_color": "#059669",
+      "id": "game-35"
+    },
+    {
+      "slug": "libertalia",
+      "name": "Libertalia",
+      "status": "new_rec",
+      "players_min": 1,
+      "players_max": 6,
+      "play_time_min": 45,
+      "play_time_max": 45,
+      "bgg_rating": 7.8,
+      "bgg_weight": 2.2,
+      "category": "Simultaneous Selection",
+      "summary": null,
+      "rationale": "Everyone has identical character cards but plays differently. Resolution order creates delicious chaos. Nothing remotely like this in your collection.",
+      "verdict": "Strong consider",
+      "verdict_color": "#2563eb",
+      "id": "game-36"
+    },
+    {
+      "slug": "endeavor-deep-sea",
+      "name": "Endeavor: Deep Sea",
+      "status": "new_rec",
+      "players_min": 1,
+      "players_max": 5,
+      "play_time_min": 75,
+      "play_time_max": 75,
+      "bgg_rating": 8.3,
+      "bgg_weight": 2.8,
+      "category": "Strategy / Exploration",
+      "summary": null,
+      "rationale": "Kennerspiel 2025 winner. BGG 8.3 — highest-rated game under weight 3.0 you could add. Bridge between Phase 1 and Dune. Excellent solo.",
+      "verdict": "Strong consider",
+      "verdict_color": "#2563eb",
+      "id": "game-37"
+    },
+    {
+      "slug": "risk",
+      "name": "Risk",
+      "status": "cut",
+      "players_min": null,
+      "players_max": null,
+      "play_time_min": null,
+      "play_time_max": null,
+      "bgg_rating": 5.5,
+      "bgg_weight": null,
+      "category": null,
+      "summary": null,
+      "rationale": "Worst rated. Player elimination, 2+ hours.",
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-38"
+    },
+    {
+      "slug": "dumb-ways-to-die",
+      "name": "Dumb Ways to Die",
+      "status": "cut",
+      "players_min": null,
+      "players_max": null,
+      "play_time_min": null,
+      "play_time_max": null,
+      "bgg_rating": 6.2,
+      "bgg_weight": null,
+      "category": null,
+      "summary": null,
+      "rationale": "Low replay. Meme-based.",
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-39"
+    },
+    {
+      "slug": "uno-flip",
+      "name": "Uno Flip",
+      "status": "cut",
+      "players_min": null,
+      "players_max": null,
+      "play_time_min": null,
+      "play_time_max": null,
+      "bgg_rating": 6.3,
+      "bgg_weight": null,
+      "category": null,
+      "summary": null,
+      "rationale": "Sushi Go, Scout, SSP, Flip 7 all better.",
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-40"
+    },
+    {
+      "slug": "recipes-for-disaster",
+      "name": "Recipes for Disaster",
+      "status": "cut",
+      "players_min": null,
+      "players_max": null,
+      "play_time_min": null,
+      "play_time_max": null,
+      "bgg_rating": 6.5,
+      "bgg_weight": null,
+      "category": null,
+      "summary": null,
+      "rationale": "Scout and Sushi Go replace this.",
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-41"
+    },
+    {
+      "slug": "the-chameleon",
+      "name": "The Chameleon",
+      "status": "cut",
+      "players_min": null,
+      "players_max": null,
+      "play_time_min": null,
+      "play_time_max": null,
+      "bgg_rating": 6.5,
+      "bgg_weight": null,
+      "category": null,
+      "summary": null,
+      "rationale": "Secret Hitler + Avalon Quest cover this.",
+      "verdict": null,
+      "verdict_color": null,
+      "id": "game-42"
+    }
+  ],
+  "tags": [
+    {
+      "id": "two-player",
+      "slug": "two-player",
+      "label": "Two Player"
+    },
+    {
+      "id": "co-op",
+      "slug": "co-op",
+      "label": "Co Op"
+    },
+    {
+      "id": "filler",
+      "slug": "filler",
+      "label": "Filler"
+    },
+    {
+      "id": "quick",
+      "slug": "quick",
+      "label": "Quick"
+    },
+    {
+      "id": "medium-weight",
+      "slug": "medium-weight",
+      "label": "Medium Weight"
+    },
+    {
+      "id": "solo",
+      "slug": "solo",
+      "label": "Solo"
+    },
+    {
+      "id": "engine-building",
+      "slug": "engine-building",
+      "label": "Engine Building"
+    },
+    {
+      "id": "main-event",
+      "slug": "main-event",
+      "label": "Main Event"
+    },
+    {
+      "id": "trick-taking",
+      "slug": "trick-taking",
+      "label": "Trick Taking"
+    },
+    {
+      "id": "card-game",
+      "slug": "card-game",
+      "label": "Card Game"
+    },
+    {
+      "id": "light",
+      "slug": "light",
+      "label": "Light"
+    },
+    {
+      "id": "strategy",
+      "slug": "strategy",
+      "label": "Strategy"
+    },
+    {
+      "id": "spatial",
+      "slug": "spatial",
+      "label": "Spatial"
+    },
+    {
+      "id": "gateway",
+      "slug": "gateway",
+      "label": "Gateway"
+    },
+    {
+      "id": "party",
+      "slug": "party",
+      "label": "Party"
+    },
+    {
+      "id": "deduction",
+      "slug": "deduction",
+      "label": "Deduction"
+    },
+    {
+      "id": "social-deduction",
+      "slug": "social-deduction",
+      "label": "Social Deduction"
+    },
+    {
+      "id": "drafting",
+      "slug": "drafting",
+      "label": "Drafting"
+    },
+    {
+      "id": "set-collection",
+      "slug": "set-collection",
+      "label": "Set Collection"
+    },
+    {
+      "id": "push-your-luck",
+      "slug": "push-your-luck",
+      "label": "Push Your Luck"
+    },
+    {
+      "id": "drawing",
+      "slug": "drawing",
+      "label": "Drawing"
+    },
+    {
+      "id": "bluffing",
+      "slug": "bluffing",
+      "label": "Bluffing"
+    },
+    {
+      "id": "word",
+      "slug": "word",
+      "label": "Word"
+    },
+    {
+      "id": "racing",
+      "slug": "racing",
+      "label": "Racing"
+    },
+    {
+      "id": "deck-building",
+      "slug": "deck-building",
+      "label": "Deck Building"
+    },
+    {
+      "id": "adventure",
+      "slug": "adventure",
+      "label": "Adventure"
+    },
+    {
+      "id": "bag-building",
+      "slug": "bag-building",
+      "label": "Bag Building"
+    },
+    {
+      "id": "heavy",
+      "slug": "heavy",
+      "label": "Heavy"
+    },
+    {
+      "id": "betting",
+      "slug": "betting",
+      "label": "Betting"
+    },
+    {
+      "id": "tile-laying",
+      "slug": "tile-laying",
+      "label": "Tile Laying"
+    }
+  ],
+  "gameTags": [
+    {
+      "game_id": "game-1",
+      "tag_id": "two-player"
+    },
+    {
+      "game_id": "game-1",
+      "tag_id": "co-op"
+    },
+    {
+      "game_id": "game-1",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-1",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-1",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-2",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-2",
+      "tag_id": "engine-building"
+    },
+    {
+      "game_id": "game-2",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-2",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-3",
+      "tag_id": "co-op"
+    },
+    {
+      "game_id": "game-3",
+      "tag_id": "trick-taking"
+    },
+    {
+      "game_id": "game-3",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-3",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-3",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-4",
+      "tag_id": "card-game"
+    },
+    {
+      "game_id": "game-4",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-4",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-4",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-5",
+      "tag_id": "two-player"
+    },
+    {
+      "game_id": "game-5",
+      "tag_id": "strategy"
+    },
+    {
+      "game_id": "game-5",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-6",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-6",
+      "tag_id": "spatial"
+    },
+    {
+      "game_id": "game-6",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-7",
+      "tag_id": "gateway"
+    },
+    {
+      "game_id": "game-7",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-7",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-8",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-8",
+      "tag_id": "deduction"
+    },
+    {
+      "game_id": "game-8",
+      "tag_id": "social-deduction"
+    },
+    {
+      "game_id": "game-8",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-8",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-9",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-9",
+      "tag_id": "deduction"
+    },
+    {
+      "game_id": "game-9",
+      "tag_id": "social-deduction"
+    },
+    {
+      "game_id": "game-9",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-10",
+      "tag_id": "drafting"
+    },
+    {
+      "game_id": "game-10",
+      "tag_id": "card-game"
+    },
+    {
+      "game_id": "game-10",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-10",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-10",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-11",
+      "tag_id": "set-collection"
+    },
+    {
+      "game_id": "game-11",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-11",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-12",
+      "tag_id": "strategy"
+    },
+    {
+      "game_id": "game-12",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-13",
+      "tag_id": "push-your-luck"
+    },
+    {
+      "game_id": "game-13",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-13",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-13",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-14",
+      "tag_id": "deduction"
+    },
+    {
+      "game_id": "game-14",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-14",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-14",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-15",
+      "tag_id": "drawing"
+    },
+    {
+      "game_id": "game-15",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-15",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-16",
+      "tag_id": "gateway"
+    },
+    {
+      "game_id": "game-16",
+      "tag_id": "strategy"
+    },
+    {
+      "game_id": "game-16",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-16",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-17",
+      "tag_id": "two-player"
+    },
+    {
+      "game_id": "game-17",
+      "tag_id": "card-game"
+    },
+    {
+      "game_id": "game-17",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-18",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-18",
+      "tag_id": "drawing"
+    },
+    {
+      "game_id": "game-18",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-18",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-18",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-19",
+      "tag_id": "bluffing"
+    },
+    {
+      "game_id": "game-19",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-19",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-19",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-20",
+      "tag_id": "bluffing"
+    },
+    {
+      "game_id": "game-20",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-20",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-20",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-21",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-21",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-21",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-21",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-22",
+      "tag_id": "card-game"
+    },
+    {
+      "game_id": "game-22",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-22",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-22",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-23",
+      "tag_id": "word"
+    },
+    {
+      "game_id": "game-23",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-23",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-24",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-24",
+      "tag_id": "racing"
+    },
+    {
+      "game_id": "game-24",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-24",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-25",
+      "tag_id": "deck-building"
+    },
+    {
+      "game_id": "game-25",
+      "tag_id": "adventure"
+    },
+    {
+      "game_id": "game-25",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-25",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-26",
+      "tag_id": "bag-building"
+    },
+    {
+      "game_id": "game-26",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-26",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-27",
+      "tag_id": "co-op"
+    },
+    {
+      "game_id": "game-27",
+      "tag_id": "strategy"
+    },
+    {
+      "game_id": "game-27",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-27",
+      "tag_id": "heavy"
+    },
+    {
+      "game_id": "game-28",
+      "tag_id": "word"
+    },
+    {
+      "game_id": "game-28",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-28",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-28",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-28",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-29",
+      "tag_id": "two-player"
+    },
+    {
+      "game_id": "game-29",
+      "tag_id": "spatial"
+    },
+    {
+      "game_id": "game-29",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-30",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-30",
+      "tag_id": "betting"
+    },
+    {
+      "game_id": "game-30",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-31",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-31",
+      "tag_id": "deck-building"
+    },
+    {
+      "game_id": "game-31",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-31",
+      "tag_id": "heavy"
+    },
+    {
+      "game_id": "game-32",
+      "tag_id": "co-op"
+    },
+    {
+      "game_id": "game-32",
+      "tag_id": "deduction"
+    },
+    {
+      "game_id": "game-32",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-33",
+      "tag_id": "word"
+    },
+    {
+      "game_id": "game-33",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-34",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-34",
+      "tag_id": "tile-laying"
+    },
+    {
+      "game_id": "game-34",
+      "tag_id": "spatial"
+    },
+    {
+      "game_id": "game-34",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-34",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-35",
+      "tag_id": "co-op"
+    },
+    {
+      "game_id": "game-35",
+      "tag_id": "word"
+    },
+    {
+      "game_id": "game-35",
+      "tag_id": "party"
+    },
+    {
+      "game_id": "game-35",
+      "tag_id": "filler"
+    },
+    {
+      "game_id": "game-35",
+      "tag_id": "quick"
+    },
+    {
+      "game_id": "game-35",
+      "tag_id": "light"
+    },
+    {
+      "game_id": "game-36",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-36",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-36",
+      "tag_id": "medium-weight"
+    },
+    {
+      "game_id": "game-37",
+      "tag_id": "solo"
+    },
+    {
+      "game_id": "game-37",
+      "tag_id": "strategy"
+    },
+    {
+      "game_id": "game-37",
+      "tag_id": "main-event"
+    },
+    {
+      "game_id": "game-37",
+      "tag_id": "heavy"
+    }
+  ]
+}

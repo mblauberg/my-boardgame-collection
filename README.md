@@ -99,6 +99,27 @@ The schema already models:
 - `game_tags`
 - owner-aware helper functions and RLS policies
 
+### Migrating Legacy Data
+
+To import the legacy collection data from `board-game-collection.jsx`:
+
+1. Generate the seed data:
+   ```bash
+   npm run migrate:generate
+   ```
+   This creates `scripts/output/seed-data.json` with normalized games, tags, and relationships.
+
+2. Import to Supabase (requires `.env.local` with Supabase credentials):
+   ```bash
+   npm run migrate:import
+   ```
+
+The migration pipeline:
+- Extracts arrays from the legacy JSX file
+- Normalizes player counts, time, status, and metadata
+- Derives tags from categories and game attributes
+- Generates deterministic JSON suitable for import
+
 ## Project Structure
 
 ```text
@@ -136,6 +157,8 @@ Key files:
 - `npm run typecheck`: run TypeScript checks
 - `npm run test`: run Vitest in watch mode
 - `npm run test:run`: run Vitest once
+- `npm run migrate:generate`: generate seed data from legacy file
+- `npm run migrate:import`: import seed data to Supabase (requires env vars)
 
 ## Plans
 
