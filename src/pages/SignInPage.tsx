@@ -1,17 +1,15 @@
-import { PlaceholderPage } from "../components/ui/PlaceholderPage";
+import { SignInForm } from "../features/auth/SignInForm";
 
 export function SignInPage() {
   return (
-    <PlaceholderPage
-      eyebrow="Owner Access"
-      title="Magic-link sign in"
-      description="Owner authentication will use Supabase Auth with a single editor profile and row-level security enforcing private writes."
-      highlights={[
-        "Wire a magic-link form with client-side validation.",
-        "Resolve session and profile role state on load.",
-        "Redirect non-owners away from admin routes and protected mutations.",
-      ]}
-      footer="Execution details live in docs/plans/auth-and-owner-access.md."
-    />
+    <div className="mx-auto max-w-md py-12 px-4">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
+        <p className="mt-2 text-sm text-gray-600">
+          Enter your email to receive a magic link
+        </p>
+      </div>
+      <SignInForm />
+    </div>
   );
 }

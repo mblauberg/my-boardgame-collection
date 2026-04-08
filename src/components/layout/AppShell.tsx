@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { NavLink } from "react-router-dom";
 import { appRouteDefinitions } from "../../app/router/routes";
+import { useProfile } from "../../features/auth/useProfile";
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {
   return [
@@ -12,7 +13,12 @@ function navLinkClassName({ isActive }: { isActive: boolean }) {
 }
 
 export function AppShell({ children }: PropsWithChildren) {
-  const navigationItems = appRouteDefinitions.filter((route) => route.showInNav);
+  const { isOwner } = useProfile();
+  const navigationItems = appRouteDefinitions.filter((route) => {
+    if (!route.showInNav) return false;
+    if (route.requiresOwner && !isOwner) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-parchment text-ink">
