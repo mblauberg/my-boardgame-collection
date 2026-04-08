@@ -1,34 +1,20 @@
 # Board Game Collection
 
-Personal board game collection app scaffolded for a public-read, private-edit workflow.
+Personal board game collection app for a public-read, private-edit workflow.
 
-The target product is a Vite + React + TypeScript site deployed on Vercel, backed by Supabase for data, authentication, and row-level security. This repository now contains the initial project structure, shared app foundation, and detailed execution plans for the larger product features.
+The app is built with Vite, React, TypeScript, and Supabase. It now includes live collection browsing, game detail pages, owner auth and admin tools, a ranked buy list, recommendations, scenarios, legacy-data migration scripts, and owner-triggered BoardGameGeek metadata refresh.
 
-## Current Status
+## Features
 
-- Vite + React + TypeScript scaffold in place
-- Tailwind, React Router, TanStack Query, Supabase client, and testing baseline added
-- Scenario configuration moved into the app structure
-- Larger feature work broken into executable plans under `docs/plans/`
-
-What is not built yet:
-
-- live Supabase queries
-- owner auth flow
-- admin CRUD
-- migration/import tooling
-- buy order, recommendations, and scenarios UI
-- BGG refresh integration
-
-## Product Direction
-
-The app is intended to support:
-
-- public browsing of the collection
-- private editing by a single owner account
-- data-driven filters, tags, and scenarios
-- editable buy list and recommendations
-- Supabase-backed persistence rather than hard-coded arrays
+- public collection browsing with filtering, sorting, and shareable URL state
+- game detail pages with metadata, notes, tags, and BoardGameGeek links
+- owner-only magic-link auth and protected admin route
+- admin CRUD for games and tags
+- buy-order workflow with priority editing and quick status changes
+- recommendations workflow with owner editing and promotion actions
+- scenarios page driven by preset rules instead of hard-coded lists
+- BGG metadata refresh for owner-managed games
+- deterministic legacy-data seed generation and import scripts
 
 ## Tech Stack
 
@@ -58,23 +44,42 @@ Copy `.env.example` to `.env.local` and fill in:
 ```bash
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-Only public browser-safe Supabase values belong here. Do not expose a service role key.
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are used by the browser app.
 
-### 3. Run the app
+`SUPABASE_SERVICE_ROLE_KEY` is only for local import scripts such as `npm run migrate:import`. Do not expose that key in client code or deployments that do not need server-side seed access.
+
+### 3. Apply the schema and seed data
+
+```bash
+npm run migrate:generate
+npm run migrate:import
+```
+
+The import script expects:
+
+- `schema.sql` already applied to the target Supabase project
+- `SUPABASE_SERVICE_ROLE_KEY` present in your local environment
+
+### 4. Promote your owner account
+
+After signing in once, update the matching row in `public.profiles` to `role = 'owner'`. The SQL snippet is included at the bottom of [`schema.sql`](./schema.sql).
+
+### 5. Run the app
 
 ```bash
 npm run dev
 ```
 
-### 4. Run tests
+### 6. Run tests
 
 ```bash
 npm run test:run
 ```
 
-### 5. Build for production
+### 7. Build for production
 
 ```bash
 npm run build
@@ -88,8 +93,9 @@ Recommended setup:
 
 1. Create a Supabase project.
 2. Apply `schema.sql` in the SQL editor or through migrations.
-3. Add the project URL and anon key to `.env.local`.
-4. Follow the auth/access implementation plan before relying on owner-only workflows.
+3. Add the project URL, anon key, and service role key to `.env.local`.
+4. Generate and import the seed data.
+5. Sign in once and promote the owner profile manually.
 
 The schema already models:
 
@@ -104,17 +110,20 @@ The schema already models:
 To import the legacy collection data from `board-game-collection.jsx`:
 
 1. Generate the seed data:
+
    ```bash
    npm run migrate:generate
    ```
+
    This creates `scripts/output/seed-data.json` with normalized games, tags, and relationships.
 
-2. Import to Supabase (requires `.env.local` with Supabase credentials):
+2. Import to Supabase with a service-role key:
    ```bash
    npm run migrate:import
    ```
 
 The migration pipeline:
+
 - Extracts arrays from the legacy JSX file
 - Normalizes player counts, time, status, and metadata
 - Derives tags from categories and game attributes
@@ -126,7 +135,6 @@ The migration pipeline:
 .
 ├── board-game-collection.jsx
 ├── docs/
-│   ├── plans/
 │   └── specs/
 ├── schema.sql
 ├── scripts/
@@ -147,7 +155,7 @@ Key files:
 - `board-game-collection.jsx`: legacy source data and historical scenario references
 - `src/config/scenarioPresets.ts`: config-driven scenario matching logic
 - `docs/specs/2026-04-08-project-initialization-design.md`: initialization design record
-- `docs/plans/`: deferred implementation plans for larger features
+- `scripts/output/seed-data.json`: generated seed payload for Supabase imports
 
 ## Available Scripts
 
@@ -158,24 +166,19 @@ Key files:
 - `npm run test`: run Vitest in watch mode
 - `npm run test:run`: run Vitest once
 - `npm run migrate:generate`: generate seed data from legacy file
-- `npm run migrate:import`: import seed data to Supabase (requires env vars)
+- `npm run migrate:import`: import seed data to Supabase with `SUPABASE_SERVICE_ROLE_KEY`
 
-## Plans
+## Verification
 
-Larger features are intentionally deferred into execution-ready plans:
+The current repository passes:
 
-- [`docs/plans/legacy-data-migration.md`](./docs/plans/legacy-data-migration.md)
-- [`docs/plans/auth-and-owner-access.md`](./docs/plans/auth-and-owner-access.md)
-- [`docs/plans/collection-and-game-detail.md`](./docs/plans/collection-and-game-detail.md)
-- [`docs/plans/admin-crud-and-tags.md`](./docs/plans/admin-crud-and-tags.md)
-- [`docs/plans/buy-order-workflow.md`](./docs/plans/buy-order-workflow.md)
-- [`docs/plans/recommendations-workflow.md`](./docs/plans/recommendations-workflow.md)
-- [`docs/plans/scenarios-page.md`](./docs/plans/scenarios-page.md)
-- [`docs/plans/bgg-metadata-refresh.md`](./docs/plans/bgg-metadata-refresh.md)
+- `npm run test:run`
+- `npm run typecheck`
+- `npm run build`
 
 ## Notes On Legacy Data
 
-`board-game-collection.jsx` is still in the repo because it is the migration source for the future seed/import workflow. It should not become a runtime data source again.
+`board-game-collection.jsx` stays in the repo as a migration source only. It should not become a runtime data source again.
 
 ## Deployment Target
 
@@ -183,7 +186,3 @@ The intended host is Vercel with the default Vite build:
 
 - build command: `npm run build`
 - output directory: `dist`
-
-## Next Recommended Step
-
-Start with one of the plan documents in `docs/plans/` and execute it against the current scaffold. The best first feature slice is usually auth and owner access, followed by collection queries and the game detail page.

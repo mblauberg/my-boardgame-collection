@@ -6,6 +6,7 @@ import { GameDetailPage } from "../../pages/GameDetailPage";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { RecommendationsPage } from "../../pages/RecommendationsPage";
 import { ScenariosPage } from "../../pages/ScenariosPage";
+import { AuthCallbackPage } from "../../pages/AuthCallbackPage";
 import { SignInPage } from "../../pages/SignInPage";
 import { RequireOwner } from "../../features/auth/RequireOwner";
 
@@ -23,6 +24,7 @@ export const appRouteDefinitions: AppRouteDefinition[] = [
   { path: "/buy-order", label: "Buy Order", showInNav: true },
   { path: "/recommendations", label: "Recommendations", showInNav: true },
   { path: "/signin", label: "Sign In", showInNav: false },
+  { path: "/auth/callback", label: "Auth Callback", showInNav: false },
   { path: "/admin", label: "Admin", showInNav: true, requiresOwner: true },
 ];
 
@@ -35,6 +37,7 @@ export function AppRoutes() {
       <Route path="/buy-order" element={<BuyOrderPage />} />
       <Route path="/recommendations" element={<RecommendationsPage />} />
       <Route path="/signin" element={<SignInPage />} />
+      <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route
         path="/admin"
         element={

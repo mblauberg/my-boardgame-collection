@@ -3,6 +3,7 @@ import { useCollectionFilters } from "../features/games/useCollectionFilters";
 import { filterGames, sortGames } from "../features/games/collectionFilters";
 import { CollectionToolbar } from "../components/games/CollectionToolbar";
 import { GameList } from "../components/games/GameList";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function CollectionPage() {
   const { data: games, isLoading, error } = useGamesQuery();
@@ -13,7 +14,12 @@ export function CollectionPage() {
   }
 
   if (error) {
-    return <div className="p-8 text-center text-red-600">Error loading games</div>;
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+        <p className="text-lg font-semibold">Collection unavailable</p>
+        <p className="mt-2 text-sm leading-6">{getSupabaseQueryErrorMessage(error, "collection")}</p>
+      </div>
+    );
   }
 
   const filteredGames = games ? filterGames(games, filters) : [];

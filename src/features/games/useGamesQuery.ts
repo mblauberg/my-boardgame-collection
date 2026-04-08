@@ -4,6 +4,7 @@ import { mapGameRecord } from "./gameMappers";
 import { gamesKeys } from "./gamesKeys";
 import type { GameWithTags, GameRow } from "./games.types";
 import type { Database } from "../../types/database";
+import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
 
 type GameTagJoin = {
   game_id: string;
@@ -14,6 +15,7 @@ type GameTagJoin = {
 export function useGamesQuery() {
   return useQuery({
     queryKey: gamesKeys.list({}),
+    retry: shouldRetrySupabaseQuery,
     queryFn: async () => {
       const supabase = getSupabaseBrowserClient();
 

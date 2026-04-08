@@ -3,9 +3,9 @@ import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { authKeys } from "./authKeys";
 import { useSession } from "./useSession";
 import type { ProfileState, Profile } from "./auth.types";
+import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
 
 export function useProfile(): ProfileState {
-  const supabase = getSupabaseBrowserClient();
   const { user, isAuthenticated, isLoading: sessionLoading } = useSession();
 
   const {
@@ -14,9 +14,11 @@ export function useProfile(): ProfileState {
     error,
   } = useQuery({
     queryKey: authKeys.profile(user?.id),
+    retry: shouldRetrySupabaseQuery,
     queryFn: async () => {
       if (!user?.id) return null;
 
+      const supabase = getSupabaseBrowserClient();
       const { data, error } = await supabase
         .from("profiles")
         .select("*")

@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useGameDetailQuery } from "../features/games/useGameDetailQuery";
 import { GameDetailPanel } from "../components/games/GameDetailPanel";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,9 +17,13 @@ export function GameDetailPage() {
   }
 
   if (error || !game) {
+    const message = error
+      ? getSupabaseQueryErrorMessage(error, "game detail")
+      : "Game not found";
+
     return (
       <div className="p-8 text-center">
-        <p className="text-red-600 mb-4">Game not found</p>
+        <p className="text-red-600 mb-4">{message}</p>
         <Link to="/" className="text-blue-600 hover:underline">
           Back to collection
         </Link>

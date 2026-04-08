@@ -1,6 +1,7 @@
 import { useGamesQuery } from '../features/games/useGamesQuery';
 import { buildScenarioPresetResults } from '../features/scenarios/scenarioMappers';
 import { ScenarioAccordion } from '../components/scenarios/ScenarioAccordion';
+import { getSupabaseQueryErrorMessage } from '../lib/supabase/runtimeErrors';
 
 export function ScenariosPage() {
   const { data: games, isLoading, error } = useGamesQuery();
@@ -15,8 +16,9 @@ export function ScenariosPage() {
 
   if (error) {
     return (
-      <div className="p-8">
-        <p className="text-red-600">Error loading scenarios: {error.message}</p>
+      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+        <p className="text-lg font-semibold">Scenarios unavailable</p>
+        <p className="mt-2 text-sm leading-6">{getSupabaseQueryErrorMessage(error, "scenarios page")}</p>
       </div>
     );
   }

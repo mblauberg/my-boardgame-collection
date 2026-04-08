@@ -42,38 +42,6 @@ begin
 end;
 $$;
 
-create or replace function public.is_owner()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role = 'owner'
-  );
-$$;
-
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  insert into public.profiles (id, email, role)
-  values (new.id, new.email, 'viewer')
-  on conflict (id) do update
-    set email = excluded.email,
-        updated_at = now();
-
-  return new;
-end;
-$$;
-
 -- -----------------------------------------------------------------------------
 -- Tables
 -- -----------------------------------------------------------------------------
@@ -144,6 +112,42 @@ create table if not exists public.game_tags (
   created_at timestamptz not null default now(),
   primary key (game_id, tag_id)
 );
+
+-- -----------------------------------------------------------------------------
+-- Auth-aware functions
+-- -----------------------------------------------------------------------------
+
+create or replace function public.is_owner()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'owner'
+  );
+$$;
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, role)
+  values (new.id, new.email, 'viewer')
+  on conflict (id) do update
+    set email = excluded.email,
+        updated_at = now();
+
+  return new;
+end;
+$$;
 
 -- -----------------------------------------------------------------------------
 -- Indexes

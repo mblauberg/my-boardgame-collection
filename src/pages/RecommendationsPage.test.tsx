@@ -41,7 +41,8 @@ describe("RecommendationsPage", () => {
       error: new Error("Failed"),
     });
     render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.getByText(/error/i)).toBeInTheDocument();
+    expect(screen.getByText(/recommendations unavailable/i)).toBeInTheDocument();
+    expect(screen.getByText(/supabase configuration/i)).toBeInTheDocument();
   });
 
   it("shows empty state when no recommendations", () => {

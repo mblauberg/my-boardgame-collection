@@ -7,6 +7,7 @@ import { RecommendationList } from "../components/recommendations/Recommendation
 import { RecommendationEditor } from "../components/recommendations/RecommendationEditor";
 import type { Game, GameStatus } from "../types/domain";
 import type { RecommendationEditorValues } from "../features/recommendations/recommendationEditorSchema";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function RecommendationsPage() {
   const { data: games, isLoading, error } = useGamesQuery();
@@ -15,7 +16,16 @@ export function RecommendationsPage() {
   const [editing, setEditing] = useState<Game | null>(null);
 
   if (isLoading) return <p className="p-6">Loading…</p>;
-  if (error) return <p className="p-6 text-red-600">Error loading recommendations.</p>;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl rounded-3xl border border-red-200 bg-red-50/80 p-6 text-center text-red-900">
+        <p className="text-lg font-semibold">Recommendations unavailable</p>
+        <p className="mt-2 text-sm leading-6">
+          {getSupabaseQueryErrorMessage(error, "recommendations view")}
+        </p>
+      </div>
+    );
+  }
 
   const recommendations = selectRecommendations(games ?? []);
 

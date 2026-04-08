@@ -3,10 +3,12 @@ import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { mapTag } from "../games/gameMappers";
 import { tagsKeys } from "./tagsKeys";
 import type { TagRow } from "../games/games.types";
+import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
 
 export function useTagsQuery() {
   return useQuery({
     queryKey: tagsKeys.list(),
+    retry: shouldRetrySupabaseQuery,
     queryFn: async () => {
       const supabase = getSupabaseBrowserClient();
 

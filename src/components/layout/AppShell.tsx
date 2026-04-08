@@ -41,9 +41,11 @@ export function AppShell({ children }: PropsWithChildren) {
             </div>
 
             <div className="rounded-[1.5rem] border border-gold/40 bg-gold/10 px-4 py-3 text-sm">
-              <p className="font-semibold text-ink">Initialization status</p>
+              <p className="font-semibold text-ink">Project status</p>
               <p className="mt-1 text-ink/70">
-                Project scaffolded. Feature delivery is tracked in `docs/plans/`.
+                Collection, admin, buy-order, recommendations, scenarios, auth, and BGG refresh
+                are implemented. Local browsing still depends on a Supabase project with
+                `schema.sql` applied and seed data imported.
               </p>
             </div>
           </div>

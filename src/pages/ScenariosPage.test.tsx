@@ -66,7 +66,8 @@ describe('ScenariosPage', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText(/Error loading scenarios/i)).toBeInTheDocument();
+    expect(screen.getByText(/scenarios unavailable/i)).toBeInTheDocument();
+    expect(screen.getByText(/supabase configuration/i)).toBeInTheDocument();
   });
 
   it('renders scenarios with matched games', () => {

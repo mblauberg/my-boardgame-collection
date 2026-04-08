@@ -78,7 +78,8 @@ describe("BuyOrderPage", () => {
   it("shows error state", () => {
     vi.mocked(useGamesQuery).mockReturnValue({ data: undefined, isLoading: false, error: new Error("fail") } as any);
     render(<BuyOrderPage />);
-    expect(screen.getByText(/error/i)).toBeInTheDocument();
+    expect(screen.getByText(/buy order unavailable/i)).toBeInTheDocument();
+    expect(screen.getByText(/supabase configuration/i)).toBeInTheDocument();
   });
 
   it("shows empty state when no buy items", () => {

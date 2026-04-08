@@ -5,6 +5,7 @@ import { selectBuyOrder } from "../features/games/buyOrderSelectors";
 import { summarizeBuyGaps } from "../features/games/buyGapSummary";
 import { BuyOrderList } from "../components/games/BuyOrderList";
 import type { GameStatus } from "../types/domain";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function BuyOrderPage() {
   const { data: games, isLoading, error } = useGamesQuery();
@@ -12,7 +13,14 @@ export function BuyOrderPage() {
   const updateGame = useUpdateGame();
 
   if (isLoading) return <p className="p-8 text-center">Loading...</p>;
-  if (error) return <p className="p-8 text-center text-red-600">Error loading games.</p>;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-2xl rounded-3xl border border-red-200 bg-red-50/80 p-6 text-center text-red-900">
+        <p className="text-lg font-semibold">Buy order unavailable</p>
+        <p className="mt-2 text-sm leading-6">{getSupabaseQueryErrorMessage(error, "buy order")}</p>
+      </div>
+    );
+  }
 
   const buyItems = selectBuyOrder(games ?? []);
   const summary = summarizeBuyGaps({ games: games ?? [] });
