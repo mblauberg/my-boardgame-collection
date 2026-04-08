@@ -1,43 +1,42 @@
-import { GameCard } from "../components/ui/GameCard";
-import { CategoryChip } from "../components/ui/CategoryChip";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
+import { ExploreShelf } from "../components/library/ExploreShelf";
+import { useExploreQuery } from "../features/library/useExploreQuery";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function ExplorePage() {
+  const { data, isLoading, error } = useExploreQuery();
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Loading explore shelves...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+        <p className="text-lg font-semibold">Explore unavailable</p>
+        <p className="mt-2 text-sm leading-6">
+          {getSupabaseQueryErrorMessage(error, "explore")}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
-      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-2">Discovery</p>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface max-w-2xl">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            Discovery
+          </p>
+          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-on-surface md:text-7xl">
             Find Your Next <span className="text-primary">Obsession</span>
           </h1>
         </div>
       </header>
 
-      <section className="mb-16">
-        <h2 className="text-3xl font-extrabold mb-8 flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
-          For You
-        </h2>
-        <div className="editorial-grid">
-          <GameCard 
-            title="Dune: Imperium"
-            description="Deck-building and worker placement in the legendary sci-fi universe."
-            players="1-4 Players"
-            playTime="60-120 Min"
-            weight="3.0"
-            isFavorite={false}
-          />
-          <GameCard 
-            title="Ark Nova"
-            description="Plan, design, and build a modern, scientifically managed zoo."
-            players="1-4 Players"
-            playTime="90-150 Min"
-            weight="3.7"
-            isFavorite={false}
-          />
-        </div>
-      </section>
+      {data?.shelves.map((shelf) => (
+        <ExploreShelf key={shelf.id} title={shelf.title} entries={shelf.entries} />
+      ))}
 
       <FloatingActionButton />
     </>

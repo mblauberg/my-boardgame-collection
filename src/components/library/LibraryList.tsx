@@ -7,6 +7,7 @@ type LibraryListProps = {
   entries: LibraryEntry[];
   onMoveToCollection?: (entryId: string) => void;
   isMovePending?: boolean;
+  getGameLinkState?: (entry: LibraryEntry) => unknown;
 };
 
 function formatPlayers(entry: LibraryEntry) {
@@ -23,6 +24,7 @@ export function LibraryList({
   entries,
   onMoveToCollection,
   isMovePending = false,
+  getGameLinkState,
 }: LibraryListProps) {
   if (entries.length === 0) {
     return (
@@ -36,7 +38,11 @@ export function LibraryList({
     <div className="editorial-grid">
       {entries.map((entry) => (
         <article key={entry.id} className="space-y-4">
-          <Link aria-label={entry.game.name} to={`/game/${entry.game.slug}`}>
+          <Link
+            aria-label={entry.game.name}
+            state={getGameLinkState ? getGameLinkState(entry) : undefined}
+            to={`/game/${entry.game.slug}`}
+          >
             <GameCard
               title={entry.game.name}
               image={entry.game.imageUrl ?? undefined}

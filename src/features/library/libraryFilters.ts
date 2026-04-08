@@ -10,6 +10,9 @@ export type LibraryFilters = {
   maxWeight?: number | null;
 };
 
+export type LibrarySortOption = "name" | "rating" | "weight" | "year" | "priority";
+export type LibrarySortDirection = "asc" | "desc";
+
 export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFilters) {
   const searchText = filters.searchText?.trim().toLowerCase();
 
@@ -70,4 +73,31 @@ export function moveEntryToCollection(entry: LibraryEntry): LibraryEntry {
     ...entry,
     listType: "collection",
   };
+}
+
+export function sortLibraryEntries(
+  entries: LibraryEntry[],
+  sortBy: LibrarySortOption,
+  direction: LibrarySortDirection,
+) {
+  const sorted = [...entries].sort((left, right) => {
+    const multiplier = direction === "asc" ? 1 : -1;
+
+    switch (sortBy) {
+      case "name":
+        return multiplier * left.game.name.localeCompare(right.game.name);
+      case "rating":
+        return multiplier * ((left.game.bggRating ?? -1) - (right.game.bggRating ?? -1));
+      case "weight":
+        return multiplier * ((left.game.bggWeight ?? -1) - (right.game.bggWeight ?? -1));
+      case "year":
+        return multiplier * ((left.game.publishedYear ?? -1) - (right.game.publishedYear ?? -1));
+      case "priority":
+        return multiplier * ((left.priority ?? Number.MAX_SAFE_INTEGER) - (right.priority ?? Number.MAX_SAFE_INTEGER));
+      default:
+        return 0;
+    }
+  });
+
+  return sorted;
 }
