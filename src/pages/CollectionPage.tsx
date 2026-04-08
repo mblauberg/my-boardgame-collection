@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { LibraryList } from "../components/library/LibraryList";
 import { LibraryToolbar } from "../components/library/LibraryToolbar";
@@ -7,6 +9,7 @@ import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function CollectionPage() {
+  const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const { data: entries, isLoading, error } = useCollectionQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
@@ -52,7 +55,12 @@ export function CollectionPage() {
       />
 
       <LibraryList entries={sortedEntries} getGameLinkState={() => ({ from: "/" })} />
-      <FloatingActionButton />
+      <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
+      <AddGameWizardOverlay
+        isOpen={isAddGameOpen}
+        defaultListType="collection"
+        onClose={() => setIsAddGameOpen(false)}
+      />
     </>
   );
 }

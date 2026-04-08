@@ -305,6 +305,7 @@ export type Database = {
           p_summary?: string | null;
           p_list_type?: "collection" | "wishlist";
           p_sentiment?: "like" | "dislike" | "neutral" | null;
+          p_notes?: string | null;
         };
         Returns: Database["public"]["Tables"]["library_entries"]["Row"];
       };

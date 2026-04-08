@@ -46,11 +46,14 @@ Copy `.env.example` to `.env.local` and fill in:
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
+BGG_APPLICATION_TOKEN=...
 ```
 
 `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are used by the browser app.
 
 `SUPABASE_SERVICE_ROLE_KEY` is only for local import scripts such as `npm run migrate:import`. Do not expose that key in client code or deployments that do not need server-side seed access.
+
+`BGG_APPLICATION_TOKEN` is used by the local `/api/bgg-search` proxy and any server-side BoardGameGeek XML API access. BoardGameGeek now requires an approved application token on XML API requests.
 
 ### 3. Apply the schema and seed data
 

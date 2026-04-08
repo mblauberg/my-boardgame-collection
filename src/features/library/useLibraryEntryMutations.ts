@@ -48,6 +48,9 @@ type BggSelectedGame = {
 type SaveBggGameInput = {
   userId: string;
   selectedGame: BggSelectedGame;
+  listType: LibraryListType;
+  sentiment?: LibrarySentiment;
+  notes?: string | null;
 };
 
 function slugify(input: string) {
@@ -170,11 +173,11 @@ export function useDeleteLibraryEntry() {
   });
 }
 
-export function useSaveBggGameToWishlist() {
+export function useSaveBggGameToLibrary() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, selectedGame }: SaveBggGameInput) => {
+    mutationFn: async ({ userId, selectedGame, listType, sentiment, notes }: SaveBggGameInput) => {
       const supabase = getSupabaseBrowserClient();
       const { data, error } = await supabase.rpc("save_bgg_game_for_user", {
         p_user_id: userId,
@@ -191,8 +194,9 @@ export function useSaveBggGameToWishlist() {
         p_bgg_rating: selectedGame.averageRating,
         p_bgg_weight: selectedGame.averageWeight,
         p_summary: selectedGame.summary,
-        p_list_type: "wishlist",
-        p_sentiment: null,
+        p_list_type: listType,
+        p_sentiment: sentiment ?? null,
+        p_notes: notes ?? null,
       });
 
       if (error) throw error;

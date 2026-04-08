@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { LibraryList } from "../components/library/LibraryList";
 import { LibraryToolbar } from "../components/library/LibraryToolbar";
@@ -8,6 +10,7 @@ import { useWishlistQuery } from "../features/library/useWishlistQuery";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function WishlistPage() {
+  const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const { data: entries, isLoading, error } = useWishlistQuery();
   const moveToCollection = useMoveWishlistToCollection();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
@@ -67,7 +70,12 @@ export function WishlistPage() {
           });
         }}
       />
-      <FloatingActionButton />
+      <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
+      <AddGameWizardOverlay
+        isOpen={isAddGameOpen}
+        defaultListType="wishlist"
+        onClose={() => setIsAddGameOpen(false)}
+      />
     </>
   );
 }
