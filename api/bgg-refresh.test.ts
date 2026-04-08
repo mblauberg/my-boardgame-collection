@@ -117,6 +117,7 @@ describe("createBggRefreshHandler", () => {
         bgg_rating: 8.2,
         bgg_weight: 2.4,
         published_year: 2015,
+        image_url: null,
       },
     });
     expect(supabase.update).toHaveBeenCalledWith({
@@ -125,6 +126,7 @@ describe("createBggRefreshHandler", () => {
       bgg_rating: 8.2,
       bgg_weight: 2.4,
       published_year: 2015,
+      image_url: null,
     });
   });
 });

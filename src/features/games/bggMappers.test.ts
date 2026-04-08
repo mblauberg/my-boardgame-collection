@@ -6,6 +6,7 @@ describe("bggMappers", () => {
   it("normalizes a remote BGG payload into safe game metadata fields", () => {
     const payload: BggThing = {
       id: 174430,
+      imageUrl: null,
       stats: {
         averageRating: 8.19241,
         averageWeight: 2.37654,
@@ -19,6 +20,7 @@ describe("bggMappers", () => {
       bgg_rating: 8.2,
       bgg_weight: 2.4,
       published_year: 2015,
+      image_url: null,
     });
   });
 });
