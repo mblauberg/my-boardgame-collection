@@ -4,6 +4,10 @@ export interface Profile {
   id: string;
   email: string | null;
   role: "owner" | "viewer";
+  username: string | null;
+  is_profile_public: boolean;
+  is_collection_public: boolean;
+  is_wishlist_public: boolean;
   created_at: string;
   updated_at: string;
 }
