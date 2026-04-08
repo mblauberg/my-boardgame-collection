@@ -11,6 +11,7 @@ import { ScenariosPage } from "../../pages/ScenariosPage";
 import { PublicProfilePage } from "../../pages/PublicProfilePage";
 import { PublicCollectionPage } from "../../pages/PublicCollectionPage";
 import { PublicWishlistPage } from "../../pages/PublicWishlistPage";
+import { AccountSettingsPage } from "../../pages/AccountSettingsPage";
 import { RequireOwner } from "../../features/auth/RequireOwner";
 
 export type AppRouteDefinition = {
@@ -29,6 +30,7 @@ export const appRouteDefinitions: AppRouteDefinition[] = [
   { path: "/signin", label: "Sign In", showInNav: false },
   { path: "/auth/callback", label: "Auth Callback", showInNav: false },
   { path: "/admin", label: "Admin", showInNav: true, requiresOwner: true },
+  { path: "/settings", label: "Settings", showInNav: false },
   { path: "/u/:username", label: "Profile", showInNav: false },
   { path: "/u/:username/collection", label: "Public Collection", showInNav: false },
   { path: "/u/:username/wishlist", label: "Public Wishlist", showInNav: false },
@@ -46,6 +48,7 @@ export function AppRoutes() {
       <Route path="/scenarios" element={<ScenariosPage />} />
       <Route path="/signin" element={<SignInPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      <Route path="/settings" element={<AccountSettingsPage />} />
       <Route path="/u/:username" element={<PublicProfilePage />} />
       <Route path="/u/:username/collection" element={<PublicCollectionPage />} />
       <Route path="/u/:username/wishlist" element={<PublicWishlistPage />} />

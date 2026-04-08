@@ -9,6 +9,22 @@ export interface GameCardProps {
   badge?: "In Stock" | "Wishlist";
 }
 
+const MOCK_IMAGES = [
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBM3c82fCVsizmmSICSohN_Bj3I4T5uSQU9obgMs3cEo_UxZ1c5eh4ol9iaC2mWr89AvRm7tjoHyu4mfBGUAewjylHX9AOVOCVsaqbKpu69fpy9M1zBmErRmkhpn53-c4Ssx3jSLUzROYMaSJjkZ-nxMTXYH9S3Q-z3-n_oaB8-sKh1jtvdHcnxjx-HzVL-KrQTxJf8WyYF_D82hOa1mpythxhhoz6Q26RruN-aLLa5pw_YAmQvQn0gnvdomGJWNvKR8hmKj84TUVc",
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBza3nRkkOuI-UjmUIq9dI8X4xSeY-8WyqUolLuetZw8tRXqRdLghiw7M5ChAcxDYZRtpIKs33DxTQI25D1bQL3tLA-_w_-xwCTE_s9IbmXNWiGzsYk_nvXZuy34SX23ah2b0vDE1vPt3TY_YGr2MF8E5EHk8lDmqb-kALt-9v5RC3LrvX8wexEreli3zT_58DPZhmYVirsDesri68JSEoZ1D-2zzV4IqtMcp3WSFNOFp3Y4xVIKgIUlcDWumUuL-aNORIkuGMQJV4",
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBguiXq6FABe6DPf9lfiEPbCCTVBrIUg58ODeYu2KhPpnAGKOjjaOs5OdvQk9tlZF7I8lbGoPtnb-6tdk5dm2-O-sfmgMnUMZN3NBkhja_aW21qoXBdxntq3LfMuSzVI0s0tTx69sAcikesOS4j_Ap-pHP9VETfmFqiTQNGIgmJpAqa0ySiAs9UTwLGitG0cdCwVMbs_ET_j89w0Du_L30a2Myop_K134ZQTVsIBMkrXUhILhx_goZM3Mh4FrVeuMP0xGtCA9M5Ao4",
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBOu7gWVczr4EeMNrqtYpKe5CML7RFRzhtIEkf7XgOg7vxme3oUyn6LqrouxGmWQkJW7_EvN4GM1kFxCqLOAZnmo5sxOvOJLhNYn1P-qUw_mUPXvlEKmKdJ2wwNlbYpjGxANchh6j104-IgykehhEfKbRXWGJWLiSmBayPfldU69-YAyo5ln7Ha7Mp433J0rIGPvkhUYvxr8_g7sLN0lb9GY7eTk-FEW2eC3mhgxigSLp53lNIVypbZrOt2Mkk0EMl5bx0MiAZBi3Q",
+];
+
+function getFallbackImage(title: string) {
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    hash = title.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % MOCK_IMAGES.length;
+  return MOCK_IMAGES[index];
+}
+
 export function GameCard({
   title,
   image,
@@ -19,20 +35,16 @@ export function GameCard({
   isFavorite,
   badge
 }: GameCardProps) {
+  const displayImage = image ?? getFallbackImage(title);
+
   return (
     <article className="group relative bg-surface-container-low rounded-xl overflow-visible p-6 transition-all duration-300 hover:translate-y-[-4px]">
       <div className="relative -mt-12 mb-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
-        {image ? (
-          <img
-            className="w-full h-full object-cover"
-            alt={`Cover art for ${title}`}
-            src={image}
-          />
-        ) : (
-          <div className="w-full h-full bg-surface-container-highest flex items-center justify-center">
-             <span className="material-symbols-outlined text-4xl text-on-surface-variant">image</span>
-          </div>
-        )}
+        <img
+          className="w-full h-full object-cover"
+          alt={`Cover art for ${title}`}
+          src={displayImage}
+        />
         
         {badge && (
           <div className="absolute top-4 right-4">

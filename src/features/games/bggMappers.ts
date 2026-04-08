@@ -12,5 +12,6 @@ export function mapBggThingToGameMetadata(thing: BggThing): BggMetadataPatch {
     bgg_rating: roundToTenth(thing.stats.averageRating),
     bgg_weight: roundToTenth(thing.stats.averageWeight),
     published_year: thing.yearPublished,
+    image_url: thing.imageUrl ?? null,
   };
 }

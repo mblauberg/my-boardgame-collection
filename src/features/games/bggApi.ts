@@ -12,6 +12,7 @@ const bggRefreshResponseSchema = z.object({
     bgg_rating: z.number().nullable(),
     bgg_weight: z.number().nullable(),
     published_year: z.number().int().nullable(),
+    image_url: z.string().nullable(),
   }),
 });
 
@@ -34,6 +35,12 @@ function getXmlAttribute(xml: string, tagName: string, attributeName = "value") 
   );
 
   return match?.[1] ?? null;
+}
+
+function getXmlNodeContent(xml: string, tagName: string) {
+  const escapedTagName = tagName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = xml.match(new RegExp(`<${escapedTagName}\\b[^>]*>([\\s\\S]*?)<\\/${escapedTagName}>`, "i"));
+  return match?.[1]?.trim() ?? null;
 }
 
 function toNullableNumber(value: string | null) {
@@ -72,6 +79,7 @@ export async function fetchBggThing(
   return {
     id: itemId,
     yearPublished: toNullableInt(getXmlAttribute(xml, "yearpublished")),
+    imageUrl: getXmlNodeContent(xml, "image") ?? getXmlNodeContent(xml, "thumbnail") ?? null,
     stats: {
       averageRating: toNullableNumber(getXmlAttribute(xml, "average")),
       averageWeight: toNullableNumber(getXmlAttribute(xml, "averageweight")),

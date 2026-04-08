@@ -25,12 +25,9 @@ export function TopNavBar() {
       </div>
       <div className="flex items-center gap-4">
         <ProfileSearch />
-        <button className="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80">
-          <span className="material-symbols-outlined text-on-surface">settings</span>
-        </button>
-        <button className="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80">
+        <Link to="/settings" className="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80 flex items-center justify-center">
           <span className="material-symbols-outlined text-on-surface">account_circle</span>
-        </button>
+        </Link>
       </div>
     </nav>
   );
