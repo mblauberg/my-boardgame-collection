@@ -1,17 +1,37 @@
-import { PlaceholderPage } from "../components/ui/PlaceholderPage";
+import { useParams, Link } from "react-router-dom";
+import { useGameDetailQuery } from "../features/games/useGameDetailQuery";
+import { GameDetailPanel } from "../components/games/GameDetailPanel";
 
 export function GameDetailPage() {
+  const { slug } = useParams<{ slug: string }>();
+
+  if (!slug) {
+    return <div className="p-8 text-center">Invalid game</div>;
+  }
+
+  const { data: game, isLoading, error } = useGameDetailQuery(slug);
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Loading game...</div>;
+  }
+
+  if (error || !game) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-600 mb-4">Game not found</p>
+        <Link to="/" className="text-blue-600 hover:underline">
+          Back to collection
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <PlaceholderPage
-      eyebrow="Game Detail"
-      title="Inspect a single game record"
-      description="This route will present a focused view of one game, including metadata, notes, recommendation context, tags, and eventual owner actions."
-      highlights={[
-        "Fetch a single game by slug and map joined tags into the domain model.",
-        "Render BGG fields, summary, notes, and recommendation details.",
-        "Allow owner-only quick edits once auth and mutation hooks exist.",
-      ]}
-      footer="Execution details live in docs/plans/collection-and-game-detail.md."
-    />
+    <div className="container mx-auto px-4 py-8">
+      <Link to="/" className="text-blue-600 hover:underline mb-6 inline-block">
+        ← Back to collection
+      </Link>
+      <GameDetailPanel game={game} />
+    </div>
   );
 }
