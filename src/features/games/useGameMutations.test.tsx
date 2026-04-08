@@ -135,3 +135,163 @@ describe("useCreateGame", () => {
     );
   });
 });
+
+describe("useUpdateGame - buy order mutations", () => {
+  it("saves buyPriority updates", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const updateSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: { ...gameRowFixture, buy_priority: 5 }, error: null }),
+        }),
+      }),
+    });
+
+    mockFrom.mockReturnValue({ update: updateSpy });
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({ id: "game-1", buyPriority: 5 });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ buy_priority: 5 }));
+  });
+
+  it("converts buy to owned", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const updateSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: { ...gameRowFixture, status: "owned" }, error: null }),
+        }),
+      }),
+    });
+
+    mockFrom.mockReturnValue({ update: updateSpy });
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({ id: "game-1", status: "owned" });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ status: "owned" }));
+  });
+
+  it("converts buy to cut", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const updateSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: { ...gameRowFixture, status: "cut" }, error: null }),
+        }),
+      }),
+    });
+
+    mockFrom.mockReturnValue({ update: updateSpy });
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({ id: "game-1", status: "cut" });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ status: "cut" }));
+  });
+});
+
+describe("useUpdateGame – recommendation fields", () => {
+  it("persists recommendationVerdict and recommendationColour", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const updateMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: gameRowFixture, error: null }),
+        }),
+      }),
+    });
+    mockFrom.mockReturnValue({ update: updateMock });
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({
+        id: "game-1",
+        recommendationVerdict: "Strong fit",
+        recommendationColour: "#22c55e",
+        gapReason: "Fills co-op gap",
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recommendation_verdict: "Strong fit",
+        recommendation_colour: "#22c55e",
+        gap_reason: "Fills co-op gap",
+      }),
+    );
+  });
+
+  it("promotes new_rec to buy by updating status", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const updateMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { ...gameRowFixture, status: "buy" },
+            error: null,
+          }),
+        }),
+      }),
+    });
+    mockFrom.mockReturnValue({ update: updateMock });
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({ id: "game-1", status: "buy" });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "buy" }));
+  });
+
+  it("promotes new_rec to owned by updating status", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const updateMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { ...gameRowFixture, status: "owned" },
+            error: null,
+          }),
+        }),
+      }),
+    });
+    mockFrom.mockReturnValue({ update: updateMock });
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({ id: "game-1", status: "owned" });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "owned" }));
+  });
+});

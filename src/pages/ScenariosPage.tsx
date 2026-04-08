@@ -1,18 +1,37 @@
-import { scenarioPresets } from "../config/scenarioPresets";
-import { PlaceholderPage } from "../components/ui/PlaceholderPage";
+import { useGamesQuery } from '../features/games/useGamesQuery';
+import { buildScenarioPresetResults } from '../features/scenarios/scenarioMappers';
+import { ScenarioAccordion } from '../components/scenarios/ScenarioAccordion';
 
 export function ScenariosPage() {
+  const { data: games, isLoading, error } = useGamesQuery();
+
+  if (isLoading) {
+    return (
+      <div className="p-8">
+        <p className="text-gray-600">Loading scenarios...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <p className="text-red-600">Error loading scenarios: {error.message}</p>
+      </div>
+    );
+  }
+
+  const presets = buildScenarioPresetResults(games || []);
+
   return (
-    <PlaceholderPage
-      eyebrow="Scenarios"
-      title="Config-driven play suggestions"
-      description={`Scenario logic is already preserved in configuration. ${scenarioPresets.length} presets are ready to be wired to live game data and surfaced as dynamic sections.`}
-      highlights={[
-        "Map scenario rules to tags, status, player count, time, and weight.",
-        "Render preset sections with dynamic matches instead of hard-coded game names.",
-        "Show coverage states and empty guidance for thin categories.",
-      ]}
-      footer="Execution details live in docs/plans/scenarios-page.md."
-    />
+    <div className="p-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Scenarios</h1>
+        <p className="mt-2 text-gray-600">
+          Config-driven play suggestions matched to your collection
+        </p>
+      </div>
+      <ScenarioAccordion presets={presets} />
+    </div>
   );
 }

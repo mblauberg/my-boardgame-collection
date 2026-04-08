@@ -1,17 +1,50 @@
-import { PlaceholderPage } from "../components/ui/PlaceholderPage";
+import { useGamesQuery } from "../features/games/useGamesQuery";
+import { useProfile } from "../features/auth/useProfile";
+import { useUpdateGame } from "../features/games/useGameMutations";
+import { selectBuyOrder } from "../features/games/buyOrderSelectors";
+import { summarizeBuyGaps } from "../features/games/buyGapSummary";
+import { BuyOrderList } from "../components/games/BuyOrderList";
+import type { GameStatus } from "../types/domain";
 
 export function BuyOrderPage() {
+  const { data: games, isLoading, error } = useGamesQuery();
+  const { isOwner } = useProfile();
+  const updateGame = useUpdateGame();
+
+  if (isLoading) return <p className="p-8 text-center">Loading...</p>;
+  if (error) return <p className="p-8 text-center text-red-600">Error loading games.</p>;
+
+  const buyItems = selectBuyOrder(games ?? []);
+  const summary = summarizeBuyGaps({ games: games ?? [] });
+
+  if (buyItems.length === 0) {
+    return <p className="p-8 text-center text-gray-500">No games on the buy list yet.</p>;
+  }
+
+  const handleStatusChange = (gameId: string, status: GameStatus) => {
+    updateGame.mutate({ id: gameId, status });
+  };
+
+  const handlePriorityChange = (gameId: string, priority: number | null) => {
+    updateGame.mutate({ id: gameId, buyPriority: priority });
+  };
+
   return (
-    <PlaceholderPage
-      eyebrow="Buy Order"
-      title="Rank the next purchases"
-      description="This route will surface wishlist items in priority order, support owner editing, and make status changes like buy-to-owned fast from the UI."
-      highlights={[
-        "Query buy-status games ordered by buy_priority.",
-        "Add priority editing with optimistic updates when auth is in place.",
-        "Surface collection gap summaries from category and tag heuristics.",
-      ]}
-      footer="Execution details live in docs/plans/buy-order-workflow.md."
-    />
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-2">Buy Order</h1>
+      {summary.unprioritizedCount > 0 && (
+        <p className="text-sm text-gray-500 mb-4">
+          {summary.unprioritizedCount} unprioritized{" "}
+          {summary.unprioritizedCount === 1 ? "game" : "games"}
+        </p>
+      )}
+      <BuyOrderList
+        games={buyItems}
+        isOwner={isOwner}
+        isPending={updateGame.isPending}
+        onStatusChange={handleStatusChange}
+        onPriorityChange={handlePriorityChange}
+      />
+    </div>
   );
 }

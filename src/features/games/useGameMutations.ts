@@ -23,6 +23,9 @@ type CreateGameInput = {
   category?: string | null;
   summary?: string | null;
   notes?: string | null;
+  recommendationVerdict?: string | null;
+  recommendationColour?: string | null;
+  gapReason?: string | null;
   imageUrl?: string | null;
   publishedYear?: number | null;
   hidden?: boolean;
@@ -55,6 +58,9 @@ export function useCreateGame() {
           category: input.category ?? null,
           summary: input.summary ?? null,
           notes: input.notes ?? null,
+          recommendation_verdict: input.recommendationVerdict ?? null,
+          recommendation_colour: input.recommendationColour ?? null,
+          gap_reason: input.gapReason ?? null,
           image_url: input.imageUrl ?? null,
           published_year: input.publishedYear ?? null,
           hidden: input.hidden ?? false,
@@ -94,6 +100,9 @@ export function useUpdateGame() {
       if (input.category !== undefined) patch.category = input.category;
       if (input.summary !== undefined) patch.summary = input.summary;
       if (input.notes !== undefined) patch.notes = input.notes;
+      if (input.recommendationVerdict !== undefined) patch.recommendation_verdict = input.recommendationVerdict;
+      if (input.recommendationColour !== undefined) patch.recommendation_colour = input.recommendationColour;
+      if (input.gapReason !== undefined) patch.gap_reason = input.gapReason;
       if (input.imageUrl !== undefined) patch.image_url = input.imageUrl;
       if (input.publishedYear !== undefined) patch.published_year = input.publishedYear;
       if (input.hidden !== undefined) patch.hidden = input.hidden;

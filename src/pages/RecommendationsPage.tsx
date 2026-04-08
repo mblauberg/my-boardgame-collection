@@ -1,17 +1,55 @@
-import { PlaceholderPage } from "../components/ui/PlaceholderPage";
+import { useState } from "react";
+import { useGamesQuery } from "../features/games/useGamesQuery";
+import { useProfile } from "../features/auth/useProfile";
+import { useUpdateGame } from "../features/games/useGameMutations";
+import { selectRecommendations } from "../features/recommendations/recommendationSelectors";
+import { RecommendationList } from "../components/recommendations/RecommendationList";
+import { RecommendationEditor } from "../components/recommendations/RecommendationEditor";
+import type { Game, GameStatus } from "../types/domain";
+import type { RecommendationEditorValues } from "../features/recommendations/recommendationEditorSchema";
 
 export function RecommendationsPage() {
+  const { data: games, isLoading, error } = useGamesQuery();
+  const { isOwner } = useProfile();
+  const updateGame = useUpdateGame();
+  const [editing, setEditing] = useState<Game | null>(null);
+
+  if (isLoading) return <p className="p-6">Loading…</p>;
+  if (error) return <p className="p-6 text-red-600">Error loading recommendations.</p>;
+
+  const recommendations = selectRecommendations(games ?? []);
+
+  function handleSave(values: RecommendationEditorValues) {
+    if (!editing) return;
+    updateGame.mutate({ id: editing.id, ...values });
+    setEditing(null);
+  }
+
+  function handlePromote(id: string, status: GameStatus) {
+    updateGame.mutate({ id, status });
+  }
+
   return (
-    <PlaceholderPage
-      eyebrow="Recommendations"
-      title="Track new additions worth considering"
-      description="Recommendations will be curated separately from the buy list so rationale, verdicts, and overlap notes can stay explicit before a game is promoted into the backlog."
-      highlights={[
-        "Show new_rec items with verdict badges and owner notes.",
-        "Allow owner actions to convert recommendations to buy or owned.",
-        "Keep overlap text nuanced instead of implying false uniqueness.",
-      ]}
-      footer="Execution details live in docs/plans/recommendations-workflow.md."
-    />
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Recommendations</h1>
+
+      {editing ? (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3">Edit: {editing.name}</h2>
+          <RecommendationEditor
+            game={editing}
+            onSave={handleSave}
+            onCancel={() => setEditing(null)}
+          />
+        </div>
+      ) : (
+        <RecommendationList
+          games={recommendations}
+          isOwner={isOwner}
+          onEdit={setEditing}
+          onPromote={handlePromote}
+        />
+      )}
+    </div>
   );
 }
