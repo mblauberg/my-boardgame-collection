@@ -10,7 +10,7 @@ vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => mockSupabase,
 }));
 
-import { useAddToWishlist, useSaveBggGameToWishlist } from "./useLibraryEntryMutations";
+import { useAddToWishlist, useSaveBggGameToLibrary } from "./useLibraryEntryMutations";
 
 function makeWrapper() {
   const queryClient = new QueryClient({
@@ -67,7 +67,7 @@ describe("useAddToWishlist", () => {
   });
 });
 
-describe("useSaveBggGameToWishlist", () => {
+describe("useSaveBggGameToLibrary", () => {
   it("calls the transactional save RPC with the selected BGG payload", async () => {
     mockRpc.mockResolvedValue({
       data: {
@@ -85,7 +85,7 @@ describe("useSaveBggGameToWishlist", () => {
     });
 
     const { Wrapper } = makeWrapper();
-    const { result } = renderHook(() => useSaveBggGameToWishlist(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSaveBggGameToLibrary(), { wrapper: Wrapper });
 
     await act(async () => {
       result.current.mutate({
@@ -104,6 +104,9 @@ describe("useSaveBggGameToWishlist", () => {
           averageWeight: 2.2,
           summary: "Race cars.",
         },
+        listType: "collection",
+        sentiment: "like",
+        notes: "Need this for race night.",
       });
     });
 
@@ -115,7 +118,9 @@ describe("useSaveBggGameToWishlist", () => {
         p_user_id: "user-1",
         p_bgg_id: 123,
         p_name: "Heat",
-        p_list_type: "wishlist",
+        p_list_type: "collection",
+        p_sentiment: "like",
+        p_notes: "Need this for race night.",
       }),
     );
   });

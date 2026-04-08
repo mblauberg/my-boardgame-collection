@@ -7,6 +7,7 @@ export function useBggSearchQuery(query: string) {
   return useQuery({
     queryKey: ["bgg", "search", normalizedQuery],
     enabled: normalizedQuery.length >= 2,
+    retry: false,
     queryFn: async () => searchBggGames(normalizedQuery),
   });
 }

@@ -2,8 +2,18 @@ import { z } from "zod";
 import type { BggMetadataPatch, BggSearchResult, BggThing } from "./bgg.types";
 
 const BGG_API_BASE_URL = "https://boardgamegeek.com/xmlapi2/thing";
-const BGG_API_SEARCH_URL = "https://boardgamegeek.com/xmlapi2/search";
+const BGG_SEARCH_PATH = "/api/bgg-search";
 const BGG_REFRESH_PATH = "/api/bgg-refresh";
+
+const bggSearchResponseSchema = z.object({
+  results: z.array(
+    z.object({
+      id: z.number().int(),
+      name: z.string(),
+      yearPublished: z.number().int().nullable(),
+    }),
+  ),
+});
 
 const bggRefreshResponseSchema = z.object({
   metadata: z.object({
@@ -20,7 +30,7 @@ function buildBggThingUrl(bggId: number) {
 }
 
 function buildBggSearchUrl(query: string) {
-  return `${BGG_API_SEARCH_URL}?query=${encodeURIComponent(query)}&type=boardgame`;
+  return `${BGG_SEARCH_PATH}?query=${encodeURIComponent(query)}`;
 }
 
 function getXmlAttribute(xml: string, tagName: string, attributeName = "value") {
@@ -84,19 +94,18 @@ export async function searchBggGames(
   fetchImpl: typeof fetch = fetch,
 ): Promise<BggSearchResult[]> {
   const response = await fetchImpl(buildBggSearchUrl(query));
+  const body = (await response.json().catch(() => null)) as unknown;
 
   if (!response.ok) {
-    throw new Error(`BGG search failed with status ${response.status}.`);
+    const message =
+      body && typeof body === "object" && "error" in body && typeof body.error === "string"
+        ? body.error
+        : `BGG search failed with status ${response.status}.`;
+    throw new Error(message);
   }
 
-  const xml = await response.text();
-  const items = [...xml.matchAll(/<item\b[^>]*id="(\d+)"[\s\S]*?<name\b[^>]*value="([^"]+)"[\s\S]*?(?:<yearpublished\b[^>]*value="(\d+)")?/gi)];
-
-  return items.map((match) => ({
-    id: Number.parseInt(match[1], 10),
-    name: match[2],
-    yearPublished: match[3] ? Number.parseInt(match[3], 10) : null,
-  }));
+  const payload = bggSearchResponseSchema.parse(body);
+  return payload.results;
 }
 
 export async function requestBggRefresh(

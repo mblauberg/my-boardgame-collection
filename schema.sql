@@ -357,7 +357,8 @@ create or replace function public.save_bgg_game_for_user(
   p_bgg_weight numeric default null,
   p_summary text default null,
   p_list_type text default 'wishlist',
-  p_sentiment text default null
+  p_sentiment text default null,
+  p_notes text default null
 )
 returns public.library_entries
 language plpgsql
@@ -453,18 +454,21 @@ begin
     user_id,
     game_id,
     list_type,
-    sentiment
+    sentiment,
+    notes
   )
   values (
     p_user_id,
     v_game.id,
     p_list_type,
-    p_sentiment
+    p_sentiment,
+    p_notes
   )
   on conflict (user_id, game_id)
   do update
     set list_type = excluded.list_type,
         sentiment = excluded.sentiment,
+        notes = excluded.notes,
         updated_at = now()
   returning * into v_library_entry;
 
