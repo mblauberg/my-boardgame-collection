@@ -1,71 +1,57 @@
-import { GameCard } from "../components/ui/GameCard";
-import { CategoryChip } from "../components/ui/CategoryChip";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
+import { LibraryList } from "../components/library/LibraryList";
+import { LibraryToolbar } from "../components/library/LibraryToolbar";
+import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
+import { useCollectionQuery } from "../features/library/useCollectionQuery";
+import { useLibraryFilters } from "../features/library/useLibraryFilters";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function CollectionPage() {
+  const { data: entries, isLoading, error } = useCollectionQuery();
+  const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
+    useLibraryFilters();
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Loading collection...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+        <p className="text-lg font-semibold">Collection unavailable</p>
+        <p className="mt-2 text-sm leading-6">
+          {getSupabaseQueryErrorMessage(error, "collection")}
+        </p>
+      </div>
+    );
+  }
+
+  const filteredEntries = filterLibraryEntries(entries ?? [], filters);
+  const sortedEntries = sortLibraryEntries(filteredEntries, sortBy, sortDirection);
+
   return (
     <>
-      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-2">Curated Collection</p>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface max-w-2xl">
-            The Art of <span className="text-primary">Play</span>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            Curated Collection
+          </p>
+          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-on-surface md:text-7xl">
+            Your <span className="text-primary">Collection</span>
           </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-surface-container-low rounded-xl text-on-surface font-semibold hover:bg-surface-container-highest transition-all">
-            <span className="material-symbols-outlined text-xl">filter_list</span>
-            Filters
-          </button>
         </div>
       </header>
 
-      <section className="flex flex-wrap gap-3 mb-16">
-        <CategoryChip label="All Games" isActive={true} />
-        <CategoryChip label="Strategy" isActive={false} />
-        <CategoryChip label="Eurogame" isActive={false} />
-        <CategoryChip label="Deck Building" isActive={false} />
-        <CategoryChip label="Cooperative" isActive={false} />
-        <CategoryChip label="Party" isActive={false} />
-      </section>
+      <LibraryToolbar
+        searchText={filters.searchText}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSearchTextChange={(value) => updateFilters({ searchText: value })}
+        onSortChange={updateSort}
+        onClear={clearFilters}
+      />
 
-      <div className="editorial-grid">
-        <GameCard 
-          title="Everdell"
-          description="A charming game of tableau building and worker placement in a whimsical forest world."
-          players="1-4 Players"
-          playTime="60-90 Min"
-          weight="2.8"
-          isFavorite={true}
-          badge="In Stock"
-        />
-        <GameCard 
-          title="Twilight Imperium"
-          description="The ultimate space opera of galactic conquest, diplomacy, and trade."
-          players="3-6 Players"
-          playTime="4-8 Hours"
-          weight="4.2"
-          isFavorite={false}
-        />
-        <GameCard 
-          title="Wingspan"
-          description="A competitive bird-collection game that is both relaxing and deeply strategic."
-          players="1-5 Players"
-          playTime="40-70 Min"
-          weight="2.4"
-          isFavorite={false}
-        />
-        <GameCard 
-          title="Azul"
-          description="A tactile puzzle game where players draft beautiful tiles to decorate the Royal Palace."
-          players="2-4 Players"
-          playTime="30-45 Min"
-          weight="1.8"
-          isFavorite={true}
-          badge="In Stock"
-        />
-      </div>
-
+      <LibraryList entries={sortedEntries} />
       <FloatingActionButton />
     </>
   );
