@@ -51,7 +51,7 @@ export function CollectionPage() {
         onClear={clearFilters}
       />
 
-      <LibraryList entries={sortedEntries} />
+      <LibraryList entries={sortedEntries} getGameLinkState={() => ({ from: "/" })} />
       <FloatingActionButton />
     </>
   );

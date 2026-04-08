@@ -55,6 +55,7 @@ export function WishlistPage() {
 
       <LibraryList
         entries={sortedEntries}
+        getGameLinkState={() => ({ from: "/wishlist" })}
         isMovePending={moveToCollection.isPending}
         onMoveToCollection={(entryId) => {
           const entry = sortedEntries.find((candidate) => candidate.id === entryId);

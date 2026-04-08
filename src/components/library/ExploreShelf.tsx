@@ -13,7 +13,7 @@ export function ExploreShelf({ title, entries }: ExploreShelfProps) {
       <h2 className="mb-8 text-3xl font-extrabold">{title}</h2>
       <div className="editorial-grid">
         {entries.map((game) => (
-          <Link key={game.id} to={`/game/${game.slug}`}>
+          <Link key={game.id} state={{ from: "/explore" }} to={`/game/${game.slug}`}>
             <GameCard
               title={game.name}
               image={game.imageUrl ?? undefined}

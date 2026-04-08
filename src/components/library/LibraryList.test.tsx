@@ -66,4 +66,17 @@ describe("LibraryList", () => {
 
     expect(screen.queryByRole("button", { name: /move to collection/i })).not.toBeInTheDocument();
   });
+
+  it("passes route state through game links when provided", () => {
+    render(
+      <MemoryRouter>
+        <LibraryList
+          entries={[createEntry("collection")]}
+          getGameLinkState={() => ({ from: "/wishlist" })}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: /heat/i })).toHaveAttribute("href", "/game/heat");
+  });
 });
