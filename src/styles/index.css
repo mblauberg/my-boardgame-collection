@@ -2,24 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color: #17202a;
-  background-color: #f4efe6;
-  font-family:
-    "Iowan Old Style",
-    "Palatino Linotype",
-    "Book Antiqua",
-    Georgia,
-    serif;
-}
-
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at top, rgba(209, 169, 84, 0.18), transparent 30%),
-    linear-gradient(180deg, #f8f3ea 0%, #f1ebde 100%);
-  color: #17202a;
+  font-family: 'Manrope', -apple-system, sans-serif;
+  color: #2e2f2d;
+  background-color: #f7f6f3;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+.editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2.5rem;
+}
+
+.glass-nav {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 a {

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
-import { AppRoutes, appRouteDefinitions } from "./routes";
+import { AppRoutes } from "./routes";
 
 function renderWithRouter(initialEntry: string) {
   const queryClient = new QueryClient({
@@ -22,12 +22,6 @@ function renderWithRouter(initialEntry: string) {
 }
 
 describe("AppRoutes", () => {
-  it("registers the auth callback path", () => {
-    expect(appRouteDefinitions).toEqual(
-      expect.arrayContaining([expect.objectContaining({ path: "/auth/callback" })]),
-    );
-  });
-
   it("renders the auth callback page instead of the not-found screen", () => {
     renderWithRouter("/auth/callback");
 
