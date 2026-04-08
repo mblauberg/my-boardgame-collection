@@ -35,13 +35,13 @@ describe("GameDetailPanel", () => {
     ],
   };
 
-  it("renders metadata, notes, and BGG link for a game", () => {
+  it("renders public metadata and the BGG link for a game", () => {
     render(<GameDetailPanel game={gameFixture} />);
 
     expect(screen.getByText("Heat")).toBeInTheDocument();
     expect(screen.getByText("Published: 2022")).toBeInTheDocument();
     expect(screen.getByText("8.1")).toBeInTheDocument();
-    expect(screen.getByText("Great game for groups")).toBeInTheDocument();
+    expect(screen.queryByText("Great game for groups")).not.toBeInTheDocument();
 
     const bggLink = screen.getByRole("link", { name: /boardgamegeek/i });
     expect(bggLink).toHaveAttribute("href", gameFixture.bggUrl);
@@ -52,10 +52,10 @@ describe("GameDetailPanel", () => {
     expect(screen.getByText("Racing")).toBeInTheDocument();
   });
 
-  it("renders summary and notes sections", () => {
+  it("renders summary without private note sections", () => {
     render(<GameDetailPanel game={gameFixture} />);
     expect(screen.getByText("Summary")).toBeInTheDocument();
     expect(screen.getByText("A racing game about heat management")).toBeInTheDocument();
-    expect(screen.getByText("Notes")).toBeInTheDocument();
+    expect(screen.queryByText("Notes")).not.toBeInTheDocument();
   });
 });

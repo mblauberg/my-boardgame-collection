@@ -20,7 +20,6 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
 
         <div className="md:col-span-2 space-y-4">
           <div>
-            <span className="text-sm text-gray-500 uppercase">{game.status}</span>
             <h1 className="text-4xl font-bold mt-1">{game.name}</h1>
             {game.publishedYear && (
               <p className="text-gray-600">Published: {game.publishedYear}</p>
@@ -92,32 +91,6 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-3">Summary</h2>
           <p className="text-gray-700 leading-relaxed">{game.summary}</p>
-        </div>
-      )}
-
-      {game.notes && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold mb-3">Notes</h2>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {game.notes}
-          </p>
-        </div>
-      )}
-
-      {game.recommendationVerdict && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold mb-3">Recommendation</h2>
-          <div
-            className="p-4 rounded-lg"
-            style={{
-              backgroundColor: game.recommendationColour || "#f3f4f6",
-            }}
-          >
-            <p className="text-gray-800">{game.recommendationVerdict}</p>
-            {game.gapReason && (
-              <p className="text-sm text-gray-600 mt-2">Gap: {game.gapReason}</p>
-            )}
-          </div>
         </div>
       )}
     </div>

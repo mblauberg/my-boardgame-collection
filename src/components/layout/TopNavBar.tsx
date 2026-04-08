@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { ProfileSearch } from "../library/ProfileSearch";
 
 export function TopNavBar() {
   const location = useLocation();
@@ -23,6 +24,7 @@ export function TopNavBar() {
         <Link className={getLinkClass("/")} to="/">Collection</Link>
       </div>
       <div className="flex items-center gap-4">
+        <ProfileSearch />
         <button className="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80">
           <span className="material-symbols-outlined text-on-surface">settings</span>
         </button>
