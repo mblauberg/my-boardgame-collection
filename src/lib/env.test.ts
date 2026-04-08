@@ -1,4 +1,8 @@
 import { hasPublicEnv, readPublicEnv } from "./env";
+import type { Database } from "../types/database";
+
+type LibraryEntryRow = Database["public"]["Tables"]["library_entries"]["Row"];
+type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 
 describe("readPublicEnv", () => {
   it("returns the public Supabase configuration when both values are present", () => {
@@ -30,5 +34,24 @@ describe("hasPublicEnv", () => {
     ).toBe(true);
 
     expect(hasPublicEnv({ VITE_SUPABASE_URL: "https://example.supabase.co" })).toBe(false);
+  });
+});
+
+describe("database typings", () => {
+  it("includes the multi-user library tables and public profile fields", () => {
+    expectTypeOf<LibraryEntryRow>().toMatchTypeOf<{
+      id: string;
+      user_id: string;
+      game_id: string;
+      list_type: "collection" | "wishlist";
+      sentiment: "like" | "dislike" | "neutral" | null;
+    }>();
+
+    expectTypeOf<ProfileRow>().toMatchTypeOf<{
+      username: string | null;
+      is_profile_public: boolean;
+      is_collection_public: boolean;
+      is_wishlist_public: boolean;
+    }>();
   });
 });
