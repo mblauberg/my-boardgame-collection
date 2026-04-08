@@ -1,19 +1,20 @@
 # Board Game Collection
 
-Personal board game collection app for a public-read, private-edit workflow.
+Multi-user board game collection app built on a shared BoardGameGeek-backed catalog plus user-owned library entries.
 
-The app is built with Vite, React, TypeScript, and Supabase. It now includes live collection browsing, game detail pages, owner auth and admin tools, a ranked buy list, recommendations, scenarios, legacy-data migration scripts, and owner-triggered BoardGameGeek metadata refresh.
+The app is built with Vite, React, TypeScript, and Supabase. It includes private collection and wishlist management, public profile sharing by username, an Explore view, admin tools, scenarios, legacy-data migration scripts, and BoardGameGeek metadata utilities.
 
 ## Features
 
-- public collection browsing with filtering, sorting, and shareable URL state
-- game detail pages with metadata, notes, tags, and BoardGameGeek links
-- owner-only magic-link auth and protected admin route
+- shared catalog of games and shared tags in Supabase
+- per-user collection and wishlist library entries
+- public profile sharing by username with per-section visibility controls
+- game detail pages with catalog-safe metadata and BoardGameGeek links
+- private Explore shelves driven by catalog data and library signals
+- magic-link auth plus protected admin route
 - admin CRUD for games and tags
-- buy-order workflow with priority editing and quick status changes
-- recommendations workflow with owner editing and promotion actions
 - scenarios page driven by preset rules instead of hard-coded lists
-- BGG metadata refresh for owner-managed games
+- BGG metadata refresh and search helpers
 - deterministic legacy-data seed generation and import scripts
 
 ## Tech Stack
@@ -97,12 +98,16 @@ Recommended setup:
 4. Generate and import the seed data.
 5. Sign in once and promote the owner profile manually.
 
-The schema already models:
+The schema now models:
 
 - `profiles`
 - `games`
 - `tags`
 - `game_tags`
+- `library_entries`
+- `user_tags`
+- `user_game_tags`
+- public profile search and public-library read surfaces
 - owner-aware helper functions and RLS policies
 
 ### Migrating Legacy Data
@@ -127,7 +132,8 @@ The migration pipeline:
 - Extracts arrays from the legacy JSX file
 - Normalizes player counts, time, status, and metadata
 - Derives tags from categories and game attributes
-- Generates deterministic JSON suitable for import
+- Seeds the shared catalog and shared tags
+- Backfills the primary user profile into `library_entries` for owned and wishlist rows
 
 ## Project Structure
 
@@ -154,7 +160,7 @@ Key files:
 
 - `board-game-collection.jsx`: legacy source data and historical scenario references
 - `src/config/scenarioPresets.ts`: config-driven scenario matching logic
-- `docs/specs/2026-04-08-project-initialization-design.md`: initialization design record
+- `docs/superpowers/plans/2026-04-08-multi-user-library-redesign.md`: implementation plan
 - `scripts/output/seed-data.json`: generated seed payload for Supabase imports
 
 ## Available Scripts
@@ -168,13 +174,12 @@ Key files:
 - `npm run migrate:generate`: generate seed data from legacy file
 - `npm run migrate:import`: import seed data to Supabase with `SUPABASE_SERVICE_ROLE_KEY`
 
-## Verification
+## Product Model
 
-The current repository passes:
-
-- `npm run test:run`
-- `npm run typecheck`
-- `npm run build`
+- `games` is the shared catalog
+- `library_entries` stores whether a signed-in user has a game in their collection or wishlist
+- public pages live under `/u/:username`
+- public collection and wishlist pages only expose catalog-safe data
 
 ## Notes On Legacy Data
 

@@ -1,33 +1,34 @@
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
-
-// Mock useProfile before importing AppShell
-vi.mock("../../features/auth/useProfile", () => ({
-  useProfile: () => ({
-    profile: null,
-    isOwner: false,
-    isAuthenticated: false,
-    isLoading: false,
-    error: null,
-  }),
-}));
 
 // eslint-disable-next-line import/first
 import { AppShell } from "./AppShell";
 
 describe("AppShell", () => {
-  it("renders the project title and primary navigation", () => {
+  it("renders the current shell navigation and route body", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
     render(
-      <MemoryRouter>
-        <AppShell>
-          <div>Route body</div>
-        </AppShell>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AppShell>
+            <div>Route body</div>
+          </AppShell>
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
 
-    expect(screen.getByRole("heading", { name: /board game collection/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /the game haven/i })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Collection" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Scenarios" })).toHaveAttribute("href", "/scenarios");
+    expect(screen.getByRole("link", { name: "Wishlist" })).toHaveAttribute("href", "/wishlist");
+    expect(screen.getByRole("link", { name: "Explore" })).toHaveAttribute("href", "/explore");
     expect(screen.getByText("Route body")).toBeInTheDocument();
   });
 });
