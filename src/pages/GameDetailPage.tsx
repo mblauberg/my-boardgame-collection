@@ -1,10 +1,12 @@
-import { useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link } from "react-router-dom";
 import { useGameDetailQuery } from "../features/games/useGameDetailQuery";
 import { GameDetailPanel } from "../components/games/GameDetailPanel";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
+  const backTo = typeof location.state?.from === "string" ? location.state.from : "/";
 
   if (!slug) {
     return <div className="p-8 text-center">Invalid game</div>;
@@ -24,7 +26,7 @@ export function GameDetailPage() {
     return (
       <div className="p-8 text-center">
         <p className="text-red-600 mb-4">{message}</p>
-        <Link to="/" className="text-blue-600 hover:underline">
+        <Link to={backTo} className="text-blue-600 hover:underline">
           Back to collection
         </Link>
       </div>
@@ -33,7 +35,7 @@ export function GameDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Link to="/" className="text-blue-600 hover:underline mb-6 inline-block">
+      <Link to={backTo} className="text-blue-600 hover:underline mb-6 inline-block">
         ← Back to collection
       </Link>
       <GameDetailPanel game={game} />

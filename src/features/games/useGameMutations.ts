@@ -10,7 +10,7 @@ type GameUpdate = Database["public"]["Tables"]["games"]["Update"];
 type CreateGameInput = {
   name: string;
   slug: string;
-  status: GameStatus;
+  status?: GameStatus;
   bggId?: number | null;
   bggUrl?: string | null;
   buyPriority?: number | null;
@@ -45,7 +45,7 @@ export function useCreateGame() {
         .insert({
           name: input.name,
           slug: input.slug,
-          status: input.status,
+          status: input.status ?? "archived",
           bgg_id: input.bggId ?? null,
           bgg_url: input.bggUrl ?? null,
           buy_priority: input.buyPriority ?? null,

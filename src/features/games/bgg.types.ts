@@ -9,6 +9,12 @@ export type BggThing = {
   };
 };
 
+export type BggSearchResult = {
+  id: number;
+  name: string;
+  yearPublished: number | null;
+};
+
 export type BggMetadataPatch = Pick<
   GameRow,
   "bgg_id" | "bgg_url" | "bgg_rating" | "bgg_weight" | "published_year"

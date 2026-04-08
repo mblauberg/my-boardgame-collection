@@ -53,6 +53,20 @@ export function SignInForm() {
           <p className="text-xs text-gray-500 mt-1">
             Role: {profile.role === "owner" ? "Owner" : "Viewer"}
           </p>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Username
+          </p>
+          <p className="mt-1 text-sm text-gray-700">
+            {profile.username ? `@${profile.username}` : "Not set"}
+          </p>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Public sharing
+          </p>
+          <p className="mt-1 text-sm text-gray-700">
+            Profile: {profile.is_profile_public ? "Public" : "Private"} · Collection:{" "}
+            {profile.is_collection_public ? "Public" : "Private"} · Wishlist:{" "}
+            {profile.is_wishlist_public ? "Public" : "Private"}
+          </p>
         </div>
         <button
           type="button"

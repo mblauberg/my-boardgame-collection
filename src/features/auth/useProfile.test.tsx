@@ -43,6 +43,10 @@ const ownerFixture: { session: Session; profile: Profile } = {
     id: "owner-user-id",
     email: "owner@example.com",
     role: "owner",
+    username: "owner-user",
+    is_profile_public: false,
+    is_collection_public: false,
+    is_wishlist_public: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -67,6 +71,10 @@ const viewerFixture: { session: Session; profile: Profile } = {
     id: "viewer-user-id",
     email: "viewer@example.com",
     role: "viewer",
+    username: null,
+    is_profile_public: false,
+    is_collection_public: false,
+    is_wishlist_public: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -110,6 +118,19 @@ describe("useProfile", () => {
     });
 
     await waitFor(() => expect(result.current.isOwner).toBe(true));
+  });
+
+  it("returns the public profile settings on the signed-in profile", async () => {
+    const { result } = renderHook(() => useProfile(), {
+      wrapper: createAuthTestWrapper(viewerFixture),
+    });
+
+    await waitFor(() => {
+      expect(result.current.profile?.username).toBeNull();
+      expect(result.current.profile?.is_profile_public).toBe(false);
+      expect(result.current.profile?.is_collection_public).toBe(false);
+      expect(result.current.profile?.is_wishlist_public).toBe(false);
+    });
   });
 
   it("marks the signed-in viewer as not editable", async () => {

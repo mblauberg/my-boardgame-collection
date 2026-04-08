@@ -1,51 +1,71 @@
-import { GameCard } from "../components/ui/GameCard";
-import { CategoryChip } from "../components/ui/CategoryChip";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
+import { LibraryList } from "../components/library/LibraryList";
+import { LibraryToolbar } from "../components/library/LibraryToolbar";
+import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
+import { useMoveWishlistToCollection } from "../features/library/useLibraryEntryMutations";
+import { useLibraryFilters } from "../features/library/useLibraryFilters";
+import { useWishlistQuery } from "../features/library/useWishlistQuery";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function WishlistPage() {
+  const { data: entries, isLoading, error } = useWishlistQuery();
+  const moveToCollection = useMoveWishlistToCollection();
+  const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
+    useLibraryFilters();
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Loading wishlist...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+        <p className="text-lg font-semibold">Wishlist unavailable</p>
+        <p className="mt-2 text-sm leading-6">
+          {getSupabaseQueryErrorMessage(error, "wishlist")}
+        </p>
+      </div>
+    );
+  }
+
+  const filteredEntries = filterLibraryEntries(entries ?? [], filters);
+  const sortedEntries = sortLibraryEntries(filteredEntries, sortBy, sortDirection);
+
   return (
     <>
-      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-2">Future Games</p>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface max-w-2xl">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            Future Games
+          </p>
+          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-on-surface md:text-7xl">
             The <span className="text-primary">Wishlist</span>
           </h1>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-surface-container-low rounded-xl text-on-surface font-semibold hover:bg-surface-container-highest transition-all">
-            <span className="material-symbols-outlined text-xl">filter_list</span>
-            Filters
-          </button>
-        </div>
       </header>
 
-      <section className="flex flex-wrap gap-3 mb-16">
-        <CategoryChip label="All Games" isActive={true} />
-        <CategoryChip label="High Priority" isActive={false} />
-      </section>
+      <LibraryToolbar
+        searchText={filters.searchText}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSearchTextChange={(value) => updateFilters({ searchText: value })}
+        onSortChange={updateSort}
+        onClear={clearFilters}
+      />
 
-      <div className="editorial-grid">
-        <GameCard 
-          title="Clank!: Catacombs"
-          description="A deck-building adventure game where you explore a dungeon."
-          players="2-4 Players"
-          playTime="45-90 Min"
-          weight="2.5"
-          isFavorite={false}
-          badge="Wishlist"
-        />
-        <GameCard 
-          title="Heat: Pedal to the Metal"
-          description="High-octane racing game with hand-management mechanics."
-          players="1-6 Players"
-          playTime="30-60 Min"
-          weight="2.2"
-          isFavorite={false}
-          badge="Wishlist"
-        />
-      </div>
+      <LibraryList
+        entries={sortedEntries}
+        isMovePending={moveToCollection.isPending}
+        onMoveToCollection={(entryId) => {
+          const entry = sortedEntries.find((candidate) => candidate.id === entryId);
+          if (!entry) return;
 
+          moveToCollection.mutate({
+            id: entryId,
+            userId: entry.userId,
+          });
+        }}
+      />
       <FloatingActionButton />
     </>
   );

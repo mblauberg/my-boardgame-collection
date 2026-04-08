@@ -1,119 +1,69 @@
 import { render, screen } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { RecommendationsPage } from "./RecommendationsPage";
 
-const mockUseGamesQuery = vi.fn();
-const mockUseProfile = vi.fn();
-
-vi.mock("../features/games/useGamesQuery", () => ({
-  useGamesQuery: () => mockUseGamesQuery(),
+vi.mock("../features/library/useExploreQuery", () => ({
+  useExploreQuery: vi.fn(),
 }));
 
-vi.mock("../features/auth/useProfile", () => ({
-  useProfile: () => mockUseProfile(),
+vi.mock("../components/library/ExploreShelf", () => ({
+  ExploreShelf: ({ title }: { title: string }) => <section>{title}</section>,
 }));
 
-function makeWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return function Wrapper({ children }: { children: ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
-}
+import { useExploreQuery } from "../features/library/useExploreQuery";
 
 describe("RecommendationsPage", () => {
-  beforeEach(() => {
-    mockUseProfile.mockReturnValue({ isOwner: false, isAuthenticated: false });
+  it("shows the Explore loading state", () => {
+    vi.mocked(useExploreQuery).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <RecommendationsPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/loading explore shelves/i)).toBeInTheDocument();
   });
 
-  it("shows loading state", () => {
-    mockUseGamesQuery.mockReturnValue({ data: undefined, isLoading: true, error: null });
-    render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
-  });
-
-  it("shows error state", () => {
-    mockUseGamesQuery.mockReturnValue({
+  it("shows the Explore error state", () => {
+    vi.mocked(useExploreQuery).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error("Failed"),
-    });
-    render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.getByText(/recommendations unavailable/i)).toBeInTheDocument();
-    expect(screen.getByText(/supabase configuration/i)).toBeInTheDocument();
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <RecommendationsPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/explore unavailable/i)).toBeInTheDocument();
   });
 
-  it("shows empty state when no recommendations", () => {
-    mockUseGamesQuery.mockReturnValue({ data: [], isLoading: false, error: null });
-    render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.getByText(/no recommendations yet/i)).toBeInTheDocument();
-  });
-
-  it("renders recommendation cards for public viewers", () => {
-    mockUseGamesQuery.mockReturnValue({
-      data: [
-        {
-          id: "1",
-          name: "Arnak",
-          status: "new_rec",
-          recommendationVerdict: "Strong fit",
-          summary: "Great engine builder",
-          notes: null,
-          gapReason: null,
-          tags: [],
-        },
-      ],
+  it("renders the compatibility Explore shelves", () => {
+    vi.mocked(useExploreQuery).mockReturnValue({
+      data: {
+        shelves: [
+          { id: "for-you", title: "For You", entries: [] },
+          { id: "trending", title: "Trending Now", entries: [] },
+        ],
+      },
       isLoading: false,
       error: null,
-    });
-    render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.getByText("Arnak")).toBeInTheDocument();
-    expect(screen.getByText("Strong fit")).toBeInTheDocument();
-  });
+    } as never);
 
-  it("hides owner controls when not owner", () => {
-    mockUseGamesQuery.mockReturnValue({
-      data: [
-        {
-          id: "1",
-          name: "Arnak",
-          status: "new_rec",
-          recommendationVerdict: "Strong fit",
-          summary: null,
-          notes: null,
-          gapReason: null,
-          tags: [],
-        },
-      ],
-      isLoading: false,
-      error: null,
-    });
-    mockUseProfile.mockReturnValue({ isOwner: false, isAuthenticated: false });
-    render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.queryByRole("button", { name: /edit/i })).not.toBeInTheDocument();
-  });
+    render(
+      <MemoryRouter>
+        <RecommendationsPage />
+      </MemoryRouter>,
+    );
 
-  it("shows owner controls when isOwner", () => {
-    mockUseGamesQuery.mockReturnValue({
-      data: [
-        {
-          id: "1",
-          name: "Arnak",
-          status: "new_rec",
-          recommendationVerdict: "Strong fit",
-          summary: null,
-          notes: null,
-          gapReason: null,
-          tags: [],
-        },
-      ],
-      isLoading: false,
-      error: null,
-    });
-    mockUseProfile.mockReturnValue({ isOwner: true, isAuthenticated: true });
-    render(<RecommendationsPage />, { wrapper: makeWrapper() });
-    expect(screen.getByRole("button", { name: /edit/i })).toBeInTheDocument();
+    expect(screen.getByText("For You")).toBeInTheDocument();
+    expect(screen.getByText("Trending Now")).toBeInTheDocument();
   });
 });
