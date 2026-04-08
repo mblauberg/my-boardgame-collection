@@ -1,0 +1,38 @@
+export type GameStatus = "owned" | "buy" | "new_rec" | "cut" | "archived";
+
+export type Tag = {
+  id: string;
+  name: string;
+  slug: string;
+  tagType: string | null;
+  colour: string | null;
+};
+
+export type Game = {
+  id: string;
+  name: string;
+  slug: string;
+  bggId: number | null;
+  bggUrl: string | null;
+  status: GameStatus;
+  buyPriority: number | null;
+  bggRating: number | null;
+  bggWeight: number | null;
+  playersMin: number | null;
+  playersMax: number | null;
+  playTimeMin: number | null;
+  playTimeMax: number | null;
+  category: string | null;
+  summary: string | null;
+  notes: string | null;
+  recommendationVerdict: string | null;
+  recommendationColour: string | null;
+  gapReason: string | null;
+  isExpansionIncluded: boolean;
+  imageUrl: string | null;
+  publishedYear: number | null;
+  hidden: boolean;
+  createdAt: string;
+  updatedAt: string;
+  tags: Tag[];
+};
