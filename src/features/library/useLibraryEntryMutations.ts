@@ -30,6 +30,34 @@ type DeleteLibraryEntryInput = {
   userId: string;
 };
 
+type BggSelectedGame = {
+  id: number;
+  name: string;
+  bggUrl: string;
+  imageUrl: string | null;
+  yearPublished: number | null;
+  playersMin: number | null;
+  playersMax: number | null;
+  playTimeMin: number | null;
+  playTimeMax: number | null;
+  averageRating: number | null;
+  averageWeight: number | null;
+  summary: string | null;
+};
+
+type SaveBggGameInput = {
+  userId: string;
+  selectedGame: BggSelectedGame;
+};
+
+function slugify(input: string) {
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 async function upsertLibraryEntry(input: UpsertLibraryEntryInput): Promise<LibraryEntryRow> {
   const supabase = getSupabaseBrowserClient();
 
@@ -135,6 +163,40 @@ export function useDeleteLibraryEntry() {
       const supabase = getSupabaseBrowserClient();
       const { error } = await supabase.from("library_entries").delete().eq("id", id);
       if (error) throw error;
+    },
+    onSuccess: (_entry, variables) => {
+      invalidateLibraryQueries(queryClient, variables.userId);
+    },
+  });
+}
+
+export function useSaveBggGameToWishlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, selectedGame }: SaveBggGameInput) => {
+      const supabase = getSupabaseBrowserClient();
+      const { data, error } = await supabase.rpc("save_bgg_game_for_user", {
+        p_user_id: userId,
+        p_bgg_id: selectedGame.id,
+        p_name: selectedGame.name,
+        p_slug: slugify(selectedGame.name),
+        p_bgg_url: selectedGame.bggUrl,
+        p_image_url: selectedGame.imageUrl,
+        p_published_year: selectedGame.yearPublished,
+        p_players_min: selectedGame.playersMin,
+        p_players_max: selectedGame.playersMax,
+        p_play_time_min: selectedGame.playTimeMin,
+        p_play_time_max: selectedGame.playTimeMax,
+        p_bgg_rating: selectedGame.averageRating,
+        p_bgg_weight: selectedGame.averageWeight,
+        p_summary: selectedGame.summary,
+        p_list_type: "wishlist",
+        p_sentiment: null,
+      });
+
+      if (error) throw error;
+      return data as LibraryEntryRow;
     },
     onSuccess: (_entry, variables) => {
       invalidateLibraryQueries(queryClient, variables.userId);
