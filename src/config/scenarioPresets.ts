@@ -1,7 +1,7 @@
 // scenarioPresets.ts
 // Config-driven scenario matching for the board game web app.
 
-export type GameStatus = 'owned' | 'buy' | 'new_rec' | 'cut' | 'archived';
+import type { GameStatus } from "../types/domain";
 
 export type ScenarioGame = {
   id: string;

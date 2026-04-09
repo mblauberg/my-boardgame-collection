@@ -590,7 +590,7 @@ create index if not exists idx_games_status on public.games(status);
 create index if not exists idx_games_hidden on public.games(hidden);
 create index if not exists idx_games_buy_priority on public.games(buy_priority);
 create index if not exists idx_games_name on public.games(name);
-create index if not exists idx_games_bgg_id on public.games(bgg_id);
+create index if not exists idx_games_bgg_id on public.games(bgg_id) where bgg_id is not null;
 create unique index if not exists idx_games_bgg_id_unique
 on public.games (bgg_id)
 where bgg_id is not null;

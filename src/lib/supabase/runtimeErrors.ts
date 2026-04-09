@@ -4,6 +4,8 @@ type ErrorLike = {
   status?: number;
 };
 
+const MAX_RETRY_ATTEMPTS = 2;
+
 function toErrorLike(error: unknown): ErrorLike {
   if (error instanceof Error) {
     return { message: error.message };
@@ -40,7 +42,7 @@ export function shouldRetrySupabaseQuery(failureCount: number, error: unknown) {
     return false;
   }
 
-  return failureCount < 2;
+  return failureCount < MAX_RETRY_ATTEMPTS;
 }
 
 export function getSupabaseQueryErrorMessage(error: unknown, resourceLabel: string) {

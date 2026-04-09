@@ -1,9 +1,6 @@
 import { useSearchParams } from "react-router-dom";
-import type {
-  LibraryFilters,
-  LibrarySortDirection,
-  LibrarySortOption,
-} from "./libraryFilters";
+import type { SortDirection, SortOption } from "../shared/filters";
+import type { LibraryFilters } from "./libraryFilters";
 
 export function useLibraryFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,8 +14,8 @@ export function useLibraryFilters() {
     maxWeight: searchParams.get("maxWeight") ? Number(searchParams.get("maxWeight")) : undefined,
   };
 
-  const sortBy = (searchParams.get("sortBy") as LibrarySortOption) || "name";
-  const sortDirection = (searchParams.get("sortDir") as LibrarySortDirection) || "asc";
+  const sortBy = (searchParams.get("sortBy") as SortOption) || "name";
+  const sortDirection = (searchParams.get("sortDir") as SortDirection) || "asc";
 
   const updateFilters = (nextFilters: Partial<LibraryFilters>) => {
     const params = new URLSearchParams(searchParams);
@@ -40,7 +37,7 @@ export function useLibraryFilters() {
     setSearchParams(params);
   };
 
-  const updateSort = (nextSortBy: LibrarySortOption, nextDirection: LibrarySortDirection) => {
+  const updateSort = (nextSortBy: SortOption, nextDirection: SortDirection) => {
     const params = new URLSearchParams(searchParams);
     params.set("sortBy", nextSortBy);
     params.set("sortDir", nextDirection);

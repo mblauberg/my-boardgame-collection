@@ -1,4 +1,6 @@
 import type { LibraryEntry, LibraryListType } from "./library.types";
+import { compareValues } from "../../lib/utils/sorting";
+import type { SortOption, SortDirection } from "../shared/filters";
 
 export type LibraryFilters = {
   listType?: LibraryListType;
@@ -9,9 +11,6 @@ export type LibraryFilters = {
   playTime?: number | null;
   maxWeight?: number | null;
 };
-
-export type LibrarySortOption = "name" | "rating" | "weight" | "year" | "priority";
-export type LibrarySortDirection = "asc" | "desc";
 
 export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFilters) {
   const searchText = filters.searchText?.trim().toLowerCase();
@@ -77,27 +76,27 @@ export function moveEntryToCollection(entry: LibraryEntry): LibraryEntry {
 
 export function sortLibraryEntries(
   entries: LibraryEntry[],
-  sortBy: LibrarySortOption,
-  direction: LibrarySortDirection,
+  sortBy: SortOption,
+  direction: SortDirection,
 ) {
-  const sorted = [...entries].sort((left, right) => {
-    const multiplier = direction === "asc" ? 1 : -1;
-
+  return [...entries].sort((left, right) => {
     switch (sortBy) {
       case "name":
-        return multiplier * left.game.name.localeCompare(right.game.name);
+        return compareValues(left.game.name, right.game.name, direction);
       case "rating":
-        return multiplier * ((left.game.bggRating ?? -1) - (right.game.bggRating ?? -1));
+        return compareValues(left.game.bggRating ?? -1, right.game.bggRating ?? -1, direction);
       case "weight":
-        return multiplier * ((left.game.bggWeight ?? -1) - (right.game.bggWeight ?? -1));
+        return compareValues(left.game.bggWeight ?? -1, right.game.bggWeight ?? -1, direction);
       case "year":
-        return multiplier * ((left.game.publishedYear ?? -1) - (right.game.publishedYear ?? -1));
+        return compareValues(left.game.publishedYear ?? -1, right.game.publishedYear ?? -1, direction);
       case "priority":
-        return multiplier * ((left.priority ?? Number.MAX_SAFE_INTEGER) - (right.priority ?? Number.MAX_SAFE_INTEGER));
+        return compareValues(
+          left.priority ?? Number.MAX_SAFE_INTEGER,
+          right.priority ?? Number.MAX_SAFE_INTEGER,
+          direction
+        );
       default:
         return 0;
     }
   });
-
-  return sorted;
 }

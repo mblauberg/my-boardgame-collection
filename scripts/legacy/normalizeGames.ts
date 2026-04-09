@@ -1,5 +1,5 @@
 import type { LegacyGame } from './legacyTypes.js';
-import { slugify } from './slugify.js';
+import { slugify } from '../../src/lib/utils/slugify.js';
 
 export type NormalizedGame = {
   slug: string;

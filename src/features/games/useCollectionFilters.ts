@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
-import type { CollectionFilters, SortOption, SortDirection } from "./collectionFilters";
+import type { SortDirection } from "../shared/filters";
+import type { CollectionFilters, SortOption } from "./collectionFilters";
 import type { GameStatus } from "../../types/domain";
 
 export function useCollectionFilters() {

@@ -1,4 +1,6 @@
 import type { Game, GameStatus } from "../../types/domain";
+import type { SortDirection } from "../shared/filters";
+import { compareValues } from "../../lib/utils/sorting";
 
 export type CollectionFilters = {
   search?: string;
@@ -13,7 +15,6 @@ export type CollectionFilters = {
 };
 
 export type SortOption = "name" | "rating" | "weight" | "year";
-export type SortDirection = "asc" | "desc";
 
 export function filterGames(games: Game[], filters: CollectionFilters): Game[] {
   return games.filter((game) => {
@@ -62,44 +63,16 @@ export function sortGames(
   sortBy: SortOption,
   direction: SortDirection
 ): Game[] {
-  const sorted = [...games].sort((a, b) => {
-    let aVal: number | string | null;
-    let bVal: number | string | null;
-
+  return [...games].sort((a, b) => {
     switch (sortBy) {
       case "name":
-        aVal = a.name;
-        bVal = b.name;
-        break;
+        return compareValues(a.name, b.name, direction);
       case "rating":
-        aVal = a.bggRating;
-        bVal = b.bggRating;
-        break;
+        return compareValues(a.bggRating, b.bggRating, direction);
       case "weight":
-        aVal = a.bggWeight;
-        bVal = b.bggWeight;
-        break;
+        return compareValues(a.bggWeight, b.bggWeight, direction);
       case "year":
-        aVal = a.publishedYear;
-        bVal = b.publishedYear;
-        break;
+        return compareValues(a.publishedYear, b.publishedYear, direction);
     }
-
-    if (aVal === null) return 1;
-    if (bVal === null) return -1;
-
-    if (typeof aVal === "string" && typeof bVal === "string") {
-      return direction === "asc"
-        ? aVal.localeCompare(bVal)
-        : bVal.localeCompare(aVal);
-    }
-
-    if (typeof aVal === "number" && typeof bVal === "number") {
-      return direction === "asc" ? aVal - bVal : bVal - aVal;
-    }
-
-    return 0;
   });
-
-  return sorted;
 }

@@ -1,11 +1,11 @@
-import type { LibrarySortDirection, LibrarySortOption } from "../../features/library/libraryFilters";
+import type { SortDirection, SortOption } from "../../features/shared/filters";
 
 type LibraryToolbarProps = {
   searchText?: string;
-  sortBy: LibrarySortOption;
-  sortDirection: LibrarySortDirection;
+  sortBy: SortOption;
+  sortDirection: SortDirection;
   onSearchTextChange: (value: string) => void;
-  onSortChange: (sortBy: LibrarySortOption, sortDirection: LibrarySortDirection) => void;
+  onSortChange: (sortBy: SortOption, sortDirection: SortDirection) => void;
   onClear: () => void;
 };
 
@@ -32,7 +32,7 @@ export function LibraryToolbar({
 
       <select
         value={sortBy}
-        onChange={(event) => onSortChange(event.target.value as LibrarySortOption, sortDirection)}
+        onChange={(event) => onSortChange(event.target.value as SortOption, sortDirection)}
         className="rounded-xl border border-outline/20 bg-white px-4 py-3 text-sm text-on-surface outline-none"
       >
         <option value="name">Name</option>
