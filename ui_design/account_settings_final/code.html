@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#767775",
+                        "outline-variant": "#adadab",
+                        "surface-container-low": "#f1f1ee",
+                        "error-container": "#f95630",
+                        "error": "#b02500",
+                        "on-background": "#2e2f2d",
+                        "primary-fixed": "#fd9000",
+                        "surface-bright": "#f7f6f3",
+                        "on-error-container": "#520c00",
+                        "secondary-fixed": "#8df5e4",
+                        "on-secondary-container": "#005c53",
+                        "on-primary-fixed-variant": "#532b00",
+                        "secondary-fixed-dim": "#7fe6d5",
+                        "tertiary-dim": "#5f4e00",
+                        "tertiary": "#6d5a00",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#00675c",
+                        "on-tertiary-fixed-variant": "#675500",
+                        "tertiary-fixed": "#fdd73e",
+                        "primary-dim": "#794200",
+                        "inverse-primary": "#fd9000",
+                        "inverse-surface": "#0d0f0d",
+                        "primary": "#8a4c00",
+                        "primary-container": "#fd9000",
+                        "on-tertiary-container": "#5c4b00",
+                        "surface-container": "#e8e8e5",
+                        "on-primary-container": "#462400",
+                        "surface-tint": "#8a4c00",
+                        "secondary-dim": "#005a50",
+                        "on-primary-fixed": "#1e0c00",
+                        "on-secondary-fixed-variant": "#00675c",
+                        "error-dim": "#b92902",
+                        "secondary-container": "#8df5e4",
+                        "on-tertiary": "#fff2cf",
+                        "surface-dim": "#d4d5d1",
+                        "tertiary-fixed-dim": "#eec930",
+                        "on-surface": "#2e2f2d",
+                        "on-secondary-fixed": "#004840",
+                        "primary-fixed-dim": "#ea8400",
+                        "on-primary": "#fff0e6",
+                        "surface": "#f7f6f3",
+                        "background": "#f7f6f3",
+                        "on-surface-variant": "#5b5c5a",
+                        "tertiary-container": "#fdd73e",
+                        "inverse-on-surface": "#9d9d9b",
+                        "surface-container-highest": "#ddddda",
+                        "surface-variant": "#ddddda",
+                        "surface-container-high": "#e2e3df",
+                        "on-error": "#ffefec",
+                        "on-tertiary-fixed": "#463900",
+                        "on-secondary": "#c0fff3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-[#1a1b1e]/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-full mx-auto">
+<div class="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tighter">The Game Haven</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Explore</a>
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Wishlist</a>
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Collection</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high transition-all text-[#2e2f2d]">settings</button>
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container border-2 border-white shadow-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional headshot of a smiling man with a beard in warm soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcFTLJEMsWUpZ9TQkF1gDEbtuOBlKedXuXt3gMNWMpu2QVRutILGbks32C4QINzpVHfI4GNLZF77BDJNRhZGWFuhGB2Jq11-JwbYu2iy8zIRjZ-vuq8crWGCORj9ot3p_AAhdZ2dVvAF7UcJsKxyotNPyRCs6oHfb0z159Z7F_DvC2PfSY9ACdHK_UpxbkSbikWsrDndckdGmkkehCxw4_iNw7-QMIg_I0zIvm42uKzAvAWWzdqYD3aN48-XmEKthUFTKINfGYcg4"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-12 px-6 lg:px-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+<!-- Sidebar Navigation (Account Specific) -->
+<aside class="w-full md:w-64 flex-shrink-0">
+<div class="flex flex-col h-full p-6 bg-[#f1f1ee] dark:bg-[#121212] rounded-xl">
+<div class="mb-8">
+<h2 class="text-xl font-black uppercase tracking-widest text-amber-800 font-headline">The Game Haven</h2>
+<p class="text-sm text-on-surface-variant font-medium">Curated Board Gaming</p>
+</div>
+<nav class="space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#2e2f2d] text-amber-800 dark:text-amber-400 rounded-xl shadow-sm font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span>Profile</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#2e2f2d] dark:text-[#adadab] hover:bg-[#ddddda] dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Stats</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#2e2f2d] dark:text-[#adadab] hover:bg-[#ddddda] dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined">link</span>
+<span>Connections</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#2e2f2d] dark:text-[#adadab] hover:bg-[#ddddda] dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span>Alerts</span>
+</a>
+</nav>
+<div class="mt-auto pt-8">
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+                        Add New Game
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="flex-1 space-y-12">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="text-xs font-bold uppercase tracking-[0.1em] text-primary">Account Dashboard</span>
+<h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mt-2">Welcome back, Alex.</h1>
+</div>
+<div class="flex gap-4">
+<div class="px-4 py-2 bg-secondary-fixed rounded-full flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-secondary-container text-xs font-bold uppercase tracking-wider">BGG Connected</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4">
+<div class="md:col-span-2 md:row-span-2 bg-surface-container-lowest p-8 rounded-xl flex flex-col justify-between shadow-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary text-4xl">inventory_2</span>
+<div>
+<div class="text-6xl font-black text-on-surface tracking-tighter">142</div>
+<div class="text-lg font-medium text-on-surface-variant">Games in your collection</div>
+</div>
+<div class="pt-4 border-t border-surface-container mt-4">
+<p class="text-sm text-on-surface-variant leading-relaxed">Your collection has grown by <span class="font-bold text-secondary">12%</span> this month. Most played genre: <span class="font-bold text-primary">Eurogames</span>.</p>
+</div>
+</div>
+<div class="md:col-span-1 bg-surface-container-low p-6 rounded-xl flex flex-col justify-center border border-outline-variant/5">
+<div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Wishlist</div>
+<div class="text-3xl font-black text-primary">28</div>
+<div class="mt-4 flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="vibrant board game cover art with colorful illustrations of wooden meeples" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBguiXq6FABe6DPf9lfiEPbCCTVBrIUg58ODeYu2KhPpnAGKOjjaOs5OdvQk9tlZF7I8lbGoPtnb-6tdk5dm2-O-sfmgMnUMZN3NBkhja_aW21qoXBdxntq3LfMuSzVI0s0tTx69sAcikesOS4j_Ap-pHP9VETfmFqiTQNGIgmJpAqa0ySiAs9UTwLGitG0cdCwVMbs_ET_j89w0Du_L30a2Myop_K134ZQTVsIBMkrXUhILhx_goZM3Mh4FrVeuMP0xGtCA9M5Ao4"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="macro shot of board game components including dice and player tokens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOu7gWVczr4EeMNrqtYpKe5CML7RFRzhtIEkf7XgOg7vxme3oUyn6LqrouxGmWQkJW7_EvN4GM1kFxCqLOAZnmo5sxOvOJLhNYn1P-qUw_mUPXvlEKmKdJ2wwNlbYpjGxANchh6j104-IgykehhEfKbRXWGJWLiSmBayPfldU69-YAyo5ln7Ha7Mp433J0rIGPvkhUYvxr8_g7sLN0lb9GY7eTk-FEW2eC3mhgxigSLp53lNIVypbZrOt2Mkk0EMl5bx0MiAZBi3Q"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold">+26</div>
+</div>
+</div>
+<div class="md:col-span-1 bg-surface-container-low p-6 rounded-xl flex flex-col justify-center border border-outline-variant/5">
+<div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Total Playtime</div>
+<div class="text-3xl font-black text-secondary">842h</div>
+<div class="mt-2 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4 rounded-full"></div>
+</div>
+<div class="text-[10px] mt-2 font-medium text-on-surface-variant">Top 5% of global players</div>
+</div>
+<div class="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl flex items-center gap-6 shadow-sm border border-outline-variant/10">
+<div class="w-16 h-16 bg-surface-container-low rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-tertiary">workspace_premium</span>
+</div>
+<div>
+<div class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Achievement</div>
+<div class="text-xl font-bold text-on-surface">Master Strategist</div>
+<p class="text-sm text-on-surface-variant">Won 50+ games of heavy complexity</p>
+</div>
+</div>
+</div>
+<!-- Preferences Section -->
+<div class="space-y-6">
+<h3 class="text-2xl font-bold tracking-tight border-b border-surface-container pb-4">Preferences &amp; Personalization</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Toggle Card -->
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">dark_mode</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Dark Mode</h4>
+<p class="text-sm text-on-surface-variant">Switch to high-contrast night view</p>
+</div>
+</div>
+<button class="w-12 h-6 bg-surface-container-highest rounded-full relative p-1 flex items-center transition-colors">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+<!-- Toggle Card -->
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">visibility</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Public Profile</h4>
+<p class="text-sm text-on-surface-variant">Allow others to see your collection</p>
+</div>
+</div>
+<button class="w-12 h-6 bg-primary rounded-full relative p-1 flex items-center justify-end transition-colors">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+<!-- Toggle Card -->
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Smart Alerts</h4>
+<p class="text-sm text-on-surface-variant">Notify when wishlisted games go on sale</p>
+</div>
+</div>
+<button class="w-12 h-6 bg-primary rounded-full relative p-1 flex items-center justify-end transition-colors">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+<!-- BGG Link Card -->
+<div class="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">sync</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">BGG Sync</h4>
+<p class="text-sm text-on-surface-variant">Last synced: 14 mins ago</p>
+</div>
+</div>
+<button class="text-xs font-bold uppercase tracking-widest text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors">Re-sync</button>
+</div>
+</div>
+</div>
+<!-- Danger Zone -->
+<div class="pt-8 border-t border-surface-container">
+<div class="bg-error-container/10 p-8 rounded-xl border border-error-container/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div>
+<h3 class="text-xl font-bold text-error">Account Deletion</h3>
+<p class="text-on-surface-variant mt-1">Permanently remove your collection data and profile history.</p>
+</div>
+<button class="px-6 py-3 bg-error text-on-error rounded-xl font-bold hover:bg-error-dim transition-colors shadow-lg shadow-error/20">Delete Account</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Space -->
+<footer class="mt-24 py-12 px-8 bg-surface-container-low border-t border-surface-container">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="text-lg font-black text-amber-800 tracking-tighter">The Game Haven</div>
+<div class="flex gap-8 text-sm font-medium text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">API Support</a>
+</div>
+<div class="text-sm text-on-surface-variant/60">
+                © 2024 The Game Haven. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

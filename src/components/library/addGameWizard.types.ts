@@ -13,6 +13,12 @@ export type AddGameWizardSelectedGame = {
   averageRating: number | null;
   averageWeight: number | null;
   summary: string | null;
+  bggRank?: number | null;
+  bggBayesAverage?: number | null;
+  bggUsersRated?: number | null;
+  isExpansion?: boolean | null;
+  customImageFile?: File;
+  customImageUrl?: string;
 };
 
 export type AddGameWizardCollectionInfo = {

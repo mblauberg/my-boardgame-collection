@@ -22,6 +22,22 @@ describe("gameMappers", () => {
     buy_priority: null,
     bgg_rating: 8.1,
     bgg_weight: 2.5,
+    bgg_rank: 32,
+    bgg_bayesaverage: 7.9,
+    bgg_usersrated: 52311,
+    is_expansion: false,
+    abstracts_rank: null,
+    cgs_rank: null,
+    childrensgames_rank: null,
+    familygames_rank: null,
+    partygames_rank: null,
+    strategygames_rank: 58,
+    thematic_rank: null,
+    wargames_rank: null,
+    bgg_data_source: "bgg_csv",
+    bgg_data_updated_at: "2026-04-09T00:00:00.000Z",
+    bgg_snapshot_payload: { rank: "32" },
+    search_vector: "'heat':1",
     players_min: 1,
     players_max: 6,
     play_time_min: 30,
@@ -54,6 +70,9 @@ describe("gameMappers", () => {
     expect(result.name).toBe("Heat");
     expect(result.slug).toBe("heat");
     expect(result.bggRating).toBe(8.1);
+    expect(result.bggRank).toBe(32);
+    expect(result.bggBayesAverage).toBe(7.9);
+    expect(result.bggDataSource).toBe("bgg_csv");
     expect(result.tags).toHaveLength(1);
     expect(result.tags[0].slug).toBe("racing");
   });

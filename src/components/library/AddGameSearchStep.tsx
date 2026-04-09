@@ -1,19 +1,31 @@
 import type { AddGameWizardSelectedGame } from "./addGameWizard.types";
+import type { BggSearchSource } from "../../features/games/bgg.types";
 
 type AddGameSearchStepProps = {
   query: string;
   onQueryChange: (value: string) => void;
   results: AddGameWizardSelectedGame[];
+  source: BggSearchSource | null;
   selectedGameId: number | null;
   isLoading: boolean;
   errorMessage: string | null;
   onSelect: (game: AddGameWizardSelectedGame) => void;
 };
 
+function formatSourceDate(value: string) {
+  return new Intl.DateTimeFormat("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(value));
+}
+
 export function AddGameSearchStep({
   query,
   onQueryChange,
   results,
+  source,
   selectedGameId,
   isLoading,
   errorMessage,
@@ -28,6 +40,12 @@ export function AddGameSearchStep({
         <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant">
           Search BoardGameGeek to import the game title, year, and any metadata already available.
         </p>
+        {source?.kind === "snapshot" ? (
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            Using {source.label}
+            {source.updatedAt ? ` • Updated ${formatSourceDate(source.updatedAt)}` : ""}
+          </p>
+        ) : null}
       </div>
 
       <label className="mb-6 block">
@@ -96,7 +114,8 @@ export function AddGameSearchStep({
                       {game.yearPublished}
                     </span>
                   ) : null}
-                  <span>BoardGameGeek</span>
+                  <span>{source?.kind === "snapshot" ? "Local snapshot" : "BoardGameGeek"}</span>
+                  {typeof game.bggRank === "number" ? <span>Rank #{game.bggRank}</span> : null}
                 </div>
               </div>
 

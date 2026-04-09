@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#767775",
+                    "outline-variant": "#adadab",
+                    "surface-container-low": "#f1f1ee",
+                    "error-container": "#f95630",
+                    "error": "#b02500",
+                    "on-background": "#2e2f2d",
+                    "primary-fixed": "#fd9000",
+                    "surface-bright": "#f7f6f3",
+                    "on-error-container": "#520c00",
+                    "secondary-fixed": "#8df5e4",
+                    "on-secondary-container": "#005c53",
+                    "on-primary-fixed-variant": "#532b00",
+                    "secondary-fixed-dim": "#7fe6d5",
+                    "tertiary-dim": "#5f4e00",
+                    "tertiary": "#6d5a00",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#00675c",
+                    "on-tertiary-fixed-variant": "#675500",
+                    "tertiary-fixed": "#fdd73e",
+                    "primary-dim": "#794200",
+                    "inverse-primary": "#fd9000",
+                    "inverse-surface": "#0d0f0d",
+                    "primary": "#8a4c00",
+                    "primary-container": "#fd9000",
+                    "on-tertiary-container": "#5c4b00",
+                    "surface-container": "#e8e8e5",
+                    "on-primary-container": "#462400",
+                    "surface-tint": "#8a4c00",
+                    "secondary-dim": "#005a50",
+                    "on-primary-fixed": "#1e0c00",
+                    "on-secondary-fixed-variant": "#00675c",
+                    "error-dim": "#b92902",
+                    "secondary-container": "#8df5e4",
+                    "on-tertiary": "#fff2cf",
+                    "surface-dim": "#d4d5d1",
+                    "tertiary-fixed-dim": "#eec930",
+                    "on-surface": "#2e2f2d",
+                    "on-secondary-fixed": "#004840",
+                    "primary-fixed-dim": "#ea8400",
+                    "on-primary": "#fff0e6",
+                    "surface": "#f7f6f3",
+                    "background": "#f7f6f3",
+                    "on-surface-variant": "#5b5c5a",
+                    "tertiary-container": "#fdd73e",
+                    "inverse-on-surface": "#9d9d9b",
+                    "surface-container-highest": "#ddddda",
+                    "surface-variant": "#ddddda",
+                    "surface-container-high": "#e2e3df",
+                    "on-error": "#ffefec",
+                    "on-tertiary-fixed": "#463900",
+                    "on-secondary": "#c0fff3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+        .glass-nav {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-[#1a1b1e]/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-8 py-4 w-full max-w-full mx-auto">
+<div class="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tighter">The Game Haven</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium font-['Manrope'] tracking-tight text-on-surface hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Explore</a>
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium font-['Manrope'] tracking-tight text-on-surface hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Wishlist</a>
+<a class="text-amber-800 dark:text-amber-400 font-extrabold border-b-2 border-amber-600 font-['Manrope'] tracking-tight text-on-surface hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Collection</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80">
+<span class="material-symbols-outlined text-on-surface" data-icon="settings">settings</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80">
+<span class="material-symbols-outlined text-on-surface" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</nav>
+<main class="pt-28 pb-20 px-8 max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<p class="text-primary font-bold tracking-[0.2em] uppercase text-xs mb-2">Curated Collection</p>
+<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface max-w-2xl">
+                    The Art of <span class="text-primary">Play</span>
+</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-low rounded-xl text-on-surface font-semibold hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="filter_list">filter_list</span>
+                    Filters
+                </button>
+</div>
+</header>
+<!-- Category Chips -->
+<section class="flex flex-wrap gap-3 mb-16">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary font-bold shadow-lg shadow-primary/20">All Games</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-highest transition-colors">Strategy</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-highest transition-colors">Eurogame</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-highest transition-colors">Deck Building</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-highest transition-colors">Cooperative</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-semibold hover:bg-surface-container-highest transition-colors">Party</button>
+</section>
+<!-- Gallery Grid -->
+<div class="editorial-grid">
+<!-- Game Card 1 -->
+<article class="group relative bg-surface-container-low rounded-xl overflow-visible p-6 transition-all duration-300 hover:translate-y-[-4px]">
+<div class="relative -mt-12 mb-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-cover" data-alt="close up of a vibrant board game box art featuring a mysterious forest with glowing trees and mystical creatures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM3c82fCVsizmmSICSohN_Bj3I4T5uSQU9obgMs3cEo_UxZ1c5eh4ol9iaC2mWr89AvRm7tjoHyu4mfBGUAewjylHX9AOVOCVsaqbKpu69fpy9M1zBmErRmkhpn53-c4Ssx3jSLUzROYMaSJjkZ-nxMTXYH9S3Q-z3-n_oaB8-sKh1jtvdHcnxjx-HzVL-KrQTxJf8WyYF_D82hOa1mpythxhhoz6Q26RruN-aLLa5pw_YAmQvQn0gnvdomGJWNvKR8hmKj84TUVc"/>
+<div class="absolute top-4 right-4">
+<span class="bg-secondary-fixed text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">In Stock</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<h3 class="text-2xl font-extrabold text-on-surface leading-tight">Everdell</h3>
+<span class="material-symbols-outlined text-primary" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 leading-relaxed">A charming game of tableau building and worker placement in a whimsical forest world.</p>
+<div class="flex flex-wrap gap-4 pt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+<span class="text-xs font-bold uppercase tracking-wider">1-4 Players</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="schedule">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">60-90 Min</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="fitness_center">fitness_center</span>
+<span class="text-xs font-bold uppercase tracking-wider">2.8/5</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Game Card 2 (Asymmetric Shift) -->
+<article class="group relative bg-surface-container-low rounded-xl overflow-visible p-6 transition-all duration-300 hover:translate-y-[-4px] md:mt-8">
+<div class="relative -mt-12 mb-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-cover" data-alt="dramatic shot of complex miniature gaming pieces on a hex-tile space map with neon purple and deep black tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBza3nRkkOuI-UjmUIq9dI8X4xSeY-8WyqUolLuetZw8tRXqRdLghiw7M5ChAcxDYZRtpIKs33DxTQI25D1bQL3tLA-_w_-xwCTE_s9IbmXNWiGzsYk_nvXZuy34SX23ah2b0vDE1vPt3TY_YGr2MF8E5EHk8lDmqb-kALt-9v5RC3LrvX8wexEreli3zT_58DPZhmYVirsDesri68JSEoZ1D-2zzV4IqtMcp3WSFNOFp3Y4xVIKgIUlcDWumUuL-aNORIkuGMQJV4"/>
+<div class="absolute top-4 right-4">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">Wishlist</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<h3 class="text-2xl font-extrabold text-on-surface leading-tight">Twilight Imperium</h3>
+<span class="material-symbols-outlined text-outline" data-icon="favorite">favorite</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 leading-relaxed">The ultimate space opera of galactic conquest, diplomacy, and trade.</p>
+<div class="flex flex-wrap gap-4 pt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+<span class="text-xs font-bold uppercase tracking-wider">3-6 Players</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="schedule">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">4-8 Hours</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="fitness_center">fitness_center</span>
+<span class="text-xs font-bold uppercase tracking-wider">4.2/5</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Game Card 3 -->
+<article class="group relative bg-surface-container-low rounded-xl overflow-visible p-6 transition-all duration-300 hover:translate-y-[-4px]">
+<div class="relative -mt-12 mb-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-cover" data-alt="macro photograph of colorful bird illustrations on high-quality playing cards with wooden egg components nearby" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQ2TUhlQSgnZNGVVzJzdpc3xSeGjulM4e_Eni08yhDiixhvg674ap6yGcrZAThotESPMxwITMhfp15RRf60RVRchADl1_43dhH_iRf1P9fFqADi5dCkmQurSwH2k6m1Q6ltC5osM-QiK-0bVIL5DREmHNGwNUL39cy1KOq9bSPx2p6qhccltvewg0sqjcnJzFQHcqZxmM8ZdEefk-zL77eOki7-BkGug25GaH0i4b-NIJM0JuLIO4dip3iI0fvsMux1w7wufRhj5c"/>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<h3 class="text-2xl font-extrabold text-on-surface leading-tight">Wingspan</h3>
+<span class="material-symbols-outlined text-outline" data-icon="favorite">favorite</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 leading-relaxed">A competitive bird-collection game that is both relaxing and deeply strategic.</p>
+<div class="flex flex-wrap gap-4 pt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+<span class="text-xs font-bold uppercase tracking-wider">1-5 Players</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="schedule">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">40-70 Min</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="fitness_center">fitness_center</span>
+<span class="text-xs font-bold uppercase tracking-wider">2.4/5</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Game Card 4 (Asymmetric Shift) -->
+<article class="group relative bg-surface-container-low rounded-xl overflow-visible p-6 transition-all duration-300 hover:translate-y-[-4px] md:mt-8">
+<div class="relative -mt-12 mb-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-cover" data-alt="elegant ceramic game pieces on a minimalist abstract board with soft afternoon sunlight casting long shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm5TMjw5Yz8j8EQZZTQYlxmXEinxyPibVzf4K8sq6-qfENKqPkuuLdK58UxUiL83BY9Pob7jv2wABuSrKJYeVecqI6BjShU8REKhDfsO4sRaknZSQHnLjgSDwStwHYcz8fR562tkaorIXVA4jQIG6coItexIP2jI9wvV7oMbBr8iULZHftpZTEXD4GRVdLxeiADlmBPitYVmfBWWsBfICG8VTT-CSM9S_fX-3ihApCGreHctBkwH3GG7p8QOuxkBKUWfGH2Yb5aS8"/>
+<div class="absolute top-4 right-4">
+<span class="bg-secondary-fixed text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">In Stock</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<h3 class="text-2xl font-extrabold text-on-surface leading-tight">Azul</h3>
+<span class="material-symbols-outlined text-primary" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<p class="text-on-surface-variant text-sm line-clamp-2 leading-relaxed">A tactile puzzle game where players draft beautiful tiles to decorate the Royal Palace.</p>
+<div class="flex flex-wrap gap-4 pt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+<span class="text-xs font-bold uppercase tracking-wider">2-4 Players</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="schedule">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">30-45 Min</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="fitness_center">fitness_center</span>
+<span class="text-xs font-bold uppercase tracking-wider">1.8/5</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container text-on-primary flex items-center justify-center shadow-xl shadow-primary/30 transform hover:scale-110 active:scale-95 transition-all duration-200 z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+</body></html>

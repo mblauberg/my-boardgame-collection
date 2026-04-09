@@ -39,7 +39,11 @@ export function LibraryList({
   return (
     <div className="editorial-grid">
       {entries.map((entry) => {
-        const customState = getGameLinkState ? getGameLinkState(entry) : {};
+        const rawLinkState = getGameLinkState ? getGameLinkState(entry) : null;
+        const customState =
+          rawLinkState && typeof rawLinkState === "object"
+            ? rawLinkState
+            : {};
         const linkState = {
           ...customState,
           from: location.pathname,

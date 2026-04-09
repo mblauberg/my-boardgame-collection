@@ -24,9 +24,14 @@ function makeWrapper() {
 
 describe("useBggSearchQuery", () => {
   it("searches BGG when the query is long enough", async () => {
-    searchBggGames.mockResolvedValue([
-      { id: 123, name: "Heat", yearPublished: 2023 },
-    ]);
+    searchBggGames.mockResolvedValue({
+      results: [{ id: 123, name: "Heat", yearPublished: 2023 }],
+      source: {
+        kind: "api",
+        label: "Live BGG",
+        updatedAt: null,
+      },
+    });
 
     const { Wrapper } = makeWrapper();
     const { result } = renderHook(() => useBggSearchQuery("Heat"), { wrapper: Wrapper });
@@ -34,6 +39,13 @@ describe("useBggSearchQuery", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(searchBggGames).toHaveBeenCalledWith("Heat");
-    expect(result.current.data).toEqual([{ id: 123, name: "Heat", yearPublished: 2023 }]);
+    expect(result.current.data).toEqual({
+      results: [{ id: 123, name: "Heat", yearPublished: 2023 }],
+      source: {
+        kind: "api",
+        label: "Live BGG",
+        updatedAt: null,
+      },
+    });
   });
 });

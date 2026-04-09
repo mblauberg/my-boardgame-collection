@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add New Game | The Game Haven</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#767775",
+                        "outline-variant": "#adadab",
+                        "surface-container-low": "#f1f1ee",
+                        "error-container": "#f95630",
+                        "error": "#b02500",
+                        "on-background": "#2e2f2d",
+                        "primary-fixed": "#fd9000",
+                        "surface-bright": "#f7f6f3",
+                        "on-error-container": "#520c00",
+                        "secondary-fixed": "#8df5e4",
+                        "on-secondary-container": "#005c53",
+                        "on-primary-fixed-variant": "#532b00",
+                        "secondary-fixed-dim": "#7fe6d5",
+                        "tertiary-dim": "#5f4e00",
+                        "tertiary": "#6d5a00",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#00675c",
+                        "on-tertiary-fixed-variant": "#675500",
+                        "tertiary-fixed": "#fdd73e",
+                        "primary-dim": "#794200",
+                        "inverse-primary": "#fd9000",
+                        "inverse-surface": "#0d0f0d",
+                        "primary": "#8a4c00",
+                        "primary-container": "#fd9000",
+                        "on-tertiary-container": "#5c4b00",
+                        "surface-container": "#e8e8e5",
+                        "on-primary-container": "#462400",
+                        "surface-tint": "#8a4c00",
+                        "secondary-dim": "#005a50",
+                        "on-primary-fixed": "#1e0c00",
+                        "on-secondary-fixed-variant": "#00675c",
+                        "error-dim": "#b92902",
+                        "secondary-container": "#8df5e4",
+                        "on-tertiary": "#fff2cf",
+                        "surface-dim": "#d4d5d1",
+                        "tertiary-fixed-dim": "#eec930",
+                        "on-surface": "#2e2f2d",
+                        "on-secondary-fixed": "#004840",
+                        "primary-fixed-dim": "#ea8400",
+                        "on-primary": "#fff0e6",
+                        "surface": "#f7f6f3",
+                        "background": "#f7f6f3",
+                        "on-surface-variant": "#5b5c5a",
+                        "tertiary-container": "#fdd73e",
+                        "inverse-on-surface": "#9d9d9b",
+                        "surface-container-highest": "#ddddda",
+                        "surface-variant": "#ddddda",
+                        "surface-container-high": "#e2e3df",
+                        "on-error": "#ffefec",
+                        "on-tertiary-fixed": "#463900",
+                        "on-secondary": "#c0fff3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-gradient {
+            background: linear-gradient(45deg, #8a4c00 0%, #fd9000 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+<!-- TopNavBar (Shared Component Execution) -->
+<nav class="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-[#1a1b1e]/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-full mx-auto">
+<div class="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tighter">The Game Haven</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Explore</a>
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Wishlist</a>
+<a class="text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Collection</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface hover:text-amber-600 transition-colors">settings</button>
+<button class="material-symbols-outlined text-on-surface hover:text-amber-600 transition-colors">account_circle</button>
+</div>
+</div>
+</nav>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+<!-- Wizard Container -->
+<div class="bg-surface-container-lowest w-full max-w-2xl rounded-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)] overflow-hidden flex flex-col md:flex-row min-h-[520px]">
+<!-- Side Progress (Editorial Design) -->
+<div class="bg-surface-container-low w-full md:w-56 p-8 flex flex-col gap-8">
+<div class="flex flex-col gap-1">
+<span class="text-[10px] font-bold tracking-[0.05em] uppercase text-outline">Step 01 of 03</span>
+<h2 class="text-xl font-extrabold text-primary tracking-tight">Add New Game</h2>
+</div>
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary ring-4 ring-primary/20"></div>
+<span class="text-sm font-bold text-on-surface">Find your game</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="text-sm font-medium text-outline-variant">Game Details</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="text-sm font-medium text-outline-variant">Collection Info</span>
+</div>
+</div>
+<div class="mt-auto hidden md:block">
+<img alt="Board game components" class="w-full h-32 object-cover rounded-lg opacity-40 grayscale hover:grayscale-0 transition-all duration-500" data-alt="Close-up of wooden board game meeples and dice on a rustic wooden table with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYffYlQzXWBvNRrO-lmgzloW8jgpAeebYbY7ArvSZ_ueHYuq7F3aFZmbVmCAcEWKPGYqijhY8h4JpET-9zols4adYLA-if6MeAc4DOgPry12jk3e5BoaBMlBSs5xNMgSYLZGXFhPN4P9xmMXXjYhZPtF1DHMqZDI8_cRDeBUg2uCVlU7c3etyzjr_1bv6l4rLsPkxQ_AkIczq4rNT8hBHMgl_w-iVns_FfNWlJbN9gSbivvhYOtu2p3CQBICEl5VkgG-xJAkk5rUY"/>
+</div>
+</div>
+<!-- Content Area -->
+<div class="flex-1 p-8 md:p-12 relative flex flex-col">
+<!-- Close Button -->
+<button class="absolute top-6 right-6 text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+<!-- Step Title -->
+<div class="mb-8">
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">Find your game</h1>
+<p class="text-on-surface-variant leading-relaxed">Search our global database of over 100,000 titles to quickly import metadata and artwork.</p>
+</div>
+<!-- Search Input Group -->
+<div class="relative group mb-10">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline-variant transition-all font-medium" placeholder="Type game title (e.g. Scythe, Wingspan...)" type="text" value="Everdell"/>
+</div>
+<!-- Results List (Bento-lite Layout) -->
+<div class="flex flex-col gap-3 overflow-y-auto max-h-[280px] pr-2 custom-scrollbar">
+<!-- Result Item 1 (Selected/Active) -->
+<button class="flex items-center gap-4 p-3 rounded-xl bg-surface-container-highest border border-primary/10 text-left transition-all group hover:scale-[1.01]">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Everdell cover" class="w-full h-full object-cover" data-alt="Vibrant board game box art showing a lush magical forest with a giant tree and anthropomorphic forest creatures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYMpi1tfZMPlT2WCPj6XR-glqstU30Jm5cZEeZZazchYw0TXpvYBh-AxUa5Kwny3-F8UUH-qRQL9V61kfuT_9X4hZCGPzFqRssRO9T40IE7E627Xqh7rbx6ak3-2RTv3ebhLoKcCGqqYgXZus8Oq-I0u0kZISeLWSHRRILMZTq_Y3A05t3oQRlSq79CMyLLF8rTQUuaiEgj1OFXwMCzPyv6ypbSegLM6iMMZJMfYr3Fj_4MjflzEph-WfrNOECOYpx3uWJmKrBmB4"/>
+</div>
+<div class="flex-1">
+<h4 class="font-extrabold text-on-surface leading-tight">Everdell</h4>
+<div class="flex gap-2 mt-1">
+<span class="text-[10px] font-bold uppercase tracking-wider bg-secondary-fixed text-on-secondary-container px-2 py-0.5 rounded-full">2018</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-outline">Starling Games</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" data-weight="fill">check_circle</span>
+</button>
+<!-- Result Item 2 -->
+<button class="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low text-left transition-all group hover:pl-4">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Everdell: Spirecrest" class="w-full h-full object-cover" data-alt="Board game box art for an expansion featuring snowy mountains and a large moose mount character" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBveNRaClpwT9sj5rv9bGEoCkpzSyVVQX2mVcwyPhcQRsM1tSGRjup5gkOx1gihye5rYTyWX2nCe0M5DwPuPdx_HzrtPXd_yVEaG6tK61GA85qWrCvfg7jhI2Tz7VUFr3Fvjvzzv8p9tRssuhrlwaChrjIChUt5QQ-L6GJ6F4aEZ4d4SloXIzGB7XlUfiTpobq_t3kRaQgaWl12ucSCNN2mTbsPTNxhBAoEjo3anODXVgfDWLqHErY2xuOFJhaOJrzWcBEN4NBn-UI"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface leading-tight">Everdell: Spirecrest</h4>
+<div class="flex gap-2 mt-1">
+<span class="text-[10px] font-bold uppercase tracking-wider bg-surface-container-highest text-outline px-2 py-0.5 rounded-full">2020</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-outline">Expansion</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+<!-- Result Item 3 -->
+<button class="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low text-left transition-all group hover:pl-4">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-surface">
+<img alt="Everdell: Pearlbrook" class="w-full h-full object-cover" data-alt="Underwater themed board game art with glowing blue pearls and aquatic animal characters" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKYFatYdt0sJ-ZCtnrBIi_Cb2l-klSGpOiGHGDqFbkDENaQBHpW8WFVF4y23gCOzwIczfceX8I5YoqWxbm4nvof8mhUUzo-rZPy1OiKcj3fJFHj7FVb1xi_sYWtWHvenKZipvZCkdBazW_kJFCyWKa8QFedcPStpLAKIyZOYVoeKR_NTf4V4swpdkVi8Ahx9xRPtQXV9_cA06JwLX6i3x-X6WTsoBWAwzbeAcC8t_19tj4XzztTzBNMepnnzr8-vi1Ld_JZQfhmMI"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface leading-tight">Everdell: Pearlbrook</h4>
+<div class="flex gap-2 mt-1">
+<span class="text-[10px] font-bold uppercase tracking-wider bg-surface-container-highest text-outline px-2 py-0.5 rounded-full">2019</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-outline">Expansion</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+</div>
+<!-- Footer Actions -->
+<div class="mt-auto pt-8 flex items-center justify-between">
+<button class="text-sm font-bold text-primary hover:underline transition-all">
+                        Can't find it? Add manually
+                    </button>
+<button class="editorial-gradient text-on-primary px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                        Next Step
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Background Content (Mocked Dashboard) -->
+<main class="pt-24 px-8 max-w-7xl mx-auto blur-[2px] pointer-events-none opacity-50">
+<header class="mb-12">
+<h1 class="text-5xl font-black tracking-tighter text-primary mb-4">My Vault</h1>
+<div class="flex gap-4">
+<div class="bg-surface-container-low px-4 py-2 rounded-xl text-sm font-bold text-on-surface">64 Games</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-xl text-sm font-bold text-on-surface">12 Unplayed</div>
+</div>
+</header>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<!-- Mock Cards -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl"></div>
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl"></div>
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl"></div>
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl"></div>
+</div>
+</main>
+</body></html>

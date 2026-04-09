@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#767775",
+                    "outline-variant": "#adadab",
+                    "surface-container-low": "#f1f1ee",
+                    "error-container": "#f95630",
+                    "error": "#b02500",
+                    "on-background": "#2e2f2d",
+                    "primary-fixed": "#fd9000",
+                    "surface-bright": "#f7f6f3",
+                    "on-error-container": "#520c00",
+                    "secondary-fixed": "#8df5e4",
+                    "on-secondary-container": "#005c53",
+                    "on-primary-fixed-variant": "#532b00",
+                    "secondary-fixed-dim": "#7fe6d5",
+                    "tertiary-dim": "#5f4e00",
+                    "tertiary": "#6d5a00",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#00675c",
+                    "on-tertiary-fixed-variant": "#675500",
+                    "tertiary-fixed": "#fdd73e",
+                    "primary-dim": "#794200",
+                    "inverse-primary": "#fd9000",
+                    "inverse-surface": "#0d0f0d",
+                    "primary": "#8a4c00",
+                    "primary-container": "#fd9000",
+                    "on-tertiary-container": "#5c4b00",
+                    "surface-container": "#e8e8e5",
+                    "on-primary-container": "#462400",
+                    "surface-tint": "#8a4c00",
+                    "secondary-dim": "#005a50",
+                    "on-primary-fixed": "#1e0c00",
+                    "on-secondary-fixed-variant": "#00675c",
+                    "error-dim": "#b92902",
+                    "secondary-container": "#8df5e4",
+                    "on-tertiary": "#fff2cf",
+                    "surface-dim": "#d4d5d1",
+                    "tertiary-fixed-dim": "#eec930",
+                    "on-surface": "#2e2f2d",
+                    "on-secondary-fixed": "#004840",
+                    "primary-fixed-dim": "#ea8400",
+                    "on-primary": "#fff0e6",
+                    "surface": "#f7f6f3",
+                    "background": "#f7f6f3",
+                    "on-surface-variant": "#5b5c5a",
+                    "tertiary-container": "#fdd73e",
+                    "inverse-on-surface": "#9d9d9b",
+                    "surface-container-highest": "#ddddda",
+                    "surface-variant": "#ddddda",
+                    "surface-container-high": "#e2e3df",
+                    "on-error": "#ffefec",
+                    "on-tertiary-fixed": "#463900",
+                    "on-secondary": "#c0fff3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+        .glass-nav {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-[#1a1b1e]/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-full mx-auto">
+<div class="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tighter">The Game Haven</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="font-['Manrope'] tracking-tight font-bold text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Explore</a>
+<a class="font-['Manrope'] tracking-tight font-bold text-amber-800 dark:text-amber-400 font-extrabold border-b-2 border-amber-600 hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Wishlist</a>
+<a class="font-['Manrope'] tracking-tight font-bold text-[#2e2f2d] dark:text-[#ddddda] font-medium hover:text-amber-600 dark:hover:text-amber-300 transition-colors duration-300" href="#">Collection</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface">settings</button>
+<button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface">account_circle</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-32 pb-24 px-8 max-w-[1440px] mx-auto">
+<!-- Editorial Header -->
+<header class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="max-w-2xl">
+<span class="label-md uppercase tracking-[0.05em] text-primary font-bold mb-4 block">Curated Desires</span>
+<h1 class="text-6xl md:text-8xl font-extrabold tracking-[-0.02em] leading-none mb-6">Wishlist</h1>
+<p class="text-lg text-on-surface-variant leading-relaxed">
+                    A curated selection of tabletop masterpieces waiting for their moment at the table. From grand strategy to intimate card games, your future collection starts here.
+                </p>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low px-6 py-4 rounded-xl">
+<div class="text-right">
+<div class="text-3xl font-black text-primary">12</div>
+<div class="text-xs uppercase tracking-widest font-bold opacity-60">Items Saved</div>
+</div>
+<div class="h-10 w-px bg-outline-variant/30 mx-2"></div>
+<div class="text-right">
+<div class="text-3xl font-black text-secondary">$642</div>
+<div class="text-xs uppercase tracking-widest font-bold opacity-60">Est. Value</div>
+</div>
+</div>
+</header>
+<!-- Wishlist Grid -->
+<div class="editorial-grid">
+<!-- Game Card 1 -->
+<div class="group relative flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-container-low transition-transform duration-500 group-hover:-translate-y-2">
+<img alt="Board Game Cover" class="w-full h-full object-cover" data-alt="Premium board game box art featuring intricate fantasy illustrations with gold foil accents on a dark matte background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbrPZuyRIGSEKRCh9b5LSF6yAjzRQ9rvtdd4h7Z3zS18yBVvqeJW53WmJJzH6On7ncCG23H4bjRQY9svkuY2_Y0Vr8aQNfDfRnjWN9uAZJmH18y095jNsMR5SMztKXLBXUeygmne2AEAlx23w5u5kKqMcxE9q6Q4ySBQzwoUjxLN7pl1Pr_Bwj-hJZlVpZbGVrbUOPGcnq5D7UGKc3eCLKX9KL_Sc5vF_libXhe-jzNfy1rduez71UXY8IiN4zqaG3cPjPDASBgkY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full py-4 bg-white text-on-surface font-bold rounded-lg flex items-center justify-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined">shopping_cart</span>
+                            Check Price
+                        </button>
+</div>
+<div class="absolute top-4 right-4 bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wider shadow-lg">
+                        Wishlist
+                    </div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-2xl font-bold tracking-tight">Ark Nova</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">8.5</span>
+</div>
+</div>
+<div class="flex gap-4 text-sm text-on-surface-variant font-medium mb-6">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">group</span> 1-4</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">schedule</span> 90-150m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">psychology</span> 3.7 / 5</span>
+</div>
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">add_circle</span>
+                        Add to Collection
+                    </button>
+</div>
+</div>
+<!-- Game Card 2 -->
+<div class="group relative flex flex-col md:mt-12">
+<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-container-low transition-transform duration-500 group-hover:-translate-y-2">
+<img alt="Board Game Cover" class="w-full h-full object-cover" data-alt="Artistic closeup of wooden board game pieces and colorful cards on a rustic wooden table with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXe1LcoxM220kvRFxI76pKtgiv5N5Df9g-_-PnXuFsguZlzey1-TdAvuoT8whN9OZA4KCTxRMxvHyKABIJvySe0qqn7MRpd8afM0FVL8_l3bvsTHQUep9LBw5BmExdd8O6MB_gBuP8tc3A9GzLIdB1YHonGSKiXhpNSQ40-aBhL-SooRvdR67zGtlwFHxaBaSXPaQucwanEmgPCK65PGiQPbC-r7SdE5KAXHeK2KWsdM8IFsz5xSVpN3AFlmZP9ZvPq31_Do-ymlc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full py-4 bg-white text-on-surface font-bold rounded-lg flex items-center justify-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined">shopping_cart</span>
+                            Check Price
+                        </button>
+</div>
+<div class="absolute top-4 right-4 bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wider shadow-lg">
+                        Wishlist
+                    </div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-2xl font-bold tracking-tight">Root: The Underworld</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">8.7</span>
+</div>
+</div>
+<div class="flex gap-4 text-sm text-on-surface-variant font-medium mb-6">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">group</span> 2-6</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">schedule</span> 60-90m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">psychology</span> 3.8 / 5</span>
+</div>
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">add_circle</span>
+                        Add to Collection
+                    </button>
+</div>
+</div>
+<!-- Game Card 3 -->
+<div class="group relative flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-container-low transition-transform duration-500 group-hover:-translate-y-2">
+<img alt="Board Game Cover" class="w-full h-full object-cover" data-alt="Overhead shot of a complex board game setup with hexagonal tiles, plastic miniatures, and resource tokens in a cinematic moody lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDygltzJ0OZ6HcClD2J3BUOe5rJUdjaxVMk5v4Jp83g7fbnKJDZndztoxPdff1u9tVdTNz27IGKkBdM6YNdpz2yXaTaJKpUJxWsob-yiriAA0A4JMbCp5j6xqL0mqrN077tAvM63Z6gHS_P0GCPb6yFLhrwL7E1c-iRLaUMnICYjU7sGpPGCBsf46UpEoHSOnbMnfMFcZfps4DBLu--8nBvR6OtjZ-CpdU0v7BkpY2FsxbqZwmXvCsu_krxCpQyIvGPrprDvWPhkW8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full py-4 bg-white text-on-surface font-bold rounded-lg flex items-center justify-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined">shopping_cart</span>
+                            Check Price
+                        </button>
+</div>
+<div class="absolute top-4 right-4 bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wider shadow-lg">
+                        Wishlist
+                    </div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-2xl font-bold tracking-tight">Brass: Birmingham</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">8.6</span>
+</div>
+</div>
+<div class="flex gap-4 text-sm text-on-surface-variant font-medium mb-6">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">group</span> 2-4</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">schedule</span> 120m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">psychology</span> 3.9 / 5</span>
+</div>
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">add_circle</span>
+                        Add to Collection
+                    </button>
+</div>
+</div>
+<!-- Game Card 4 (Asymmetric Offset) -->
+<div class="group relative flex flex-col md:mt-8">
+<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-container-low transition-transform duration-500 group-hover:-translate-y-2">
+<img alt="Board Game Cover" class="w-full h-full object-cover" data-alt="Stylized macro photo of board game components including dice and cards with a soft focus background and vibrant warm tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNh4UiAurbSOwcpNvSDlzQ_kf9ATKo05NqL-lK2FB-fJjfPIDY73NMwhksNpm1cEZrb0ymt11OfcVK13kVyrVPsrQ5K_KSuzzWXerMlA-EvkgoJliiXRCtyaLVh64TT_e2wifAlD3_Ho4GPTRmXbyHZXoFobTUDpicoPmjjuUVdNO6IZ3d6WlxXLtlQTYZ0bOvsadwfvF3eH55iALKLmksGNerxAHoM06zVwumjIaXSfotbfSa7BgKAshhtFdPiA_gGMLTHWcaRo4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<button class="w-full py-4 bg-white text-on-surface font-bold rounded-lg flex items-center justify-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined">shopping_cart</span>
+                            Check Price
+                        </button>
+</div>
+<div class="absolute top-4 right-4 bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wider shadow-lg">
+                        Wishlist
+                    </div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-2xl font-bold tracking-tight">Dune: Imperium</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold">8.4</span>
+</div>
+</div>
+<div class="flex gap-4 text-sm text-on-surface-variant font-medium mb-6">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">group</span> 1-4</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">schedule</span> 60-120m</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">psychology</span> 3.0 / 5</span>
+</div>
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">add_circle</span>
+                        Add to Collection
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB: Add New Game -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full shadow-[0_12px_40px_rgba(138,76,0,0.3)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+<!-- Bottom Navigation (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 glass-nav bg-surface/70 px-6 py-4 flex justify-around items-center border-t border-outline-variant/10 z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Explore</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Wishlist</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Vault</span>
+</button>
+</div>
+</body></html>

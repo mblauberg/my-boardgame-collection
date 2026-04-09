@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { useSession } from "../../features/auth/useSession";
 import { useBggSearchQuery } from "../../features/games/useBggSearchQuery";
 import { useSaveBggGameToLibrary } from "../../features/library/useLibraryEntryMutations";
@@ -38,6 +39,10 @@ function normalizeSearchResult(result: Record<string, unknown>): AddGameWizardSe
     averageRating: typeof result.averageRating === "number" ? result.averageRating : null,
     averageWeight: typeof result.averageWeight === "number" ? result.averageWeight : null,
     summary: typeof result.summary === "string" ? result.summary : null,
+    bggRank: typeof result.bggRank === "number" ? result.bggRank : null,
+    bggBayesAverage: typeof result.bggBayesAverage === "number" ? result.bggBayesAverage : null,
+    bggUsersRated: typeof result.bggUsersRated === "number" ? result.bggUsersRated : null,
+    isExpansion: typeof result.isExpansion === "boolean" ? result.isExpansion : null,
   };
 }
 
@@ -59,8 +64,8 @@ export function AddGameWizardOverlay({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const search = useBggSearchQuery(query);
-  const results = Array.isArray(search.data)
-    ? search.data.map((result) => normalizeSearchResult(result as Record<string, unknown>))
+  const results = Array.isArray(search.data?.results)
+    ? search.data.results.map((result) => normalizeSearchResult(result as Record<string, unknown>))
     : [];
 
   useEffect(() => {
@@ -101,9 +106,31 @@ export function AddGameWizardOverlay({
 
     try {
       setSubmitError(null);
+      
+      let finalImageUrl = selectedGame.customImageUrl || selectedGame.imageUrl;
+
+      if (selectedGame.customImageFile) {
+        const supabase = getSupabaseBrowserClient();
+        const fileExt = selectedGame.customImageFile.name.split('.').pop() || 'tmp';
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("game-images")
+          .upload(filePath, selectedGame.customImageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from("game-images")
+          .getPublicUrl(filePath);
+          
+        finalImageUrl = publicUrlData.publicUrl;
+      }
+
       await mutateAsync({
         userId: user.id,
-        selectedGame,
+        selectedGame: { ...selectedGame, imageUrl: finalImageUrl },
         listType: collectionInfo.listType,
         sentiment: collectionInfo.sentiment,
         notes: collectionInfo.notes,
@@ -179,6 +206,7 @@ export function AddGameWizardOverlay({
               query={query}
               onQueryChange={handleQueryChange}
               results={results}
+              source={search.data?.source ?? null}
               selectedGameId={selectedGame?.id ?? null}
               isLoading={search.isLoading}
               errorMessage={search.error instanceof Error ? search.error.message : null}
@@ -186,7 +214,12 @@ export function AddGameWizardOverlay({
             />
           ) : null}
 
-          {step === 2 && selectedGame ? <AddGameDetailsStep game={selectedGame} /> : null}
+          {step === 2 && selectedGame ? (
+            <AddGameDetailsStep 
+              game={selectedGame} 
+              onChange={(updates) => setSelectedGame((prev) => (prev ? { ...prev, ...updates } : null))}
+            />
+          ) : null}
 
           {step === 3 ? (
             <AddGameCollectionInfoStep

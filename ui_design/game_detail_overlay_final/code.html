@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ark Nova - The Game Haven</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#767775",
+                    "outline-variant": "#adadab",
+                    "surface-container-low": "#f1f1ee",
+                    "error-container": "#f95630",
+                    "error": "#b02500",
+                    "on-background": "#2e2f2d",
+                    "primary-fixed": "#fd9000",
+                    "surface-bright": "#f7f6f3",
+                    "on-error-container": "#520c00",
+                    "secondary-fixed": "#8df5e4",
+                    "on-secondary-container": "#005c53",
+                    "on-primary-fixed-variant": "#532b00",
+                    "secondary-fixed-dim": "#7fe6d5",
+                    "tertiary-dim": "#5f4e00",
+                    "tertiary": "#6d5a00",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#00675c",
+                    "on-tertiary-fixed-variant": "#675500",
+                    "tertiary-fixed": "#fdd73e",
+                    "primary-dim": "#794200",
+                    "inverse-primary": "#fd9000",
+                    "inverse-surface": "#0d0f0d",
+                    "primary": "#8a4c00",
+                    "primary-container": "#fd9000",
+                    "on-tertiary-container": "#5c4b00",
+                    "surface-container": "#e8e8e5",
+                    "on-primary-container": "#462400",
+                    "surface-tint": "#8a4c00",
+                    "secondary-dim": "#005a50",
+                    "on-primary-fixed": "#1e0c00",
+                    "on-secondary-fixed-variant": "#00675c",
+                    "error-dim": "#b92902",
+                    "secondary-container": "#8df5e4",
+                    "on-tertiary": "#fff2cf",
+                    "surface-dim": "#d4d5d1",
+                    "tertiary-fixed-dim": "#eec930",
+                    "on-surface": "#2e2f2d",
+                    "on-secondary-fixed": "#004840",
+                    "primary-fixed-dim": "#ea8400",
+                    "on-primary": "#fff0e6",
+                    "surface": "#f7f6f3",
+                    "background": "#f7f6f3",
+                    "on-surface-variant": "#5b5c5a",
+                    "tertiary-container": "#fdd73e",
+                    "inverse-on-surface": "#9d9d9b",
+                    "surface-container-highest": "#ddddda",
+                    "surface-variant": "#ddddda",
+                    "surface-container-high": "#e2e3df",
+                    "on-error": "#ffefec",
+                    "on-tertiary-fixed": "#463900",
+                    "on-secondary": "#c0fff3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow { box-shadow: 0 12px 40px rgba(46, 47, 45, 0.06); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- TopNavBar Suppression Check: This is a Detail View (Sub-page), Navbar is hidden to focus on content. -->
+<main class="relative min-h-screen flex items-center justify-end overflow-hidden">
+<!-- Background/Underlay (Simulating the main app behind the overlay) -->
+<div class="absolute inset-0 bg-surface z-0 p-8 grid grid-cols-1 md:grid-cols-3 gap-8 blur-sm opacity-40">
+<div class="h-64 bg-surface-container-low rounded-xl"></div>
+<div class="h-64 bg-surface-container-low rounded-xl"></div>
+<div class="h-64 bg-surface-container-low rounded-xl"></div>
+<div class="h-64 bg-surface-container-low rounded-xl"></div>
+<div class="h-64 bg-surface-container-low rounded-xl"></div>
+<div class="h-64 bg-surface-container-low rounded-xl"></div>
+</div>
+<!-- Backdrop Overlay -->
+<div class="absolute inset-0 bg-on-surface/10 backdrop-blur-sm z-10"></div>
+<!-- Sleek Side Overlay / Modal Canvas -->
+<div class="relative z-20 w-full max-w-2xl h-screen bg-surface shadow-[0_0_80px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden animate-slide-in">
+<!-- Close Button & Action Bar -->
+<div class="absolute top-6 left-6 z-40">
+<button class="bg-surface/80 backdrop-blur-md p-3 rounded-full text-on-surface hover:bg-surface transition-all duration-300 editorial-shadow">
+<span class="material-symbols-outlined block" data-icon="close">close</span>
+</button>
+</div>
+<!-- Scrollable Content Shell -->
+<div class="flex-1 overflow-y-auto hide-scrollbar">
+<!-- Hero Header Section -->
+<div class="relative h-[450px] w-full overflow-hidden">
+<img alt="Ark Nova Game Box Art" class="w-full h-full object-cover" data-alt="Stunning close-up of a modern board game cover featuring vibrant wildlife illustrations of a leopard and tropical plants with premium matte finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADIKHYEGXwHTGRYYRwEd-ywQRI4qZINYUxcaB-sMkIscuAVso8avCKTDn8J1kZmngUt10t8zMIsNJTaknNc3_O1sXyFq5V-jP0td5VlapTHn-DtmcE5GVR8azP5AA14TRGnIRIBGMy0cXDYi__diymjhXXSCIfd0whiXnGdBtkBqFYtTl8uBSXUZfjKt60BpAW4aNN2CYa2bQrOCVfN4Li_d1xrZ3vMYvvnTevi5kd_T5fRwY_uRRUXYiaDxh--lCUnNZeD8wegfM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent"></div>
+<!-- Title Overlap -->
+<div class="absolute bottom-0 left-0 p-10 w-full">
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="bg-secondary-fixed text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">In Collection</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Expert Weight</span>
+</div>
+<h1 class="text-6xl font-extrabold tracking-tighter text-on-surface leading-none">
+                            Ark Nova
+                        </h1>
+<p class="text-xl font-medium text-primary mt-2">Design a Modern Wildlife Park</p>
+</div>
+</div>
+<!-- Editorial Content Grid -->
+<div class="px-10 pb-20 space-y-12">
+<!-- BGG Metadata Bento Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between h-28 border-none transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="groups">groups</span>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline">Players</p>
+<p class="text-lg font-bold">1 - 4</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between h-28 border-none transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="schedule">schedule</span>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline">Time</p>
+<p class="text-lg font-bold">90 - 150m</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between h-28 border-none transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="fitness_center">fitness_center</span>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline">Weight</p>
+<p class="text-lg font-bold">3.7 / 5</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col justify-between h-28 border-none transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="star">star</span>
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-outline">Rating</p>
+<p class="text-lg font-bold">8.5</p>
+</div>
+</div>
+</div>
+<!-- Experience Description -->
+<section class="space-y-4">
+<h3 class="text-xs uppercase tracking-[0.2em] font-black text-primary">The Experience</h3>
+<div class="space-y-6 text-on-surface/80 text-lg leading-relaxed font-normal">
+<p>
+                                In <span class="font-bold text-on-surface">Ark Nova</span>, you will plan and design a modern, scientifically managed zoo. With the ultimate goal of owning the most successful zoological establishment, you will build enclosures, accommodate animals, and support conservation projects all over the world. 
+                            </p>
+<p>
+                                Unique specialists and varied buildings will help you in achieving this goal. At the heart of Ark Nova are 255 cards featuring animals, specialists, special enclosures, and conservation projects, each with a special ability. Use them to increase the appeal and scientific reputation of your zoo and collect conservation points.
+                            </p>
+</div>
+</section>
+<!-- Tags & Mechanics -->
+<div class="space-y-8">
+<section>
+<h3 class="text-xs uppercase tracking-[0.2em] font-black text-primary mb-4">Mechanics</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">Hand Management</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">Tile Placement</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">End Game Bonuses</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">Variable Player Powers</span>
+</div>
+</section>
+<section>
+<h3 class="text-xs uppercase tracking-[0.2em] font-black text-primary mb-4">Themes</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">Animals</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">Environmental</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-lg text-sm font-semibold">Economic</span>
+</div>
+</section>
+</div>
+<!-- Card-in-Card Detail -->
+<div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="history_edu">history_edu</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Designer's Note</h4>
+<p class="text-sm text-outline">Mathias Wigge, 2021</p>
+</div>
+</div>
+<p class="text-on-surface-variant italic leading-relaxed">
+                            "The card-driven action system provides a crunchy puzzle every turn. Choosing which action to strengthen while others reset creates a magnificent tempo that keeps players engaged for the full two hours."
+                        </p>
+</div>
+</div>
+</div>
+<!-- Sticky CTA Action Bar -->
+<div class="p-8 bg-surface/80 backdrop-blur-xl border-t border-outline-variant/10 flex items-center gap-4">
+<button class="flex-1 h-14 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 editorial-shadow active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="inventory">inventory</span>
+                    In Collection
+                </button>
+<button class="h-14 w-14 bg-secondary-container text-on-secondary-container rounded-xl flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<button class="h-14 w-14 bg-surface-container-highest text-on-surface rounded-xl flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#767775",
+                      "outline-variant": "#adadab",
+                      "surface-container-low": "#f1f1ee",
+                      "error-container": "#f95630",
+                      "error": "#b02500",
+                      "on-background": "#2e2f2d",
+                      "primary-fixed": "#fd9000",
+                      "surface-bright": "#f7f6f3",
+                      "on-error-container": "#520c00",
+                      "secondary-fixed": "#8df5e4",
+                      "on-secondary-container": "#005c53",
+                      "on-primary-fixed-variant": "#532b00",
+                      "secondary-fixed-dim": "#7fe6d5",
+                      "tertiary-dim": "#5f4e00",
+                      "tertiary": "#6d5a00",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#00675c",
+                      "on-tertiary-fixed-variant": "#675500",
+                      "tertiary-fixed": "#fdd73e",
+                      "primary-dim": "#794200",
+                      "inverse-primary": "#fd9000",
+                      "inverse-surface": "#0d0f0d",
+                      "primary": "#8a4c00",
+                      "primary-container": "#fd9000",
+                      "on-tertiary-container": "#5c4b00",
+                      "surface-container": "#e8e8e5",
+                      "on-primary-container": "#462400",
+                      "surface-tint": "#8a4c00",
+                      "secondary-dim": "#005a50",
+                      "on-primary-fixed": "#1e0c00",
+                      "on-secondary-fixed-variant": "#00675c",
+                      "error-dim": "#b92902",
+                      "secondary-container": "#8df5e4",
+                      "on-tertiary": "#fff2cf",
+                      "surface-dim": "#d4d5d1",
+                      "tertiary-fixed-dim": "#eec930",
+                      "on-surface": "#2e2f2d",
+                      "on-secondary-fixed": "#004840",
+                      "primary-fixed-dim": "#ea8400",
+                      "on-primary": "#fff0e6",
+                      "surface": "#f7f6f3",
+                      "background": "#f7f6f3",
+                      "on-surface-variant": "#5b5c5a",
+                      "tertiary-container": "#fdd73e",
+                      "inverse-on-surface": "#9d9d9b",
+                      "surface-container-highest": "#ddddda",
+                      "surface-variant": "#ddddda",
+                      "surface-container-high": "#e2e3df",
+                      "on-error": "#ffefec",
+                      "on-tertiary-fixed": "#463900",
+                      "on-secondary": "#c0fff3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Manrope"],
+                      "label": ["Manrope"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .editorial-gradient {
+            background: linear-gradient(45deg, #8a4c00 0%, #fd9000 100%);
+        }
+        .glass-nav {
+            background: rgba(247, 246, 243, 0.7);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 glass-nav shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-full mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-black text-amber-800 tracking-tighter">The Game Haven</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-amber-800 font-extrabold border-b-2 border-amber-600 transition-colors duration-300" href="#">Explore</a>
+<a class="text-[#2e2f2d] font-medium hover:text-amber-600 transition-colors duration-300" href="#">Wishlist</a>
+<a class="text-[#2e2f2d] font-medium hover:text-amber-600 transition-colors duration-300" href="#">Collection</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<!-- Search Bar -->
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 w-64 focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-on-surface-variant/60" placeholder="Search the library..." type="text"/>
+</div>
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-amber-600 transition-colors duration-300 scale-95 duration-150 active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-amber-600 transition-colors duration-300 scale-95 duration-150 active:opacity-80">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-8 max-w-7xl mx-auto">
+<!-- Hero: For You Section -->
+<section class="mb-16">
+<div class="flex justify-between items-end mb-8">
+<div>
+<span class="label-md uppercase tracking-[0.05em] text-primary font-bold">Curated Selection</span>
+<h1 class="text-5xl font-extrabold tracking-tight mt-2">For You</h1>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-xl bg-surface-container-low min-h-[500px] flex items-center">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-r from-surface-container-low via-surface-container-low/80 to-transparent z-10"></div>
+<img class="w-full h-full object-cover" data-alt="atmospheric close-up of high-quality wooden board game pieces on a detailed game board with warm cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-za8dImnFBJnFBBKRVlHss-pDkvLyGQ0Mg_dl6txIfzmmial_d1_erL7GztqEOmmtZzXMjkA3G4SD0_hIHpN86y-vmVfY-KEfIX4mQ6OiYrEI7nKC9L7qJcTdg_rBIjhOk-xKiQf5u8v0-xVzu1jrb9KeH35yTZDF7blKtePx9TNKKKTcwqdLmVc4esOJ1lpOfxpabRfjoaTNKoZZuMIg1NBVY7NLByIMDxOTrvYJdoyQILSDGQj45yrqDQ2EQf4mD9wSpg-Qqbo"/>
+</div>
+<div class="relative z-20 px-12 max-w-2xl">
+<div class="flex gap-3 mb-6">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">Top Recommendation</span>
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed rounded-full text-[10px] font-bold uppercase tracking-wider">Strategy</span>
+</div>
+<h2 class="text-6xl font-black mb-4 leading-tight text-on-surface tracking-tighter">Root: The Woodland War</h2>
+<p class="text-lg text-on-surface-variant leading-relaxed mb-8">A game of adventure and war where 2 to 4 players fight for control of a vast wilderness. Experience asymmetric gameplay like never before.</p>
+<div class="flex gap-4">
+<button class="editorial-gradient text-on-primary px-8 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity">Explore Details</button>
+<button class="bg-surface-container-lowest text-on-surface px-8 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-surface-container-highest transition-colors">Add to Vault</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Discovery by Mechanic: Bento Grid -->
+<section class="mb-20">
+<div class="mb-10">
+<h2 class="text-3xl font-extrabold tracking-tight">Discovery by Mechanic</h2>
+<p class="text-on-surface-variant mt-2">Find your next favorite game based on how you play.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-[600px]">
+<div class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-xl bg-surface-container-low">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="vibrant abstract collection of hexagonal board game tiles with intricate patterns and bold colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ6HGlca3U6UR6iJOMefVHsd9tjKnrQFdXpeUgzsbuk6eIZ8S045KlXgcbuawRXngF2P3Izzmuo0MCDqFfcRyD36zNvmTWXraRrLC04YMCdU3PjBrA0nkn2xcfTnylq9brp0rt5uMbOHWnzWGNceui3by3SCYyy7cxfUMtZ12oMiI4cMMlvabok2t-DRBXq1kdoq_QqPe5YRco_W34swGzFO7Ap5JlKMODL4PfT3bkeoop1YPA8HTFMArYyjNXWggiz5k06snDKq0"/>
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+<div class="absolute bottom-6 left-6 text-white">
+<h3 class="text-2xl font-black uppercase tracking-tighter">Tile Placement</h3>
+<p class="text-sm opacity-90">Building worlds piece by piece</p>
+</div>
+</div>
+<div class="relative group overflow-hidden rounded-xl bg-surface-container-low">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="professional set of poker chips and playing cards stacked neatly on a green felt surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmmTWvqplXn_Hpcp6v_U2rzXsmM8uXLujLVo3wi_ZlLnGzaIomlJ0QpLShH_ZIZ_dsxsbIrKv-jW3ESMdu9Pv-sYc1_QubkBa0KS4Bdk58ZIyQVATJTVYAI9LQJWiLwo4CwMAaLss-GdpTGxABUI_T5oMaWU4YMGf9YI4Y5rfato38H8c7D0hqgHQMM51ocB5Fqep1UleQb3zEXtMrFqoKRhLWvUB83Oy0XVSaD43xN1GN0IOBapbW7Pm8rxiaWl9h0EPiuwCiOqs"/>
+<div class="absolute inset-0 bg-amber-900/40 group-hover:bg-amber-900/20 transition-colors"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<h3 class="text-lg font-black uppercase">Deck Building</h3>
+</div>
+</div>
+<div class="relative group overflow-hidden rounded-xl bg-surface-container-low">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="minimalist wooden dice being thrown onto a light wood surface with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvw1RIhY_5RImjnUIqHaFLztPeAZu2JibqybXDLu0v4RrKDwBs9Mw7miwkKMCbI2XJPusoK7XHVVH4qYr71VKdWWWiI7FbFwvz3jOLcHBplWus_-FablIgsMYPmRU5lzPK9Vd5AJlXOVAF_Z0sllz_AX2fKhALrnUs5490xE4g_SSgq1Gfhcu4s9aTw8NLT0JtKkWyc-ha0gK2V53rNaWGjxE0akz4WFb1e98iZjb2vWZm7nWwEo5q99ICwLe0DbW2j8ThCROSyY4"/>
+<div class="absolute inset-0 bg-teal-900/40 group-hover:bg-teal-900/20 transition-colors"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<h3 class="text-lg font-black uppercase">Push Your Luck</h3>
+</div>
+</div>
+<div class="md:col-span-2 relative group overflow-hidden rounded-xl bg-surface-container-low">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="overhead shot of intricate miniature figures on a fantasy map with dramatic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCLIvhdyU7gTJ-2KG5IEDshLNdi1RdMmEUmIVjSU6DcnuemMx9tl1mFurMa6yFVX0mvGrqVz7kGA4gqrXgjD1khTFfYpYwuWtcP9maNHaT6VUllRAYDvh4UwFjdGsRlqzV8-VAq8dX8j3nW8JHGunyQ5IJ2RhqKuJZKCcmOGGVwoP5JpsFbakfoFXxPVBQYCwR7WNY4FQ6oLqlVUWXzqz9hh8ULugY1kdgR2uzeYqIwz1uY6_jWNb3LGLlCOurV72ZXImLX3oxnjI"/>
+<div class="absolute inset-0 bg-surface-container-highest/40 group-hover:bg-surface-container-highest/20 transition-colors"></div>
+<div class="absolute bottom-6 left-6">
+<h3 class="text-2xl font-black uppercase tracking-tighter text-on-surface">Area Control</h3>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Section -->
+<section class="mb-20">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-3xl font-extrabold tracking-tight">Trending Now</h2>
+<a class="text-primary font-bold text-sm uppercase tracking-widest hover:underline" href="#">View All</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Trending Card 1 -->
+<div class="flex flex-col group">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="modern board game box with elegant minimalist graphic design in shades of orange and cream" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDVyz5Vnm26vzVE2inhKTtQEOPOOtYLS_Se0WKgnx9H2ZOsLQ7fKH-NezwQupwQwZfnwJJggNfDxccHuGT8mb9e6fWXVZsEYsDMocqDru4MVuoBn8j823EfUk84kaVQKZnonIepk2_OnID7wWzke2Utkgc5PIazawwJSDvHqYNg-J_mlahVfZB-11aLT_HO6vn8OByeUrJXXhy-gMinqsA2l5orRs5rxT6GObj2mesPx2SuKE0px4DWRYILg-0RFpZ9JsDNrBKsA0"/>
+<div class="absolute top-3 right-3">
+<button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</div>
+<h3 class="text-xl font-bold text-on-surface">Everdell: Spirecrest</h3>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Worker Placement • 1-4 Players</p>
+<div class="flex items-center gap-2 mt-3">
+<span class="text-amber-600 font-bold">4.9</span>
+<div class="flex text-amber-600">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-on-surface-variant text-xs">(1.2k reviews)</span>
+</div>
+</div>
+<!-- Trending Card 2 -->
+<div class="flex flex-col group">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="stylized illustration of a cosmic nebula on a card game box front" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0JxCeZ-TKDexNfHAXRVJ1PoAYV3Ti6p_d797q7JPdJs4bPHbJp10aH6wv9IfbbGokcFaNUJoaUoFQ6Y4soG4oVjQ-mPH_sXR5iqknDJyE7uoUqYRlIpIPLkFteOObD2N6sPLvsjQt8RwV68B4ItKPQc5CaXWvt2c_tOZhCaGdXAzDgQskIo141FitIqNWoGXqyjG4ykJ9RPRWLP_9msqqjO7olKrj_-f6RIblfg5IoTwKfGMs7lWRHEH9l5ILpyQG3WUxmapxz_M"/>
+</div>
+<h3 class="text-xl font-bold text-on-surface">The Crew</h3>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Cooperative • 2-5 Players</p>
+<div class="flex items-center gap-2 mt-3">
+<span class="text-amber-600 font-bold">4.8</span>
+<div class="flex text-amber-600">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-on-surface-variant text-xs">(850 reviews)</span>
+</div>
+</div>
+<!-- Trending Card 3 -->
+<div class="flex flex-col group">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="close-up of intricate plastic miniatures for a sci-fi wargame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZUAm73_rPcBKmt0mpwgDHSAH28Po8kwgpUVmji2HQ57QgrWpg_TBl2V5PiXz8u27zEn_z-pjfO--gXkw89T17oUGaLEY_RfPa8nqtJb4iT2gZ1fdrDny9G80gaEkPwFVGgCfF4bwu1ToQa_zwlx9y_bg2sC5Q2OQh38zgkVU7QEi3CAtS2rEYLpYFH7Bd06WRJfiRqzP9mRir3Uj85ZxoRqRY8Z97pnmUIWpH6MwwJQAZ2aACEL6q_-v1rxVOdjUIMH4-rKUn3FU"/>
+</div>
+<h3 class="text-xl font-bold text-on-surface">Dune: Imperium</h3>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Deck Building • 1-4 Players</p>
+<div class="flex items-center gap-2 mt-3">
+<span class="text-amber-600 font-bold">4.9</span>
+<div class="flex text-amber-600">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-on-surface-variant text-xs">(2.1k reviews)</span>
+</div>
+</div>
+<!-- Trending Card 4 -->
+<div class="flex flex-col group">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="beautifully illustrated bird cards from a nature-themed board game" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3Xe1vchvhppaGEz_Elbx8yY2WB5thA2g9S9roTqX-zevS-qLqv2500qgXZWGzdpRdezX9xFh2pDLUa3d1VUCjJOHnkKjQnJC6dwpbal0SPPneniGP26aZZlAg8MdVU3SQIe62O_4gAK_61xXV7dshNRIQzME3og2AJj0du2RQwqynWEf5uatvIxPX743i09yv7f31dRuVENZXx7IbgqpLAl0ctMlM8bkpowpGzkkzX91HBzL2bb-ulSK8OiCdRxaCp-nuf40F3Ck"/>
+</div>
+<h3 class="text-xl font-bold text-on-surface">Wingspan</h3>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Engine Building • 1-5 Players</p>
+<div class="flex items-center gap-2 mt-3">
+<span class="text-amber-600 font-bold">4.7</span>
+<div class="flex text-amber-600">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-on-surface-variant text-xs">(3.5k reviews)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- New Releases -->
+<section class="mb-20">
+<div class="mb-8">
+<h2 class="text-3xl font-extrabold tracking-tight">New Releases</h2>
+<p class="text-on-surface-variant mt-2">Just landed in the gaming universe.</p>
+</div>
+<div class="space-y-4">
+<div class="group flex items-center p-6 bg-surface-container-low rounded-xl hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-white shrink-0">
+<img class="w-full h-full object-cover" data-alt="vibrant game components" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRal76ImAHHT504HJRTLmNkSuV2kWxth7ImX6_Q9oktTBGu_IbrNWOZYJrLklkSIwQG5XWGikl7lVXxOO5IamqICYrldDUDRcC1QOCvUw8vN8pIC8DB39nAmDubx7LTUcsTHZ-VrXtfhOMVZgcZeMa6FS0wPYJYo9j4bbsJRs50eeTxVrxg_LHyJaueOgjDEyrxRed9-8K8xafTtWEoOG4VQfg39cftOTLfDzDG85yK2qCGgAyiG-nCVyiKjxaxmGOsLvKZLjnfdI"/>
+</div>
+<div class="ml-6 flex-grow">
+<h4 class="text-lg font-bold">Ark Nova: Marine Worlds</h4>
+<p class="text-sm text-on-surface-variant">Expansion Pack • Release Date: Oct 2023</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">In Stock</span>
+</div>
+<div class="ml-12 text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<div class="group flex items-center p-6 bg-surface-container-low rounded-xl hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-white shrink-0">
+<img class="w-full h-full object-cover" data-alt="colorful hexagon pieces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8vOoA5zbXZKcLaRVRKks-ePl5d6I6jedGg43OUpbkpVtMHb223XHMSK-D1m_5aDLTugZffGDf-q_Xgg68DUF1wEoHMEGBVDF5mGxXcsQWR4MYB9ep0F-ZQrFEOH98d4Aad8_vid2GrrSw96ALwwn5Sbmdlke17JjhxFgcTRqdUq7iqjaVA7e2t8f1J79kNjN2rBm6cIDpKD_Yt3cobnuauCU55iYqkm5lPfgwpUWNoUBsHDOGUCANkXoXaba_3MC94GFtAZ-1dkY"/>
+</div>
+<div class="ml-6 flex-grow">
+<h4 class="text-lg font-bold">Cascadia: Landmarks</h4>
+<p class="text-sm text-on-surface-variant">Nature Tiles • Release Date: Sept 2023</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">In Stock</span>
+</div>
+<div class="ml-12 text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<div class="group flex items-center p-6 bg-surface-container-low rounded-xl hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-white shrink-0">
+<img class="w-full h-full object-cover" data-alt="gaming dice" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB93rOJEoxjSjuBLus-kFZ0alJIDOzK7VOkZ3-S4XFRFX1bmmZsy59jILJul7pq4Px59neAcGsvaOl9dsO82a6efNlUg-C3IMRQ-BpPMb-doLMiPtTGxTFX79yllNRgoxGX3rjL6HtFnxlCJpwojZ-m6jWwQl70PFKgiSnwU6IgWi4mT_m-sHsvs562jPuC5eqmlqSJhwSsUE4HYI2AdIGsfVrSM2g1LP9zI4V9wkWV7Ar4v2a_WlDbKJuFykt6VlYPK-PPu3iiDYw"/>
+</div>
+<div class="ml-6 flex-grow">
+<h4 class="text-lg font-bold">Wyrmspan</h4>
+<p class="text-sm text-on-surface-variant">Dragon Strategy • Release Date: Jan 2024</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed rounded-full text-[10px] font-bold uppercase tracking-wider">Wishlist Only</span>
+</div>
+<div class="ml-12 text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-16 h-16 rounded-full editorial-gradient text-on-primary shadow-2xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-[60]">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- Mobile Bottom Navigation (Visible on mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full glass-nav shadow-[0_-12px_40px_rgba(46,47,45,0.06)] z-50">
+<div class="flex justify-around items-center h-16 px-4">
+<a class="flex flex-col items-center gap-1 text-amber-800" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Vault</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Wishlist</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Community</span>
+</a>
+</div>
+</nav>
+</body></html>

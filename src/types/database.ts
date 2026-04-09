@@ -41,6 +41,22 @@ export type Database = {
           buy_priority: number | null;
           bgg_rating: number | null;
           bgg_weight: number | null;
+          bgg_rank?: number | null;
+          bgg_bayesaverage?: number | null;
+          bgg_usersrated?: number | null;
+          is_expansion?: boolean | null;
+          abstracts_rank?: number | null;
+          cgs_rank?: number | null;
+          childrensgames_rank?: number | null;
+          familygames_rank?: number | null;
+          partygames_rank?: number | null;
+          strategygames_rank?: number | null;
+          thematic_rank?: number | null;
+          wargames_rank?: number | null;
+          bgg_data_source?: string | null;
+          bgg_data_updated_at?: string | null;
+          bgg_snapshot_payload?: Json | null;
+          search_vector?: string | null;
           players_min: number | null;
           players_max: number | null;
           play_time_min: number | null;
@@ -68,6 +84,22 @@ export type Database = {
           buy_priority?: number | null;
           bgg_rating?: number | null;
           bgg_weight?: number | null;
+          bgg_rank?: number | null;
+          bgg_bayesaverage?: number | null;
+          bgg_usersrated?: number | null;
+          is_expansion?: boolean | null;
+          abstracts_rank?: number | null;
+          cgs_rank?: number | null;
+          childrensgames_rank?: number | null;
+          familygames_rank?: number | null;
+          partygames_rank?: number | null;
+          strategygames_rank?: number | null;
+          thematic_rank?: number | null;
+          wargames_rank?: number | null;
+          bgg_data_source?: string | null;
+          bgg_data_updated_at?: string | null;
+          bgg_snapshot_payload?: Json | null;
+          search_vector?: string | null;
           players_min?: number | null;
           players_max?: number | null;
           play_time_min?: number | null;
@@ -308,6 +340,12 @@ export type Database = {
           p_notes?: string | null;
         };
         Returns: Database["public"]["Tables"]["library_entries"]["Row"];
+      };
+      import_bgg_games_batch: {
+        Args: {
+          batch: Json;
+        };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;

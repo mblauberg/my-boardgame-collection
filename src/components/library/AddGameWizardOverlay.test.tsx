@@ -39,6 +39,18 @@ const result = {
   summary: "Build a woodland city.",
 };
 
+const apiSource = {
+  kind: "api",
+  label: "Live BGG",
+  updatedAt: null,
+} as const;
+
+const snapshotSource = {
+  kind: "snapshot",
+  label: "Local BGG snapshot",
+  updatedAt: "2026-04-09T00:00:00.000Z",
+} as const;
+
 function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizardOverlay>>) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -67,7 +79,16 @@ describe("AddGameWizardOverlay", () => {
       isLoading: false,
     });
     useBggSearchQuery.mockImplementation((query: string) => ({
-      data: query.trim().length >= 2 ? [result] : [],
+      data:
+        query.trim().length >= 2
+          ? {
+              results: [result],
+              source: apiSource,
+            }
+          : {
+              results: [],
+              source: apiSource,
+            },
       isLoading: false,
       error: null,
     }));
@@ -188,5 +209,31 @@ describe("AddGameWizardOverlay", () => {
     await user.click(screen.getByRole("button", { name: /close add game wizard/i }));
 
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it("shows local snapshot metadata when fallback results are being used", async () => {
+    const user = userEvent.setup();
+
+    useBggSearchQuery.mockImplementation((query: string) => ({
+      data:
+        query.trim().length >= 2
+          ? {
+              results: [result],
+              source: snapshotSource,
+            }
+          : {
+              results: [],
+              source: snapshotSource,
+            },
+      isLoading: false,
+      error: null,
+    }));
+
+    renderOverlay();
+
+    await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
+
+    expect(screen.getByText(/using local bgg snapshot/i)).toBeInTheDocument();
+    expect(screen.getByText(/updated 9 apr 2026/i)).toBeInTheDocument();
   });
 });

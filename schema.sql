@@ -34,7 +34,11 @@ language plpgsql
 as $$
 begin
   if new.slug is null or btrim(new.slug) = '' then
-    new.slug := public.slugify(new.name);
+    new.slug := public.slugify(new.name) ||
+      case
+        when new.bgg_id is not null then '-' || new.bgg_id::text
+        else ''
+      end;
   else
     new.slug := public.slugify(new.slug);
   end if;
@@ -119,6 +123,21 @@ create table if not exists public.games (
   buy_priority integer,
   bgg_rating numeric(3,1),
   bgg_weight numeric(3,1),
+  bgg_rank integer,
+  bgg_bayesaverage numeric(5,2),
+  bgg_usersrated integer,
+  is_expansion boolean,
+  abstracts_rank integer,
+  cgs_rank integer,
+  childrensgames_rank integer,
+  familygames_rank integer,
+  partygames_rank integer,
+  strategygames_rank integer,
+  thematic_rank integer,
+  wargames_rank integer,
+  bgg_data_source text,
+  bgg_data_updated_at timestamptz,
+  bgg_snapshot_payload jsonb,
   players_min integer,
   players_max integer,
   play_time_min integer,
@@ -132,6 +151,9 @@ create table if not exists public.games (
   is_expansion_included boolean not null default false,
   image_url text,
   published_year integer,
+  search_vector tsvector generated always as (
+    setweight(to_tsvector('english', coalesce(name, '')), 'A')
+  ) stored,
   hidden boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -438,15 +460,15 @@ begin
     set name = excluded.name,
         slug = excluded.slug,
         bgg_url = excluded.bgg_url,
-        bgg_rating = excluded.bgg_rating,
-        bgg_weight = excluded.bgg_weight,
-        players_min = excluded.players_min,
-        players_max = excluded.players_max,
-        play_time_min = excluded.play_time_min,
-        play_time_max = excluded.play_time_max,
-        summary = excluded.summary,
-        image_url = excluded.image_url,
-        published_year = excluded.published_year,
+        bgg_rating = coalesce(excluded.bgg_rating, games.bgg_rating),
+        bgg_weight = coalesce(excluded.bgg_weight, games.bgg_weight),
+        players_min = coalesce(excluded.players_min, games.players_min),
+        players_max = coalesce(excluded.players_max, games.players_max),
+        play_time_min = coalesce(excluded.play_time_min, games.play_time_min),
+        play_time_max = coalesce(excluded.play_time_max, games.play_time_max),
+        summary = coalesce(excluded.summary, games.summary),
+        image_url = coalesce(excluded.image_url, games.image_url),
+        published_year = coalesce(excluded.published_year, games.published_year),
         updated_at = now()
   returning * into v_game;
 
@@ -476,6 +498,86 @@ begin
 end;
 $$;
 
+create or replace function public.import_bgg_games_batch(
+  batch jsonb
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.games (
+    bgg_id,
+    name,
+    published_year,
+    bgg_rank,
+    bgg_bayesaverage,
+    bgg_rating,
+    bgg_usersrated,
+    is_expansion,
+    abstracts_rank,
+    cgs_rank,
+    childrensgames_rank,
+    familygames_rank,
+    partygames_rank,
+    strategygames_rank,
+    thematic_rank,
+    wargames_rank,
+    bgg_data_source,
+    bgg_data_updated_at,
+    bgg_snapshot_payload,
+    status
+  )
+  select
+    (item->>'bgg_id')::integer,
+    item->>'name',
+    (item->>'published_year')::integer,
+    (item->>'bgg_rank')::integer,
+    (item->>'bgg_bayesaverage')::numeric,
+    (item->>'bgg_rating')::numeric,
+    (item->>'bgg_usersrated')::integer,
+    (item->>'is_expansion')::boolean,
+    (item->>'abstracts_rank')::integer,
+    (item->>'cgs_rank')::integer,
+    (item->>'childrensgames_rank')::integer,
+    (item->>'familygames_rank')::integer,
+    (item->>'partygames_rank')::integer,
+    (item->>'strategygames_rank')::integer,
+    (item->>'thematic_rank')::integer,
+    (item->>'wargames_rank')::integer,
+    coalesce(item->>'bgg_data_source', 'bgg_csv'),
+    (item->>'bgg_data_updated_at')::timestamptz,
+    coalesce(item->'bgg_snapshot_payload', item),
+    'archived'
+  from jsonb_array_elements(batch) as item
+  on conflict (bgg_id) where bgg_id is not null
+  do update set
+    name = coalesce(public.games.name, excluded.name),
+    published_year = excluded.published_year,
+    bgg_rank = excluded.bgg_rank,
+    bgg_bayesaverage = excluded.bgg_bayesaverage,
+    bgg_rating = coalesce(public.games.bgg_rating, excluded.bgg_rating),
+    bgg_usersrated = excluded.bgg_usersrated,
+    is_expansion = excluded.is_expansion,
+    abstracts_rank = excluded.abstracts_rank,
+    cgs_rank = excluded.cgs_rank,
+    childrensgames_rank = excluded.childrensgames_rank,
+    familygames_rank = excluded.familygames_rank,
+    partygames_rank = excluded.partygames_rank,
+    strategygames_rank = excluded.strategygames_rank,
+    thematic_rank = excluded.thematic_rank,
+    wargames_rank = excluded.wargames_rank,
+    bgg_data_source = excluded.bgg_data_source,
+    bgg_data_updated_at = excluded.bgg_data_updated_at,
+    bgg_snapshot_payload = excluded.bgg_snapshot_payload,
+    updated_at = now()
+  where public.games.bgg_data_updated_at is null
+    or excluded.bgg_data_updated_at is null
+    or excluded.bgg_data_updated_at >= public.games.bgg_data_updated_at;
+end;
+$$;
+
 -- -----------------------------------------------------------------------------
 -- Indexes
 -- -----------------------------------------------------------------------------
@@ -492,6 +594,8 @@ create index if not exists idx_games_bgg_id on public.games(bgg_id);
 create unique index if not exists idx_games_bgg_id_unique
 on public.games (bgg_id)
 where bgg_id is not null;
+create index if not exists idx_games_search_vector
+on public.games using gin(search_vector);
 create index if not exists idx_tags_tag_type on public.tags(tag_type);
 create index if not exists idx_game_tags_tag_id on public.game_tags(tag_id);
 create index if not exists idx_library_entries_user_list_type

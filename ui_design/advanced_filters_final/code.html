@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#767775",
+                    "outline-variant": "#adadab",
+                    "surface-container-low": "#f1f1ee",
+                    "error-container": "#f95630",
+                    "error": "#b02500",
+                    "on-background": "#2e2f2d",
+                    "primary-fixed": "#fd9000",
+                    "surface-bright": "#f7f6f3",
+                    "on-error-container": "#520c00",
+                    "secondary-fixed": "#8df5e4",
+                    "on-secondary-container": "#005c53",
+                    "on-primary-fixed-variant": "#532b00",
+                    "secondary-fixed-dim": "#7fe6d5",
+                    "tertiary-dim": "#5f4e00",
+                    "tertiary": "#6d5a00",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#00675c",
+                    "on-tertiary-fixed-variant": "#675500",
+                    "tertiary-fixed": "#fdd73e",
+                    "primary-dim": "#794200",
+                    "inverse-primary": "#fd9000",
+                    "inverse-surface": "#0d0f0d",
+                    "primary": "#8a4c00",
+                    "primary-container": "#fd9000",
+                    "on-tertiary-container": "#5c4b00",
+                    "surface-container": "#e8e8e5",
+                    "on-primary-container": "#462400",
+                    "surface-tint": "#8a4c00",
+                    "secondary-dim": "#005a50",
+                    "on-primary-fixed": "#1e0c00",
+                    "on-secondary-fixed-variant": "#00675c",
+                    "error-dim": "#b92902",
+                    "secondary-container": "#8df5e4",
+                    "on-tertiary": "#fff2cf",
+                    "surface-dim": "#d4d5d1",
+                    "tertiary-fixed-dim": "#eec930",
+                    "on-surface": "#2e2f2d",
+                    "on-secondary-fixed": "#004840",
+                    "primary-fixed-dim": "#ea8400",
+                    "on-primary": "#fff0e6",
+                    "surface": "#f7f6f3",
+                    "background": "#f7f6f3",
+                    "on-surface-variant": "#5b5c5a",
+                    "tertiary-container": "#fdd73e",
+                    "inverse-on-surface": "#9d9d9b",
+                    "surface-container-highest": "#ddddda",
+                    "surface-variant": "#ddddda",
+                    "surface-container-high": "#e2e3df",
+                    "on-error": "#ffefec",
+                    "on-tertiary-fixed": "#463900",
+                    "on-secondary": "#c0fff3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .glass-nav {
+            backdrop-filter: blur(24px);
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 40px rgba(46, 47, 45, 0.06);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #ddddda;
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            background-color: #8a4c00;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex">
+<!-- Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-screen w-64 bg-[#f1f1ee] dark:bg-[#121212] p-6 fixed left-0 top-0 z-40">
+<div class="mb-12">
+<h1 class="text-xl font-black uppercase tracking-widest text-amber-800">The Game Haven</h1>
+<p class="text-xs font-semibold text-on-surface-variant opacity-70">Curated Board Gaming</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#2e2f2d] text-amber-800 dark:text-amber-400 rounded-xl shadow-sm font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span>Discover</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#2e2f2d] dark:text-[#adadab] hover:bg-[#ddddda] dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Vault</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#2e2f2d] dark:text-[#adadab] hover:bg-[#ddddda] dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span>Wishlist</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#2e2f2d] dark:text-[#adadab] hover:bg-[#ddddda] dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Community</span>
+</a>
+</nav>
+<button class="mt-auto bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-xl font-bold editorial-shadow active:scale-95 transition-transform">
+            Add New Game
+        </button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-8">
+<!-- Top Bar Area (Suppressed items based on task) -->
+<header class="flex justify-between items-center mb-12">
+<div>
+<h2 class="text-4xl font-extrabold tracking-tighter text-primary">Discover</h2>
+<p class="text-on-surface-variant font-medium">Browse through 1,248 curated experiences</p>
+</div>
+<button class="flex items-center gap-2 bg-surface-container-highest px-6 py-3 rounded-xl font-bold text-on-surface active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+                Filters
+            </button>
+</header>
+<!-- Bento Grid for Background Content -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 opacity-40 pointer-events-none">
+<div class="md:col-span-2 aspect-video bg-surface-container-lowest rounded-xl overflow-hidden relative group">
+<img alt="Cinematic shot of a detailed fantasy board game setup" class="w-full h-full object-cover" data-alt="Cinematic high-angle shot of a complex fantasy board game setup with miniature figurines and colorful cards under warm ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB76o9s_rKNS2Dif-NhTcjm1c2ZSrzgqAzzULYVpSaY-IP3q_JTPPtO8ILUSCM3A4QifZKnsR61UQirGNnJdeKV-N6SILqGWR4aiLQ52yzkKwydnDjMl96ZbxHGfkdH3qKyZADuqLoF90dEZGARsDlcj8hWcdAXvLUi3oqY3Tlappmxo-eFHKJe954jPJ7nUlljQxVpmc4nRIwH7Uht_Qj-Khdwz514r4-_Mh7RQyv6JnoyyH8xNMJ6ziuV5omliubsKk0hAQRxPU"/>
+<div class="absolute bottom-6 left-6">
+<span class="bg-secondary-fixed text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">New Arrival</span>
+<h3 class="text-3xl font-black text-white mt-2">Everdell: The Glimmering Coast</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between">
+<h4 class="text-xl font-bold text-primary">Featured Designer</h4>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest"></div>
+<div>
+<p class="font-bold">Elizabeth Hargrave</p>
+<p class="text-xs uppercase tracking-widest text-on-surface-variant">Nature-Inspired Mechanics</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low aspect-square rounded-xl overflow-hidden">
+<img alt="Close up of dice and cards" class="w-full h-full object-cover" data-alt="Close up of premium wooden board game pieces and tactile dice scattered on a textured linen surface with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpAljXzY8JDCCbIFOObeUCVgWcucE2tu-IAYVEbjpPN2-er6YZoY1qIzYzGh0nK4N_VOJ0WwWPMeLkrpHvPLbGaWKomnRQdRaoLqKw9_5t0OvtV_Dbys_3g4NKc8EnQYkEnHty6K63i951JiqJuGZ_58itZM09EKFtcXrWztq5w6VgVDsb7rAHM-OAFVYgVq17zApzOXhE3bj8ZnRG2itAdyPlGJrhNlIRkGn5Vf_s4Rb4AGugkMaWaiDDgE9sIJb3Z9ykT8sIFqY"/>
+</div>
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl flex items-center justify-between">
+<div>
+<h3 class="text-2xl font-bold mb-2">Weekend Strategy Guide</h3>
+<p class="text-on-surface-variant max-w-sm">Deep dive into the 2024 meta for Terraforming Mars.</p>
+</div>
+<button class="bg-surface-container-highest px-8 py-4 rounded-xl font-bold">Read Article</button>
+</div>
+</div>
+<!-- OVERLAY: Advanced Filters (Slides from right) -->
+<div class="fixed inset-0 z-50 flex justify-end">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-on-background/20 backdrop-blur-sm"></div>
+<!-- Filter Panel -->
+<div class="relative w-full max-w-md bg-surface h-full shadow-2xl flex flex-col animate-slide-in">
+<!-- Header -->
+<div class="flex items-center justify-between px-8 py-6">
+<h2 class="text-2xl font-black tracking-tight">Advanced Filters</h2>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto px-8 pb-32">
+<!-- Player Count Slider -->
+<section class="mb-10">
+<div class="flex justify-between items-end mb-4">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Player Count</label>
+<span class="text-lg font-bold text-primary">1 - 6 Players</span>
+</div>
+<div class="relative pt-2">
+<input class="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="12" min="1" type="range" value="6"/>
+<div class="flex justify-between mt-2 text-[10px] font-bold text-outline-variant uppercase">
+<span>Solo</span>
+<span>Party</span>
+</div>
+</div>
+</section>
+<!-- Time Commitment Slider -->
+<section class="mb-10">
+<div class="flex justify-between items-end mb-4">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Time Commitment</label>
+<span class="text-lg font-bold text-primary">45 - 90 min</span>
+</div>
+<div class="relative pt-2">
+<input class="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="360" min="15" type="range" value="90"/>
+<div class="flex justify-between mt-2 text-[10px] font-bold text-outline-variant uppercase">
+<span>Quick</span>
+<span>Epic Session</span>
+</div>
+</div>
+</section>
+<!-- Strategic Weight (Segmented Control) -->
+<section class="mb-10">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Strategic Weight</label>
+<div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+<button class="py-2 text-xs font-bold rounded-lg text-on-surface-variant hover:text-on-surface transition-colors">Light</button>
+<button class="py-2 text-xs font-bold rounded-lg bg-surface-container-lowest text-primary shadow-sm">Mid</button>
+<button class="py-2 text-xs font-bold rounded-lg text-on-surface-variant hover:text-on-surface transition-colors">Heavy</button>
+<button class="py-2 text-xs font-bold rounded-lg text-on-surface-variant hover:text-on-surface transition-colors">Expert</button>
+</div>
+</section>
+<!-- Core Mechanics (Multi-select chips) -->
+<section class="mb-10">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Core Mechanics</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-lowest border border-primary text-primary">Worker Placement</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Deck Building</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Area Control</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-lowest border border-primary text-primary">Engine Building</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Drafting</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Social Deduction</button>
+</div>
+</section>
+<!-- Thematic Settings -->
+<section class="mb-10">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Thematic Settings</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-secondary-fixed text-on-secondary-container">High Fantasy</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Sci-Fi</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">Historical</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Horror</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">Economic</button>
+</div>
+</section>
+</div>
+<!-- Sticky Footer -->
+<div class="absolute bottom-0 left-0 w-full p-8 bg-surface/80 backdrop-blur-md border-t border-outline-variant/15">
+<div class="flex gap-4">
+<button class="flex-1 py-4 font-bold text-on-surface-variant hover:text-on-surface transition-colors">
+                            Reset All
+                        </button>
+<button class="flex-[2] bg-gradient-to-br from-primary to-primary-container text-on-primary py-4 rounded-xl font-black text-lg editorial-shadow active:scale-95 transition-transform">
+                            Show Results
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/70 backdrop-blur-xl flex justify-around items-center p-4 z-50">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Explore</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Vault</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Wishlist</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Profile</span>
+</button>
+</nav>
+</body></html>
