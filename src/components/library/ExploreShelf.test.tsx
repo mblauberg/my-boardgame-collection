@@ -1,25 +1,62 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { ExploreShelf } from "./ExploreShelf";
 import type { Game } from "../../types/domain";
+import type { LibraryEntry } from "../../features/library/library.types";
 
-const game: Game = {
+const profileState = vi.hoisted(() => ({
+  profile: { id: "user-1" },
+  isOwner: true,
+  isAuthenticated: true,
+  isLoading: false,
+  error: null,
+}));
+
+const libraryQueryState = vi.hoisted(() => ({
+  data: [] as LibraryEntry[],
+  isLoading: false,
+}));
+
+const upsertMutationState = vi.hoisted(() => ({
+  mutate: vi.fn(),
+  isPending: false,
+}));
+
+const deleteMutationState = vi.hoisted(() => ({
+  mutate: vi.fn(),
+  isPending: false,
+}));
+
+vi.mock("../../features/auth/useProfile", () => ({
+  useProfile: () => profileState,
+}));
+
+vi.mock("../../features/library/useLibraryQuery", () => ({
+  useLibraryQuery: () => libraryQueryState,
+}));
+
+vi.mock("../../features/library/useLibraryEntryMutations", () => ({
+  useUpsertLibraryState: () => upsertMutationState,
+  useDeleteLibraryEntry: () => deleteMutationState,
+}));
+
+const gameFixture: Game = {
   id: "game-1",
-  name: "A Fake Artist",
-  slug: "a-fake-artist",
-  bggId: null,
+  name: "Heat",
+  slug: "heat",
+  bggId: 366013,
   bggUrl: null,
   status: "archived",
   buyPriority: null,
-  bggRating: 7,
-  bggWeight: 1.1,
-  playersMin: 5,
-  playersMax: 10,
-  playTimeMin: 20,
-  playTimeMax: 20,
-  category: null,
-  summary: "Draw one line and bluff.",
+  bggRating: 8.1,
+  bggWeight: 2.5,
+  playersMin: 1,
+  playersMax: 6,
+  playTimeMin: 30,
+  playTimeMax: 60,
+  category: "Racing",
+  summary: "Push your car through the final corner.",
   notes: null,
   recommendationVerdict: null,
   recommendationColour: null,
@@ -33,27 +70,98 @@ const game: Game = {
   tags: [],
 };
 
-function LocationStateProbe() {
-  const location = useLocation();
-  return <pre>{JSON.stringify(location.state)}</pre>;
+function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
+  return {
+    id: "entry-1",
+    userId: "user-1",
+    gameId: gameFixture.id,
+    isSaved: false,
+    isLoved: false,
+    isInCollection: false,
+    listType: "saved",
+    sentiment: null,
+    notes: null,
+    priority: null,
+    game: gameFixture,
+    sharedTags: [],
+    userTags: [],
+    ...overrides,
+  };
 }
 
 describe("ExploreShelf", () => {
-  it("preserves the explore route as link state for game detail navigation", async () => {
-    const user = userEvent.setup();
+  beforeEach(() => {
+    profileState.profile = { id: "user-1" };
+    profileState.isAuthenticated = true;
+    libraryQueryState.data = [];
+    upsertMutationState.mutate = vi.fn();
+    upsertMutationState.isPending = false;
+    deleteMutationState.mutate = vi.fn();
+    deleteMutationState.isPending = false;
+  });
 
+  it("renders a saved quick action for each explore game", () => {
     render(
-      <MemoryRouter initialEntries={["/explore"]}>
-        <Routes>
-          <Route path="/explore" element={<ExploreShelf title="For You" entries={[game]} />} />
-          <Route path="/game/:slug" element={<LocationStateProbe />} />
-        </Routes>
+      <MemoryRouter>
+        <ExploreShelf title="Trending now" entries={[gameFixture]} />
       </MemoryRouter>,
     );
 
-    await user.click(screen.getByRole("link", { name: /a fake artist/i }));
+    expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "false");
+  });
 
-    expect(screen.getByText(/"from":"\/explore"/i)).toBeInTheDocument();
-    expect(screen.getByText(/"backgroundLocation"/i)).toBeInTheDocument();
+  it("upserts saved state from explore while preserving other library state", async () => {
+    const user = userEvent.setup();
+    libraryQueryState.data = [
+      createEntry({
+        isSaved: false,
+        isLoved: true,
+        isInCollection: true,
+        sentiment: "like",
+        notes: "Race night staple",
+      }),
+    ];
+
+    render(
+      <MemoryRouter>
+        <ExploreShelf title="Trending now" entries={[gameFixture]} />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /saved/i }));
+
+    expect(upsertMutationState.mutate).toHaveBeenCalledWith({
+      userId: "user-1",
+      gameId: gameFixture.id,
+      isSaved: true,
+      isLoved: true,
+      isInCollection: true,
+      sentiment: "like",
+      notes: "Race night staple",
+    });
+    expect(deleteMutationState.mutate).not.toHaveBeenCalled();
+  });
+
+  it("deletes the library entry when saved is toggled off and no state remains", async () => {
+    const user = userEvent.setup();
+    libraryQueryState.data = [
+      createEntry({
+        isSaved: true,
+      }),
+    ];
+
+    render(
+      <MemoryRouter>
+        <ExploreShelf title="Trending now" entries={[gameFixture]} />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /saved/i }));
+
+    expect(deleteMutationState.mutate).toHaveBeenCalledWith({
+      id: "entry-1",
+      userId: "user-1",
+    });
+    expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });
 });

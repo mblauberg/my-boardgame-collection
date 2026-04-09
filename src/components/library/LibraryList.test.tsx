@@ -4,12 +4,15 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { LibraryList } from "./LibraryList";
 import type { LibraryEntry } from "../../features/library/library.types";
 
-function createEntry(listType: LibraryEntry["listType"]): LibraryEntry {
+function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
   return {
     id: "entry-1",
     userId: "user-1",
     gameId: "game-1",
-    listType,
+    isSaved: false,
+    isLoved: false,
+    isInCollection: false,
+    listType: "saved",
     sentiment: null,
     notes: null,
     priority: null,
@@ -43,6 +46,7 @@ function createEntry(listType: LibraryEntry["listType"]): LibraryEntry {
     },
     sharedTags: [],
     userTags: [],
+    ...overrides,
   };
 }
 
@@ -52,39 +56,40 @@ function LocationStateProbe() {
 }
 
 describe("LibraryList", () => {
-  it("renders wishlist items with a move-to-collection button", () => {
+  it("renders saved items without move-to-collection controls", () => {
     render(
       <MemoryRouter>
-        <LibraryList entries={[createEntry("wishlist")]} onMoveToCollection={vi.fn()} />
+        <LibraryList entries={[createEntry({ isSaved: true })]} />
       </MemoryRouter>,
     );
 
     expect(screen.getByRole("link", { name: /heat/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /move to collection/i })).toBeInTheDocument();
+    expect(screen.getByText("Saved")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /move to collection/i })).not.toBeInTheDocument();
   });
 
-  it("does not render move-to-collection for collection entries", () => {
+  it("renders collection entries with an in-collection badge", () => {
     render(
       <MemoryRouter>
-        <LibraryList entries={[createEntry("collection")]} onMoveToCollection={vi.fn()} />
+        <LibraryList entries={[createEntry({ isSaved: true, isInCollection: true })]} />
       </MemoryRouter>,
     );
 
-    expect(screen.queryByRole("button", { name: /move to collection/i })).not.toBeInTheDocument();
+    expect(screen.getByText("In Collection")).toBeInTheDocument();
   });
 
   it("passes route state through game links when provided", async () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={["/saved"]}>
         <Routes>
           <Route
-            path="/"
+            path="/saved"
             element={
               <LibraryList
-                entries={[createEntry("collection")]}
-                getGameLinkState={() => ({ from: "/wishlist" })}
+                entries={[createEntry({ isInCollection: true })]}
+                getGameLinkState={() => ({ surface: "saved" })}
               />
             }
           />
@@ -95,7 +100,8 @@ describe("LibraryList", () => {
 
     await user.click(screen.getByRole("link", { name: /heat/i }));
 
-    expect(screen.getByText(/"from":"\/"/i)).toBeInTheDocument();
+    expect(screen.getByText(/"from":"\/saved"/i)).toBeInTheDocument();
+    expect(screen.getByText(/"surface":"saved"/i)).toBeInTheDocument();
     expect(screen.getByText(/"backgroundLocation"/i)).toBeInTheDocument();
   });
 });

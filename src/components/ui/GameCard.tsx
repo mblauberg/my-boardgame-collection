@@ -6,7 +6,7 @@ export interface GameCardProps {
   playTime?: string;
   weight?: string;
   isFavorite?: boolean;
-  badge?: "In Stock" | "Wishlist";
+  badge?: "In Collection" | "Saved";
 }
 
 const MOCK_IMAGES = [
@@ -49,7 +49,9 @@ export function GameCard({
         {badge && (
           <div className="absolute top-4 right-4">
             <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase ${
-              badge === "In Stock" ? "bg-secondary-fixed text-on-secondary-container" : "bg-tertiary-fixed text-on-tertiary-fixed"
+              badge === "In Collection"
+                ? "bg-secondary-fixed text-on-secondary-container"
+                : "bg-tertiary-fixed text-on-tertiary-fixed"
             }`}>
               {badge}
             </span>
@@ -58,14 +60,17 @@ export function GameCard({
       </div>
 
       <div className="space-y-4">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start gap-3">
           <h3 className="text-2xl font-extrabold text-on-surface leading-tight">{title}</h3>
-          <span 
-            className={`material-symbols-outlined ${isFavorite ? "text-primary" : "text-outline"}`}
-            style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : undefined }}
-          >
-            favorite
-          </span>
+          {isFavorite ? (
+            <span
+              aria-label="Loved"
+              className="material-symbols-outlined text-primary"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              favorite
+            </span>
+          ) : null}
         </div>
 
         {description && (

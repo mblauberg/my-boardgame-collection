@@ -1,12 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import type { LibraryEntry } from "../../features/library/library.types";
-import { MoveToCollectionButton } from "./MoveToCollectionButton";
 
 type LibraryListProps = {
   entries: LibraryEntry[];
-  onMoveToCollection?: (entryId: string) => void;
-  isMovePending?: boolean;
   getGameLinkState?: (entry: LibraryEntry) => unknown;
 };
 
@@ -22,8 +19,6 @@ function formatPlayTime(entry: LibraryEntry) {
 
 export function LibraryList({
   entries,
-  onMoveToCollection,
-  isMovePending = false,
   getGameLinkState,
 }: LibraryListProps) {
   const location = useLocation();
@@ -60,17 +55,10 @@ export function LibraryList({
                 players={formatPlayers(entry)}
                 playTime={formatPlayTime(entry)}
                 weight={entry.game.bggWeight?.toFixed(1)}
-                isFavorite={entry.sentiment === "like"}
-                badge={entry.listType === "wishlist" ? "Wishlist" : "In Stock"}
+                isFavorite={entry.isLoved}
+                badge={entry.isInCollection ? "In Collection" : entry.isSaved ? "Saved" : undefined}
               />
             </Link>
-
-            {entry.listType === "wishlist" && onMoveToCollection ? (
-              <MoveToCollectionButton
-                disabled={isMovePending}
-                onClick={() => onMoveToCollection(entry.id)}
-              />
-            ) : null}
           </article>
         );
       })}
