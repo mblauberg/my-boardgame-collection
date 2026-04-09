@@ -6,14 +6,15 @@ import { libraryKeys } from "../library/libraryKeys";
 
 // Mock Supabase
 const mockFrom = vi.fn();
-const mockSupabase = { from: mockFrom };
+const mockRpc = vi.fn();
+const mockSupabase = { from: mockFrom, rpc: mockRpc };
 
 vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => mockSupabase,
 }));
 
 // Import after mocking
-import { useUpdateGame, useCreateGame } from "./useGameMutations";
+import { useUpdateGame, useCreateGame, useContributeGameMetadata } from "./useGameMutations";
 
 const gameRowFixture = {
   id: "game-1",
@@ -56,6 +57,11 @@ function makeWrapper() {
 }
 
 describe("useUpdateGame", () => {
+  beforeEach(() => {
+    mockFrom.mockReset();
+    mockRpc.mockReset();
+  });
+
   it("invalidates the games list query after a successful update", async () => {
     const { queryClient, Wrapper } = makeWrapper();
 
@@ -133,6 +139,182 @@ describe("useUpdateGame", () => {
 
     expect(invalidateSpy).toHaveBeenCalledWith(
       expect.objectContaining({ queryKey: libraryKeys.all }),
+    );
+  });
+});
+
+describe("useContributeGameMetadata", () => {
+  beforeEach(() => {
+    mockFrom.mockReset();
+    mockRpc.mockReset();
+  });
+
+  it("saves contributed image URLs through the metadata RPC", async () => {
+    const { queryClient, Wrapper } = makeWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    mockRpc.mockResolvedValue({ data: gameRowFixture, error: null });
+
+    const { result } = renderHook(() => useContributeGameMetadata(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({
+        id: "game-1",
+        imageUrl: "https://example.com/cover.jpg",
+        summary: null,
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockRpc).toHaveBeenCalledWith("update_game_missing_metadata", {
+      p_game_id: "game-1",
+      p_image_url: "https://example.com/cover.jpg",
+      p_summary: null,
+    });
+
+    expect(invalidateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ queryKey: gamesKeys.details() }),
+    );
+  });
+
+  it("falls back to direct update when the RPC is unavailable", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const selectSingle = vi.fn().mockResolvedValue({
+      data: { id: "game-1", image_url: null, summary: null },
+      error: null,
+    });
+    const updateSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: gameRowFixture, error: null }),
+        }),
+      }),
+    });
+
+    mockRpc.mockResolvedValue({
+      data: null,
+      error: { code: "PGRST202", message: "Function not found" },
+    });
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ single: selectSingle }),
+      }),
+      update: updateSpy,
+    });
+
+    const { result } = renderHook(() => useContributeGameMetadata(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({
+        id: "game-1",
+        imageUrl: "https://example.com/cover.jpg",
+        summary: null,
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ image_url: "https://example.com/cover.jpg" }),
+    );
+  });
+
+  it("falls back to save_bgg_game_for_user when direct updates are blocked", async () => {
+    const { Wrapper } = makeWrapper();
+
+    const selectSingle = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: { id: "game-1", image_url: null, summary: null },
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: gameRowFixture, error: null });
+
+    const selectSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ single: selectSingle }),
+    });
+
+    const updateSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: null,
+            error: { code: "PGRST116", message: "No rows returned" },
+          }),
+        }),
+      }),
+    });
+
+    const librarySelectSpy = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: {
+              is_saved: true,
+              is_loved: false,
+              is_in_collection: true,
+              sentiment: "neutral",
+              notes: "Existing note",
+            },
+            error: null,
+          }),
+        }),
+      }),
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "games") {
+        return {
+          select: selectSpy,
+          update: updateSpy,
+        };
+      }
+
+      return {
+        select: librarySelectSpy,
+      };
+    });
+
+    mockRpc
+      .mockResolvedValueOnce({
+        data: null,
+        error: { code: "PGRST202", message: "Function not found" },
+      })
+      .mockResolvedValueOnce({ data: {}, error: null });
+
+    const { result } = renderHook(() => useContributeGameMetadata(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({
+        id: "game-1",
+        imageUrl: "https://example.com/cover.jpg",
+        summary: null,
+        userId: "user-1",
+        bggId: 266192,
+        name: "Wingspan",
+        slug: "wingspan",
+        bggUrl: null,
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockRpc).toHaveBeenNthCalledWith(
+      2,
+      "save_bgg_game_for_user",
+      expect.objectContaining({
+        p_user_id: "user-1",
+        p_bgg_id: 266192,
+        p_name: "Wingspan",
+        p_slug: "wingspan",
+        p_bgg_url: "https://boardgamegeek.com/boardgame/266192",
+        p_image_url: "https://example.com/cover.jpg",
+        p_is_saved: true,
+        p_is_loved: false,
+        p_is_in_collection: true,
+        p_sentiment: "neutral",
+        p_notes: "Existing note",
+      }),
     );
   });
 });

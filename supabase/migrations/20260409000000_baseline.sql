@@ -927,7 +927,7 @@ drop policy if exists "game-images_insert" on storage.objects;
 create policy "game-images_insert"
 on storage.objects for insert
 to authenticated
-with check (bucket_id = 'game-images');
+with check (bucket_id = 'game-images' and public.is_owner());
 
 drop policy if exists "game-images_update" on storage.objects;
 create policy "game-images_update"

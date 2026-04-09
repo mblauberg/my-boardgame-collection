@@ -347,6 +347,14 @@ export type Database = {
         };
         Returns: Database["public"]["Tables"]["library_entries"]["Row"];
       };
+      update_game_missing_metadata: {
+        Args: {
+          p_game_id: string;
+          p_image_url?: string | null;
+          p_summary?: string | null;
+        };
+        Returns: Database["public"]["Tables"]["games"]["Row"];
+      };
       import_bgg_games_batch: {
         Args: {
           batch: Json;

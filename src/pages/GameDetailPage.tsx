@@ -1,7 +1,7 @@
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useGameDetailQuery } from "../features/games/useGameDetailQuery";
-import { useUpdateGame } from "../features/games/useGameMutations";
+import { useContributeGameMetadata } from "../features/games/useGameMutations";
 import { useProfile } from "../features/auth/useProfile";
 import { GameDetailPanel } from "../components/games/GameDetailPanel";
 import { GameDetailOverlay } from "../components/games/GameDetailOverlay";
@@ -20,9 +20,10 @@ export function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { isOwner } = useProfile();
+  const { profile } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
-  const updateGame = useUpdateGame();
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const contributeGameMetadata = useContributeGameMetadata();
   const state = location.state as { from?: string; backgroundLocation?: unknown } | null;
   const backTo = typeof state?.from === "string" ? state.from : "/";
   const backLabel = getBackLabel(backTo);
@@ -43,23 +44,38 @@ export function GameDetailPage() {
   };
 
   const handleEdit = () => {
+    setSaveError(null);
     setIsEditing(true);
   };
 
   const handleCancelEdit = () => {
+    setSaveError(null);
     setIsEditing(false);
   };
 
   const handleSaveEdit = async (values: { imageUrl: string; summary: string }) => {
     if (!game) return;
-    
-    await updateGame.mutateAsync({
-      id: game.id,
-      imageUrl: values.imageUrl || null,
-      summary: values.summary || null,
-    });
-    
-    setIsEditing(false);
+    setSaveError(null);
+
+    const imageUrl = values.imageUrl.trim();
+    const summary = values.summary.trim();
+
+    try {
+      await contributeGameMetadata.mutateAsync({
+        id: game.id,
+        imageUrl: imageUrl || null,
+        summary: summary || null,
+        userId: profile?.id ?? null,
+        bggId: game.bggId,
+        name: game.name,
+        slug: game.slug,
+        bggUrl: game.bggUrl,
+      });
+
+      setIsEditing(false);
+    } catch {
+      setSaveError("Unable to save your edits. Please try again.");
+    }
   };
 
   if (isLoading) {
@@ -109,12 +125,19 @@ export function GameDetailPage() {
       isEditing={isEditing}
     >
       {isEditing ? (
-        <GameQuickEditForm
-          game={game}
-          onSubmit={handleSaveEdit}
-          onCancel={handleCancelEdit}
-          isSubmitting={updateGame.isPending}
-        />
+        <div className="space-y-3 pt-3">
+          {saveError ? (
+            <p className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">
+              {saveError}
+            </p>
+          ) : null}
+          <GameQuickEditForm
+            game={game}
+            onSubmit={handleSaveEdit}
+            onCancel={handleCancelEdit}
+            isSubmitting={contributeGameMetadata.isPending}
+          />
+        </div>
       ) : (
         <GameDetailPanel game={game} />
       )}
