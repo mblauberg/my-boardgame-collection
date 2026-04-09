@@ -21,7 +21,6 @@ type HorizontalShelfProps = {
 
 export function HorizontalShelf({ title, description, entries }: HorizontalShelfProps) {
   const location = useLocation();
-  const navigate = useNavigate();
   const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
   const upsertLibraryState = useUpsertLibraryState();
