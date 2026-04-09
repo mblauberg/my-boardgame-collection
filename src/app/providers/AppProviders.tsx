@@ -3,11 +3,18 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "../../lib/query/queryClient";
 import { ThemeProvider } from "../../lib/theme";
 import { ExploreSearchProvider } from "../../features/library/ExploreSearchContext";
+import { useGuestLibrarySync } from "../../features/library/useGuestLibrarySync";
+
+function GuestLibrarySyncBoundary() {
+  useGuestLibrarySync();
+  return null;
+}
 
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
+        <GuestLibrarySyncBoundary />
         <ExploreSearchProvider>{children}</ExploreSearchProvider>
       </QueryClientProvider>
     </ThemeProvider>

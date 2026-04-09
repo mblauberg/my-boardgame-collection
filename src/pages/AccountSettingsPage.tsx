@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "../components/layout/PageHeader";
 import { useProfile } from "../features/auth/useProfile";
 import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
-import { useTheme } from "../lib/theme";
 
 type FormState = {
   username: string;
@@ -42,7 +41,6 @@ function getFormState(profile: ReturnType<typeof useProfile>["profile"]): FormSt
 export function AccountSettingsPage() {
   const { profile, isLoading, isOwner, isAuthenticated, error } = useProfile();
   const { mutateAsync, isPending } = useUpdateProfileMutation();
-  const { theme, toggleTheme } = useTheme();
   const [formState, setFormState] = useState<FormState>(() => getFormState(null));
   const [status, setStatus] = useState<{ type: "idle" | "success" | "error"; message: string | null }>({
     type: "idle",
@@ -111,17 +109,6 @@ export function AccountSettingsPage() {
         description="Update your public identity and choose which parts of your library other players can see."
         actions={
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label="Toggle dark mode"
-              aria-pressed={theme === "dark"}
-              className="flex items-center gap-2 rounded-2xl bg-surface/70 px-4 py-3 text-on-surface shadow-ambient backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-ambient-lg dark:bg-[rgb(42_42_42/0.7)] dark:hover:bg-[rgb(58_58_58/0.7)]"
-            >
-              <span className="material-symbols-outlined text-[20px] text-on-surface">
-                {theme === "dark" ? "light_mode" : "dark_mode"}
-              </span>
-            </button>
             {profile.username && (
               <Link
                 to={`/u/${profile.username}`}

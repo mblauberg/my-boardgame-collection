@@ -25,7 +25,7 @@ export function CollectionPage() {
           title={<>Your <span className="text-primary">Collection</span></>}
           description="Loading your collection..."
         />
-        <div className="mb-8 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+        <div className="glass-surface-panel mb-8 rounded-xl p-6">
           <div className="h-10 bg-surface-container rounded-full animate-pulse" />
         </div>
         <div className="editorial-grid">

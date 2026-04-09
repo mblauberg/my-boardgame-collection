@@ -45,7 +45,7 @@ describe("ExplorePage", () => {
     expect(screen.getByText("Discovery by Mechanic")).toBeInTheDocument();
     expect(screen.getByText("New Releases")).toBeInTheDocument();
     expect(screen.getByText("Hidden Gems")).toBeInTheDocument();
-    expect(screen.getByText("Discovery").closest("div")).toHaveClass("dark:bg-[rgb(28_27_27)]");
+    expect(screen.getByText("Discovery").closest("div")).toHaveClass("glass-surface-panel");
   });
 
   it("requests only the shelves rendered on the explore page", () => {

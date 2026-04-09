@@ -97,7 +97,7 @@ export function FilterBar({
   };
 
   return (
-    <div className="space-y-4 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+    <div className="glass-surface-panel space-y-4 rounded-xl p-6">
       {/* Search and Presets Row */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         {showSearch && (

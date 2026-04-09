@@ -232,6 +232,7 @@ describe("GameDetailPanel", () => {
     expect(deleteMutationState.mutate).toHaveBeenCalledWith({
       id: "entry-1",
       userId: "user-1",
+      gameId: gameFixture.id,
     });
     expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });

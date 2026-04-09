@@ -74,7 +74,9 @@ function slugify(input: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<LibraryEntryRow> {
+async function upsertLibraryState(
+  input: UpsertLibraryStateInput & { userId: string },
+): Promise<LibraryEntryRow> {
   const supabase = getSupabaseBrowserClient();
 
   const { data, error } = await supabase
@@ -98,7 +100,7 @@ async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<Libra
   return data as LibraryEntryRow;
 }
 
-function invalidateLibraryQueries(queryClient: ReturnType<typeof useQueryClient>, userId: string) {
+function invalidateLibraryQueries(queryClient: ReturnType<typeof useQueryClient>, userId?: string) {
   const queryScope = userId || GUEST_LIBRARY_USER_ID;
   queryClient.invalidateQueries({ queryKey: libraryKeys.library(queryScope) });
   queryClient.invalidateQueries({ queryKey: libraryKeys.lists(queryScope) });
@@ -188,7 +190,9 @@ export function useAddToCollection() {
       userId,
       gameId,
       sentiment,
-    }: Omit<UpsertLibraryStateInput, "isSaved" | "isLoved" | "isInCollection" | "notes">) =>
+    }: Omit<UpsertLibraryStateInput, "isSaved" | "isLoved" | "isInCollection" | "notes" | "game"> & {
+      userId: string;
+    }) =>
       upsertLibraryState({
         userId,
         gameId,
@@ -211,7 +215,9 @@ export function useAddToSaved() {
       userId,
       gameId,
       sentiment,
-    }: Omit<UpsertLibraryStateInput, "isSaved" | "isLoved" | "isInCollection" | "notes">) =>
+    }: Omit<UpsertLibraryStateInput, "isSaved" | "isLoved" | "isInCollection" | "notes" | "game"> & {
+      userId: string;
+    }) =>
       upsertLibraryState({
         userId,
         gameId,

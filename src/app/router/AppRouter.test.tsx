@@ -5,6 +5,7 @@ import { AppShell } from "../../components/layout/AppShell";
 import { AppRoutes } from "./routes";
 import { GameDetailPage } from "../../pages/GameDetailPage";
 import { ExploreSearchProvider } from "../../features/library/ExploreSearchContext";
+import { ThemeProvider } from "../../lib/theme";
 import type { Location } from "react-router-dom";
 
 vi.mock("../../features/auth/useProfile", () => ({
@@ -60,13 +61,15 @@ function renderAppRouter(entries: Array<string | { pathname: string; state: unkn
   });
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <ExploreSearchProvider>
-        <MemoryRouter initialEntries={entries}>
-          <AppContent />
-        </MemoryRouter>
-      </ExploreSearchProvider>
-    </QueryClientProvider>,
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ExploreSearchProvider>
+          <MemoryRouter initialEntries={entries}>
+            <AppContent />
+          </MemoryRouter>
+        </ExploreSearchProvider>
+      </QueryClientProvider>
+    </ThemeProvider>,
   );
 }
 

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import type { LibraryEntry } from "../../features/library/library.types";
+import { GUEST_LIBRARY_USER_ID } from "../../features/library/guestLibraryStorage";
 import { useSession } from "../../features/auth/useSession";
 import {
   useMoveSavedToCollection,
@@ -37,14 +38,13 @@ export function LibraryList({
 }: LibraryListProps) {
   const location = useLocation();
   const { user } = useSession();
+  const userId = user?.id;
   const upsert = useUpsertLibraryState();
   const moveToCollection = useMoveSavedToCollection();
   const deleteLibraryEntry = useDeleteLibraryEntry();
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
 
   function handleToggleSaved(entry: LibraryEntry) {
-    if (!user?.id) return;
-
     const currentState = getLibraryStateSnapshot(entry);
     const nextState = {
       ...currentState,
@@ -52,14 +52,17 @@ export function LibraryList({
     };
 
     if (!hasAnyLibraryState(nextState) && entry.id && !entry.id.startsWith("explore-")) {
-      deleteLibraryEntry.mutate({ id: entry.id, userId: user.id });
+      deleteLibraryEntry.mutate({
+        ...(userId ? { userId, id: entry.id } : {}),
+        gameId: entry.game.id,
+      });
       return;
     }
 
     if (!hasAnyLibraryState(nextState)) return;
 
     upsert.mutate({
-      userId: user.id,
+      ...(userId ? { userId } : { game: entry.game }),
       gameId: entry.game.id,
       isSaved: nextState.isSaved,
       isLoved: nextState.isLoved,
@@ -92,7 +95,7 @@ export function LibraryList({
         };
 
         let topRightSlot: React.ReactNode = undefined;
-        if (cardContext === "collection" && user) {
+        if (cardContext === "collection") {
           topRightSlot = (
             <LibraryStateIconButton
               label={entry.isLoved ? "Loved" : "Add to Loved"}
@@ -101,7 +104,7 @@ export function LibraryList({
               onClick={(e) => {
                 e.preventDefault();
                 upsert.mutate({
-                  userId: user.id,
+                  ...(userId ? { userId } : { game: entry.game }),
                   gameId: entry.game.id,
                   isSaved: entry.isSaved,
                   isLoved: !entry.isLoved,
@@ -110,7 +113,7 @@ export function LibraryList({
               }}
             />
           );
-        } else if (cardContext === "saved" && user) {
+        } else if (cardContext === "saved") {
           const moved = movedIds.has(entry.id);
           topRightSlot = moved ? (
             <span className="glass-badge flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
@@ -124,14 +127,30 @@ export function LibraryList({
               isActive={false}
               onClick={(e) => {
                 e.preventDefault();
-                moveToCollection.mutate(
-                  { id: entry.id, userId: user.id },
+                if (userId) {
+                  moveToCollection.mutate(
+                    { id: entry.id, userId },
+                    { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
+                  );
+                  return;
+                }
+
+                upsert.mutate(
+                  {
+                    game: entry.game,
+                    gameId: entry.game.id,
+                    isSaved: false,
+                    isLoved: entry.isLoved,
+                    isInCollection: true,
+                    sentiment: entry.sentiment,
+                    notes: entry.notes,
+                  },
                   { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
                 );
               }}
             />
           );
-        } else if (!cardContext && user && !entry.isInCollection) {
+        } else if (!cardContext && !entry.isInCollection) {
           topRightSlot = (
             <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
               <LibraryStateIconButton
@@ -142,6 +161,15 @@ export function LibraryList({
                 onClick={() => handleToggleSaved(entry)}
               />
             </div>
+          );
+        }
+
+        if (cardContext === "saved" && entry.userId === GUEST_LIBRARY_USER_ID && entry.isInCollection) {
+          topRightSlot = (
+            <span className="glass-badge flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              Moved
+            </span>
           );
         }
 

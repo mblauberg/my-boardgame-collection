@@ -55,7 +55,7 @@ describe("SavedPage", () => {
 
     expect(screen.getByRole("heading", { name: /saved/i })).toBeInTheDocument();
     expect(screen.getByText(/saved list/i)).toBeInTheDocument();
-    expect(screen.getByText("On Your Radar").closest("div")).toHaveClass("dark:bg-[rgb(28_27_27)]");
+    expect(screen.getByText("On Your Radar").closest("div")).toHaveClass("glass-surface-panel");
   });
 
   it("opens the add-game wizard with saved as the default destination", async () => {

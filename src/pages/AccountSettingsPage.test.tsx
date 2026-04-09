@@ -127,7 +127,7 @@ describe("AccountSettingsPage", () => {
     renderAccountSettingsPage();
 
     const heroHeading = screen.getByRole("heading", { name: /manage your account/i });
-    expect(heroHeading).toHaveClass("dark:text-[rgb(229_226_225)]");
+    expect(heroHeading).toHaveClass("text-on-surface");
 
     const saveButton = screen.getByRole("button", { name: /save settings/i });
     expect(saveButton.closest("form")).toHaveClass("dark:bg-[rgb(28_27_27)]");

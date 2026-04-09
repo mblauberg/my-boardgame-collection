@@ -44,10 +44,10 @@ export function ExplorePage() {
       <>
         <PageHeader
           eyebrow="Discovery"
-          title={<>Find Your Next <span className="text-primary">Obsession</span></>}
+          title={<>Find Your Next <br className="hidden sm:block" /><span className="text-primary">Big Thing</span></>}
           description="Loading curated shelves..."
         />
-        <div className="mb-8 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+        <div className="glass-surface-panel mb-8 rounded-xl p-6">
           <div className="h-10 bg-surface-container rounded-full animate-pulse" />
         </div>
         <div className="editorial-grid">
@@ -79,7 +79,7 @@ export function ExplorePage() {
             title="Searching..."
             description={`Looking for "${debouncedQuery}"`}
           />
-          <div className="mb-6 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+          <div className="glass-surface-panel mb-6 rounded-xl p-6">
             <div className="h-10 bg-surface-container rounded-full animate-pulse" />
           </div>
           <div className="editorial-grid">
@@ -100,7 +100,7 @@ export function ExplorePage() {
             description={`Showing results for "${debouncedQuery}"`}
           />
 
-          <div className="mb-6 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+          <div className="glass-surface-panel mb-6 rounded-xl p-6">
             <input
               type="search"
               value={localQuery}
@@ -146,12 +146,12 @@ export function ExplorePage() {
     <>
       <PageHeader
         eyebrow="Discovery"
-        title={<>Find Your Next <span className="text-primary">Obsession</span></>}
+        title={<>Find Your Next <br className="hidden sm:block" /><span className="text-primary">Big Thing</span></>}
         description="Curated shelves organized by player count, mood, and occasion. Each collection is designed to help you discover the perfect game for any moment."
       />
 
       {/* Search Bar */}
-      <div className="mb-8 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+      <div className="glass-surface-panel mb-8 rounded-xl p-6">
         <input
           type="search"
           value={localQuery}
@@ -185,10 +185,10 @@ export function ExplorePage() {
       {/* Discover More Section */}
       <div className="mb-16">
         <div className="mb-8">
-          <h2 className="text-4xl font-extrabold tracking-tight text-on-surface mb-3 dark:text-[rgb(229_226_225)]">
+          <h2 className="mb-3 text-4xl font-extrabold tracking-tight text-on-surface">
             Discover More
           </h2>
-          <p className="text-base text-on-surface-variant leading-relaxed max-w-2xl dark:text-[rgb(220_194_174)]">
+          <p className="max-w-2xl text-base leading-relaxed text-on-surface-variant">
             Dive deeper into specific mechanics, player counts, and hidden treasures.
           </p>
         </div>

@@ -206,6 +206,32 @@ body {
   -webkit-backdrop-filter: blur(24px);
 }
 
+.glass-surface-panel {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-lowest) / 0.88),
+    rgb(var(--surface-container-low) / 0.64)
+  );
+  border: 1px solid rgb(var(--surface-container-highest) / 0.42);
+  box-shadow:
+    0 12px 28px rgb(var(--on-surface) / 0.08),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.dark .glass-surface-panel {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-high) / 0.84),
+    rgb(var(--surface-container-low) / 0.72)
+  );
+  border-color: rgb(var(--surface-bright) / 0.28);
+  box-shadow:
+    0 14px 32px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.16);
+}
+
 .overlay-sticky-header-glass {
   background: linear-gradient(
     135deg,
