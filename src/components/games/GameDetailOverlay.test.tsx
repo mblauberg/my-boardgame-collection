@@ -83,19 +83,19 @@ describe("GameDetailOverlay", () => {
 
     const backdrop = screen.getByTestId("overlay-backdrop");
     const header = screen.getByTestId("overlay-header");
-    const titleHeading = screen.getByRole("heading", { name: /heat/i });
+    const title = screen.getByRole("heading", { name: "Heat" });
     const closeButton = screen.getByRole("button", { name: /close game details/i });
     const editButton = screen.getByRole("button", { name: /edit game/i });
 
     expect(backdrop.className).toContain("bg-on-surface/10");
     expect(backdrop.className).not.toContain("bg-black/50");
     expect(header.className).not.toContain("border-b");
-    expect(header.className).toContain("overlay-sticky-header-glass");
-
-    // New failing assertions for floating header/title/action pills
     expect(header.className).toContain("overlay-floating-header");
-    expect(titleHeading.className).toContain("overlay-header-title-pill");
+    expect(header.className).toContain("bg-transparent");
+    expect(title.className).toContain("overlay-header-title-pill");
     expect(closeButton.className).toContain("overlay-header-action-pill");
     expect(editButton.className).toContain("overlay-header-action-pill");
+    expect(closeButton).toHaveClass("h-10", "w-10", "p-0");
+    expect(editButton).toHaveClass("h-10", "w-10", "p-0");
   });
 });

@@ -19,7 +19,7 @@ We define depth through **Tonal Layering** rather than borders.
 
 ### The Rules of Engagement
 *   **The "No-Line" Rule:** Explicitly prohibit 1px solid borders for sectioning. Boundaries must be defined solely through background shifts. If a section ends, the background transitions from `surface` to `surface-container-low`.
-*   **The Glass & Gradient Rule:** For floating navigation or modal overlays, use `surface_bright` with a 60% opacity and a `24px` backdrop blur. 
+*   **The Glass & Gradient Rule:** For floating navigation or modal overlays, use `surface-container-high` with a 60% opacity and a `24px` backdrop blur. 
 *   **Signature Textures:** Main CTAs should not be flat. Use a linear gradient from `primary_container` (`#FF9100`) to `primary` (`#ffb97c`) at a 135-degree angle to provide a "metallic" luster.
 
 ---
@@ -46,18 +46,6 @@ Forget traditional drop shadows. We create height through light and translucency
 
 ## 5. Components: Precision & Prestige
 
-### Floating Liquid-Glass Header Ovals
-A floating liquid-glass header in dark mode should be lean and contrast-aware. Guidelines:
-
-- Transparent sticky host: use a sticky, semi-transparent host that avoids full-width opaque strips. The host should preserve the Obsidian canvas while providing just enough separation for interactive elements.
-- Title in an oval glass pill: display the page or collection title in an elongated oval glass pill. Use translucent fills with layered micro-gradients and a subtle inner highlight to create a polished, tactile look.
-- Actions in circular glass pills: place secondary actions into circular glass pills with consistent spacing. These should be compact, elevated, and visually distinct from the title pill.
-- Layered translucency + blur + soft highlight/shadow: favor deeper backdrop-filter blurs (e.g., 12–28px) and slightly stronger translucency than light mode so the pills contrast against the dark canvas. Combine multiple translucent gradient layers and a faint, tinted ambient shadow/highlight rather than any hard stroke.
-- No hard border/divider: remain faithful to the "No-Line" rule — do not introduce 1px borders. Use increased opacity and spacing for contrast instead.
-
-Note: in dark mode, increase pill opacity modestly (e.g., +5–10%) relative to light mode to ensure legibility and tap-target clarity while keeping the overall glassy, editorial aesthetic.
-
-
 ### Buttons
 *   **Primary:** Background: Gradient (`primary_container` to `primary`). Text: `on_primary_fixed` (`#2e1500`). Shape: `md` (`0.375rem`).
 *   **Secondary:** Background: Transparent. Border: Ghost Border (15% `outline_variant`). Text: `primary`.
@@ -76,7 +64,18 @@ A full-bleed horizontal container using `surface_container_lowest` with a micro-
 
 ---
 
-## 6. Do's and Don'ts
+## 6. Floating Liquid-Glass Overlay Headers
+Use this treatment for game detail headers that hover over hero imagery.
+
+*   **Placement:** Full-bleed overlay anchored to the top with 24–32px vertical padding, letting the hero art glow underneath.
+*   **Glass Recipe:** `surface_container_high` at 55–65% opacity with a `24px` backdrop blur. Add a subtle gradient (`surface_container_high/70` → `surface/50`) to evoke liquid depth.
+*   **Edge Treatment:** `md` radius on the bottom corners only; optional 1px `outline_variant/15` if contrast demands it.
+*   **Depth:** Ambient glow shadow with `surface_tint` at ~8% opacity to keep the header luminous, not heavy.
+*   **Typography:** Headline text in `on_surface` with restrained `primary` accents for stats or labels.
+
+---
+
+## 7. Do's and Don'ts
 
 ### Do
 *   **Do** use asymmetrical margins (e.g., 80px left, 120px right) to create a high-end editorial feel.

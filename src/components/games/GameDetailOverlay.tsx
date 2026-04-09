@@ -80,10 +80,10 @@ export function GameDetailOverlay({
   return (
     <div
       className={[
-        "fixed inset-0 z-50 flex md:px-4 md:py-4 sm:px-6 sm:py-6",
+        "fixed inset-0 z-50 flex items-start md:items-center justify-center md:px-4 md:py-4 sm:px-6 sm:py-6",
         isStandalone
-          ? "items-start justify-center bg-surface"
-          : "items-start justify-center bg-on-surface/10 backdrop-blur-md",
+          ? "bg-surface"
+          : "bg-on-surface/10 backdrop-blur-md",
       ].join(" ")}
       onClick={onRequestClose}
       data-testid="overlay-backdrop"
@@ -93,37 +93,37 @@ export function GameDetailOverlay({
         role="dialog"
         aria-labelledby={titleId}
         aria-modal="true"
-        className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-ambient md:mt-4 md:h-[calc(100vh-2rem)] md:max-w-4xl md:rounded-[1.75rem] sm:mt-8 sm:h-auto sm:max-h-[90vh]"
+        className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-ambient md:mt-4 md:h-auto md:max-h-[calc(100vh-2rem)] md:max-w-4xl md:rounded-[1.75rem] sm:mt-8 sm:h-auto sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className="overlay-sticky-header-glass sticky top-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5 sm:px-8 sm:py-6"
+          className="overlay-floating-header absolute top-0 left-0 right-0 z-10 flex items-center justify-between bg-transparent px-4 py-4 md:px-6 md:py-5 sm:px-8 sm:py-6"
           data-testid="overlay-header"
         >
-          <h2 id={titleId} className="text-xl font-bold text-on-surface md:text-2xl">
+          <h2 id={titleId} className="overlay-header-title-pill text-xl font-bold text-on-surface md:text-2xl">
             {title}
           </h2>
           <div className="flex flex-shrink-0 items-center gap-1 md:gap-2">
             {onEdit && !isEditing && (
-              <button
-                onClick={onEdit}
-                aria-label="Edit game"
-                className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
-              >
-                <span className="material-symbols-outlined text-xl md:text-2xl">edit</span>
-              </button>
-            )}
+                <button
+                  onClick={onEdit}
+                  aria-label="Edit game"
+                  className="overlay-header-action-pill flex h-10 w-10 items-center justify-center rounded-full p-0 text-on-surface-variant transition-[color,transform] hover:scale-[1.03] hover:text-on-surface"
+                >
+                  <span className="material-symbols-outlined text-xl leading-none md:text-2xl">edit</span>
+                </button>
+              )}
               <button
                 ref={closeButtonRef}
                 onClick={onRequestClose}
                 aria-label="Close game details"
-                className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+                className="overlay-header-action-pill flex h-10 w-10 items-center justify-center rounded-full p-0 text-on-surface-variant transition-[color,transform] hover:scale-[1.03] hover:text-on-surface"
               >
-                <span className="material-symbols-outlined text-xl md:text-2xl">close</span>
+                <span className="material-symbols-outlined text-xl leading-none md:text-2xl">close</span>
               </button>
           </div>
         </div>
-        <div className="overlay-scrollbar flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6 sm:px-8 sm:pb-8">
+        <div className="overlay-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-4 md:px-6 md:pt-20 md:pb-6 sm:px-8 sm:pt-24 sm:pb-8">
           {children}
         </div>
       </div>

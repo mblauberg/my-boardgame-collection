@@ -2,35 +2,31 @@
 
 Multi-user board game collection app built on a shared BoardGameGeek-backed catalog plus user-owned library entries.
 
-The app is built with Vite, React, TypeScript, and Supabase. It includes private collection and saved game management, public profile sharing by username, a curated Explore experience, account settings and theme controls, admin tools, scenarios, legacy-data migration scripts, and BoardGameGeek metadata utilities.
+Live at **https://my-boardgame-collection.vercel.app**
+
+Built with Vite, React, TypeScript, and Supabase.
 
 ## Features
 
-- shared catalog of games and shared tags in Supabase
-- per-user library entries with independent saved, loved, and in-collection states
-- public profile sharing by username with per-section visibility controls
-- game detail pages with catalog-safe metadata and BoardGameGeek links
-- curated Explore shelves plus grouped discovery sections driven by scenario presets
-- magic-link auth plus protected admin route
-- admin CRUD for games and tags with BGG search and refresh
-- scenarios page driven by preset rules instead of hard-coded lists
-- account settings page with profile visibility controls and light/dark theme toggle
-- BGG metadata refresh and search helpers
+- Shared catalog of games and tags backed by BoardGameGeek metadata
+- Per-user library entries with independent saved, loved, and in-collection states
+- Public profile pages at `/u/:username` with per-section visibility controls
+- Game detail pages with catalog-safe metadata and BGG links
+- Curated Explore shelves and grouped discovery sections driven by scenario presets
+- Magic-link auth with a protected admin route
+- Admin CRUD for games and tags with BGG search and metadata refresh
+- Light/dark theme toggle with persistence
 - BGG CSV import for bulk catalog seeding
-- deterministic legacy-data seed generation/import and shared-tag backfill scripts
-- Supabase migrations for schema evolution
+- Legacy-data migration scripts
 
 ## Tech Stack
 
-- Vite
-- React
-- TypeScript
+- Vite + React + TypeScript
 - Tailwind CSS
 - React Router
 - TanStack Query
-- React Hook Form
-- Zod
-- Supabase JavaScript client
+- React Hook Form + Zod
+- Supabase (auth, database, RLS)
 - Vitest + Testing Library
 
 ## Getting Started
@@ -45,216 +41,94 @@ npm install
 
 Copy `.env.example` to `.env.local` and fill in:
 
-```bash
+```
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 BGG_APPLICATION_TOKEN=...
 ```
 
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are used by the browser app.
+- `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` — used by the browser app
+- `SUPABASE_SERVICE_ROLE_KEY` — only needed for local import scripts; never expose in client code
+- `BGG_APPLICATION_TOKEN` — required by the BGG XML API proxy (`/api/bgg-search`)
 
-`SUPABASE_SERVICE_ROLE_KEY` is only for local import scripts such as `npm run migrate:import`. Do not expose that key in client code or deployments that do not need server-side seed access.
+### 3. Apply the schema
 
-`BGG_APPLICATION_TOKEN` is used by the local `/api/bgg-search` proxy and any server-side BoardGameGeek XML API access. BoardGameGeek now requires an approved application token on XML API requests.
+Apply `schema.sql` to your Supabase project via the SQL editor or Supabase CLI migrations.
 
-### 3. Apply the schema and seed data
+### 4. Seed data (optional)
 
 ```bash
-npm run migrate:generate
-npm run migrate:import
+npm run migrate:generate   # generate seed-data.json from legacy source
+npm run migrate:import     # import to Supabase (requires SUPABASE_SERVICE_ROLE_KEY)
 ```
 
-The import script expects:
+Or import from a BGG CSV export:
 
-- `schema.sql` already applied to the target Supabase project
-- `SUPABASE_SERVICE_ROLE_KEY` present in your local environment
+```bash
+npm run migrate:import-bgg
+npm run migrate:backfill-shared-tags
+```
 
-### 4. Promote your owner account
+### 5. Promote your owner account
 
-After signing in once, update the matching row in `public.profiles` to `role = 'owner'`. The SQL snippet is included at the bottom of [`schema.sql`](./schema.sql).
+After signing in once, set `role = 'owner'` on your row in `public.profiles`. The SQL snippet is at the bottom of `schema.sql`.
 
-### 5. Run the app
+### 6. Run the app
 
 ```bash
 npm run dev
 ```
 
-### 6. Run tests
+## Available Scripts
 
-```bash
-npm run test:run
-```
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run typecheck` | Run TypeScript checks only |
+| `npm run test` | Run Vitest in watch mode |
+| `npm run test:run` | Run Vitest once |
+| `npm run migrate:generate` | Generate seed data from legacy source file |
+| `npm run migrate:import` | Import seed data to Supabase |
+| `npm run migrate:import-bgg` | Import games from a BGG CSV export |
+| `npm run migrate:backfill-shared-tags` | Backfill shared tags from game metadata |
 
-### 7. Build for production
+## Data Model
 
-```bash
-npm run build
-```
-
-## Supabase Setup
-
-The current database schema lives in [`schema.sql`](./schema.sql).
-
-Recommended setup:
-
-1. Create a Supabase project.
-2. Apply `schema.sql` in the SQL editor or through migrations.
-3. Add the project URL, anon key, and service role key to `.env.local`.
-4. Generate and import the seed data.
-5. Sign in once and promote the owner profile manually.
-
-The schema now models:
-
-- `profiles`
-- `games`
-- `tags`
-- `game_tags`
-- `library_entries`
-- `user_tags`
-- `user_game_tags`
-- public profile search and public-library read surfaces
-- owner-aware helper functions and RLS policies
-
-### Migrating Legacy Data
-
-To import the legacy collection data from `board-game-collection.jsx`:
-
-1. Generate the seed data:
-
-   ```bash
-   npm run migrate:generate
-   ```
-
-   This creates `scripts/output/seed-data.json` with normalized games, tags, and relationships.
-
-2. Import to Supabase with a service-role key:
-   ```bash
-   npm run migrate:import
-   ```
-
-The migration pipeline:
-
-- Extracts arrays from the legacy JSX file
-- Normalizes player counts, time, status, and metadata
-- Derives tags from categories and game attributes
-- Seeds the shared catalog and shared tags
-- Backfills the primary user profile into `library_entries` for owned and saved rows
-
-### Importing BGG CSV Data
-
-```bash
-npm run migrate:import-bgg
-```
-
-This script:
-
-- Reads `data/boardgames_ranks.csv`
-- Extracts BGG ID, name, year, rank, and other metadata
-- Creates or updates games in the catalog
-- Adds BGG-specific columns like `bgg_rank`, `bgg_average_rating`, `bgg_num_ratings`
-
-If you need to normalize shared tags after import, run:
-
-```bash
-npm run migrate:backfill-shared-tags
-```
+- `games` — shared catalog (owner-managed)
+- `tags` / `game_tags` — shared taxonomy
+- `library_entries` — per-user saved/loved/in-collection states
+- `user_tags` / `user_game_tags` — per-user tagging
+- `profiles` — auth-linked user profiles with visibility settings
+- Public pages expose only catalog-safe data (no private library details)
 
 ## Project Structure
 
-```text
+```
 .
-├── api/
-│   ├── bgg-search.ts
-│   ├── bgg-refresh.ts
-│   └── *.test.ts
-├── board-game-collection.jsx
-├── data/
-│   ├── boardgames_ranks.csv
-│   └── README.md
-├── docs/
-│   ├── plans/
-│   └── specs/
-├── schema.sql
-├── scripts/
-│   ├── legacy/
-│   ├── output/
-│   ├── backfillSharedTags.ts
-│   ├── generateSeedData.ts
-│   ├── importLegacyData.ts
-│   └── importBggCsv.ts
-├── supabase/
-│   ├── config.toml
-│   └── migrations/
+├── api/                    # Vercel Functions (bgg-search, bgg-refresh)
+├── data/                   # BGG CSV data
+├── schema.sql              # Full database schema
+├── scripts/                # One-off migration and seeding scripts
+├── supabase/               # Supabase config and migrations
 ├── src/
-│   ├── app/
-│   │   ├── providers/
-│   │   └── router/
-│   ├── components/
-│   │   ├── admin/
-│   │   ├── games/
-│   │   ├── layout/
-│   │   ├── library/
-│   │   ├── scenarios/
-│   │   └── ui/
-│   ├── config/
-│   ├── features/
-│   │   ├── auth/
-│   │   ├── games/
-│   │   ├── library/
-│   │   ├── profiles/
-│   │   ├── scenarios/
-│   │   ├── shared/
-│   │   └── tags/
-│   ├── lib/
-│   │   ├── query/
-│   │   ├── supabase/
-│   │   └── utils/
-│   ├── pages/
-│   ├── styles/
-│   ├── test/
-│   └── types/
-├── ui_design/
-└── README.md
+│   ├── app/                # Providers and router
+│   ├── components/         # UI components by domain
+│   ├── config/             # Scenario presets and static config
+│   ├── features/           # Data hooks and mutations by domain
+│   ├── lib/                # Supabase client, query helpers, utilities
+│   ├── pages/              # Route-level page components
+│   └── types/              # Shared TypeScript types
+└── vercel.json             # Build config and SPA rewrite rule
 ```
 
-Key files:
+## Deployment
 
-- `board-game-collection.jsx`: legacy source data and historical scenario references
-- `src/config/scenarioPresets.ts`: config-driven scenario matching logic
-- `src/lib/theme.tsx`: app theme provider and persistence logic
-- `docs/specs/2026-04-09-saved-loved-library-design.md`: saved/loved/collection state design
-- `docs/specs/2026-04-09-explore-discovery-sections.md`: Explore shelf and section structure
-- `scripts/output/seed-data.json`: generated seed payload for Supabase imports
-- `supabase/migrations/`: baseline schema plus follow-up fixes
+Deployed on Vercel. Configuration in `vercel.json`:
 
-## Available Scripts
-
-- `npm run dev`: start the Vite development server
-- `npm run build`: type-check and build the app
-- `npm run preview`: preview the production build locally
-- `npm run typecheck`: run TypeScript checks
-- `npm run test`: run Vitest in watch mode
-- `npm run test:run`: run Vitest once
-- `npm run migrate:generate`: generate seed data from legacy file
-- `npm run migrate:import`: import seed data to Supabase with `SUPABASE_SERVICE_ROLE_KEY`
-- `npm run migrate:import-bgg`: import games from BGG CSV export
-- `npm run migrate:backfill-shared-tags`: backfill missing shared tags from game metadata
-
-## Product Model
-
-- `games` is the shared catalog
-- `library_entries` stores per-user saved, loved, and in-collection states
-- public pages live under `/u/:username`
-- public collection and saved pages only expose catalog-safe data
-
-## Notes On Legacy Data
-
-`board-game-collection.jsx` stays in the repo as a migration source only. It should not become a runtime data source again.
-
-## Deployment Target
-
-The intended host is Vercel with the default Vite build:
-
-- build command: `npm run build`
-- output directory: `dist`
+- Build command: `npm run build`
+- Output directory: `dist`
+- SPA rewrite: all routes served from `index.html`
+- API functions in `api/` are deployed as Vercel Functions

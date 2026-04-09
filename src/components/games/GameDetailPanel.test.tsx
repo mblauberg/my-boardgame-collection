@@ -129,6 +129,14 @@ describe("GameDetailPanel", () => {
     expect(bggLink).toHaveAttribute("href", gameFixture.bggUrl);
   });
 
+  it("pulls the hero image under the transparent overlay header host", () => {
+    render(<GameDetailPanel game={gameFixture} />);
+
+    const image = screen.getByAltText("Heat");
+    const imageWrap = image.closest("div");
+    expect(imageWrap).toHaveClass("-mt-16", "md:-mt-20", "sm:-mt-24");
+  });
+
   it("renders tags", () => {
     render(<GameDetailPanel game={gameFixture} />);
     expect(screen.getByText("Racing")).toBeInTheDocument();

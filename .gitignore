@@ -10,7 +10,8 @@ npm-debug.log*
 .worktrees/
 
 # Large data files
-data/boardgames_ranks.csv
+data/
+output/
 
 # Test and dev artifacts
 .playwright-cli/
@@ -20,3 +21,4 @@ data/boardgames_ranks.csv
 .kiro/skills/
 .agent/skills/
 .agents/skills/
+.vercel
