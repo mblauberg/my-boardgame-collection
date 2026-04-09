@@ -18,6 +18,7 @@ describe("AppShell", () => {
     expect(screen.getByRole("link", { name: "Collection" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Saved" })).toHaveAttribute("href", "/saved");
     expect(screen.getByRole("link", { name: "Explore" })).toHaveAttribute("href", "/explore");
+    expect(screen.getByRole("button", { name: /toggle dark mode/i })).toBeInTheDocument();
     // AppShell has TopNavBar and BottomTabBar — both are <nav>; target the top one by its dark mode class
     const navs = screen.getAllByRole("navigation");
     const topNav = navs.find(nav => nav.classList.contains("dark:bg-[rgb(28_27_27/0.86)]"));

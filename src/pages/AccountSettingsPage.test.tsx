@@ -111,21 +111,15 @@ describe("AccountSettingsPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("toggles the global theme and persists it", async () => {
-    const user = userEvent.setup();
-
+  it("does not render the theme toggle in account settings", () => {
     renderAccountSettingsPage();
 
-    await user.click(screen.getByRole("button", { name: /toggle dark mode/i }));
-
-    expect(document.documentElement).toHaveClass("dark");
-    expect(localStorage.getItem("theme")).toBe("dark");
+    expect(screen.queryByRole("button", { name: /toggle dark mode/i })).not.toBeInTheDocument();
   });
 
-  it("renders accessible icon-only buttons with proper aria-label", () => {
+  it("renders accessible profile action with proper aria-label", () => {
     renderAccountSettingsPage();
 
-    expect(screen.getByRole("button", { name: /toggle dark mode/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view profile/i })).toBeInTheDocument();
   });
 

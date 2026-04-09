@@ -1,6 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import type { Database } from "../../types/database";
+import type { Game } from "../../types/domain";
+import {
+  GUEST_LIBRARY_USER_ID,
+  removeGuestLibraryEntry,
+  upsertGuestLibraryEntry,
+} from "./guestLibraryStorage";
 import { libraryKeys } from "./libraryKeys";
 import type { LibrarySentiment } from "./library.types";
 
@@ -8,8 +14,9 @@ type LibraryEntryRow = Database["public"]["Tables"]["library_entries"]["Row"];
 type LibraryEntryUpdate = Database["public"]["Tables"]["library_entries"]["Update"];
 
 type UpsertLibraryStateInput = {
-  userId: string;
+  userId?: string;
   gameId: string;
+  game?: Game;
   isSaved: boolean;
   isLoved: boolean;
   isInCollection: boolean;
@@ -29,8 +36,9 @@ type UpdateSentimentInput = {
 };
 
 type DeleteLibraryEntryInput = {
-  id: string;
-  userId: string;
+  id?: string;
+  userId?: string;
+  gameId?: string;
 };
 
 type BggSelectedGame = {
@@ -91,16 +99,37 @@ async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<Libra
 }
 
 function invalidateLibraryQueries(queryClient: ReturnType<typeof useQueryClient>, userId: string) {
-  queryClient.invalidateQueries({ queryKey: libraryKeys.library(userId) });
-  queryClient.invalidateQueries({ queryKey: libraryKeys.lists(userId) });
+  const queryScope = userId || GUEST_LIBRARY_USER_ID;
+  queryClient.invalidateQueries({ queryKey: libraryKeys.library(queryScope) });
+  queryClient.invalidateQueries({ queryKey: libraryKeys.lists(queryScope) });
 }
 
 export function useUpsertLibraryState() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: UpsertLibraryStateInput) => upsertLibraryState(input),
+    mutationFn: async (input: UpsertLibraryStateInput) => {
+      if (!input.userId) {
+        if (!input.game) {
+          throw new Error("Guest library updates require game details.");
+        }
+
+        upsertGuestLibraryEntry({
+          game: input.game,
+          isSaved: input.isSaved,
+          isLoved: input.isLoved,
+          isInCollection: input.isInCollection,
+          sentiment: input.sentiment,
+          notes: input.notes,
+        });
+        return null;
+      }
+
+      return upsertLibraryState(input as UpsertLibraryStateInput & { userId: string });
+    },
     onMutate: async (variables) => {
+      if (!variables.userId) return undefined;
+
       await queryClient.cancelQueries({ queryKey: libraryKeys.library(variables.userId) });
       
       const previous = queryClient.getQueryData(libraryKeys.library(variables.userId));
@@ -139,12 +168,14 @@ export function useUpsertLibraryState() {
       return { previous };
     },
     onError: (_err, variables, context) => {
+      if (!variables.userId) return;
+
       if (context?.previous) {
         queryClient.setQueryData(libraryKeys.library(variables.userId), context.previous);
       }
     },
     onSuccess: (_entry, variables) => {
-      invalidateLibraryQueries(queryClient, variables.userId);
+      invalidateLibraryQueries(queryClient, variables.userId ?? GUEST_LIBRARY_USER_ID);
     },
   });
 }
@@ -247,12 +278,27 @@ export function useDeleteLibraryEntry() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id }: DeleteLibraryEntryInput) => {
+    mutationFn: async ({ id, userId, gameId }: DeleteLibraryEntryInput) => {
+      if (!userId) {
+        if (!gameId) {
+          throw new Error("Guest library deletes require gameId.");
+        }
+
+        removeGuestLibraryEntry(gameId);
+        return;
+      }
+
+      if (!id) {
+        throw new Error("Library entry id is required for authenticated deletes.");
+      }
+
       const supabase = getSupabaseBrowserClient();
       const { error } = await supabase.from("library_entries").delete().eq("id", id);
       if (error) throw error;
     },
     onMutate: async (variables) => {
+      if (!variables.userId) return undefined;
+
       await queryClient.cancelQueries({ queryKey: libraryKeys.library(variables.userId) });
       
       const previous = queryClient.getQueryData(libraryKeys.library(variables.userId));
@@ -265,12 +311,14 @@ export function useDeleteLibraryEntry() {
       return { previous };
     },
     onError: (_err, variables, context) => {
+      if (!variables.userId) return;
+
       if (context?.previous) {
         queryClient.setQueryData(libraryKeys.library(variables.userId), context.previous);
       }
     },
     onSuccess: (_entry, variables) => {
-      invalidateLibraryQueries(queryClient, variables.userId);
+      invalidateLibraryQueries(queryClient, variables.userId ?? GUEST_LIBRARY_USER_ID);
     },
   });
 }

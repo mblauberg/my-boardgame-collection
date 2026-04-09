@@ -3,6 +3,7 @@ import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
 import { useProfile } from "../auth/useProfile";
 import type { TagRow } from "../games/games.types";
+import { GUEST_LIBRARY_USER_ID, readGuestLibraryEntries } from "./guestLibraryStorage";
 import { libraryKeys } from "./libraryKeys";
 import { mapLibraryEntryRecord, type LibraryEntryJoin, type SharedGameTagJoin } from "./libraryMappers";
 
@@ -44,11 +45,17 @@ export async function fetchLibraryEntries(userId: string) {
 export function useLibraryQuery() {
   const { profile, isAuthenticated } = useProfile();
   const userId = profile?.id;
+  const queryScope = isAuthenticated && userId ? userId : GUEST_LIBRARY_USER_ID;
 
   return useQuery({
-    queryKey: libraryKeys.library(userId),
+    queryKey: libraryKeys.library(queryScope),
     retry: shouldRetrySupabaseQuery,
-    enabled: isAuthenticated && !!userId,
-    queryFn: async () => fetchLibraryEntries(userId!),
+    enabled: isAuthenticated ? !!userId : true,
+    queryFn: async () => {
+      if (!isAuthenticated || !userId) {
+        return readGuestLibraryEntries();
+      }
+      return fetchLibraryEntries(userId);
+    },
   });
 }

@@ -113,7 +113,7 @@ export function LibraryList({
         } else if (cardContext === "saved" && user) {
           const moved = movedIds.has(entry.id);
           topRightSlot = moved ? (
-            <span className="flex items-center gap-1 rounded-full bg-secondary-fixed px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-secondary-container md:px-3 md:py-1.5 md:text-xs">
+            <span className="glass-badge flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
               Moved
             </span>

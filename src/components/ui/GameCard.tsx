@@ -59,26 +59,26 @@ export function GameCard({
         
         <div className="absolute left-3 right-3 top-3 flex items-start justify-between md:left-4 md:right-4 md:top-4">
           {rating && rating > 0 ? (
-            <div className="flex items-center gap-1 rounded-full bg-on-surface/80 px-2 py-1 backdrop-blur-sm/90 md:gap-1.5 md:px-3 md:py-1.5">
+            <div className="glass-rating-badge flex items-center gap-1 rounded-full px-2 py-1 md:gap-1.5 md:px-3 md:py-1.5">
               <span className="material-symbols-outlined text-sm text-tertiary-fixed md:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
                 star
               </span>
-              <span className="text-xs font-bold text-surface md:text-sm">{rating.toFixed(1)}</span>
+              <span className="text-xs font-bold text-on-surface md:text-sm">{rating.toFixed(1)}</span>
             </div>
           ) : (
             <div />
           )}
           
           {topRightSlot ?? (badge && (
-            <span className="rounded-full border border-primary/70 bg-gradient-to-br from-primary-container to-primary px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed shadow-ambient md:px-3 md:py-1.5 md:text-xs">
+            <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
               {badge}
             </span>
           ))}
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4">
-          <div className="game-card-title-glass flex items-start justify-between gap-2 rounded-xl px-2.5 py-2 md:px-3 md:py-2.5">
-            <h3 className="min-w-0 flex-1 line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl dark:text-[rgb(245_238_232)]">
+          <div className="game-card-title-glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2">
+            <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl dark:text-[rgb(245_238_232)]">
               {displayTitle}
             </h3>
             {isFavorite ? (

@@ -17,15 +17,15 @@ export function LibraryStateIconButton({
 }: LibraryStateIconButtonProps) {
   const sizeClass = showLabel
     ? "gap-2 px-3 py-2 text-sm"
-    : "h-9 w-9 p-0 text-[1.05rem] backdrop-blur-sm";
-  const stateClass = isActive
-    ? "border-primary/70 bg-gradient-to-br from-primary-container to-primary text-on-primary-fixed"
-    : "border-outline/35 bg-surface/70 text-on-surface-variant";
+    : "h-9 w-9 p-0 text-[1.05rem]";
+  const glassClass = isActive
+    ? "glass-action-button-active text-on-primary-fixed"
+    : "glass-action-button text-on-surface-variant";
   const hoverClass = disabled
     ? "cursor-not-allowed opacity-60"
     : isActive
-      ? "hover:brightness-95"
-      : "hover:border-primary/55 hover:bg-surface-container-high hover:text-on-surface";
+      ? ""
+      : "hover:text-on-surface";
 
   return (
     <button
@@ -34,7 +34,7 @@ export function LibraryStateIconButton({
       aria-pressed={isActive}
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex items-center justify-center rounded-full border font-semibold shadow-ambient transition-colors ${sizeClass} ${stateClass} ${hoverClass}`}
+      className={`inline-flex items-center justify-center rounded-full font-semibold transition-colors ${sizeClass} ${glassClass} ${hoverClass}`}
     >
       <span
         aria-hidden="true"

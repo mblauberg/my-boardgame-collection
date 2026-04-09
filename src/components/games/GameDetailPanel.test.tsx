@@ -161,6 +161,26 @@ describe("GameDetailPanel", () => {
     expect(screen.getByText(/strategy rank/i)).toBeInTheDocument();
   });
 
+  it("lets guests use saved and collection actions", async () => {
+    const user = userEvent.setup();
+    profileState.profile = null;
+    profileState.isAuthenticated = false;
+
+    render(<GameDetailPanel game={gameFixture} />);
+
+    await user.click(screen.getByRole("button", { name: /saved/i }));
+
+    expect(upsertMutationState.mutate).toHaveBeenCalledWith({
+      game: gameFixture,
+      gameId: gameFixture.id,
+      isSaved: true,
+      isLoved: false,
+      isInCollection: false,
+      sentiment: null,
+      notes: null,
+    });
+  });
+
   it("renders library actions for authenticated users and preserves existing state on toggle", async () => {
     const user = userEvent.setup();
     profileState.profile = { id: "user-1" };

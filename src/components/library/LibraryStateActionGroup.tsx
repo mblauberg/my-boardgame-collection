@@ -33,7 +33,7 @@ export function LibraryStateActionGroup({
         label="Saved"
         icon="bookmark"
         isActive={isSaved}
-        disabled={disabled || isInCollection}
+        disabled={disabled}
         showLabel
         onClick={() => onToggleSaved()}
       />
@@ -41,7 +41,7 @@ export function LibraryStateActionGroup({
         label="In Collection"
         icon="shelves"
         isActive={isInCollection}
-        disabled={disabled || isSaved}
+        disabled={disabled}
         showLabel
         onClick={() => onToggleCollection()}
       />

@@ -97,7 +97,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               handleStateChange({
                 isSaved: !currentState.isSaved,
                 isLoved: currentState.isLoved,
-                isInCollection: currentState.isInCollection,
+                isInCollection: currentState.isSaved ? currentState.isInCollection : false,
               })
             }
             onToggleLoved={() =>
@@ -109,7 +109,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
             }
             onToggleCollection={() =>
               handleStateChange({
-                isSaved: currentState.isSaved,
+                isSaved: currentState.isInCollection ? currentState.isSaved : false,
                 isLoved: currentState.isLoved,
                 isInCollection: !currentState.isInCollection,
               })
