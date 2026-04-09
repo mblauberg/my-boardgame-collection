@@ -21,6 +21,7 @@ type HorizontalShelfProps = {
 
 export function HorizontalShelf({ title, description, entries }: HorizontalShelfProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
   const upsertLibraryState = useUpsertLibraryState();
@@ -28,6 +29,11 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
   const { ref, isInView } = useInView();
 
   function handleToggleSaved(game: Game) {
+    if (!isAuthenticated) {
+      navigate("/signin");
+      return;
+    }
+
     if (!profile?.id) return;
 
     const existingEntry = getLibraryEntryForGame(libraryEntries, game.id);
@@ -98,7 +104,7 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
                         label="Saved"
                         icon="bookmark"
                         isActive={entry?.isSaved ?? false}
-                        disabled={!isAuthenticated || upsertLibraryState.isPending || deleteLibraryEntry.isPending}
+                        disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
                         onClick={() => handleToggleSaved(game)}
                       />
                     </div>

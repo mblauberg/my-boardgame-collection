@@ -102,7 +102,7 @@ export function ExploreShelf({ title, description, entries }: ExploreShelfProps)
                   label="Saved"
                   icon="bookmark"
                   isActive={entry?.isSaved ?? false}
-                  disabled={!isAuthenticated || upsertLibraryState.isPending || deleteLibraryEntry.isPending}
+                  disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
                   onClick={() => handleToggleSaved(game)}
                 />
               </div>
