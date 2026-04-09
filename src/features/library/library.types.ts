@@ -1,7 +1,8 @@
 import type { Game, Tag } from "../../types/domain";
 import type { Database } from "../../types/database";
 
-export type LibraryListType = "collection" | "wishlist";
+export type LibrarySurface = "collection" | "saved";
+export type LibraryListType = LibrarySurface | "wishlist";
 export type LibrarySentiment = "like" | "dislike" | "neutral" | null;
 
 export type LibraryEntryRow = Database["public"]["Tables"]["library_entries"]["Row"];
@@ -12,7 +13,10 @@ export type LibraryEntry = {
   id: string;
   userId: string;
   gameId: string;
-  listType: LibraryListType;
+  isSaved: boolean;
+  isLoved: boolean;
+  isInCollection: boolean;
+  listType?: LibraryListType;
   sentiment: LibrarySentiment;
   notes: string | null;
   priority: number | null;

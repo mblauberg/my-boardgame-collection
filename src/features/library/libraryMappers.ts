@@ -40,11 +40,18 @@ export function mapLibraryEntryRecord(
     .filter((tag): tag is UserTagRow => tag !== null)
     .map(mapUserTag);
 
+  const isSaved = record.is_saved ?? record.list_type === "wishlist";
+  const isLoved = record.is_loved ?? record.sentiment === "like";
+  const isInCollection = record.is_in_collection ?? record.list_type === "collection";
+
   return {
     id: record.id,
     userId: record.user_id,
     gameId: record.game_id,
-    listType: record.list_type,
+    isSaved,
+    isLoved,
+    isInCollection,
+    listType: isInCollection ? "collection" : isSaved ? "saved" : undefined,
     sentiment: record.sentiment,
     notes: record.notes,
     priority: record.priority,

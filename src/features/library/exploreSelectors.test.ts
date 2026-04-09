@@ -27,27 +27,29 @@ function makeInput(overrides: Partial<ExploreInput> = {}): ExploreInput {
 }
 
 describe("exploreSelectors", () => {
-  it("ranks explicit preference matches first and excludes already-saved games", () => {
+  it("ranks loved matches first and excludes already-saved games", () => {
     const input = makeInput({
       catalog: [
-        candidate("root-like-match", { tags: ["engine"] }),
-        candidate("already-owned", { tags: ["engine"] }),
+        candidate("root-loved-match", { tags: ["engine"] }),
+        candidate("already-saved", { tags: ["engine"] }),
         candidate("neutral", { tags: ["abstract"] }),
       ],
       libraryEntries: [
         {
           gameId: "seed-1",
-          listType: "collection",
+          isSaved: true,
+          isLoved: true,
+          isInCollection: true,
           sentiment: "like",
           tags: ["engine"],
         },
       ],
-      savedGameIds: new Set(["already-owned"]),
+      savedGameIds: new Set(["already-saved"]),
     });
 
-    expect(selectForYou(input)[0]?.gameId).toBe("root-like-match");
+    expect(selectForYou(input)[0]?.gameId).toBe("root-loved-match");
     expect(selectForYou(input)).not.toContainEqual(
-      expect.objectContaining({ gameId: "already-owned" }),
+      expect.objectContaining({ gameId: "already-saved" }),
     );
   });
 

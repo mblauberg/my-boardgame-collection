@@ -96,6 +96,7 @@ async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<Libra
 }
 
 function invalidateLibraryQueries(queryClient: ReturnType<typeof useQueryClient>, userId: string) {
+  queryClient.invalidateQueries({ queryKey: libraryKeys.library(userId) });
   queryClient.invalidateQueries({ queryKey: libraryKeys.lists(userId) });
 }
 

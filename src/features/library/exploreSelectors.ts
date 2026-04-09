@@ -1,5 +1,5 @@
 import type { Game } from "../../types/domain";
-import type { LibraryListType, LibrarySentiment } from "./library.types";
+import type { LibrarySentiment } from "./library.types";
 
 export type ExploreCandidate = {
   gameId: string;
@@ -16,7 +16,9 @@ export type ExploreCandidate = {
 
 export type ExploreLibrarySignal = {
   gameId: string;
-  listType: LibraryListType;
+  isSaved: boolean;
+  isLoved: boolean;
+  isInCollection: boolean;
   sentiment: LibrarySentiment;
   tags: string[];
 };
@@ -28,7 +30,7 @@ export type ExploreInput = {
   now: Date;
 };
 
-function scoreCandidate(candidate: ExploreCandidate, input: ExploreInput) {
+export function scoreCandidate(candidate: ExploreCandidate, input: ExploreInput) {
   let score = 0;
 
   for (const entry of input.libraryEntries) {
@@ -37,10 +39,10 @@ function scoreCandidate(candidate: ExploreCandidate, input: ExploreInput) {
     const sharedTags = candidate.tags.filter((tag) => entry.tags.includes(tag)).length;
     if (sharedTags === 0) continue;
 
-    if (entry.sentiment === "like") score += sharedTags * 3;
+    if (entry.isLoved) score += sharedTags * 4;
     else if (entry.sentiment === "dislike") score -= sharedTags * 3;
-    else if (entry.listType === "collection") score += sharedTags * 2;
-    else if (entry.listType === "wishlist") score += sharedTags;
+    else if (entry.isInCollection) score += sharedTags * 2;
+    else if (entry.isSaved) score += sharedTags;
   }
 
   return score;

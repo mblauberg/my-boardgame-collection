@@ -1,4 +1,4 @@
-import { filterLibraryEntries, moveEntryToCollection } from "./libraryFilters";
+import { selectCollectionEntries, selectSavedEntries } from "./librarySelectors";
 import type { LibraryEntry } from "./library.types";
 
 function createEntry(
@@ -49,21 +49,22 @@ function createEntry(
   };
 }
 
-describe("libraryFilters", () => {
-  it("filters collection entries by state", () => {
+describe("librarySelectors", () => {
+  it("returns saved entries from one unified library array", () => {
     const entries = [
-      createEntry("1", { isInCollection: true }),
+      createEntry("1", { isSaved: true }),
       createEntry("2", { isInCollection: true }),
-      createEntry("3", { isSaved: true }),
     ];
 
-    expect(filterLibraryEntries(entries, { surface: "collection" })).toHaveLength(2);
+    expect(selectSavedEntries(entries).map((entry) => entry.id)).toEqual(["1"]);
   });
 
-  it("moves an entry into the collection state without clearing saved", () => {
-    const moved = moveEntryToCollection(createEntry("3", { isSaved: true }));
+  it("returns collection entries from one unified library array", () => {
+    const entries = [
+      createEntry("1", { isSaved: true }),
+      createEntry("2", { isInCollection: true }),
+    ];
 
-    expect(moved.isInCollection).toBe(true);
-    expect(moved.isSaved).toBe(true);
+    expect(selectCollectionEntries(entries).map((entry) => entry.id)).toEqual(["2"]);
   });
 });

@@ -1,9 +1,9 @@
-import type { LibraryEntry, LibraryListType } from "./library.types";
+import type { LibraryEntry, LibrarySurface } from "./library.types";
 import { compareValues } from "../../lib/utils/sorting";
 import type { SortOption, SortDirection } from "../shared/filters";
 
 export type LibraryFilters = {
-  listType?: LibraryListType;
+  surface?: LibrarySurface;
   searchText?: string;
   sharedTagSlugs?: string[];
   userTagSlugs?: string[];
@@ -16,7 +16,8 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
   const searchText = filters.searchText?.trim().toLowerCase();
 
   return entries.filter((entry) => {
-    if (filters.listType && entry.listType !== filters.listType) return false;
+    if (filters.surface === "collection" && !entry.isInCollection) return false;
+    if (filters.surface === "saved" && !entry.isSaved) return false;
 
     if (searchText) {
       const haystack = `${entry.game.name} ${entry.game.summary ?? ""}`.toLowerCase();
@@ -70,6 +71,7 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
 export function moveEntryToCollection(entry: LibraryEntry): LibraryEntry {
   return {
     ...entry,
+    isInCollection: true,
     listType: "collection",
   };
 }

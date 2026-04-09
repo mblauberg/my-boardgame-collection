@@ -1,6 +1,5 @@
 import { useGamesQuery } from "../games/useGamesQuery";
-import { useCollectionQuery } from "./useCollectionQuery";
-import { useWishlistQuery } from "./useWishlistQuery";
+import { useLibraryQuery } from "./useLibraryQuery";
 import type { Game } from "../../types/domain";
 import {
   selectDiscoveryByMechanic,
@@ -32,11 +31,10 @@ function toCandidate(game: Game): ExploreCandidate {
 
 export function useExploreQuery() {
   const gamesQuery = useGamesQuery();
-  const collectionQuery = useCollectionQuery();
-  const wishlistQuery = useWishlistQuery();
+  const libraryQuery = useLibraryQuery();
 
-  const isLoading = gamesQuery.isLoading || collectionQuery.isLoading || wishlistQuery.isLoading;
-  const error = gamesQuery.error ?? collectionQuery.error ?? wishlistQuery.error ?? null;
+  const isLoading = gamesQuery.isLoading || libraryQuery.isLoading;
+  const error = gamesQuery.error ?? libraryQuery.error ?? null;
 
   if (isLoading) {
     return { data: undefined, isLoading: true, error: null };
@@ -46,12 +44,17 @@ export function useExploreQuery() {
     return { data: undefined, isLoading: false, error };
   }
 
-  const libraryEntries = [...(collectionQuery.data ?? []), ...(wishlistQuery.data ?? [])];
-  const savedGameIds = new Set(libraryEntries.map((entry) => entry.gameId));
+  const libraryEntries = libraryQuery.data ?? [];
+  const savedGameIds = new Set(
+    libraryEntries
+      .filter((entry) => entry.isSaved || entry.isInCollection)
+      .map((entry) => entry.gameId),
+  );
   const catalog = (gamesQuery.data ?? []).map(toCandidate);
   const saveCountByGameId = new Map<string, number>();
 
   for (const entry of libraryEntries) {
+    if (!entry.isSaved && !entry.isInCollection) continue;
     saveCountByGameId.set(entry.gameId, (saveCountByGameId.get(entry.gameId) ?? 0) + 1);
   }
 
@@ -65,7 +68,9 @@ export function useExploreQuery() {
     catalog,
     libraryEntries: libraryEntries.map((entry) => ({
       gameId: entry.gameId,
-      listType: entry.listType,
+      isSaved: entry.isSaved,
+      isLoved: entry.isLoved,
+      isInCollection: entry.isInCollection,
       sentiment: entry.sentiment,
       tags: entry.sharedTags.map((tag) => tag.slug),
     })),
