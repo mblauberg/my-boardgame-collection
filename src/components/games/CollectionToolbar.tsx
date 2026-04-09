@@ -47,14 +47,14 @@ export function CollectionToolbar() {
           onClick={() =>
             updateSort(sortBy, sortDirection === "asc" ? "desc" : "asc")
           }
-          className="px-3 py-2 border rounded hover:bg-gray-50"
+          className="px-3 py-2 border rounded hover:bg-surface-container-low"
         >
           {sortDirection === "asc" ? "↑" : "↓"}
         </button>
 
         <button
           onClick={clearFilters}
-          className="px-3 py-2 border rounded hover:bg-gray-50"
+          className="px-3 py-2 border rounded hover:bg-surface-container-low"
         >
           Clear
         </button>

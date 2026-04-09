@@ -5,6 +5,7 @@ export interface GameCardProps {
   players?: string;
   playTime?: string;
   weight?: string;
+  rating?: number;
   isFavorite?: boolean;
   badge?: "In Collection" | "Saved";
 }
@@ -32,6 +33,7 @@ export function GameCard({
   players,
   playTime,
   weight,
+  rating,
   isFavorite,
   badge
 }: GameCardProps) {
@@ -39,36 +41,47 @@ export function GameCard({
   const displayTitle = title.replace(/_/g, " ");
 
   return (
-    <article className="group relative bg-surface-container-low rounded-xl overflow-hidden transition-all duration-300 hover:translate-y-[-4px]">
+    <article className="group relative overflow-hidden rounded-xl bg-surface-container-lowest transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
       <div className="relative aspect-[3/2] overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
         <img
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           alt={`Cover art for ${displayTitle}`}
           src={displayImage}
         />
         
-        {badge && (
-          <div className="absolute top-4 right-4">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase ${
+        <div className="absolute left-3 right-3 top-3 flex items-start justify-between md:left-4 md:right-4 md:top-4">
+          {rating && rating > 0 ? (
+            <div className="flex items-center gap-1 rounded-full bg-on-surface/80 px-2 py-1 backdrop-blur-sm/90 md:gap-1.5 md:px-3 md:py-1.5">
+              <span className="material-symbols-outlined text-sm text-tertiary-fixed md:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+                star
+              </span>
+              <span className="text-xs font-bold text-white md:text-sm">{rating.toFixed(1)}</span>
+            </div>
+          ) : (
+            <div />
+          )}
+          
+          {badge && (
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider md:px-3 md:py-1 md:text-xs ${
               badge === "In Collection"
                 ? "bg-secondary-fixed text-on-secondary-container"
                 : "bg-tertiary-fixed text-on-tertiary-fixed"
             }`}>
               {badge}
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="p-6 space-y-4">
-        <div className="flex justify-between items-start gap-2">
-          <h3 className="text-2xl font-extrabold text-on-surface leading-tight flex-1 min-w-0">
+      <div className="space-y-3 p-4 md:space-y-4 md:p-6">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="min-w-0 flex-1 text-xl font-extrabold leading-tight text-on-surface md:text-2xl">
             {displayTitle}
           </h3>
           {isFavorite ? (
             <span
               aria-label="Loved"
-              className="material-symbols-outlined flex-shrink-0 text-primary"
+              className="material-symbols-outlined flex-shrink-0 text-primary text-xl md:text-2xl"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               favorite
@@ -77,28 +90,28 @@ export function GameCard({
         </div>
 
         {description && (
-          <p className="text-on-surface-variant text-sm line-clamp-2 leading-relaxed">
+          <p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant-variant md:text-sm">
             {description}
           </p>
         )}
 
-        <div className="flex flex-wrap gap-4 pt-2">
+        <div className="flex flex-wrap gap-3 pt-1 md:gap-4 md:pt-2">
           {players && (
-            <div className="flex items-center gap-1.5 text-on-surface-variant">
-              <span className="material-symbols-outlined text-lg">group</span>
-              <span className="text-xs font-bold uppercase tracking-wider">{players}</span>
+            <div className="flex items-center gap-1 text-on-surface-variant-variant md:gap-1.5">
+              <span className="material-symbols-outlined text-base md:text-lg">group</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{players}</span>
             </div>
           )}
           {playTime && (
-            <div className="flex items-center gap-1.5 text-on-surface-variant">
-              <span className="material-symbols-outlined text-lg">schedule</span>
-              <span className="text-xs font-bold uppercase tracking-wider">{playTime}</span>
+            <div className="flex items-center gap-1 text-on-surface-variant-variant md:gap-1.5">
+              <span className="material-symbols-outlined text-base md:text-lg">schedule</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{playTime}</span>
             </div>
           )}
           {weight && (
-             <div className="flex items-center gap-1.5 text-on-surface-variant">
-              <span className="material-symbols-outlined text-lg">fitness_center</span>
-              <span className="text-xs font-bold uppercase tracking-wider">{weight}/5</span>
+             <div className="flex items-center gap-1 text-on-surface-variant-variant md:gap-1.5">
+              <span className="material-symbols-outlined text-base md:text-lg">fitness_center</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{weight}/5</span>
             </div>
           )}
         </div>

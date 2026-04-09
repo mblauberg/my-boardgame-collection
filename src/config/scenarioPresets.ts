@@ -12,6 +12,9 @@ export type ScenarioGame = {
   buy_priority?: number | null;
   bgg_rating?: number | null;
   bgg_weight?: number | null;
+  bgg_rank?: number | null;
+  bgg_num_ratings?: number | null;
+  year_published?: number | null;
   players_min?: number | null;
   players_max?: number | null;
   play_time_min?: number | null;
@@ -32,9 +35,13 @@ export type Rule = {
   maxTime?: number;
   minWeight?: number;
   maxWeight?: number;
+  minRating?: number;
+  minRatingsCount?: number;
+  minYear?: number;
+  maxYear?: number;
   categoryIncludes?: string[];
   limit?: number;
-  sortBy?: 'rating_desc' | 'rating_asc' | 'weight_asc' | 'weight_desc' | 'time_asc' | 'priority_asc' | 'name_asc';
+  sortBy?: 'rating_desc' | 'rating_asc' | 'weight_asc' | 'weight_desc' | 'time_asc' | 'priority_asc' | 'name_asc' | 'rank_asc' | 'year_desc' | 'ratings_count_desc';
 };
 
 export type ScenarioSection = {
@@ -98,6 +105,20 @@ function matchesWeight(game: ScenarioGame, min?: number, max?: number): boolean 
   return true;
 }
 
+function matchesRating(game: ScenarioGame, minRating?: number, minRatingsCount?: number): boolean {
+  if (minRating != null && (game.bgg_rating ?? 0) < minRating) return false;
+  if (minRatingsCount != null && (game.bgg_num_ratings ?? 0) < minRatingsCount) return false;
+  return true;
+}
+
+function matchesYear(game: ScenarioGame, minYear?: number, maxYear?: number): boolean {
+  const year = game.year_published;
+  if (year == null) return false;
+  if (minYear != null && year < minYear) return false;
+  if (maxYear != null && year > maxYear) return false;
+  return true;
+}
+
 function matchesCategory(game: ScenarioGame, categoryIncludes?: string[]): boolean {
   if (!categoryIncludes?.length) return true;
   const category = (game.category ?? '').toLowerCase();
@@ -115,6 +136,10 @@ export function matchesRule(game: ScenarioGame, rule: Rule): boolean {
   if (!supportsPlayers(game, rule.minPlayers, rule.maxPlayers)) return false;
   if (!matchesTime(game, rule.minTime, rule.maxTime)) return false;
   if (!matchesWeight(game, rule.minWeight, rule.maxWeight)) return false;
+  if (!matchesRating(game, rule.minRating, rule.minRatingsCount)) return false;
+  if (rule.minYear != null || rule.maxYear != null) {
+    if (!matchesYear(game, rule.minYear, rule.maxYear)) return false;
+  }
   if (!matchesCategory(game, rule.categoryIncludes)) return false;
 
   const tagSet = toTagSet(game.tags);
@@ -142,6 +167,24 @@ export function sortGames(games: ScenarioGame[], sortBy: Rule['sortBy'] = 'ratin
         return (a.buy_priority ?? 9999) - (b.buy_priority ?? 9999);
       case 'name_asc':
         return a.name.localeCompare(b.name);
+      case 'rank_asc':
+        return (a.bgg_rank ?? 999999) - (b.bgg_rank ?? 999999);
+      case 'year_desc':
+        if ((b.year_published ?? 0) !== (a.year_published ?? 0)) {
+          return (b.year_published ?? 0) - (a.year_published ?? 0);
+        }
+        if ((a.bgg_rank ?? 999999) !== (b.bgg_rank ?? 999999)) {
+          return (a.bgg_rank ?? 999999) - (b.bgg_rank ?? 999999);
+        }
+        if ((b.bgg_num_ratings ?? 0) !== (a.bgg_num_ratings ?? 0)) {
+          return (b.bgg_num_ratings ?? 0) - (a.bgg_num_ratings ?? 0);
+        }
+        if ((b.bgg_rating ?? 0) !== (a.bgg_rating ?? 0)) {
+          return (b.bgg_rating ?? 0) - (a.bgg_rating ?? 0);
+        }
+        return a.name.localeCompare(b.name);
+      case 'ratings_count_desc':
+        return (b.bgg_num_ratings ?? 0) - (a.bgg_num_ratings ?? 0);
       case 'rating_desc':
       default:
         return (b.bgg_rating ?? 0) - (a.bgg_rating ?? 0);
@@ -176,6 +219,308 @@ export function buildScenarioResults(games: ScenarioGame[], presets: ScenarioPre
 // quick, medium, long, light, medium-weight, heavy
 
 export const scenarioPresets: ScenarioPreset[] = [
+  {
+    id: 'for-you',
+    emoji: '✨',
+    label: 'For You',
+    description: 'Personalized recommendations based on your collection.',
+    sections: [
+      {
+        id: 'for-you-all',
+        label: 'Recommended',
+        description: 'Games we think you\'ll love based on your library.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          sortBy: 'rating_desc',
+          limit: 16,
+        },
+      },
+    ],
+  },
+  {
+    id: 'trending',
+    emoji: '🔥',
+    label: 'Trending',
+    description: 'The most popular games in the community right now.',
+    sections: [
+      {
+        id: 'trending-all',
+        label: 'Trending Now',
+        description: 'High engagement games with strong community backing.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minRatingsCount: 10000,
+          minRating: 6.5,
+          sortBy: 'ratings_count_desc',
+          limit: 16,
+        },
+      },
+    ],
+  },
+  {
+    id: 'new-releases',
+    emoji: '🎁',
+    label: 'New Releases',
+    description: 'Recently published games making waves.',
+    sections: [
+      {
+        id: 'new-releases-all',
+        label: 'Fresh Off the Press',
+        description: 'Games published in the last 2 years with strong ratings.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minYear: new Date().getFullYear() - 2,
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'year_desc',
+          limit: 16,
+        },
+      },
+    ],
+  },
+  {
+    id: 'top-rated',
+    emoji: '🏆',
+    label: 'Top Rated All-Time',
+    description: 'The classics and modern masterpieces everyone should know.',
+    sections: [
+      {
+        id: 'top-rated-all',
+        label: 'Hall of Fame',
+        description: 'The highest-rated games of all time.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minRatingsCount: 5000,
+          sortBy: 'rank_asc',
+          limit: 20,
+        },
+      },
+    ],
+  },
+  {
+    id: 'quick-wins',
+    emoji: '⚡',
+    label: 'Quick Wins',
+    description: 'High-quality games you can finish in 30 minutes or less.',
+    sections: [
+      {
+        id: 'quick-wins-all',
+        label: 'Fast & Fantastic',
+        description: 'Short games that pack a punch.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          maxTime: 30,
+          minRatingsCount: 2000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 16,
+        },
+      },
+    ],
+  },
+  {
+    id: 'hidden-gems',
+    emoji: '💎',
+    label: 'Hidden Gems',
+    description: 'Underrated games with exceptional quality.',
+    sections: [
+      {
+        id: 'hidden-gems-all',
+        label: 'Overlooked Excellence',
+        description: 'High-rated games that deserve more attention.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minRating: 7.5,
+          minRatingsCount: 500,
+          sortBy: 'rating_desc',
+          limit: 16,
+        },
+      },
+    ],
+  },
+  {
+    id: 'gateway-to-strategy',
+    emoji: '🎓',
+    label: 'Gateway to Strategy',
+    description: 'Perfect bridge games for players ready to level up.',
+    sections: [
+      {
+        id: 'gateway-strategy-all',
+        label: 'Level Up',
+        description: 'Medium-weight games that introduce strategic depth.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minWeight: 2.0,
+          maxWeight: 2.5,
+          minRatingsCount: 2000,
+          minRating: 7.0,
+          sortBy: 'rating_desc',
+          limit: 16,
+        },
+      },
+    ],
+  },
+  {
+    id: 'by-player-count',
+    emoji: '👥',
+    label: 'By Player Count',
+    description: 'Find the perfect game for your group size.',
+    sections: [
+      {
+        id: 'best-at-2',
+        label: 'Best at 2 Players',
+        description: 'Games that shine with exactly two players.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minPlayers: 2,
+          maxPlayers: 2,
+          minRatingsCount: 2000,
+          minRating: 7.0,
+          sortBy: 'rating_desc',
+          limit: 12,
+        },
+      },
+      {
+        id: 'best-at-3-4',
+        label: 'Best at 3-4 Players',
+        description: 'Perfect for small game nights.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minPlayers: 3,
+          maxPlayers: 4,
+          minRatingsCount: 2000,
+          minRating: 7.0,
+          sortBy: 'rating_desc',
+          limit: 12,
+        },
+      },
+      {
+        id: 'best-at-5-plus',
+        label: 'Best at 5+ Players',
+        description: 'Games that scale well for larger groups.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          minPlayers: 5,
+          minRatingsCount: 2000,
+          minRating: 7.0,
+          sortBy: 'rating_desc',
+          limit: 12,
+        },
+      },
+    ],
+  },
+  {
+    id: 'by-mechanic',
+    emoji: '⚙️',
+    label: 'Discover by Mechanic',
+    description: 'Explore games by their core gameplay systems.',
+    sections: [
+      {
+        id: 'engine-building',
+        label: 'Engine Building',
+        description: 'Build efficient systems that compound over time.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['engine-building'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'deck-building',
+        label: 'Deck Building',
+        description: 'Craft your perfect deck as you play.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['deck-building'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'drafting',
+        label: 'Drafting',
+        description: 'Pick and pass to build your strategy.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['drafting'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'worker-placement',
+        label: 'Worker Placement',
+        description: 'Strategic action selection with limited spots.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['worker-placement'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'area-control',
+        label: 'Area Control',
+        description: 'Dominate the board through territorial control.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['area-control'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'tile-laying',
+        label: 'Tile Laying',
+        description: 'Build the board as you play.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['tile-laying'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'trick-taking',
+        label: 'Trick Taking',
+        description: 'Classic card play with modern twists.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['trick-taking'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+      {
+        id: 'push-your-luck',
+        label: 'Push Your Luck',
+        description: 'Risk management and calculated gambles.',
+        rule: {
+          statuses: ['owned', 'buy', 'new_rec'],
+          anyTags: ['push-your-luck'],
+          minRatingsCount: 1000,
+          minRating: 6.5,
+          sortBy: 'rating_desc',
+          limit: 8,
+        },
+      },
+    ],
+  },
   {
     id: 'two-player-night',
     emoji: '💑',

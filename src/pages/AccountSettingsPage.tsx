@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { useProfile } from "../features/auth/useProfile";
 import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
+import { useTheme } from "../lib/theme";
 
 type FormState = {
   username: string;
@@ -41,8 +41,8 @@ function getFormState(profile: ReturnType<typeof useProfile>["profile"]): FormSt
 export function AccountSettingsPage() {
   const { profile, isLoading, isOwner, isAuthenticated, error } = useProfile();
   const { mutateAsync, isPending } = useUpdateProfileMutation();
+  const { theme, toggleTheme } = useTheme();
   const [formState, setFormState] = useState<FormState>(() => getFormState(null));
-  const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const [status, setStatus] = useState<{ type: "idle" | "success" | "error"; message: string | null }>({
     type: "idle",
     message: null,
@@ -104,66 +104,31 @@ export function AccountSettingsPage() {
 
   return (
     <>
-      <div className="mt-2 flex flex-col gap-8 md:flex-row">
-        <aside className="w-full flex-shrink-0 md:w-64">
-          <div className="flex h-full flex-col rounded-xl bg-surface-container-low p-6 dark:bg-[#121212]">
-            <div className="mb-8">
-              <h2 className="font-headline text-xl font-black uppercase tracking-widest text-primary">
-                My Board Game Collection
-              </h2>
-              <p className="text-sm font-medium text-on-surface-variant">Curated Board Gaming</p>
-            </div>
-
-            <nav className="space-y-2">
+      <div className="mt-2">
+        <section className="relative space-y-10">
+          <div className="absolute right-0 top-0 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle dark mode"
+              aria-pressed={theme === "dark"}
+              className="flex items-center gap-2 rounded-2xl bg-surface/70 px-4 py-3 text-on-surface shadow-[0_12px_40px_rgba(46,47,45,0.06)] backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-[0_16px_48px_rgba(46,47,45,0.08)]"
+            >
+              <span className="material-symbols-outlined text-[20px] text-on-surface">
+                {theme === "dark" ? "light_mode" : "dark_mode"}
+              </span>
+            </button>
+            {profile.username && (
               <Link
-                to="/settings"
-                className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 font-semibold text-primary shadow-sm transition-all duration-200 dark:bg-[#2e2f2d] dark:text-primary-fixed"
+                to={`/u/${profile.username}`}
+                className="flex items-center gap-3 rounded-2xl bg-surface/70 px-5 py-3 shadow-[0_12px_40px_rgba(46,47,45,0.06)] backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-[0_16px_48px_rgba(46,47,45,0.08)]"
               >
-                <span
-                  className="material-symbols-outlined shrink-0"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  account_circle
-                </span>
-                <span>Account Details</span>
+                <span className="material-symbols-outlined text-[20px] text-primary">visibility</span>
+                <span className="text-sm font-semibold text-on-surface">View Profile</span>
               </Link>
-              <Link
-                to={profile.username ? `/u/${profile.username}` : "/settings"}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface transition-all duration-200 hover:bg-surface-container-highest hover:pl-6 dark:text-outline-variant dark:hover:bg-[#2e2f2d]"
-              >
-                <span className="material-symbols-outlined shrink-0">visibility</span>
-                <span>Public Profile</span>
-              </Link>
-              <Link
-                to="/"
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface transition-all duration-200 hover:bg-surface-container-highest hover:pl-6 dark:text-outline-variant dark:hover:bg-[#2e2f2d]"
-              >
-                <span className="material-symbols-outlined shrink-0">inventory_2</span>
-                <span>Collection</span>
-              </Link>
-              <Link
-                to="/saved"
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface transition-all duration-200 hover:bg-surface-container-highest hover:pl-6 dark:text-outline-variant dark:hover:bg-[#2e2f2d]"
-              >
-                <span className="material-symbols-outlined shrink-0">bookmark</span>
-                <span>Saved</span>
-              </Link>
-            </nav>
-
-            <div className="mt-auto pt-8">
-              <button
-                type="button"
-                onClick={() => setIsAddGameOpen(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary to-primary-container py-4 font-bold text-on-primary shadow-lg transition-all hover:scale-[0.98] hover:shadow-primary/20 active:scale-95"
-              >
-                <span className="material-symbols-outlined shrink-0">add</span>
-                Add New Game
-              </button>
-            </div>
+            )}
           </div>
-        </aside>
-
-        <section className="flex-1 space-y-10">
+          
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.1em] text-primary">
@@ -178,7 +143,7 @@ export function AccountSettingsPage() {
               </p>
             </div>
             <div className="flex gap-4">
-              <div className="flex items-center gap-2 rounded-full bg-secondary-fixed px-4 py-2">
+              <div className="flex items-center gap-2 rounded-full bg-secondary-fixed/20 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-secondary"></span>
                 <span className="text-xs font-bold uppercase tracking-wider text-on-secondary-container">
                   {isOwner ? "Owner Mode" : "Player Mode"}
@@ -188,138 +153,171 @@ export function AccountSettingsPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
-            <form
-              className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-sm"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void handleSave();
-              }}
-            >
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-                  Account Details
-                </p>
-                <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
-                  Profile and sharing
-                </h2>
-              </div>
-
-              <label className="block">
-                <span className="text-sm font-semibold text-on-surface">Email</span>
-                <input
-                  value={profile.email ?? ""}
-                  disabled
-                  readOnly
-                  className="mt-3 w-full rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-semibold text-on-surface">Username</span>
-                <input
-                  aria-label="Username"
-                  value={formState.username}
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      username: event.target.value,
-                    }))
-                  }
-                  placeholder="Choose a public username"
-                  className="mt-3 w-full rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30"
-                />
-              </label>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
-                  <input
-                    type="checkbox"
-                    aria-label="Public profile"
-                    checked={formState.isProfilePublic}
-                    onChange={(event) =>
-                      setFormState((current) => ({
-                        ...current,
-                        isProfilePublic: event.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>
-                    <span className="block text-sm font-bold text-on-surface">Public Profile</span>
-                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
-                      Allow people to discover your profile page.
-                    </span>
-                  </span>
-                </label>
-
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
-                  <input
-                    type="checkbox"
-                    aria-label="Public collection"
-                    checked={formState.isCollectionPublic}
-                    onChange={(event) =>
-                      setFormState((current) => ({
-                        ...current,
-                        isCollectionPublic: event.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>
-                    <span className="block text-sm font-bold text-on-surface">Public Collection</span>
-                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
-                      Show your collection on your public profile.
-                    </span>
-                  </span>
-                </label>
-
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
-                  <input
-                    type="checkbox"
-                    aria-label="Public saved"
-                    checked={formState.isSavedPublic}
-                    onChange={(event) =>
-                      setFormState((current) => ({
-                        ...current,
-                        isSavedPublic: event.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>
-                    <span className="block text-sm font-bold text-on-surface">Public Saved</span>
-                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
-                      Let others browse the games you have saved for later.
-                    </span>
-                  </span>
-                </label>
-              </div>
-
-              {status.message ? (
-                <div
-                  className={`rounded-2xl px-4 py-3 text-sm font-medium ${
-                    status.type === "error"
-                      ? "border border-error/20 bg-red-50 text-error"
-                      : "border border-emerald-200 bg-emerald-50 text-emerald-900"
-                  }`}
-                >
-                  {status.message}
+            <div className="space-y-6">
+              <form
+                className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-[0_12px_40px_rgba(46,47,45,0.06)]"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void handleSave();
+                }}
+              >
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                    Account Details
+                  </p>
+                  <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
+                    Profile and sharing
+                  </h2>
                 </div>
-              ) : null}
 
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline/10 pt-6">
-                <p className="text-sm text-on-surface-variant">
-                  Public sharing requires a username when any visibility toggle is enabled.
-                </p>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="rounded-full bg-primary px-5 py-3 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isPending ? "Saving..." : "Save Settings"}
-                </button>
+                <label className="block">
+                  <span className="text-sm font-semibold text-on-surface">Email</span>
+                  <input
+                    value={profile.email ?? ""}
+                    disabled
+                    readOnly
+                    className="mt-3 w-full rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-semibold text-on-surface">Username</span>
+                  <input
+                    aria-label="Username"
+                    value={formState.username}
+                    onChange={(event) =>
+                      setFormState((current) => ({
+                        ...current,
+                        username: event.target.value,
+                      }))
+                    }
+                    placeholder="Choose a public username"
+                    className="mt-3 w-full rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30 focus:bg-surface-container-high"
+                  />
+                </label>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                    <input
+                      type="checkbox"
+                      aria-label="Public profile"
+                      checked={formState.isProfilePublic}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          isProfilePublic: event.target.checked,
+                        }))
+                      }
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="block text-sm font-bold text-on-surface">Public Profile</span>
+                      <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                        Allow people to discover your profile page.
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                    <input
+                      type="checkbox"
+                      aria-label="Public collection"
+                      checked={formState.isCollectionPublic}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          isCollectionPublic: event.target.checked,
+                        }))
+                      }
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="block text-sm font-bold text-on-surface">Public Collection</span>
+                      <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                        Show your collection on your public profile.
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                    <input
+                      type="checkbox"
+                      aria-label="Public saved"
+                      checked={formState.isSavedPublic}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          isSavedPublic: event.target.checked,
+                        }))
+                      }
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="block text-sm font-bold text-on-surface">Public Saved</span>
+                      <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                        Let others browse the games you have saved for later.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                {status.message ? (
+                  <div
+                    className={`rounded-2xl px-4 py-3 text-sm font-medium ${
+                      status.type === "error"
+                        ? "border border-error/20 bg-red-50 text-error"
+                        : "border border-emerald-200 bg-emerald-50 text-emerald-900"
+                    }`}
+                  >
+                    {status.message}
+                  </div>
+                ) : null}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline/10 pt-6">
+                  <p className="text-sm text-on-surface-variant">
+                    Public sharing requires a username when any visibility toggle is enabled.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="rounded-full bg-gradient-to-br from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isPending ? "Saving..." : "Save Settings"}
+                  </button>
+                </div>
+              </form>
+
+              <div className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                    Preferences
+                  </p>
+                  <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
+                    Notifications
+                  </h2>
+                </div>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <input type="checkbox" className="mt-1" />
+                  <span>
+                    <span className="block text-sm font-bold text-on-surface">Email Updates</span>
+                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                      Receive occasional updates about new features and community highlights.
+                    </span>
+                  </span>
+                </label>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <input type="checkbox" className="mt-1" />
+                  <span>
+                    <span className="block text-sm font-bold text-on-surface">BGG Sync Alerts</span>
+                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                      Get notified when BoardGameGeek data is refreshed for games in your collection.
+                    </span>
+                  </span>
+                </label>
               </div>
-            </form>
+            </div>
 
             <div className="space-y-4">
               <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6">
@@ -358,24 +356,18 @@ export function AccountSettingsPage() {
 
               <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                  Next Step
+                  Quick Tip
                 </p>
-                <h3 className="mt-2 text-xl font-bold text-on-surface">Add a game straight to your shelf</h3>
+                <h3 className="mt-2 text-xl font-bold text-on-surface">Share your collection</h3>
                 <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-                  The account CTA now opens the add-game wizard in collection mode so new entries land
-                  in your library by default.
+                  Enable public visibility and share your profile URL with friends to showcase your
+                  board game library.
                 </p>
               </div>
             </div>
           </div>
         </section>
       </div>
-
-      <AddGameWizardOverlay
-        isOpen={isAddGameOpen}
-        defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
-        onClose={() => setIsAddGameOpen(false)}
-      />
     </>
   );
 }

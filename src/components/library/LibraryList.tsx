@@ -25,7 +25,7 @@ export function LibraryList({
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
+      <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant-variant">
         No games found matching your filters.
       </div>
     );
@@ -55,6 +55,7 @@ export function LibraryList({
                 players={formatPlayers(entry)}
                 playTime={formatPlayTime(entry)}
                 weight={entry.game.bggWeight?.toFixed(1)}
+                rating={entry.game.bggRating ?? undefined}
                 isFavorite={entry.isLoved}
                 badge={entry.isInCollection ? "In Collection" : entry.isSaved ? "Saved" : undefined}
               />

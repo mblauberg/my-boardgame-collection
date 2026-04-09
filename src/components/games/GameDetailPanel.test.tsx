@@ -120,7 +120,7 @@ describe("GameDetailPanel", () => {
   it("renders public metadata and the BGG link for a game", () => {
     render(<GameDetailPanel game={gameFixture} />);
 
-    expect(screen.getByText("Heat")).toBeInTheDocument();
+    expect(screen.getByAltText("Heat")).toBeInTheDocument();
     expect(screen.getByText("Published: 2022")).toBeInTheDocument();
     expect(screen.getByText("8.1")).toBeInTheDocument();
     expect(screen.queryByText("Great game for groups")).not.toBeInTheDocument();
@@ -139,6 +139,7 @@ describe("GameDetailPanel", () => {
     expect(screen.getByText("Summary")).toBeInTheDocument();
     expect(screen.getByText("A racing game about heat management")).toBeInTheDocument();
     expect(screen.queryByText("Notes")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Heat" })).not.toBeInTheDocument();
   });
 
   it("renders snapshot rank metadata and provenance details", () => {

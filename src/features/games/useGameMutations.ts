@@ -4,6 +4,7 @@ import { gamesKeys } from "./gamesKeys";
 import type { GameRow } from "./games.types";
 import type { GameStatus } from "../../types/domain";
 import type { Database } from "../../types/database";
+import { libraryKeys } from "../library/libraryKeys";
 
 type GameUpdate = Database["public"]["Tables"]["games"]["Update"];
 
@@ -120,6 +121,7 @@ export function useUpdateGame() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: gamesKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gamesKeys.details() });
+      queryClient.invalidateQueries({ queryKey: libraryKeys.all });
     },
   });
 }

@@ -23,21 +23,21 @@ export function AdminGamesTable({ games, onEdit }: Props) {
         className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
       />
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <div className="overflow-x-auto rounded-lg border border-outline-variant">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-surface-container-low">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Flags</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600">Actions</th>
+              <th className="px-4 py-3 text-left font-medium text-on-surface-variant-variant">Name</th>
+              <th className="px-4 py-3 text-left font-medium text-on-surface-variant-variant">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-on-surface-variant-variant">Flags</th>
+              <th className="px-4 py-3 text-right font-medium text-on-surface-variant-variant">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-white">
+          <tbody className="divide-y divide-gray-100 bg-surface">
             {filtered.map((game) => (
               <tr key={game.id}>
-                <td className="px-4 py-3 font-medium text-gray-900">{game.name}</td>
-                <td className="px-4 py-3 text-gray-600">{game.status}</td>
+                <td className="px-4 py-3 font-medium text-on-surface">{game.name}</td>
+                <td className="px-4 py-3 text-on-surface-variant-variant">{game.status}</td>
                 <td className="px-4 py-3">
                   {game.hidden && (
                     <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">

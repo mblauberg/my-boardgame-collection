@@ -130,6 +130,13 @@ describe("useSaveBggGameToLibrary", () => {
 
     expect(mockRpc).toHaveBeenCalledWith(
       "save_bgg_game_for_user",
+      expect.not.objectContaining({
+        p_list_type: expect.anything(),
+      }),
+    );
+
+    expect(mockRpc).toHaveBeenCalledWith(
+      "save_bgg_game_for_user",
       expect.objectContaining({
         p_user_id: "user-1",
         p_bgg_id: 123,

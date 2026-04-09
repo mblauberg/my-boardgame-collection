@@ -12,7 +12,8 @@
     "test:run": "vitest run",
     "migrate:generate": "tsx scripts/generateSeedData.ts",
     "migrate:import": "tsx scripts/importLegacyData.ts",
-    "migrate:import-bgg": "tsx scripts/importBggCsv.ts"
+    "migrate:import-bgg": "tsx scripts/importBggCsv.ts",
+    "migrate:backfill-shared-tags": "tsx scripts/backfillSharedTags.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

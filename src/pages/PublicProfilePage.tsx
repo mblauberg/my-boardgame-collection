@@ -7,7 +7,7 @@ export function PublicProfilePage() {
 
   if (isLoading) {
     return (
-      <section className="rounded-[2rem] border border-ink/10 bg-white/90 p-8 shadow-card">
+      <section className="rounded-[2rem] border border-ink/10 bg-surface/90 p-8 shadow-card">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-pine">Profiles</p>
         <h2 className="mt-3 font-serif text-3xl font-bold tracking-tight">Loading profile</h2>
       </section>
@@ -16,7 +16,7 @@ export function PublicProfilePage() {
 
   if (error || !profile || !profile.is_profile_public) {
     return (
-      <section className="rounded-[2rem] border border-ink/10 bg-white/90 p-8 shadow-card">
+      <section className="rounded-[2rem] border border-ink/10 bg-surface/90 p-8 shadow-card">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-pine">Profiles</p>
         <h2 className="mt-3 font-serif text-3xl font-bold tracking-tight">Profile not found</h2>
         <p className="mt-4 max-w-2xl text-base leading-7 text-ink/75">
@@ -37,7 +37,7 @@ export function PublicProfilePage() {
 
   return (
     <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-      <article className="rounded-[2rem] border border-ink/10 bg-white/90 p-8 shadow-card">
+      <article className="rounded-[2rem] border border-ink/10 bg-surface/90 p-8 shadow-card">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-pine">Public Profile</p>
         <h1 className="mt-3 font-serif text-4xl font-bold tracking-tight">@{profile.username}</h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-ink/75">
@@ -52,7 +52,7 @@ export function PublicProfilePage() {
             {visibleSections.map((section) => (
               <Link
                 key={section.href}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-parchment transition hover:bg-white/10"
+                className="rounded-2xl border border-white/10 bg-surface/5 px-4 py-3 text-sm font-semibold text-parchment transition hover:bg-surface/10"
                 to={section.href}
               >
                 {section.label}

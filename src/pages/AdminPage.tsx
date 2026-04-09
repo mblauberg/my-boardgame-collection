@@ -40,10 +40,10 @@ export function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-6">
+      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-surface p-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
-          <p className="mt-1 text-gray-600">Manage games, tags, and visibility.</p>
+          <h2 className="text-2xl font-bold text-on-surface">Admin Dashboard</h2>
+          <p className="mt-1 text-on-surface-variant-variant">Manage games, tags, and visibility.</p>
         </div>
         <button
           type="button"
@@ -55,8 +55,8 @@ export function AdminPage() {
       </div>
 
       {panel && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-200 bg-surface p-6">
+          <h3 className="mb-4 text-lg font-semibold text-on-surface">
             {panel.mode === "edit" ? `Edit: ${panel.game.name}` : "Add Game"}
           </h3>
           <GameForm
@@ -68,8 +68,8 @@ export function AdminPage() {
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Games</h3>
+      <div className="rounded-lg border border-gray-200 bg-surface p-6">
+        <h3 className="mb-4 text-lg font-semibold text-on-surface">Games</h3>
         {isLoading ? (
           <p className="text-gray-500">Loading…</p>
         ) : (

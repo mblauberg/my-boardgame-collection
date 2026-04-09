@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import type { Profile } from "./auth.types";
+import { ExploreSearchProvider } from "../library/ExploreSearchContext";
 
 // Mock the Supabase client
 const mockSupabase = {
@@ -101,7 +102,7 @@ function renderWithRouter(
   mockSupabase.from.mockReturnValue({
     select: vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({
+        maybeSingle: vi.fn().mockResolvedValue({
           data: fixture?.profile ?? null,
           error: fixture ? null : { message: "Not found" },
         }),
@@ -111,19 +112,21 @@ function renderWithRouter(
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[initialRoute]}>
-        <Routes>
-          <Route path="/signin" element={<div>Sign In Page</div>} />
-          <Route
-            path="/admin"
-            element={
-              <RequireOwner>
-                <div>Admin Content</div>
-              </RequireOwner>
-            }
-          />
-        </Routes>
-      </MemoryRouter>
+      <ExploreSearchProvider>
+        <MemoryRouter initialEntries={[initialRoute]}>
+          <Routes>
+            <Route path="/signin" element={<div>Sign In Page</div>} />
+            <Route
+              path="/admin"
+              element={
+                <RequireOwner>
+                  <div>Admin Content</div>
+                </RequireOwner>
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      </ExploreSearchProvider>
     </QueryClientProvider>
   );
 }

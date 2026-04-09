@@ -2,6 +2,7 @@ import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AccountSettingsPage } from "./AccountSettingsPage";
+import { ThemeProvider } from "../lib/theme";
 
 const useProfile = vi.fn();
 const mutateAsync = vi.fn();
@@ -17,16 +18,15 @@ vi.mock("../features/profiles/useUpdateProfileMutation", () => ({
   }),
 }));
 
-vi.mock("../components/library/AddGameWizardOverlay", () => ({
-  AddGameWizardOverlay: ({
-    isOpen,
-    defaultState,
-  }: {
-    isOpen: boolean;
-    defaultState?: { isSaved: boolean; isLoved: boolean; isInCollection: boolean };
-  }) =>
-    isOpen ? <div>{`Add game wizard (${JSON.stringify(defaultState)})`}</div> : null,
-}));
+function renderAccountSettingsPage() {
+  render(
+    <MemoryRouter>
+      <ThemeProvider>
+        <AccountSettingsPage />
+      </ThemeProvider>
+    </MemoryRouter>,
+  );
+}
 
 describe("AccountSettingsPage", () => {
   beforeEach(() => {
@@ -54,11 +54,7 @@ describe("AccountSettingsPage", () => {
     const user = userEvent.setup();
     mutateAsync.mockResolvedValue({ id: "user-1" });
 
-    render(
-      <MemoryRouter>
-        <AccountSettingsPage />
-      </MemoryRouter>,
-    );
+    renderAccountSettingsPage();
 
     const usernameInput = screen.getByLabelText(/username/i);
     expect(usernameInput).toHaveValue("alice");
@@ -82,20 +78,21 @@ describe("AccountSettingsPage", () => {
     );
   });
 
-  it("opens the add-game wizard in collection mode", async () => {
-    const user = userEvent.setup();
+  it("shows the current public visibility summary", () => {
+    renderAccountSettingsPage();
 
-    render(
-      <MemoryRouter>
-        <AccountSettingsPage />
-      </MemoryRouter>,
+    expect(screen.getByText(/profile: public/i)).toBeInTheDocument();
+    expect(screen.getByText(/collection: public/i)).toBeInTheDocument();
+    expect(screen.getByText(/saved: private/i)).toBeInTheDocument();
+  });
+
+  it("renders a profile link when the signed-in user has a username", () => {
+    renderAccountSettingsPage();
+
+    expect(screen.getByRole("link", { name: /view profile/i })).toHaveAttribute(
+      "href",
+      "/u/alice",
     );
-
-    await user.click(screen.getByRole("button", { name: /add new game/i }));
-
-    expect(
-      screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
-    ).toBeInTheDocument();
   });
 
   it("shows the Supabase error message when save rejects with a structured error object", async () => {
@@ -105,16 +102,30 @@ describe("AccountSettingsPage", () => {
       message: "column profiles.is_saved_public does not exist",
     });
 
-    render(
-      <MemoryRouter>
-        <AccountSettingsPage />
-      </MemoryRouter>,
-    );
+    renderAccountSettingsPage();
 
     await user.click(screen.getByRole("button", { name: /save settings/i }));
 
     expect(
       await screen.findByText(/column profiles\.is_saved_public does not exist/i),
     ).toBeInTheDocument();
+  });
+
+  it("toggles the global theme and persists it", async () => {
+    const user = userEvent.setup();
+
+    renderAccountSettingsPage();
+
+    await user.click(screen.getByRole("button", { name: /toggle dark mode/i }));
+
+    expect(document.documentElement).toHaveClass("dark");
+    expect(localStorage.getItem("theme")).toBe("dark");
+  });
+
+  it("renders accessible icon-only buttons with proper aria-label", () => {
+    renderAccountSettingsPage();
+
+    expect(screen.getByRole("button", { name: /toggle dark mode/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /view profile/i })).toBeInTheDocument();
   });
 });

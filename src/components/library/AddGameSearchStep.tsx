@@ -37,11 +37,11 @@ export function AddGameSearchStep({
     <div className="flex flex-1 flex-col">
       <div className="mb-8">
         <h2 className="text-3xl font-extrabold tracking-tight text-on-surface">Find your game</h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant">
+        <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant-variant">
           Search BoardGameGeek to import the game title, year, and any metadata already available.
         </p>
         {source?.kind === "snapshot" ? (
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant-variant">
             Using {source.label}
             {source.updatedAt ? ` • Updated ${formatSourceDate(source.updatedAt)}` : ""}
           </p>
@@ -51,7 +51,7 @@ export function AddGameSearchStep({
       <label className="mb-6 block">
         <span className="sr-only">Search BoardGameGeek</span>
         <div className="flex items-center gap-3 rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3">
-          <span className="material-symbols-outlined text-on-surface-variant">search</span>
+          <span className="material-symbols-outlined text-on-surface-variant-variant">search</span>
           <input
             type="search"
             aria-label="Search BoardGameGeek"
@@ -65,19 +65,19 @@ export function AddGameSearchStep({
 
       <div className="flex min-h-[16rem] flex-1 flex-col gap-3">
         {errorMessage ? (
-          <div className="rounded-2xl border border-error/20 bg-red-50 px-4 py-3 text-sm text-error">
+          <div className="rounded-2xl border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error">
             {errorMessage}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">
+          <div className="rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant-variant">
             Searching BoardGameGeek...
           </div>
         ) : null}
 
         {showEmpty ? (
-          <div className="rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">
+          <div className="rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant-variant">
             No matches yet. Try a different spelling or a shorter title.
           </div>
         ) : null}
@@ -102,13 +102,13 @@ export function AddGameSearchStep({
                 {game.imageUrl ? (
                   <img src={game.imageUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="material-symbols-outlined text-on-surface-variant">stadia_controller</span>
+                  <span className="material-symbols-outlined text-on-surface-variant-variant">stadia_controller</span>
                 )}
               </div>
 
               <div className="min-w-0 flex-1">
                 <p className="truncate text-base font-bold text-on-surface">{game.name}</p>
-                <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+                <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant-variant">
                   {game.yearPublished ? (
                     <span className="rounded-full bg-secondary-fixed px-2 py-1 text-on-secondary-container">
                       {game.yearPublished}

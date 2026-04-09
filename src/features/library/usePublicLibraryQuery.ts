@@ -14,7 +14,6 @@ type SharedGameTagJoin = Database["public"]["Tables"]["game_tags"]["Row"] & {
 
 export function usePublicLibraryQuery(username: string, listType: LibraryListType) {
   const normalizedUsername = username.trim().toLowerCase();
-  const publicSurface = listType === "saved" ? "wishlist" : listType;
 
   return useQuery({
     queryKey: libraryKeys.public(normalizedUsername, listType),
@@ -24,7 +23,7 @@ export function usePublicLibraryQuery(username: string, listType: LibraryListTyp
       const supabase = getSupabaseBrowserClient();
       const { data, error } = await supabase.rpc("get_public_library", {
         p_username: normalizedUsername,
-        p_list_type: publicSurface,
+        p_list_type: listType,
       });
 
       if (error) throw error;

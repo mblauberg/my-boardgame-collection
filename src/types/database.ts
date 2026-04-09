@@ -12,7 +12,6 @@ export type Database = {
           username: string | null;
           is_profile_public: boolean;
           is_collection_public: boolean;
-          is_wishlist_public: boolean;
           is_saved_public: boolean;
           created_at: string;
           updated_at: string;
@@ -24,7 +23,6 @@ export type Database = {
           username?: string | null;
           is_profile_public?: boolean;
           is_collection_public?: boolean;
-          is_wishlist_public?: boolean;
           is_saved_public?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -191,7 +189,6 @@ export type Database = {
           id: string;
           user_id: string;
           game_id: string;
-          list_type: "collection" | "wishlist";
           is_saved: boolean;
           is_loved: boolean;
           is_in_collection: boolean;
@@ -205,7 +202,6 @@ export type Database = {
           id?: string;
           user_id: string;
           game_id: string;
-          list_type: "collection" | "wishlist";
           is_saved?: boolean;
           is_loved?: boolean;
           is_in_collection?: boolean;
@@ -296,14 +292,13 @@ export type Database = {
           username: string;
           is_profile_public: boolean;
           is_collection_public: boolean;
-          is_wishlist_public: boolean;
           is_saved_public: boolean;
         }[];
       };
       get_public_library: {
         Args: {
           p_username: string;
-          p_list_type: "collection" | "wishlist";
+          p_list_type: "collection" | "saved";
         };
         Returns: {
           profile_id: string;
@@ -347,7 +342,6 @@ export type Database = {
           p_is_saved?: boolean;
           p_is_loved?: boolean;
           p_is_in_collection?: boolean;
-          p_list_type?: "collection" | "wishlist";
           p_sentiment?: "like" | "dislike" | "neutral" | null;
           p_notes?: string | null;
         };

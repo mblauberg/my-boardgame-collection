@@ -55,7 +55,7 @@ function TagForm({
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
       <div>
-        <label htmlFor="tag-name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="tag-name" className="block text-sm font-medium text-on-surface">
           Tag name
         </label>
         <input
@@ -65,12 +65,12 @@ function TagForm({
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
         {errors.name && (
-          <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+          <p className="mt-1 text-xs text-error dark:text-error">{errors.name.message}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="tag-type" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="tag-type" className="block text-sm font-medium text-on-surface">
           Type
         </label>
         <input
@@ -83,7 +83,7 @@ function TagForm({
       </div>
 
       <div>
-        <label htmlFor="tag-colour" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="tag-colour" className="block text-sm font-medium text-on-surface">
           Colour
         </label>
         <input
@@ -141,11 +141,11 @@ export function TagManager({ tags }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-gray-900">Tags</h4>
+        <h4 className="font-medium text-on-surface">Tags</h4>
         <button
           type="button"
           onClick={() => setPanel({ mode: "create" })}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-primary"
         >
           Add tag
         </button>
@@ -153,7 +153,7 @@ export function TagManager({ tags }: Props) {
 
       {panel && (
         <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <p className="mb-3 text-sm font-medium text-gray-700">
+          <p className="mb-3 text-sm font-medium text-on-surface">
             {panel.mode === "edit" ? `Edit: ${panel.tag.name}` : "New tag"}
           </p>
           <TagForm
@@ -171,7 +171,7 @@ export function TagManager({ tags }: Props) {
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
               {type}
             </p>
-            <div className="divide-y divide-gray-100 rounded-md border border-gray-200 bg-white">
+            <div className="divide-y divide-gray-100 rounded-md border border-gray-200 bg-surface">
               {typeTags.map((tag) => (
                 <div key={tag.id} className="flex items-center justify-between px-4 py-2">
                   <span className="text-sm text-gray-800">{tag.name}</span>

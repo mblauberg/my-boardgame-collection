@@ -6,6 +6,23 @@ vi.mock("../features/games/useGameDetailQuery", () => ({
   useGameDetailQuery: vi.fn(),
 }));
 
+vi.mock("../features/games/useGameMutations", () => ({
+  useUpdateGame: vi.fn(() => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  })),
+}));
+
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: vi.fn(() => ({
+    profile: null,
+    isOwner: false,
+    isAuthenticated: false,
+    isLoading: false,
+    error: null,
+  })),
+}));
+
 vi.mock("../components/games/GameDetailPanel", () => ({
   GameDetailPanel: ({ game }: { game: { name: string } }) => <div>{game.name}</div>,
 }));

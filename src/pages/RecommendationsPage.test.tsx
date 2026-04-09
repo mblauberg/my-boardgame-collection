@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { screen } from "@testing-library/react";
+import { renderWithProviders } from "../test/testUtils";
 import { RecommendationsPage } from "./RecommendationsPage";
 
 vi.mock("../features/library/useExploreQuery", () => ({
@@ -8,6 +8,14 @@ vi.mock("../features/library/useExploreQuery", () => ({
 
 vi.mock("../components/library/ExploreShelf", () => ({
   ExploreShelf: ({ title }: { title: string }) => <section>{title}</section>,
+}));
+
+vi.mock("../components/library/HorizontalShelf", () => ({
+  HorizontalShelf: ({ title }: { title: string }) => <section>{title}</section>,
+}));
+
+vi.mock("../components/library/DiscoverSection", () => ({
+  DiscoverSection: ({ title }: { title: string }) => <section>{title}</section>,
 }));
 
 import { useExploreQuery } from "../features/library/useExploreQuery";
@@ -20,11 +28,7 @@ describe("RecommendationsPage", () => {
       error: null,
     } as never);
 
-    render(
-      <MemoryRouter>
-        <RecommendationsPage />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<RecommendationsPage />);
 
     expect(screen.getByText(/loading explore shelves/i)).toBeInTheDocument();
   });
@@ -36,11 +40,7 @@ describe("RecommendationsPage", () => {
       error: new Error("Failed"),
     } as never);
 
-    render(
-      <MemoryRouter>
-        <RecommendationsPage />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<RecommendationsPage />);
 
     expect(screen.getByText(/explore unavailable/i)).toBeInTheDocument();
   });
@@ -49,21 +49,17 @@ describe("RecommendationsPage", () => {
     vi.mocked(useExploreQuery).mockReturnValue({
       data: {
         shelves: [
-          { id: "for-you", title: "For You", entries: [] },
-          { id: "trending", title: "Trending Now", entries: [] },
+          { id: "trending", title: "Trending Now", entries: [], sections: [] },
+          { id: "new-releases", title: "New Releases", entries: [], sections: [] },
         ],
       },
       isLoading: false,
       error: null,
     } as never);
 
-    render(
-      <MemoryRouter>
-        <RecommendationsPage />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<RecommendationsPage />);
 
-    expect(screen.getByText("For You")).toBeInTheDocument();
     expect(screen.getByText("Trending Now")).toBeInTheDocument();
+    expect(screen.getByText("New Releases")).toBeInTheDocument();
   });
 });

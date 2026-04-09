@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 const mockUsePublicLibraryQuery = vi.fn();
 
 vi.mock("../features/library/usePublicLibraryQuery", () => ({
-  usePublicLibraryQuery: (username: string, listType: "collection" | "wishlist") =>
+  usePublicLibraryQuery: (username: string, listType: "collection" | "saved") =>
     mockUsePublicLibraryQuery(username, listType),
 }));
 

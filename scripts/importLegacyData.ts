@@ -9,6 +9,24 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export type SeedGame = SeedPayload["games"][number];
 
+export function buildGameTagRows(
+  payload: SeedPayload,
+  gameIdBySlug: Map<string, string>,
+  tagIdBySeedTagId: Map<string, string>,
+) {
+  return payload.gameTags.flatMap((gameTag) => {
+    const sourceGame = payload.games.find((game) => game.id === gameTag.game_id);
+    if (!sourceGame) return [];
+
+    const gameId = gameIdBySlug.get(sourceGame.slug);
+    const tagId = tagIdBySeedTagId.get(gameTag.tag_id);
+
+    if (!gameId || !tagId) return [];
+
+    return [{ game_id: gameId, tag_id: tagId }];
+  });
+}
+
 export function mapLegacyGameToLibraryEntry(
   game: SeedGame,
   userId: string,
@@ -120,21 +138,11 @@ export async function importLegacyData() {
   if (tagLookupError) throw tagLookupError;
   if (gameLookupError) throw gameLookupError;
 
-  const tagIdBySlug = new Map((tags ?? []).map((tag) => [tag.slug, tag.id]));
+  const tagIdBySeedTagId = new Map((tags ?? []).map((tag) => [tag.slug, tag.id]));
   const gameIdBySlug = new Map((games ?? []).map((game) => [game.slug, game.id]));
 
   console.log("Importing game-tag relationships...");
-  const gameTagRows = payload.gameTags.flatMap((gameTag) => {
-    const sourceGame = payload.games.find((game) => game.id === gameTag.game_id);
-    if (!sourceGame) return [];
-
-    const gameId = gameIdBySlug.get(sourceGame.slug);
-    const tagId = tagIdBySlug.get(gameTag.tag_id);
-
-    if (!gameId || !tagId) return [];
-
-    return [{ game_id: gameId, tag_id: tagId }];
-  });
+  const gameTagRows = buildGameTagRows(payload, gameIdBySlug, tagIdBySeedTagId);
 
   const { error: gameTagsError } = await supabase
     .from("game_tags")

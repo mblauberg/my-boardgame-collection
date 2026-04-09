@@ -92,8 +92,8 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
         <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-900">BoardGameGeek metadata</p>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm font-medium text-on-surface">BoardGameGeek metadata</p>
+              <p className="text-sm text-on-surface-variant-variant">
                 Refresh the linked BGG rating, weight, year, and URL without touching your
                 notes or summary.
               </p>
@@ -108,7 +108,7 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
             </button>
           </div>
           {refreshError ? (
-            <p className="mt-3 text-sm text-red-600">{refreshError}</p>
+            <p className="mt-3 text-sm text-error dark:text-error">{refreshError}</p>
           ) : null}
         </div>
       ) : null}
@@ -117,7 +117,7 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-surface-container-low"
         >
           Cancel
         </button>

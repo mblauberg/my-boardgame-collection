@@ -13,7 +13,7 @@ export function GameCard({ game }: GameCardProps) {
       {game.imageUrl && (
         <img
           src={game.imageUrl}
-          alt={game.name}
+          alt=""
           className="w-full h-48 object-cover rounded mb-3"
         />
       )}

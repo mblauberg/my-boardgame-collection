@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ProfileSearch } from "../library/ProfileSearch";
+import { PageSearch } from "../library/PageSearch";
 import { useProfile } from "../../features/auth/useProfile";
 
 export function TopNavBar() {
@@ -10,14 +10,14 @@ export function TopNavBar() {
     const isActive = location.pathname === path;
     const base = "font-medium font-['Manrope'] tracking-tight transition-colors duration-300";
     if (isActive) {
-      return `${base} text-amber-800 dark:text-amber-400 font-extrabold border-b-2 border-amber-600`;
+      return `${base} text-primary font-extrabold border-b-2 border-primary`;
     }
-    return `${base} text-[#2e2f2d] dark:text-[#ddddda] hover:text-amber-600 dark:hover:text-amber-300`;
+    return `${base} text-on-surface hover:text-primary`;
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-[#1a1b1e]/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-8 py-4 max-w-full mx-auto">
-      <div className="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tighter">
+    <nav className="fixed top-0 w-full z-50 bg-surface-bright/60 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-4 py-3 md:px-8 md:py-4 max-w-full mx-auto">
+      <div className="text-lg font-black text-primary tracking-tighter md:text-2xl">
         <Link to="/">My Board Game Collection</Link>
       </div>
       <div className="hidden md:flex items-center gap-8">
@@ -26,9 +26,9 @@ export function TopNavBar() {
         <Link className={getLinkClass("/")} to="/">Collection</Link>
       </div>
       <div className="flex items-center gap-4">
-        <ProfileSearch />
-        <Link to={isAuthenticated ? "/settings" : "/signin"} className="p-2 rounded-full hover:bg-[#ddddda] dark:hover:bg-gray-800 transition-colors scale-95 duration-150 active:opacity-80 flex items-center justify-center">
-          <span className="material-symbols-outlined text-[#2e2f2d] dark:text-[#ddddda]">account_circle</span>
+        <PageSearch />
+        <Link to={isAuthenticated ? "/settings" : "/signin"} className="p-2 rounded-full hover:bg-surface-container-low transition-colors scale-95 duration-150 active:opacity-80 flex items-center justify-center">
+          <span className="material-symbols-outlined text-on-surface">account_circle</span>
         </Link>
       </div>
     </nav>

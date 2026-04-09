@@ -2,12 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --surface: #f7f6f3;
+    --surface-container-low: #f1f1ee;
+    --surface-container-lowest: #ffffff;
+    --surface-container-high: #e2e3df;
+    --surface-container-highest: #ddddda;
+    --surface-bright: #f7f6f3;
+    --on-surface: #2e2f2d;
+    --on-surface-variant: #5b5c5a;
+    --primary: #8a4c00;
+    --primary-container: #fd9000;
+    --on-primary-fixed: #1e0c00;
+    --outline-variant: #adadab;
+    --surface-tint: #8a4c00;
+  }
+
+  .dark {
+    --surface: #131313;
+    --surface-container-low: #1c1b1b;
+    --surface-container-lowest: #0e0e0e;
+    --surface-container-high: #2a2a2a;
+    --surface-container-highest: #2a2a2a;
+    --surface-bright: #3a3a3a;
+    --on-surface: #e5e2e1;
+    --on-surface-variant: #dcc2ae;
+    --primary: #ffb97c;
+    --primary-container: #FF9100;
+    --on-primary-fixed: #2e1500;
+    --outline-variant: #564334;
+    --surface-tint: #ffb778;
+  }
+}
+
 body {
   margin: 0;
   min-width: 320px;
   font-family: 'Manrope', -apple-system, sans-serif;
+}
+
+body.light {
   color: #2e2f2d;
   background-color: #f7f6f3;
+}
+
+body.dark {
+  color: #e5e2e1;
+  background-color: #131313;
 }
 
 .material-symbols-outlined {
@@ -20,8 +62,39 @@ body {
 
 .editorial-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .editorial-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 3rem;
+  }
+}
+
+.horizontal-scroll {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(138, 76, 0, 0.3) transparent;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(138, 76, 0, 0.3);
+  border-radius: 4px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(138, 76, 0, 0.5);
 }
 
 .glass-nav {

@@ -43,7 +43,8 @@ describe("database typings", () => {
       id: string;
       user_id: string;
       game_id: string;
-      list_type: "collection" | "wishlist";
+      is_saved: boolean;
+      is_in_collection: boolean;
       sentiment: "like" | "dislike" | "neutral" | null;
     }>();
 
@@ -51,7 +52,7 @@ describe("database typings", () => {
       username: string | null;
       is_profile_public: boolean;
       is_collection_public: boolean;
-      is_wishlist_public: boolean;
+      is_saved_public: boolean;
     }>();
   });
 });

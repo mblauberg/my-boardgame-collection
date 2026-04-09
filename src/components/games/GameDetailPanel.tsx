@@ -83,12 +83,9 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
       )}
 
       <div className="space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold text-on-surface">{game.name}</h1>
-          {game.publishedYear && (
-            <p className="text-on-surface-variant mt-1">Published: {game.publishedYear}</p>
-          )}
-        </div>
+        {game.publishedYear && (
+          <p className="text-on-surface-variant-variant">Published: {game.publishedYear}</p>
+        )}
 
         {isAuthenticated && profile?.id ? (
           <LibraryStateActionGroup
@@ -155,11 +152,11 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
           <div className="rounded-3xl bg-surface-container-low p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                <p className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant-variant">
                   BGG Snapshot
                 </p>
                 {game.bggDataSource === "bgg_csv" ? (
-                  <p className="mt-2 text-sm text-on-surface-variant">
+                  <p className="mt-2 text-sm text-on-surface-variant-variant">
                     Local BGG snapshot
                     {game.bggDataUpdatedAt ? ` • Updated ${formatSourceDate(game.bggDataUpdatedAt)}` : ""}
                   </p>
@@ -175,19 +172,19 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               {typeof game.bggRank === "number" ? (
                 <div>
-                  <span className="text-sm text-on-surface-variant">Overall rank</span>
+                  <span className="text-sm text-on-surface-variant-variant">Overall rank</span>
                   <p className="text-xl font-semibold text-on-surface">#{game.bggRank}</p>
                 </div>
               ) : null}
               {typeof game.bggBayesAverage === "number" ? (
                 <div>
-                  <span className="text-sm text-on-surface-variant">Bayesian average</span>
+                  <span className="text-sm text-on-surface-variant-variant">Bayesian average</span>
                   <p className="text-xl font-semibold text-on-surface">{game.bggBayesAverage.toFixed(2)}</p>
                 </div>
               ) : null}
               {typeof game.bggUsersRated === "number" ? (
                 <div>
-                  <span className="text-sm text-on-surface-variant">Users rated</span>
+                  <span className="text-sm text-on-surface-variant-variant">Users rated</span>
                   <p className="text-xl font-semibold text-on-surface">{game.bggUsersRated.toLocaleString("en-AU")}</p>
                 </div>
               ) : null}

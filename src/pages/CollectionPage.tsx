@@ -2,7 +2,6 @@ import { useState } from "react";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { LibraryList } from "../components/library/LibraryList";
-import { LibraryToolbar } from "../components/library/LibraryToolbar";
 import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
@@ -34,31 +33,22 @@ export function CollectionPage() {
 
   return (
     <>
-      <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <header className="mb-8 flex flex-col gap-4 md:mb-12 md:gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-primary md:mb-2">
             Curated Collection
           </p>
-          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-on-surface md:text-7xl">
+          <h1 className="max-w-2xl text-3xl font-extrabold tracking-tight text-on-surface md:text-5xl lg:text-7xl">
             Your <span className="text-primary">Collection</span>
           </h1>
         </div>
       </header>
 
-      <LibraryToolbar
-        searchText={filters.searchText}
-        sortBy={sortBy}
-        sortDirection={sortDirection}
-        onSearchTextChange={(value) => updateFilters({ searchText: value })}
-        onSortChange={updateSort}
-        onClear={clearFilters}
-      />
-
       <LibraryList entries={sortedEntries} getGameLinkState={() => ({ from: "/" })} />
       <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
       <AddGameWizardOverlay
         isOpen={isAddGameOpen}
-        defaultListType="collection"
+        defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
         onClose={() => setIsAddGameOpen(false)}
       />
     </>

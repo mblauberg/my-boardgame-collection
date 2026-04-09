@@ -66,10 +66,6 @@ function slugify(input: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function deriveLegacyListType(input: Pick<UpsertLibraryStateInput, "isSaved" | "isInCollection">) {
-  return input.isInCollection ? "collection" : "wishlist";
-}
-
 async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<LibraryEntryRow> {
   const supabase = getSupabaseBrowserClient();
 
@@ -82,7 +78,6 @@ async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<Libra
         is_saved: input.isSaved,
         is_loved: input.isLoved,
         is_in_collection: input.isInCollection,
-        list_type: deriveLegacyListType(input),
         sentiment: input.sentiment ?? null,
         notes: input.notes ?? null,
       },
@@ -105,6 +100,49 @@ export function useUpsertLibraryState() {
 
   return useMutation({
     mutationFn: async (input: UpsertLibraryStateInput) => upsertLibraryState(input),
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: libraryKeys.library(variables.userId) });
+      
+      const previous = queryClient.getQueryData(libraryKeys.library(variables.userId));
+      
+      queryClient.setQueryData(libraryKeys.library(variables.userId), (old: LibraryEntryRow[] | undefined) => {
+        if (!old) return old;
+        const existing = old.find((e) => e.game_id === variables.gameId);
+        if (existing) {
+          return old.map((e) => 
+            e.game_id === variables.gameId 
+              ? { 
+                  ...e, 
+                  is_saved: variables.isSaved,
+                  is_loved: variables.isLoved,
+                  is_in_collection: variables.isInCollection,
+                  sentiment: variables.sentiment ?? null,
+                  notes: variables.notes ?? null,
+                } 
+              : e
+          );
+        }
+        return [...old, { 
+          id: `temp-${Date.now()}`,
+          user_id: variables.userId,
+          game_id: variables.gameId,
+          is_saved: variables.isSaved,
+          is_loved: variables.isLoved,
+          is_in_collection: variables.isInCollection,
+          sentiment: variables.sentiment ?? null,
+          notes: variables.notes ?? null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as LibraryEntryRow];
+      });
+      
+      return { previous };
+    },
+    onError: (_err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(libraryKeys.library(variables.userId), context.previous);
+      }
+    },
     onSuccess: (_entry, variables) => {
       invalidateLibraryQueries(queryClient, variables.userId);
     },
@@ -134,7 +172,7 @@ export function useAddToCollection() {
   });
 }
 
-export function useAddToWishlist() {
+export function useAddToSaved() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -157,7 +195,7 @@ export function useAddToWishlist() {
   });
 }
 
-export function useMoveWishlistToCollection() {
+export function useMoveSavedToCollection() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -214,6 +252,23 @@ export function useDeleteLibraryEntry() {
       const { error } = await supabase.from("library_entries").delete().eq("id", id);
       if (error) throw error;
     },
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: libraryKeys.library(variables.userId) });
+      
+      const previous = queryClient.getQueryData(libraryKeys.library(variables.userId));
+      
+      queryClient.setQueryData(libraryKeys.library(variables.userId), (old: LibraryEntryRow[] | undefined) => {
+        if (!old) return old;
+        return old.filter((e) => e.id !== variables.id);
+      });
+      
+      return { previous };
+    },
+    onError: (_err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(libraryKeys.library(variables.userId), context.previous);
+      }
+    },
     onSuccess: (_entry, variables) => {
       invalidateLibraryQueries(queryClient, variables.userId);
     },
@@ -252,7 +307,6 @@ export function useSaveBggGameToLibrary() {
         p_is_saved: isSaved,
         p_is_loved: isLoved,
         p_is_in_collection: isInCollection,
-        p_list_type: deriveLegacyListType({ isSaved, isInCollection }),
         p_sentiment: sentiment ?? null,
         p_notes: notes ?? null,
       });

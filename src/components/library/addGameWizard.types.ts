@@ -1,4 +1,4 @@
-import type { LibraryListType, LibrarySentiment } from "../../features/library/library.types";
+import type { LibrarySentiment } from "../../features/library/library.types";
 
 export type AddGameWizardSelectedGame = {
   id: number;
@@ -17,8 +17,6 @@ export type AddGameWizardSelectedGame = {
   bggBayesAverage?: number | null;
   bggUsersRated?: number | null;
   isExpansion?: boolean | null;
-  customImageFile?: File;
-  customImageUrl?: string;
 };
 
 export type AddGameWizardCollectionInfo = {
@@ -34,5 +32,3 @@ export type AddGameWizardDefaultState = {
   isLoved: boolean;
   isInCollection: boolean;
 };
-
-export type AddGameWizardDefaultListType = LibraryListType | "collection";

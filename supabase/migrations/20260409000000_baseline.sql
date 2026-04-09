@@ -74,7 +74,6 @@ create table if not exists public.profiles (
   username text,
   is_profile_public boolean not null default false,
   is_collection_public boolean not null default false,
-  is_wishlist_public boolean not null default false,
   is_saved_public boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -86,9 +85,6 @@ create table if not exists public.profiles (
   ),
   constraint profiles_public_collection_requires_username_check check (
     not is_collection_public or username is not null
-  ),
-  constraint profiles_public_wishlist_requires_username_check check (
-    not is_wishlist_public or username is not null
   ),
   constraint profiles_public_saved_requires_username_check check (
     not is_saved_public or username is not null
@@ -107,10 +103,6 @@ alter table public.profiles
   drop constraint if exists profiles_public_collection_requires_username_check,
   add constraint profiles_public_collection_requires_username_check check (
     not is_collection_public or username is not null
-  ),
-  drop constraint if exists profiles_public_wishlist_requires_username_check,
-  add constraint profiles_public_wishlist_requires_username_check check (
-    not is_wishlist_public or username is not null
   ),
   drop constraint if exists profiles_public_saved_requires_username_check,
   add constraint profiles_public_saved_requires_username_check check (
@@ -180,7 +172,7 @@ create table if not exists public.games (
     bgg_url is null or bgg_url like 'https://boardgamegeek.com/%'
   ),
   constraint games_published_year_range_check check (
-    published_year is null or (published_year >= 1600 and published_year <= 2100)
+    published_year is null or published_year <= 2100
   ),
   constraint games_image_url_https_check check (
     image_url is null or image_url like 'https://%'
@@ -295,7 +287,6 @@ returns table (
   username text,
   is_profile_public boolean,
   is_collection_public boolean,
-  is_wishlist_public boolean,
   is_saved_public boolean
 )
 language sql
@@ -308,7 +299,6 @@ as $$
     p.username,
     p.is_profile_public,
     p.is_collection_public,
-    p.is_wishlist_public,
     p.is_saved_public
   from public.profiles p
   where p.is_profile_public = true
@@ -345,7 +335,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_list_type not in ('collection', 'wishlist', 'saved') then
+  if p_list_type not in ('collection', 'saved') then
     raise exception 'Invalid list type: %', p_list_type;
   end if;
 
@@ -378,7 +368,6 @@ begin
     and p.username = lower(btrim(p_username))
     and (
       (p_list_type = 'collection' and p.is_collection_public = true and le.is_in_collection = true)
-      or (p_list_type = 'wishlist'   and p.is_wishlist_public = true)
       or (p_list_type = 'saved'      and p.is_saved_public = true and le.is_saved = true)
     )
   order by le.created_at desc, g.name asc;
@@ -475,14 +464,19 @@ begin
       updated_at     = now()
     returning * into v_game;
   else
-    -- Non-owner: ensure game exists, then update only non-BGG fields.
-    -- bgg_* fields, status, hidden, buy_priority are never touched.
-    insert into public.games (name, slug, bgg_id, bgg_url)
-    values (p_name, v_slug, p_bgg_id, p_bgg_url)
+    -- Non-owner: ensure game exists and fill missing lightweight metadata from search results.
+    insert into public.games (
+      name, slug, bgg_id, bgg_url, summary, image_url, published_year,
+      players_min, players_max, play_time_min, play_time_max
+    )
+    values (
+      p_name, v_slug, p_bgg_id, p_bgg_url, p_summary, p_image_url, p_published_year,
+      p_players_min, p_players_max, p_play_time_min, p_play_time_max
+    )
     on conflict (bgg_id) where bgg_id is not null
     do update set
       summary        = coalesce(excluded.summary, games.summary),
-      image_url      = case when games.image_url is null then excluded.image_url else games.image_url end,
+      image_url      = coalesce(games.image_url, excluded.image_url),
       published_year = coalesce(excluded.published_year, games.published_year),
       players_min    = coalesce(excluded.players_min, games.players_min),
       players_max    = coalesce(excluded.players_max, games.players_max),
@@ -525,7 +519,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if not public.is_owner() then
+  if not public.is_owner() and coalesce(auth.jwt() ->> 'role', '') <> 'service_role' then
     raise exception 'Owner role required';
   end if;
 

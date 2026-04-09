@@ -100,6 +100,18 @@ describe('scenarioPresets', () => {
       const sorted = sortGames(games, 'name_asc');
       expect(sorted.map((g) => g.name)).toEqual(['Apple', 'Mango', 'Zebra']);
     });
+
+    it('sorts new releases by year then quality signals before name', () => {
+      const games = [
+        mockGame({ name: 'Zulu', year_published: 2025, bgg_rank: 20, bgg_num_ratings: 6000, bgg_rating: 7.9 }),
+        mockGame({ name: 'Alpha', year_published: 2025, bgg_rank: 5, bgg_num_ratings: 12000, bgg_rating: 8.1 }),
+        mockGame({ name: 'Beta', year_published: 2024, bgg_rank: 1, bgg_num_ratings: 50000, bgg_rating: 8.8 }),
+      ];
+
+      const sorted = sortGames(games, 'year_desc');
+
+      expect(sorted.map((g) => g.name)).toEqual(['Alpha', 'Zulu', 'Beta']);
+    });
   });
 
   describe('selectGamesForRule', () => {

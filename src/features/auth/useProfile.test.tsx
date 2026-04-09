@@ -8,6 +8,7 @@ import type { Profile } from "./auth.types";
 const mockSupabase = {
   auth: {
     getSession: vi.fn(),
+    signOut: vi.fn(),
     onAuthStateChange: vi.fn(() => ({
       data: { subscription: { unsubscribe: vi.fn() } },
     })),
@@ -94,13 +95,14 @@ function createAuthTestWrapper(fixture?: { session: Session; profile: Profile })
     data: { session: fixture?.session ?? null },
     error: null,
   });
+  mockSupabase.auth.signOut.mockResolvedValue({ error: null });
 
   mockSupabase.from.mockReturnValue({
     select: vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({
+        maybeSingle: vi.fn().mockResolvedValue({
           data: fixture?.profile ?? null,
-          error: fixture ? null : { message: "Not found" },
+          error: null,
         }),
       }),
     }),
@@ -150,5 +152,18 @@ describe("useProfile", () => {
       expect(result.current.isOwner).toBe(false);
       expect(result.current.isAuthenticated).toBe(false);
     });
+  });
+
+  it("clears stale local auth state when the session exists but the profile row does not", async () => {
+    const { result } = renderHook(() => useProfile(), {
+      wrapper: createAuthTestWrapper({ ...viewerFixture, profile: null as never }),
+    });
+
+    await waitFor(() => {
+      expect(mockSupabase.auth.signOut).toHaveBeenCalled();
+    });
+
+    expect(result.current.profile).toBeNull();
+    expect(result.current.error).toBeNull();
   });
 });

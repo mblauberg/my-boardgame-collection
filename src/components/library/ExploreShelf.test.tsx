@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { renderWithProviders } from "../../test/testUtils";
 import { ExploreShelf } from "./ExploreShelf";
 import type { Game } from "../../types/domain";
 import type { LibraryEntry } from "../../features/library/library.types";
@@ -100,14 +100,14 @@ describe("ExploreShelf", () => {
     deleteMutationState.isPending = false;
   });
 
-  it("renders a saved quick action for each explore game", () => {
-    render(
-      <MemoryRouter>
-        <ExploreShelf title="Trending now" entries={[gameFixture]} />
-      </MemoryRouter>,
+  it("renders a saved quick action for each explore game", async () => {
+    renderWithProviders(
+      <ExploreShelf title="Trending now" entries={[gameFixture]} />
     );
 
-    expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "false");
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "false");
+    });
   });
 
   it("upserts saved state from explore while preserving other library state", async () => {
@@ -116,17 +116,19 @@ describe("ExploreShelf", () => {
       createEntry({
         isSaved: false,
         isLoved: true,
-        isInCollection: true,
+        isInCollection: false,
         sentiment: "like",
         notes: "Race night staple",
       }),
     ];
 
-    render(
-      <MemoryRouter>
-        <ExploreShelf title="Trending now" entries={[gameFixture]} />
-      </MemoryRouter>,
+    renderWithProviders(
+      <ExploreShelf title="Trending now" entries={[gameFixture]} />
     );
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /saved/i })).toBeInTheDocument();
+    });
 
     await user.click(screen.getByRole("button", { name: /saved/i }));
 
@@ -135,7 +137,7 @@ describe("ExploreShelf", () => {
       gameId: gameFixture.id,
       isSaved: true,
       isLoved: true,
-      isInCollection: true,
+      isInCollection: false,
       sentiment: "like",
       notes: "Race night staple",
     });
@@ -150,11 +152,13 @@ describe("ExploreShelf", () => {
       }),
     ];
 
-    render(
-      <MemoryRouter>
-        <ExploreShelf title="Trending now" entries={[gameFixture]} />
-      </MemoryRouter>,
+    renderWithProviders(
+      <ExploreShelf title="Trending now" entries={[gameFixture]} />
     );
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /saved/i })).toBeInTheDocument();
+    });
 
     await user.click(screen.getByRole("button", { name: /saved/i }));
 
@@ -163,5 +167,23 @@ describe("ExploreShelf", () => {
       userId: "user-1",
     });
     expect(upsertMutationState.mutate).not.toHaveBeenCalled();
+  });
+
+  it("renders saved quick actions even when game is in collection", async () => {
+    libraryQueryState.data = [
+      createEntry({
+        isSaved: false,
+        isInCollection: true,
+      }),
+    ];
+
+    renderWithProviders(
+      <ExploreShelf title="Trending now" entries={[gameFixture]} />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /saved/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "false");
+    });
   });
 });

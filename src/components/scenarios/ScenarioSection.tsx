@@ -21,7 +21,7 @@ export function ScenarioSection({ label, description, games }: ScenarioSectionPr
         <h4 className="text-lg font-semibold">{label}</h4>
         <ScenarioCoverageBadge ownedCount={ownedCount} buyCount={buyCount} recCount={recCount} />
       </div>
-      <p className="mb-3 text-sm text-gray-600">{description}</p>
+      <p className="mb-3 text-sm text-on-surface-variant-variant">{description}</p>
       <div className="space-y-1">
         {games.map((game) => (
           <ScenarioGameRow key={game.id} game={game} />

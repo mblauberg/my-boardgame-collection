@@ -1,28 +1,13 @@
-import { render, screen } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter } from "react-router-dom";
-
-// eslint-disable-next-line import/first
+import { screen } from "@testing-library/react";
+import { renderWithProviders } from "../../test/testUtils";
 import { AppShell } from "./AppShell";
 
 describe("AppShell", () => {
   it("renders the current shell navigation and route body", () => {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
-    });
-
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <AppShell>
-            <div>Route body</div>
-          </AppShell>
-        </MemoryRouter>
-      </QueryClientProvider>,
+    renderWithProviders(
+      <AppShell>
+        <div>Route body</div>
+      </AppShell>
     );
 
     expect(screen.getByRole("link", { name: /my board game collection/i })).toHaveAttribute("href", "/");

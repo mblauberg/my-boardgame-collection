@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { authKeys } from "./authKeys";
 import { useSession } from "./useSession";
@@ -7,6 +7,7 @@ import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
 
 export function useProfile(): ProfileState {
   const { user, isAuthenticated, isLoading: sessionLoading } = useSession();
+  const queryClient = useQueryClient();
 
   const {
     data: profile,
@@ -23,9 +24,15 @@ export function useProfile(): ProfileState {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) {
+        await supabase.auth.signOut();
+        queryClient.setQueryData(authKeys.session(), { session: null });
+        return null;
+      }
+
       return data as Profile;
     },
     enabled: !!user?.id,

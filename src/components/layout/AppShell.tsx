@@ -5,7 +5,7 @@ export function AppShell({ children }: PropsWithChildren) {
   return (
     <>
       <TopNavBar />
-      <main className="pt-28 pb-20 px-8 max-w-7xl mx-auto">
+      <main className="mx-auto max-w-7xl px-4 pb-16 pt-20 md:px-8 md:pb-20 md:pt-28">
         {children}
       </main>
     </>

@@ -29,12 +29,12 @@ vi.mock("../components/library/LibraryList", () => ({
 vi.mock("../components/library/AddGameWizardOverlay", () => ({
   AddGameWizardOverlay: ({
     isOpen,
-    defaultListType,
+    defaultState,
   }: {
     isOpen: boolean;
-    defaultListType: "collection" | "wishlist";
+    defaultState: { isSaved: boolean; isLoved: boolean; isInCollection: boolean };
   }) =>
-    isOpen ? <div>{`Add game wizard (${defaultListType})`}</div> : null,
+    isOpen ? <div>{`Add game wizard (${JSON.stringify(defaultState)})`}</div> : null,
 }));
 
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
@@ -78,6 +78,8 @@ describe("CollectionPage", () => {
 
     await user.click(screen.getByRole("button", { name: /open add game wizard/i }));
 
-    expect(screen.getByText(/add game wizard \(collection\)/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
+    ).toBeInTheDocument();
   });
 });

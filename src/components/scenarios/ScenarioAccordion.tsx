@@ -45,7 +45,7 @@ export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
           <div key={preset.id} className="rounded-lg border border-gray-200 bg-white shadow-sm">
             <button
               onClick={() => togglePreset(preset.id)}
-              className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+              className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-container-low"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
                   <h3 className="text-xl font-bold">{preset.label}</h3>
                   <span className="text-sm text-gray-500">({totalGames} games)</span>
                 </div>
-                <p className="mt-1 text-sm text-gray-600">{preset.description}</p>
+                <p className="mt-1 text-sm text-on-surface-variant-variant">{preset.description}</p>
               </div>
               <span className="ml-4 text-gray-400">{isOpen ? '▼' : '▶'}</span>
             </button>

@@ -53,9 +53,9 @@ export function GameTagSelector({ gameId, allTags, assignedTags }: Props) {
                     checked={selected.has(tag.id)}
                     onChange={() => toggle(tag.id)}
                     aria-label={tag.name}
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="h-4 w-4 rounded border-outline-variant"
                   />
-                  <span className="text-sm text-gray-700">{tag.name}</span>
+                  <span className="text-sm text-on-surface">{tag.name}</span>
                 </label>
               ))}
             </div>

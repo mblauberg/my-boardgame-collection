@@ -2,6 +2,7 @@ import { renderHook, waitFor, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { gamesKeys } from "./gamesKeys";
+import { libraryKeys } from "../library/libraryKeys";
 
 // Mock Supabase
 const mockFrom = vi.fn();
@@ -105,6 +106,34 @@ describe("useUpdateGame", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toMatchObject({ id: "game-1", name: "Heat" });
+  });
+
+  it("invalidates library-backed card queries after a successful update", async () => {
+    const { queryClient, Wrapper } = makeWrapper();
+
+    mockFrom.mockReturnValue({
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: gameRowFixture, error: null }),
+          }),
+        }),
+      }),
+    });
+
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(() => useUpdateGame(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.mutate({ id: "game-1", summary: "Updated summary" });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(invalidateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ queryKey: libraryKeys.all }),
+    );
   });
 });
 

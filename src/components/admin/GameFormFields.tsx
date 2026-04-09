@@ -10,7 +10,7 @@ export function GameFormFields({ register, errors }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="name" className="block text-sm font-medium text-on-surface">
           Name
         </label>
         <input
@@ -20,12 +20,12 @@ export function GameFormFields({ register, errors }: Props) {
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
         {errors.name && (
-          <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+          <p className="mt-1 text-xs text-error dark:text-error">{errors.name.message}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="status" className="block text-sm font-medium text-on-surface">
           Status
         </label>
         <select
@@ -42,7 +42,7 @@ export function GameFormFields({ register, errors }: Props) {
       </div>
 
       <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="category" className="block text-sm font-medium text-on-surface">
           Category
         </label>
         <input
@@ -55,7 +55,7 @@ export function GameFormFields({ register, errors }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="playersMin" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="playersMin" className="block text-sm font-medium text-on-surface">
             Players (min)
           </label>
           <input
@@ -66,7 +66,7 @@ export function GameFormFields({ register, errors }: Props) {
           />
         </div>
         <div>
-          <label htmlFor="playersMax" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="playersMax" className="block text-sm font-medium text-on-surface">
             Players (max)
           </label>
           <input
@@ -80,7 +80,7 @@ export function GameFormFields({ register, errors }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="playTimeMin" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="playTimeMin" className="block text-sm font-medium text-on-surface">
             Play time (min)
           </label>
           <input
@@ -91,7 +91,7 @@ export function GameFormFields({ register, errors }: Props) {
           />
         </div>
         <div>
-          <label htmlFor="playTimeMax" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="playTimeMax" className="block text-sm font-medium text-on-surface">
             Play time (max)
           </label>
           <input
@@ -104,7 +104,7 @@ export function GameFormFields({ register, errors }: Props) {
       </div>
 
       <div>
-        <label htmlFor="summary" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="summary" className="block text-sm font-medium text-on-surface">
           Summary
         </label>
         <textarea
@@ -116,7 +116,7 @@ export function GameFormFields({ register, errors }: Props) {
       </div>
 
       <div>
-        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="notes" className="block text-sm font-medium text-on-surface">
           Notes
         </label>
         <textarea
@@ -128,7 +128,7 @@ export function GameFormFields({ register, errors }: Props) {
       </div>
 
       <div>
-        <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="imageUrl" className="block text-sm font-medium text-on-surface">
           Image URL
         </label>
         <input
@@ -140,7 +140,7 @@ export function GameFormFields({ register, errors }: Props) {
       </div>
 
       <div>
-        <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="publishedYear" className="block text-sm font-medium text-on-surface">
           Published year
         </label>
         <input
@@ -156,9 +156,9 @@ export function GameFormFields({ register, errors }: Props) {
           id="hidden"
           type="checkbox"
           {...register("hidden")}
-          className="h-4 w-4 rounded border-gray-300"
+          className="h-4 w-4 rounded border-outline-variant"
         />
-        <label htmlFor="hidden" className="text-sm font-medium text-gray-700">
+        <label htmlFor="hidden" className="text-sm font-medium text-on-surface">
           Hidden from public view
         </label>
       </div>

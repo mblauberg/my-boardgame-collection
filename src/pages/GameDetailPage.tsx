@@ -1,7 +1,11 @@
 import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useGameDetailQuery } from "../features/games/useGameDetailQuery";
+import { useUpdateGame } from "../features/games/useGameMutations";
+import { useProfile } from "../features/auth/useProfile";
 import { GameDetailPanel } from "../components/games/GameDetailPanel";
 import { GameDetailOverlay } from "../components/games/GameDetailOverlay";
+import { GameQuickEditForm } from "../components/games/GameQuickEditForm";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 function getBackLabel(path: string) {
@@ -16,6 +20,9 @@ export function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isOwner } = useProfile();
+  const [isEditing, setIsEditing] = useState(false);
+  const updateGame = useUpdateGame();
   const state = location.state as { from?: string; backgroundLocation?: unknown } | null;
   const backTo = typeof state?.from === "string" ? state.from : "/";
   const backLabel = getBackLabel(backTo);
@@ -33,6 +40,26 @@ export function GameDetailPage() {
     } else {
       navigate(backTo);
     }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async (values: { imageUrl: string; summary: string }) => {
+    if (!game) return;
+    
+    await updateGame.mutateAsync({
+      id: game.id,
+      imageUrl: values.imageUrl || null,
+      summary: values.summary || null,
+    });
+    
+    setIsEditing(false);
   };
 
   if (isLoading) {
@@ -78,8 +105,19 @@ export function GameDetailPage() {
       titleId="game-detail-title"
       onRequestClose={handleClose}
       isStandalone={!isModal}
+      onEdit={handleEdit}
+      isEditing={isEditing}
     >
-      <GameDetailPanel game={game} />
+      {isEditing ? (
+        <GameQuickEditForm
+          game={game}
+          onSubmit={handleSaveEdit}
+          onCancel={handleCancelEdit}
+          isSubmitting={updateGame.isPending}
+        />
+      ) : (
+        <GameDetailPanel game={game} />
+      )}
     </GameDetailOverlay>
   );
 }
