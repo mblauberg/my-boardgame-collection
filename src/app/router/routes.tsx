@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, type Location } from "react-router-dom";
 import { AdminPage } from "../../pages/AdminPage";
 import { CollectionPage } from "../../pages/CollectionPage";
 import { WishlistPage } from "../../pages/WishlistPage";
@@ -36,9 +36,13 @@ export const appRouteDefinitions: AppRouteDefinition[] = [
   { path: "/u/:username/wishlist", label: "Public Wishlist", showInNav: false },
 ];
 
-export function AppRoutes() {
+type AppRoutesProps = {
+  location?: Location;
+};
+
+export function AppRoutes({ location }: AppRoutesProps) {
   return (
-    <Routes>
+    <Routes location={location}>
       <Route path="/" element={<CollectionPage />} />
       <Route path="/wishlist" element={<WishlistPage />} />
       <Route path="/explore" element={<ExplorePage />} />

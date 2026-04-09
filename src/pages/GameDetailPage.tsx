@@ -1,6 +1,7 @@
-import { useLocation, useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
 import { useGameDetailQuery } from "../features/games/useGameDetailQuery";
 import { GameDetailPanel } from "../components/games/GameDetailPanel";
+import { GameDetailOverlay } from "../components/games/GameDetailOverlay";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 function getBackLabel(path: string) {
@@ -14,8 +15,11 @@ function getBackLabel(path: string) {
 export function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
-  const backTo = typeof location.state?.from === "string" ? location.state.from : "/";
+  const navigate = useNavigate();
+  const state = location.state as { from?: string; backgroundLocation?: unknown } | null;
+  const backTo = typeof state?.from === "string" ? state.from : "/";
   const backLabel = getBackLabel(backTo);
+  const isModal = !!state?.backgroundLocation;
 
   if (!slug) {
     return <div className="p-8 text-center">Invalid game</div>;
@@ -23,7 +27,22 @@ export function GameDetailPage() {
 
   const { data: game, isLoading, error } = useGameDetailQuery(slug);
 
+  const handleClose = () => {
+    if (isModal) {
+      navigate(-1);
+    } else {
+      navigate(backTo);
+    }
+  };
+
   if (isLoading) {
+    if (isModal) {
+      return (
+        <GameDetailOverlay title="Loading game details" titleId="game-detail-title" onRequestClose={handleClose}>
+          <p>Loading game...</p>
+        </GameDetailOverlay>
+      );
+    }
     return <div className="p-8 text-center">Loading game...</div>;
   }
 
@@ -32,6 +51,17 @@ export function GameDetailPage() {
       ? getSupabaseQueryErrorMessage(error, "game detail")
       : "Game not found";
 
+    if (isModal) {
+      return (
+        <GameDetailOverlay title="Game details unavailable" titleId="game-detail-title" onRequestClose={handleClose}>
+          <p className="text-red-600 mb-4">{message}</p>
+          <Link to={backTo} className="text-blue-600 hover:underline">
+            Back to {backLabel.toLowerCase()}
+          </Link>
+        </GameDetailOverlay>
+      );
+    }
+
     return (
       <div className="p-8 text-center">
         <p className="text-red-600 mb-4">{message}</p>
@@ -39,6 +69,14 @@ export function GameDetailPage() {
           Back to {backLabel.toLowerCase()}
         </Link>
       </div>
+    );
+  }
+
+  if (isModal) {
+    return (
+      <GameDetailOverlay title={game.name} titleId="game-detail-title" onRequestClose={handleClose}>
+        <GameDetailPanel game={game} />
+      </GameDetailOverlay>
     );
   }
 
