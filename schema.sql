@@ -73,6 +73,7 @@ create table if not exists public.profiles (
   is_profile_public boolean not null default false,
   is_collection_public boolean not null default false,
   is_wishlist_public boolean not null default false,
+  is_saved_public boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint profiles_username_lowercase_check check (
@@ -93,7 +94,8 @@ alter table public.profiles
   add column if not exists username text,
   add column if not exists is_profile_public boolean not null default false,
   add column if not exists is_collection_public boolean not null default false,
-  add column if not exists is_wishlist_public boolean not null default false;
+  add column if not exists is_wishlist_public boolean not null default false,
+  add column if not exists is_saved_public boolean not null default false;
 
 alter table public.profiles
   drop constraint if exists profiles_username_lowercase_check,
@@ -195,6 +197,9 @@ create table if not exists public.library_entries (
   user_id uuid not null references public.profiles(id) on delete cascade,
   game_id uuid not null references public.games(id) on delete cascade,
   list_type text not null check (list_type in ('collection', 'wishlist')),
+  is_saved boolean not null default false,
+  is_loved boolean not null default false,
+  is_in_collection boolean not null default false,
   sentiment text check (sentiment in ('like', 'dislike', 'neutral')),
   notes text,
   priority integer,
@@ -280,14 +285,21 @@ returns table (
   username text,
   is_profile_public boolean,
   is_collection_public boolean,
-  is_wishlist_public boolean
+  is_wishlist_public boolean,
+  is_saved_public boolean
 )
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select p.id, p.username, p.is_profile_public, p.is_collection_public, p.is_wishlist_public
+  select
+    p.id,
+    p.username,
+    p.is_profile_public,
+    p.is_collection_public,
+    p.is_wishlist_public,
+    p.is_saved_public
   from public.profiles p
   where p.is_profile_public = true
     and p.username = lower(btrim(p_username))
@@ -378,6 +390,9 @@ create or replace function public.save_bgg_game_for_user(
   p_bgg_rating numeric default null,
   p_bgg_weight numeric default null,
   p_summary text default null,
+  p_is_saved boolean default true,
+  p_is_loved boolean default false,
+  p_is_in_collection boolean default false,
   p_list_type text default 'wishlist',
   p_sentiment text default null,
   p_notes text default null
@@ -476,19 +491,31 @@ begin
     user_id,
     game_id,
     list_type,
+    is_saved,
+    is_loved,
+    is_in_collection,
     sentiment,
     notes
   )
   values (
     p_user_id,
     v_game.id,
-    p_list_type,
+    case
+      when p_is_in_collection then 'collection'
+      else p_list_type
+    end,
+    p_is_saved,
+    p_is_loved,
+    p_is_in_collection,
     p_sentiment,
     p_notes
   )
   on conflict (user_id, game_id)
   do update
     set list_type = excluded.list_type,
+        is_saved = excluded.is_saved,
+        is_loved = excluded.is_loved,
+        is_in_collection = excluded.is_in_collection,
         sentiment = excluded.sentiment,
         notes = excluded.notes,
         updated_at = now()

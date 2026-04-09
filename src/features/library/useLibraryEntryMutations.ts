@@ -2,16 +2,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import type { Database } from "../../types/database";
 import { libraryKeys } from "./libraryKeys";
-import type { LibraryListType, LibrarySentiment } from "./library.types";
+import type { LibrarySentiment } from "./library.types";
 
 type LibraryEntryRow = Database["public"]["Tables"]["library_entries"]["Row"];
 type LibraryEntryUpdate = Database["public"]["Tables"]["library_entries"]["Update"];
 
-type UpsertLibraryEntryInput = {
+type UpsertLibraryStateInput = {
   userId: string;
   gameId: string;
-  listType: LibraryListType;
+  isSaved: boolean;
+  isLoved: boolean;
+  isInCollection: boolean;
   sentiment?: LibrarySentiment;
+  notes?: string | null;
 };
 
 type MoveLibraryEntryInput = {
@@ -48,7 +51,9 @@ type BggSelectedGame = {
 type SaveBggGameInput = {
   userId: string;
   selectedGame: BggSelectedGame;
-  listType: LibraryListType;
+  isSaved: boolean;
+  isLoved: boolean;
+  isInCollection: boolean;
   sentiment?: LibrarySentiment;
   notes?: string | null;
 };
@@ -61,7 +66,11 @@ function slugify(input: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-async function upsertLibraryEntry(input: UpsertLibraryEntryInput): Promise<LibraryEntryRow> {
+function deriveLegacyListType(input: Pick<UpsertLibraryStateInput, "isSaved" | "isInCollection">) {
+  return input.isInCollection ? "collection" : "wishlist";
+}
+
+async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<LibraryEntryRow> {
   const supabase = getSupabaseBrowserClient();
 
   const { data, error } = await supabase
@@ -70,8 +79,12 @@ async function upsertLibraryEntry(input: UpsertLibraryEntryInput): Promise<Libra
       {
         user_id: input.userId,
         game_id: input.gameId,
-        list_type: input.listType,
+        is_saved: input.isSaved,
+        is_loved: input.isLoved,
+        is_in_collection: input.isInCollection,
+        list_type: deriveLegacyListType(input),
         sentiment: input.sentiment ?? null,
+        notes: input.notes ?? null,
       },
       { onConflict: "user_id,game_id" },
     )
@@ -86,12 +99,34 @@ function invalidateLibraryQueries(queryClient: ReturnType<typeof useQueryClient>
   queryClient.invalidateQueries({ queryKey: libraryKeys.lists(userId) });
 }
 
+export function useUpsertLibraryState() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UpsertLibraryStateInput) => upsertLibraryState(input),
+    onSuccess: (_entry, variables) => {
+      invalidateLibraryQueries(queryClient, variables.userId);
+    },
+  });
+}
+
 export function useAddToCollection() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, gameId, sentiment }: Omit<UpsertLibraryEntryInput, "listType">) =>
-      upsertLibraryEntry({ userId, gameId, sentiment, listType: "collection" }),
+    mutationFn: async ({
+      userId,
+      gameId,
+      sentiment,
+    }: Omit<UpsertLibraryStateInput, "isSaved" | "isLoved" | "isInCollection" | "notes">) =>
+      upsertLibraryState({
+        userId,
+        gameId,
+        sentiment,
+        isSaved: false,
+        isLoved: false,
+        isInCollection: true,
+      }),
     onSuccess: (_entry, variables) => {
       invalidateLibraryQueries(queryClient, variables.userId);
     },
@@ -102,8 +137,19 @@ export function useAddToWishlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, gameId, sentiment }: Omit<UpsertLibraryEntryInput, "listType">) =>
-      upsertLibraryEntry({ userId, gameId, sentiment, listType: "wishlist" }),
+    mutationFn: async ({
+      userId,
+      gameId,
+      sentiment,
+    }: Omit<UpsertLibraryStateInput, "isSaved" | "isLoved" | "isInCollection" | "notes">) =>
+      upsertLibraryState({
+        userId,
+        gameId,
+        sentiment,
+        isSaved: true,
+        isLoved: false,
+        isInCollection: false,
+      }),
     onSuccess: (_entry, variables) => {
       invalidateLibraryQueries(queryClient, variables.userId);
     },
@@ -116,7 +162,7 @@ export function useMoveWishlistToCollection() {
   return useMutation({
     mutationFn: async ({ id }: MoveLibraryEntryInput) => {
       const supabase = getSupabaseBrowserClient();
-      const patch: LibraryEntryUpdate = { list_type: "collection" };
+      const patch: LibraryEntryUpdate = { is_in_collection: true };
 
       const { data, error } = await supabase
         .from("library_entries")
@@ -177,7 +223,15 @@ export function useSaveBggGameToLibrary() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, selectedGame, listType, sentiment, notes }: SaveBggGameInput) => {
+    mutationFn: async ({
+      userId,
+      selectedGame,
+      isSaved,
+      isLoved,
+      isInCollection,
+      sentiment,
+      notes,
+    }: SaveBggGameInput) => {
       const supabase = getSupabaseBrowserClient();
       const { data, error } = await supabase.rpc("save_bgg_game_for_user", {
         p_user_id: userId,
@@ -194,7 +248,10 @@ export function useSaveBggGameToLibrary() {
         p_bgg_rating: selectedGame.averageRating,
         p_bgg_weight: selectedGame.averageWeight,
         p_summary: selectedGame.summary,
-        p_list_type: listType,
+        p_is_saved: isSaved,
+        p_is_loved: isLoved,
+        p_is_in_collection: isInCollection,
+        p_list_type: deriveLegacyListType({ isSaved, isInCollection }),
         p_sentiment: sentiment ?? null,
         p_notes: notes ?? null,
       });

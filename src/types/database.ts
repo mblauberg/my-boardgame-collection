@@ -13,6 +13,7 @@ export type Database = {
           is_profile_public: boolean;
           is_collection_public: boolean;
           is_wishlist_public: boolean;
+          is_saved_public: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -24,6 +25,7 @@ export type Database = {
           is_profile_public?: boolean;
           is_collection_public?: boolean;
           is_wishlist_public?: boolean;
+          is_saved_public?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -190,6 +192,9 @@ export type Database = {
           user_id: string;
           game_id: string;
           list_type: "collection" | "wishlist";
+          is_saved: boolean;
+          is_loved: boolean;
+          is_in_collection: boolean;
           sentiment: "like" | "dislike" | "neutral" | null;
           notes: string | null;
           priority: number | null;
@@ -201,6 +206,9 @@ export type Database = {
           user_id: string;
           game_id: string;
           list_type: "collection" | "wishlist";
+          is_saved?: boolean;
+          is_loved?: boolean;
+          is_in_collection?: boolean;
           sentiment?: "like" | "dislike" | "neutral" | null;
           notes?: string | null;
           priority?: number | null;
@@ -289,6 +297,7 @@ export type Database = {
           is_profile_public: boolean;
           is_collection_public: boolean;
           is_wishlist_public: boolean;
+          is_saved_public: boolean;
         }[];
       };
       get_public_library: {
@@ -335,6 +344,9 @@ export type Database = {
           p_bgg_rating?: number | null;
           p_bgg_weight?: number | null;
           p_summary?: string | null;
+          p_is_saved?: boolean;
+          p_is_loved?: boolean;
+          p_is_in_collection?: boolean;
           p_list_type?: "collection" | "wishlist";
           p_sentiment?: "like" | "dislike" | "neutral" | null;
           p_notes?: string | null;

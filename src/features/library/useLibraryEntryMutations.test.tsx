@@ -10,7 +10,7 @@ vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => mockSupabase,
 }));
 
-import { useAddToWishlist, useSaveBggGameToLibrary } from "./useLibraryEntryMutations";
+import { useSaveBggGameToLibrary, useUpsertLibraryState } from "./useLibraryEntryMutations";
 
 function makeWrapper() {
   const queryClient = new QueryClient({
@@ -24,8 +24,8 @@ function makeWrapper() {
   return { queryClient, Wrapper };
 }
 
-describe("useAddToWishlist", () => {
-  it("upserts the expected wishlist payload", async () => {
+describe("useUpsertLibraryState", () => {
+  it("upserts the expected saved/loved/collection payload", async () => {
     const upsertSpy = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({
@@ -33,9 +33,11 @@ describe("useAddToWishlist", () => {
             id: "entry-1",
             user_id: "user-1",
             game_id: "game-1",
-            list_type: "wishlist",
+            is_saved: true,
+            is_loved: false,
+            is_in_collection: true,
             sentiment: null,
-            notes: null,
+            notes: "Race night shelf",
             priority: null,
             created_at: "2026-01-01T00:00:00Z",
             updated_at: "2026-01-01T00:00:00Z",
@@ -48,10 +50,17 @@ describe("useAddToWishlist", () => {
     mockFrom.mockReturnValue({ upsert: upsertSpy });
 
     const { Wrapper } = makeWrapper();
-    const { result } = renderHook(() => useAddToWishlist(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useUpsertLibraryState(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.mutate({ userId: "user-1", gameId: "game-1" });
+      result.current.mutate({
+        userId: "user-1",
+        gameId: "game-1",
+        isSaved: true,
+        isLoved: false,
+        isInCollection: true,
+        notes: "Race night shelf",
+      });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -60,7 +69,10 @@ describe("useAddToWishlist", () => {
       expect.objectContaining({
         user_id: "user-1",
         game_id: "game-1",
-        list_type: "wishlist",
+        is_saved: true,
+        is_loved: false,
+        is_in_collection: true,
+        notes: "Race night shelf",
       }),
       expect.objectContaining({ onConflict: "user_id,game_id" }),
     );
@@ -68,15 +80,17 @@ describe("useAddToWishlist", () => {
 });
 
 describe("useSaveBggGameToLibrary", () => {
-  it("calls the transactional save RPC with the selected BGG payload", async () => {
+  it("calls the transactional save RPC with the independent library state payload", async () => {
     mockRpc.mockResolvedValue({
       data: {
         id: "entry-1",
         user_id: "user-1",
         game_id: "game-1",
-        list_type: "wishlist",
-        sentiment: null,
-        notes: null,
+        is_saved: true,
+        is_loved: true,
+        is_in_collection: false,
+        sentiment: "like",
+        notes: "Watch for a discount.",
         priority: null,
         created_at: "2026-01-01T00:00:00Z",
         updated_at: "2026-01-01T00:00:00Z",
@@ -104,9 +118,11 @@ describe("useSaveBggGameToLibrary", () => {
           averageWeight: 2.2,
           summary: "Race cars.",
         },
-        listType: "collection",
+        isSaved: true,
+        isLoved: true,
+        isInCollection: false,
         sentiment: "like",
-        notes: "Need this for race night.",
+        notes: "Watch for a discount.",
       });
     });
 
@@ -118,9 +134,11 @@ describe("useSaveBggGameToLibrary", () => {
         p_user_id: "user-1",
         p_bgg_id: 123,
         p_name: "Heat",
-        p_list_type: "collection",
+        p_is_saved: true,
+        p_is_loved: true,
+        p_is_in_collection: false,
         p_sentiment: "like",
-        p_notes: "Need this for race night.",
+        p_notes: "Watch for a discount.",
       }),
     );
   });
