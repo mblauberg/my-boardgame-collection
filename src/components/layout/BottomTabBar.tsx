@@ -11,7 +11,7 @@ export function BottomTabBar() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-safe md:hidden">
-      <div className="bottom-nav-pill mx-6 mb-4 flex gap-2 rounded-full bg-surface-bright/90 p-1.5">
+      <div className="bottom-nav-pill mx-6 mb-4 flex gap-2 rounded-full p-1.5">
         {TABS.map(({ to, icon, label }) => {
           const isActive = location.pathname === to;
           return (
@@ -20,7 +20,7 @@ export function BottomTabBar() {
               to={to}
               className={`flex min-w-[5.5rem] flex-col items-center gap-0.5 rounded-full px-5 py-2 text-xs font-semibold transition-all ${
                 isActive
-                  ? "bg-secondary-container/40 text-on-secondary-container"
+                  ? "bg-primary/15 text-primary"
                   : "text-on-surface-variant hover:bg-surface-variant/50"
               }`}
             >

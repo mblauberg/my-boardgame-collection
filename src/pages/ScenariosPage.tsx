@@ -28,7 +28,7 @@ export function ScenariosPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-on-surface">Scenarios</h1>
+        <h1 className="text-3xl font-bold text-primary">Scenarios</h1>
         <p className="mt-2 text-on-surface-variant">
           Config-driven play suggestions matched to your collection
         </p>

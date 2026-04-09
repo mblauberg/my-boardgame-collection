@@ -46,21 +46,21 @@ export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
             <button
               type="button"
               onClick={() => togglePreset(preset.id)}
-              className="flex w-full items-center justify-between p-4 text-left hover:bg-surface-container-low"
+              className="flex w-full items-center justify-between p-4 text-left hover:bg-primary/5"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{preset.emoji}</span>
                   <h3 className="text-xl font-bold text-on-surface">{preset.label}</h3>
-                  <span className="text-sm text-on-surface-variant">({totalGames} games)</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">{totalGames}</span>
                 </div>
                 <p className="mt-1 text-sm text-on-surface-variant">{preset.description}</p>
               </div>
-              <span className="ml-4 text-on-surface-variant">{isOpen ? '▼' : '▶'}</span>
+              <span className="material-symbols-outlined ml-4 text-primary transition-transform" style={isOpen ? { transform: 'rotate(90deg)' } : undefined}>chevron_right</span>
             </button>
 
             {isOpen && (
-              <div className="border-t border-outline-variant/15 p-4">
+              <div className="border-t border-primary/15 p-4">
                 {totalGames === 0 ? (
                   <ScenarioEmptyState presetLabel={preset.label} />
                 ) : (

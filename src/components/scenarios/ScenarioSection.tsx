@@ -18,7 +18,7 @@ export function ScenarioSection({ label, description, games }: ScenarioSectionPr
   return (
     <div className="mb-6">
       <div className="mb-2 flex items-baseline justify-between">
-        <h4 className="text-lg font-semibold">{label}</h4>
+        <h4 className="border-l-2 border-primary pl-2 text-lg font-semibold">{label}</h4>
         <ScenarioCoverageBadge ownedCount={ownedCount} buyCount={buyCount} recCount={recCount} />
       </div>
       <p className="mb-3 text-sm text-on-surface-variant">{description}</p>

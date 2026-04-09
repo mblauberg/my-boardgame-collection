@@ -333,22 +333,36 @@ body {
 
 .dark .overlay-header-action-pill:hover {
   background: linear-gradient(
-
-.bottom-nav-pill {
-  border: 1px solid rgb(var(--outline-variant) / 0.15);
-  box-shadow: 0 8px 20px rgb(var(--on-surface) / 0.1);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-}
-
-.dark .bottom-nav-pill {
-  border-color: rgb(var(--outline-variant) / 0.15);
-  box-shadow: 0 10px 24px rgb(0 0 0 / 0.5);
-}
     140deg,
     rgb(var(--surface-container-high) / 0.9),
     rgb(var(--surface-container-low) / 0.65)
   );
+}
+
+.bottom-nav-pill {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-lowest) / 0.62),
+    rgb(var(--surface-container-low) / 0.44)
+  );
+  border: 1px solid rgb(var(--outline-variant) / 0.18);
+  box-shadow:
+    0 8px 24px rgb(var(--on-surface) / 0.08),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.dark .bottom-nav-pill {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-high) / 0.60),
+    rgb(var(--surface-container-low) / 0.48)
+  );
+  border-color: rgb(var(--surface-bright) / 0.16);
+  box-shadow:
+    0 10px 28px rgb(0 0 0 / 0.4),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.10);
 }
 .game-card-hero-overlay {
   background:

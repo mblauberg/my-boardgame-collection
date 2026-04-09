@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
 import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
@@ -6,6 +6,7 @@ import { ExploreShelf } from "../components/library/ExploreShelf";
 import { DiscoverSection } from "../components/library/DiscoverSection";
 import { HorizontalShelf } from "../components/library/HorizontalShelf";
 import { LibraryList } from "../components/library/LibraryList";
+import { FilterBar } from "../components/library/FilterBar";
 import { useExploreQuery } from "../features/library/useExploreQuery";
 import { useExploreSearch } from "../features/library/useExploreSearch";
 import { useExploreSearchContext } from "../features/library/ExploreSearchContext";
@@ -13,87 +14,22 @@ import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 import { useLibraryQuery } from "../features/library/useLibraryQuery";
 import { getLibraryEntryForGame } from "../features/library/libraryState";
 import { useDebounce } from "../lib/utils/useDebounce";
+import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
+import type { LibraryFilters } from "../features/library/libraryFilters";
+import type { SortOption, SortDirection } from "../features/shared/filters";
 
 const HERO_SHELF_IDS = ['trending', 'new-releases', 'top-rated', 'quick-wins'];
 const DISCOVER_SECTION_IDS = ['by-player-count', 'by-mechanic', 'hidden-gems', 'gateway-to-strategy'];
 const SKIP_SHELF_IDS = ['for-you']; // Skip until we have user library data
 const EXPLORE_SHELF_IDS = [...HERO_SHELF_IDS, ...DISCOVER_SECTION_IDS];
 
-type ExploreSearchBarProps = {
-  value: string;
-  onChange: (value: string) => void;
-};
-
-function ExploreSearchBar({ value, onChange }: ExploreSearchBarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isExpanded && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isExpanded]);
-
-  useEffect(() => {
-    if (value) {
-      setIsExpanded(true);
-    }
-  }, [value]);
-
-  return (
-    <div className="explore-search-section mb-8">
-      <div className="relative flex items-center justify-end">
-        <div
-          className={`transition-all duration-300 ease-in-out ${
-            isExpanded ? "w-full opacity-100" : "w-14 opacity-0 pointer-events-none"
-          }`}
-        >
-          <span
-            aria-hidden="true"
-            className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-lg text-on-surface-variant"
-          >
-            search
-          </span>
-          <label htmlFor="explore-search" className="sr-only">
-            Search game catalog
-          </label>
-          <input
-            ref={inputRef}
-            id="explore-search"
-            aria-label="Search game catalog"
-            type="search"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            onBlur={() => !value && setIsExpanded(false)}
-            placeholder="Search all games..."
-            className="w-full rounded-full border border-outline-variant/20 bg-surface-container-low/70 py-3 pl-10 pr-4 text-base text-on-surface backdrop-blur-sm outline-none transition focus:border-primary-container focus:shadow-[0_0_10px_rgba(255,145,0,0.2)]"
-          />
-        </div>
-        
-        <button
-          type="button"
-          onClick={() => setIsExpanded(true)}
-          aria-label="Open search"
-          className={`group flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm transition hover:border-primary/30 hover:bg-surface-container-high/70 hover:shadow-[0_0_15px_rgba(255,145,0,0.15)] ${
-            isExpanded ? "opacity-0 pointer-events-none absolute right-0" : "opacity-100"
-          }`}
-        >
-          <span className="material-symbols-outlined text-3xl text-on-surface transition group-hover:text-primary">
-            search
-          </span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function SearchBarSkeleton() {
   return (
     <div className="mb-4 flex items-center gap-2">
-      <div className="h-11 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+      <div className="h-14 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
         <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
       </div>
-      <div className="h-11 w-11 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+      <div className="h-14 w-14 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
         <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
       </div>
     </div>
@@ -103,6 +39,9 @@ function SearchBarSkeleton() {
 export function ExplorePage() {
   const { query, setQuery } = useExploreSearchContext();
   const [localQuery, setLocalQuery] = useState(query);
+  const [filters, setFilters] = useState<LibraryFilters>({ searchText: "" });
+  const [sortBy, setSortBy] = useState<SortOption>("rank");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const debouncedQuery = useDebounce(localQuery, 1000);
   const { data, isLoading, error } = useExploreQuery(EXPLORE_SHELF_IDS);
   const { data: searchResults, isLoading: isSearching, error: searchError } = useExploreSearch(debouncedQuery);
@@ -118,7 +57,56 @@ export function ExplorePage() {
     setLocalQuery(query);
   }, [query]);
 
+  // Sync search text with filters
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, searchText: localQuery }));
+  }, [localQuery]);
+
   const isSearchActive = debouncedQuery.trim().length > 0;
+
+  const filteredAndSortedResults = useMemo(() => {
+    if (!searchResults) return [];
+    
+    const entries = searchResults.map(game => {
+      const entry = getLibraryEntryForGame(libraryEntries, game.id);
+      return {
+        id: entry?.id ?? `explore-${game.id}`,
+        userId: entry?.userId ?? "",
+        gameId: game.id,
+        game,
+        isSaved: entry?.isSaved ?? false,
+        isLoved: entry?.isLoved ?? false,
+        isInCollection: entry?.isInCollection ?? false,
+        sentiment: entry?.sentiment ?? null,
+        notes: entry?.notes ?? null,
+        priority: entry?.priority ?? null,
+        sharedTags: game.tags,
+        userTags: entry?.userTags ?? [],
+      };
+    });
+
+    const filtered = filterLibraryEntries(entries, filters);
+    return sortLibraryEntries(filtered, sortBy, sortDirection);
+  }, [searchResults, libraryEntries, filters, sortBy, sortDirection]);
+
+  const handleFiltersChange = (newFilters: Partial<LibraryFilters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    if (newFilters.searchText !== undefined) {
+      setLocalQuery(newFilters.searchText);
+    }
+  };
+
+  const handleSortChange = (newSortBy: SortOption, newDirection: SortDirection) => {
+    setSortBy(newSortBy);
+    setSortDirection(newDirection);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({ searchText: "" });
+    setLocalQuery("");
+    setSortBy("rank");
+    setSortDirection("asc");
+  };
 
   if (isLoading) {
     return (
@@ -176,33 +164,22 @@ export function ExplorePage() {
           <PageHeader
             className="mb-3 md:mb-4"
             eyebrow="Search Results"
-            title={<>{searchResults.length} {searchResults.length === 1 ? "Game" : "Games"} Found</>}
+            title={<>{filteredAndSortedResults.length} {filteredAndSortedResults.length === 1 ? "Game" : "Games"} Found</>}
             description={`Showing results for "${debouncedQuery}"`}
           />
 
-          <ExploreSearchBar
-            value={localQuery}
-            onChange={setLocalQuery}
+          <FilterBar
+            filters={filters}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onFiltersChange={handleFiltersChange}
+            onSortChange={handleSortChange}
+            onClearFilters={handleClearFilters}
+            searchPlaceholder="Search all games..."
           />
 
           <LibraryList 
-            entries={searchResults.map(game => {
-              const entry = getLibraryEntryForGame(libraryEntries, game.id);
-              return {
-                id: entry?.id ?? `explore-${game.id}`,
-                userId: entry?.userId ?? "",
-                gameId: game.id,
-                game,
-                isSaved: entry?.isSaved ?? false,
-                isLoved: entry?.isLoved ?? false,
-                isInCollection: entry?.isInCollection ?? false,
-                sentiment: entry?.sentiment ?? null,
-                notes: entry?.notes ?? null,
-                priority: entry?.priority ?? null,
-                sharedTags: game.tags,
-                userTags: entry?.userTags ?? [],
-              };
-            })} 
+            entries={filteredAndSortedResults} 
             getGameLinkState={() => ({ from: "/explore" })} 
           />
         </>
@@ -226,10 +203,17 @@ export function ExplorePage() {
         description="Curated shelves organized by player count, mood, and occasion. Each collection is designed to help you discover the perfect game for any moment."
       />
 
-      <ExploreSearchBar
-        value={localQuery}
-        onChange={setLocalQuery}
-      />
+      <div className="mb-8">
+        <FilterBar
+          filters={filters}
+          sortBy={sortBy}
+          sortDirection={sortDirection}
+          onFiltersChange={handleFiltersChange}
+          onSortChange={handleSortChange}
+          onClearFilters={handleClearFilters}
+          searchPlaceholder="Search all games..."
+        />
+      </div>
 
       {/* Hero Shelves */}
       <div className="mb-20">
