@@ -13,6 +13,12 @@ const sentimentOptions = [
   { value: "dislike", label: "Dislike" },
 ] as const;
 
+const stateOptions = [
+  { key: "isSaved", label: "Saved" },
+  { key: "isLoved", label: "Loved" },
+  { key: "isInCollection", label: "In Collection" },
+] as const;
+
 export function AddGameCollectionInfoStep({
   value,
   onChange,
@@ -22,22 +28,22 @@ export function AddGameCollectionInfoStep({
   return (
     <div className="flex flex-1 flex-col">
       <div className="mb-8">
-        <h2 className="text-3xl font-extrabold tracking-tight text-on-surface">Collection info</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight text-on-surface">Library state</h2>
         <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant">
-          Choose where the game belongs and add any personal context you want to keep with it.
+          Choose which states apply to this game and add any personal context you want to keep with it.
         </p>
       </div>
 
       <div className="space-y-6">
         <fieldset>
-          <legend className="text-sm font-semibold text-on-surface">Save to</legend>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {(["collection", "wishlist"] as const).map((option) => {
-              const checked = value.listType === option;
+          <legend className="text-sm font-semibold text-on-surface">Apply states</legend>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {stateOptions.map((option) => {
+              const checked = value[option.key];
 
               return (
                 <label
-                  key={option}
+                  key={option.key}
                   className={`cursor-pointer rounded-2xl border px-4 py-4 transition ${
                     checked
                       ? "border-primary/30 bg-surface-container-high text-on-surface"
@@ -45,14 +51,14 @@ export function AddGameCollectionInfoStep({
                   }`}
                 >
                   <input
-                    type="radio"
-                    name="listType"
-                    value={option}
+                    type="checkbox"
+                    name={option.key}
+                    aria-label={option.label}
                     checked={checked}
-                    onChange={() => onChange({ ...value, listType: option })}
+                    onChange={() => onChange({ ...value, [option.key]: !checked })}
                     className="sr-only"
                   />
-                  <span className="text-base font-bold capitalize">{option}</span>
+                  <span className="text-base font-bold">{option.label}</span>
                 </label>
               );
             })}

@@ -3,19 +3,45 @@ import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { useSession } from "../../features/auth/useSession";
 import { useBggSearchQuery } from "../../features/games/useBggSearchQuery";
 import { useSaveBggGameToLibrary } from "../../features/library/useLibraryEntryMutations";
-import type { LibraryListType } from "../../features/library/library.types";
 import { AddGameCollectionInfoStep } from "./AddGameCollectionInfoStep";
 import { AddGameDetailsStep } from "./AddGameDetailsStep";
 import { AddGameSearchStep } from "./AddGameSearchStep";
-import type { AddGameWizardCollectionInfo, AddGameWizardSelectedGame } from "./addGameWizard.types";
+import type {
+  AddGameWizardCollectionInfo,
+  AddGameWizardDefaultListType,
+  AddGameWizardDefaultState,
+  AddGameWizardSelectedGame,
+} from "./addGameWizard.types";
 
 type AddGameWizardOverlayProps = {
   isOpen: boolean;
-  defaultListType: LibraryListType;
+  defaultListType?: AddGameWizardDefaultListType;
+  defaultState?: AddGameWizardDefaultState;
   onClose: () => void;
 };
 
 const stepLabels = ["Find your game", "Game details", "Collection info"] as const;
+
+function getInitialState(
+  defaultListType: AddGameWizardDefaultListType | undefined,
+  defaultState?: AddGameWizardDefaultState,
+): AddGameWizardCollectionInfo {
+  if (defaultState) {
+    return {
+      ...defaultState,
+      sentiment: null,
+      notes: "",
+    };
+  }
+
+  return {
+    isSaved: defaultListType === "wishlist",
+    isLoved: false,
+    isInCollection: defaultListType !== "wishlist",
+    sentiment: null,
+    notes: "",
+  };
+}
 
 function normalizeSearchResult(result: Record<string, unknown>): AddGameWizardSelectedGame {
   const id = Number(result.id);
@@ -49,6 +75,7 @@ function normalizeSearchResult(result: Record<string, unknown>): AddGameWizardSe
 export function AddGameWizardOverlay({
   isOpen,
   defaultListType,
+  defaultState,
   onClose,
 }: AddGameWizardOverlayProps) {
   const { user, isAuthenticated } = useSession();
@@ -56,11 +83,9 @@ export function AddGameWizardOverlay({
   const [step, setStep] = useState(1);
   const [query, setQuery] = useState("");
   const [selectedGame, setSelectedGame] = useState<AddGameWizardSelectedGame | null>(null);
-  const [collectionInfo, setCollectionInfo] = useState<AddGameWizardCollectionInfo>({
-    listType: defaultListType,
-    sentiment: null,
-    notes: "",
-  });
+  const [collectionInfo, setCollectionInfo] = useState<AddGameWizardCollectionInfo>(
+    getInitialState(defaultListType, defaultState),
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const search = useBggSearchQuery(query);
@@ -74,23 +99,15 @@ export function AddGameWizardOverlay({
     setStep(1);
     setQuery("");
     setSelectedGame(null);
-    setCollectionInfo({
-      listType: defaultListType,
-      sentiment: null,
-      notes: "",
-    });
+    setCollectionInfo(getInitialState(defaultListType, defaultState));
     setSubmitError(null);
-  }, [isOpen, defaultListType]);
+  }, [isOpen, defaultListType, defaultState]);
 
   function handleClose() {
     setStep(1);
     setQuery("");
     setSelectedGame(null);
-    setCollectionInfo({
-      listType: defaultListType,
-      sentiment: null,
-      notes: "",
-    });
+    setCollectionInfo(getInitialState(defaultListType, defaultState));
     setSubmitError(null);
     onClose();
   }
@@ -131,7 +148,9 @@ export function AddGameWizardOverlay({
       await mutateAsync({
         userId: user.id,
         selectedGame: { ...selectedGame, imageUrl: finalImageUrl },
-        listType: collectionInfo.listType,
+        isSaved: collectionInfo.isSaved,
+        isLoved: collectionInfo.isLoved,
+        isInCollection: collectionInfo.isInCollection,
         sentiment: collectionInfo.sentiment,
         notes: collectionInfo.notes,
       });

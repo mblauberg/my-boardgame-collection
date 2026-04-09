@@ -22,7 +22,17 @@ export type AddGameWizardSelectedGame = {
 };
 
 export type AddGameWizardCollectionInfo = {
-  listType: LibraryListType;
+  isSaved: boolean;
+  isLoved: boolean;
+  isInCollection: boolean;
   sentiment: LibrarySentiment;
   notes: string;
 };
+
+export type AddGameWizardDefaultState = {
+  isSaved: boolean;
+  isLoved: boolean;
+  isInCollection: boolean;
+};
+
+export type AddGameWizardDefaultListType = LibraryListType | "collection";

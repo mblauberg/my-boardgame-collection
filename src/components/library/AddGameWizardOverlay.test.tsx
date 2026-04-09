@@ -64,7 +64,13 @@ function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizard
   }
 
   return render(
-    <AddGameWizardOverlay isOpen defaultListType="collection" onClose={vi.fn()} {...props} />,
+    <AddGameWizardOverlay
+      isOpen
+      defaultListType="collection"
+      defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
+      onClose={vi.fn()}
+      {...props}
+    />,
     { wrapper: Wrapper },
   );
 }
@@ -136,32 +142,40 @@ describe("AddGameWizardOverlay", () => {
     );
   });
 
-  it("defaults the final destination from the launching page", async () => {
+  it("defaults the final library state from the launching page", async () => {
     const user = userEvent.setup();
 
-    renderOverlay({ defaultListType: "wishlist" });
+    renderOverlay({
+      defaultListType: "wishlist",
+      defaultState: { isSaved: true, isLoved: false, isInCollection: false },
+    });
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
 
-    expect(screen.getByRole("radio", { name: /wishlist/i })).toBeChecked();
-    expect(screen.getByRole("radio", { name: /collection/i })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /saved/i })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /loved/i })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /in collection/i })).not.toBeChecked();
   });
 
-  it("submits destination, sentiment, and notes", async () => {
+  it("submits saved, loved, collection state, sentiment, and notes", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     mutateAsync.mockResolvedValue({ id: "entry-1" });
 
-    renderOverlay({ onClose });
+    renderOverlay({
+      onClose,
+      defaultState: { isSaved: false, isLoved: false, isInCollection: false },
+    });
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
-    await user.click(screen.getByRole("radio", { name: /wishlist/i }));
+    await user.click(screen.getByRole("checkbox", { name: /saved/i }));
+    await user.click(screen.getByRole("checkbox", { name: /loved/i }));
     await user.click(screen.getByRole("radio", { name: /^like$/i }));
     await user.type(screen.getByRole("textbox", { name: /notes/i }), "Need this for game night.");
     await user.click(screen.getByRole("button", { name: /^add game$/i }));
@@ -170,7 +184,9 @@ describe("AddGameWizardOverlay", () => {
       expect(mutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: "user-1",
-          listType: "wishlist",
+          isSaved: true,
+          isLoved: true,
+          isInCollection: false,
           sentiment: "like",
           notes: "Need this for game night.",
           selectedGame: expect.objectContaining({
@@ -197,7 +213,7 @@ describe("AddGameWizardOverlay", () => {
     await user.click(screen.getByRole("button", { name: /^add game$/i }));
 
     expect(await screen.findByText(/save failed/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /collection info/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /library state/i })).toBeInTheDocument();
   });
 
   it("calls onClose when the close button is pressed", async () => {
