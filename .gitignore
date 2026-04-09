@@ -15,3 +15,8 @@ data/boardgames_ranks.csv
 # Test and dev artifacts
 .playwright-cli/
 .vitest/
+
+# Local agent skill directories
+.kiro/skills/
+.agent/skills/
+.agents/skills/
