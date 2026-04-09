@@ -1,9 +1,10 @@
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import type { SortDirection, SortOption } from "../shared/filters";
 import type { LibraryFilters } from "./libraryFilters";
 
 export function useLibraryFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
   const filters: LibraryFilters = {
     searchText: searchParams.get("search") || undefined,
@@ -25,23 +26,27 @@ export function useLibraryFilters() {
   const sortDirection = (searchParams.get("sortDir") as SortDirection) || "asc";
 
   const updateFilters = (nextFilters: Partial<LibraryFilters>) => {
-    const params = new URLSearchParams(searchParams);
-
-    Object.entries(nextFilters).forEach(([key, value]) => {
-      if (value === undefined || value === null || value === "") {
-        params.delete(key);
-      } else if (Array.isArray(value)) {
-        if (value.length === 0) {
-          params.delete(key);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      
+      Object.entries(nextFilters).forEach(([key, value]) => {
+        const paramKey = key === "searchText" ? "search" : key === "isLoved" ? "loved" : key;
+        
+        if (value === undefined || value === null || value === "") {
+          params.delete(paramKey);
+        } else if (Array.isArray(value)) {
+          if (value.length === 0) {
+            params.delete(paramKey);
+          } else {
+            params.set(paramKey, value.join(","));
+          }
         } else {
-          params.set(key, value.join(","));
+          params.set(paramKey, String(value));
         }
-      } else {
-        params.set(key, String(value));
-      }
-    });
-
-    setSearchParams(params);
+      });
+      
+      return params;
+    }, { replace: true, state: location.state });
   };
 
   const updateSort = (nextSortBy: SortOption, nextDirection: SortDirection) => {

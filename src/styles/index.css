@@ -333,6 +333,18 @@ body {
 
 .dark .overlay-header-action-pill:hover {
   background: linear-gradient(
+
+.bottom-nav-pill {
+  border: 1px solid rgb(var(--outline-variant) / 0.15);
+  box-shadow: 0 8px 20px rgb(var(--on-surface) / 0.1);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+
+.dark .bottom-nav-pill {
+  border-color: rgb(var(--outline-variant) / 0.15);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.5);
+}
     140deg,
     rgb(var(--surface-container-high) / 0.9),
     rgb(var(--surface-container-low) / 0.65)

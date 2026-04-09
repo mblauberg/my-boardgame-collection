@@ -47,7 +47,7 @@ describe("SavedPage", () => {
       error: null,
     } as never);
 
-    render(
+    const { container } = render(
       <MemoryRouter>
         <SavedPage />
       </MemoryRouter>,
@@ -56,6 +56,7 @@ describe("SavedPage", () => {
     expect(screen.getByRole("heading", { name: /saved/i })).toBeInTheDocument();
     expect(screen.getByText(/saved list/i)).toBeInTheDocument();
     expect(screen.getByText("On Your Radar").closest("div")).toHaveClass("glass-surface-panel");
+    expect(container.querySelector(".library-search-section")).toHaveClass("mb-4");
   });
 
   it("opens the add-game wizard with saved as the default destination", async () => {

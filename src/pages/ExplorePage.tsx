@@ -19,6 +19,51 @@ const DISCOVER_SECTION_IDS = ['by-player-count', 'by-mechanic', 'hidden-gems', '
 const SKIP_SHELF_IDS = ['for-you']; // Skip until we have user library data
 const EXPLORE_SHELF_IDS = [...HERO_SHELF_IDS, ...DISCOVER_SECTION_IDS];
 
+type ExploreSearchBarProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function ExploreSearchBar({ value, onChange }: ExploreSearchBarProps) {
+  return (
+    <div className="explore-search-section mb-8">
+      <div className="relative">
+        <span
+          aria-hidden="true"
+          className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-lg text-on-surface-variant"
+        >
+          search
+        </span>
+        <label htmlFor="explore-search" className="sr-only">
+          Search game catalog
+        </label>
+        <input
+          id="explore-search"
+          aria-label="Search game catalog"
+          type="search"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Search all games..."
+          className="w-full rounded-full border border-outline-variant/20 bg-surface-container-low/70 py-3 pl-10 pr-4 text-base text-on-surface backdrop-blur-sm outline-none transition focus:border-primary-container focus:shadow-[0_0_10px_rgba(255,145,0,0.2)]"
+        />
+      </div>
+    </div>
+  );
+}
+
+function SearchBarSkeleton() {
+  return (
+    <div className="mb-4 flex items-center gap-2">
+      <div className="h-11 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+        <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+      </div>
+      <div className="h-11 w-11 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+        <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+      </div>
+    </div>
+  );
+}
+
 export function ExplorePage() {
   const { query, setQuery } = useExploreSearchContext();
   const [localQuery, setLocalQuery] = useState(query);
@@ -43,13 +88,12 @@ export function ExplorePage() {
     return (
       <>
         <PageHeader
+          className="mb-3 md:mb-4"
           eyebrow="Discovery"
           title={<>Find Your Next <br className="hidden sm:block" /><span className="text-primary">Big Thing</span></>}
           description="Loading curated shelves..."
         />
-        <div className="glass-surface-panel mb-8 rounded-xl p-6">
-          <div className="h-10 bg-surface-container rounded-full animate-pulse" />
-        </div>
+        <SearchBarSkeleton />
         <div className="editorial-grid">
           {Array.from({ length: 6 }).map((_, i) => (
             <GameCardSkeleton key={i} />
@@ -75,13 +119,12 @@ export function ExplorePage() {
       return (
         <>
           <PageHeader
+            className="mb-3 md:mb-4"
             eyebrow="Search Results"
             title="Searching..."
             description={`Looking for "${debouncedQuery}"`}
           />
-          <div className="glass-surface-panel mb-6 rounded-xl p-6">
-            <div className="h-10 bg-surface-container rounded-full animate-pulse" />
-          </div>
+          <SearchBarSkeleton />
           <div className="editorial-grid">
             {Array.from({ length: 6 }).map((_, i) => (
               <GameCardSkeleton key={i} />
@@ -95,20 +138,16 @@ export function ExplorePage() {
       return (
         <>
           <PageHeader
+            className="mb-3 md:mb-4"
             eyebrow="Search Results"
             title={<>{searchResults.length} {searchResults.length === 1 ? "Game" : "Games"} Found</>}
             description={`Showing results for "${debouncedQuery}"`}
           />
 
-          <div className="glass-surface-panel mb-6 rounded-xl p-6">
-            <input
-              type="search"
-              value={localQuery}
-              onChange={(e) => setLocalQuery(e.target.value)}
-              placeholder="Search all games..."
-              className="w-full rounded-full border border-outline-variant/15 bg-surface-container-lowest px-4 py-2.5 text-sm text-on-surface outline-none transition-all focus:border-primary-container focus:shadow-[0_0_12px_rgba(255,145,0,0.2)] dark:bg-surface-container-lowest dark:text-on-surface"
-            />
-          </div>
+          <ExploreSearchBar
+            value={localQuery}
+            onChange={setLocalQuery}
+          />
 
           <LibraryList 
             entries={searchResults.map(game => {
@@ -145,21 +184,16 @@ export function ExplorePage() {
   return (
     <>
       <PageHeader
+        className="mb-3 md:mb-4"
         eyebrow="Discovery"
         title={<>Find Your Next <br className="hidden sm:block" /><span className="text-primary">Big Thing</span></>}
         description="Curated shelves organized by player count, mood, and occasion. Each collection is designed to help you discover the perfect game for any moment."
       />
 
-      {/* Search Bar */}
-      <div className="glass-surface-panel mb-8 rounded-xl p-6">
-        <input
-          type="search"
-          value={localQuery}
-          onChange={(e) => setLocalQuery(e.target.value)}
-          placeholder="Search all games..."
-          className="w-full rounded-full border border-outline-variant/15 bg-surface-container-lowest px-4 py-2.5 text-sm text-on-surface outline-none transition-all focus:border-primary-container focus:shadow-[0_0_12px_rgba(255,145,0,0.2)] dark:bg-surface-container-lowest dark:text-on-surface"
-        />
-      </div>
+      <ExploreSearchBar
+        value={localQuery}
+        onChange={setLocalQuery}
+      />
 
       {/* Hero Shelves */}
       <div className="mb-20">

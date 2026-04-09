@@ -70,7 +70,7 @@ describe("CollectionPage", () => {
       error: null,
     } as never);
 
-    render(
+    const { container } = render(
       <MemoryRouter>
         <CollectionPage />
       </MemoryRouter>,
@@ -82,5 +82,6 @@ describe("CollectionPage", () => {
       screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("glass-surface-panel");
+    expect(container.querySelector(".library-search-section")).toHaveClass("mb-4");
   });
 });

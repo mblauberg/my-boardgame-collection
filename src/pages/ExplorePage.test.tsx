@@ -68,4 +68,18 @@ describe("ExplorePage", () => {
       "gateway-to-strategy",
     ]);
   });
+
+  it("renders a compact searchable control", () => {
+    vi.mocked(useExploreQuery).mockReturnValue({
+      data: { shelves: [] },
+      isLoading: false,
+      error: null,
+    } as never);
+
+    const { container } = renderWithProviders(<ExplorePage />, "/explore");
+
+    expect(screen.getByRole("searchbox", { name: /search game catalog/i })).toBeInTheDocument();
+    expect(container.querySelector(".explore-search-section")).toHaveClass("mb-4");
+    expect(screen.getByRole("searchbox", { name: /search game catalog/i }).closest(".glass-surface-panel")).toBeNull();
+  });
 });

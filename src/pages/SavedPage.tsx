@@ -18,7 +18,29 @@ export function SavedPage() {
     useLibraryFilters();
 
   if (isLoading) {
-    return <div className="p-8 text-center">Loading saved games...</div>;
+    return (
+      <>
+        <PageHeader
+          className="mb-3 md:mb-4"
+          eyebrow="On Your Radar"
+          title={<>Your <span className="text-primary">Saved</span> Games</>}
+          description="Loading saved games..."
+        />
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-11 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+            <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+          </div>
+          <div className="h-11 w-11 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+            <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+          </div>
+        </div>
+        <div className="editorial-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <GameCardSkeleton key={i} />
+          ))}
+        </div>
+      </>
+    );
   }
 
   if (error) {
@@ -38,12 +60,13 @@ export function SavedPage() {
   return (
     <>
       <PageHeader
+        className="mb-3 md:mb-4"
         eyebrow="On Your Radar"
         title={<>Your <span className="text-primary">Saved</span> Games</>}
         description="Games you're interested in trying. Save titles to explore later and keep track of what's on your radar."
       />
 
-      <div className="mb-8">
+      <div className="library-search-section mb-8">
         <FilterBar
           filters={filters}
           sortBy={sortBy}

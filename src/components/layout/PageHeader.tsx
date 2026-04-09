@@ -5,11 +5,12 @@ type PageHeaderProps = {
   title: ReactNode;
   description: string;
   actions?: ReactNode;
+  className?: string;
 };
 
-export function PageHeader({ eyebrow, title, description, actions }: PageHeaderProps) {
+export function PageHeader({ eyebrow, title, description, actions, className }: PageHeaderProps) {
   return (
-    <header className="mb-10 md:mb-16">
+    <header className={`mb-10 md:mb-16 ${className ?? ""}`}>
       <div className="glass-surface-panel relative rounded-3xl p-6 md:p-12 lg:p-16">
         {actions && (
           <div className="mt-6 md:absolute md:right-12 md:top-12 md:mt-0 lg:right-16 lg:top-16">

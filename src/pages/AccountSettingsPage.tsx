@@ -104,6 +104,7 @@ export function AccountSettingsPage() {
   return (
     <>
       <PageHeader
+        className="mb-8"
         eyebrow="Account Settings"
         title={<>Manage Your <span className="text-primary">Account</span></>}
         description="Update your public identity and choose which parts of your library other players can see."

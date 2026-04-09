@@ -21,12 +21,18 @@ export function CollectionPage() {
     return (
       <>
         <PageHeader
+          className="mb-3 md:mb-4"
           eyebrow="Curated Collection"
           title={<>Your <span className="text-primary">Collection</span></>}
           description="Loading your collection..."
         />
-        <div className="glass-surface-panel mb-8 rounded-xl p-6">
-          <div className="h-10 bg-surface-container rounded-full animate-pulse" />
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-11 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+            <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+          </div>
+          <div className="h-11 w-11 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
+            <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+          </div>
         </div>
         <div className="editorial-grid">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -54,12 +60,13 @@ export function CollectionPage() {
   return (
     <>
       <PageHeader
+        className="mb-3 md:mb-4"
         eyebrow="Curated Collection"
         title={<>Your <span className="text-primary">Collection</span></>}
         description="Games you own and love. Build your personal library and track the titles that make it to your shelf."
       />
 
-      <div className="mb-8">
+      <div className="library-search-section mb-8">
         <FilterBar
           filters={filters}
           sortBy={sortBy}

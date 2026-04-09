@@ -11,16 +11,16 @@ export function BottomTabBar() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-safe md:hidden">
-      <div className="mx-4 mb-4 flex gap-2 rounded-full border border-outline-variant/20 bg-surface-container-high/95 p-1.5 shadow-ambient backdrop-blur-xl">
+      <div className="bottom-nav-pill mx-6 mb-4 flex gap-2 rounded-full bg-surface-bright/90 p-1.5">
         {TABS.map(({ to, icon, label }) => {
           const isActive = location.pathname === to;
           return (
             <Link
               key={to}
               to={to}
-              className={`flex min-w-[4.5rem] flex-col items-center gap-0.5 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+              className={`flex min-w-[5.5rem] flex-col items-center gap-0.5 rounded-full px-5 py-2 text-xs font-semibold transition-all ${
                 isActive
-                  ? "bg-secondary-container text-on-secondary-container"
+                  ? "bg-secondary-container/40 text-on-secondary-container"
                   : "text-on-surface-variant hover:bg-surface-variant/50"
               }`}
             >
