@@ -10,12 +10,24 @@ import { filterLibraryEntries, sortLibraryEntries } from "../features/library/li
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { useSavedQuery } from "../features/library/useSavedQuery";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
+import { useProfile } from "../features/auth/useProfile";
+import { SignInPrompt } from "../components/auth/SignInPrompt";
 
 export function SavedPage() {
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
+  const { isAuthenticated } = useProfile();
   const { data: entries, isLoading, error } = useSavedQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
+
+  if (!isAuthenticated) {
+    return (
+      <SignInPrompt
+        title="Save Your Favorites"
+        description="Sign in to save games you're interested in and keep track of what's on your radar. Your saved list will be waiting for you across all your devices."
+      />
+    );
+  }
 
   if (isLoading) {
     return (
@@ -79,7 +91,7 @@ export function SavedPage() {
         />
       </div>
 
-      <LibraryList entries={sortedEntries} cardContext="saved" getGameLinkState={() => ({ from: "/saved" })} />
+      <LibraryList entries={sortedEntries} totalCount={entries?.length ?? 0} cardContext="saved" getGameLinkState={() => ({ from: "/saved" })} />
       <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
       <AddGameWizardOverlay
         isOpen={isAddGameOpen}

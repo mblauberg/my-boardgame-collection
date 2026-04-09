@@ -96,13 +96,13 @@ export function ExploreShelf({ title, description, entries }: ExploreShelfProps)
             const entry = getLibraryEntryForGame(libraryEntries, game.id);
             const isInCollection = entry?.isInCollection ?? false;
 
-            const bookmarkButton = isAuthenticated && profile?.id && !isInCollection ? (
+            const bookmarkButton = !isInCollection ? (
               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                 <LibraryStateIconButton
                   label="Saved"
                   icon="bookmark"
                   isActive={entry?.isSaved ?? false}
-                  disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
+                  disabled={!isAuthenticated || upsertLibraryState.isPending || deleteLibraryEntry.isPending}
                   onClick={() => handleToggleSaved(game)}
                 />
               </div>

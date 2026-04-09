@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import type { LibraryEntry } from "../../features/library/library.types";
@@ -17,6 +17,8 @@ import {
 
 type LibraryListProps = {
   entries: LibraryEntry[];
+  /** When provided, distinguishes a truly empty library (totalCount === 0) from a filtered-to-zero result. */
+  totalCount?: number;
   getGameLinkState?: (entry: LibraryEntry) => unknown;
   cardContext?: "collection" | "saved";
 };
@@ -33,6 +35,7 @@ function formatPlayTime(entry: LibraryEntry) {
 
 export function LibraryList({
   entries,
+  totalCount,
   getGameLinkState,
   cardContext,
 }: LibraryListProps) {
@@ -73,9 +76,24 @@ export function LibraryList({
   }
 
   if (entries.length === 0) {
+    const isLibraryEmpty = totalCount !== undefined && totalCount === 0;
+    const contextLabel = cardContext === "saved" ? "saved games" : cardContext === "collection" ? "collection" : "library";
     return (
       <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
-        No games found matching your filters.
+        {isLibraryEmpty ? (
+          <>
+            <p className="text-base font-medium text-on-surface">Nothing here yet</p>
+            <p className="mt-1 text-sm">
+              Head to{" "}
+              <NavLink to="/explore" className="font-medium text-primary underline underline-offset-2">
+                Explore
+              </NavLink>{" "}
+              to discover games and add them to your {contextLabel}.
+            </p>
+          </>
+        ) : (
+          "No games found matching your filters."
+        )}
       </div>
     );
   }

@@ -92,17 +92,17 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
 
               return (
                 <article key={game.id} className="relative" style={{ width: 'min(320px, 80vw)', flexShrink: 0 }}>
-                  {isAuthenticated && profile?.id ? (
+                  {!isInCollection && (
                     <div className="absolute right-3 top-3 z-10">
                       <LibraryStateIconButton
                         label="Saved"
                         icon="bookmark"
                         isActive={entry?.isSaved ?? false}
-                        disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
+                        disabled={!isAuthenticated || upsertLibraryState.isPending || deleteLibraryEntry.isPending}
                         onClick={() => handleToggleSaved(game)}
                       />
                     </div>
-                  ) : null}
+                  )}
 
                   <Link
                     state={{ from: location.pathname, backgroundLocation: location }}

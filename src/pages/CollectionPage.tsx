@@ -10,12 +10,24 @@ import { filterLibraryEntries, sortLibraryEntries } from "../features/library/li
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
+import { useProfile } from "../features/auth/useProfile";
+import { SignInPrompt } from "../components/auth/SignInPrompt";
 
 export function CollectionPage() {
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
+  const { isAuthenticated } = useProfile();
   const { data: entries, isLoading, error } = useCollectionQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
+
+  if (!isAuthenticated) {
+    return (
+      <SignInPrompt
+        title="Build Your Collection"
+        description="Sign in to track the games you own and love. Build your personal library and access it from anywhere."
+      />
+    );
+  }
 
   if (isLoading) {
     return (
@@ -79,7 +91,7 @@ export function CollectionPage() {
         />
       </div>
 
-      <LibraryList entries={sortedEntries} cardContext="collection" getGameLinkState={() => ({ from: "/" })} />
+      <LibraryList entries={sortedEntries} totalCount={entries?.length ?? 0} cardContext="collection" getGameLinkState={() => ({ from: "/" })} />
       <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
       <AddGameWizardOverlay
         isOpen={isAddGameOpen}
