@@ -26,7 +26,7 @@ export function ExplorePage() {
 
   if (error || searchError) {
     return (
-      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+      <div className="rounded-3xl border border-error/20 bg-error/10 p-8 text-center text-on-surface">
         <p className="text-lg font-semibold">Explore unavailable</p>
         <p className="mt-2 text-sm leading-6">
           {getSupabaseQueryErrorMessage(error || searchError, "explore")}
@@ -39,14 +39,14 @@ export function ExplorePage() {
     return (
       <>
         <header className="mb-12">
-          <div className="bg-surface-container-low dark:bg-dark-surface-container-low rounded-3xl p-12 md:p-16">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary dark:text-dark-primary">
+          <div className="rounded-3xl bg-surface-container-low p-12 md:p-16">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               Search Results
             </p>
-            <h1 className="max-w-3xl text-5xl font-extrabold tracking-tight text-on-surface dark:text-dark-on-surface md:text-7xl leading-[1.1]">
+            <h1 className="max-w-3xl text-5xl font-extrabold leading-[1.1] tracking-tight text-on-surface md:text-7xl">
               {searchResults.length} {searchResults.length === 1 ? "Game" : "Games"} Found
             </h1>
-            <p className="mt-6 max-w-2xl text-lg text-on-surface-variant dark:text-dark-on-surface-variant leading-relaxed">
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-on-surface-variant">
               Showing results for "{query}"
             </p>
           </div>

@@ -8,7 +8,7 @@ export function GameCard({ game }: GameCardProps) {
   return (
     <a
       href={`/game/${game.slug}`}
-      className="block border rounded-lg p-4 hover:shadow-lg transition-shadow"
+      className="block rounded-lg border border-outline-variant/15 bg-surface-container-lowest p-4 transition-shadow hover:shadow-lg"
     >
       {game.imageUrl && (
         <img
@@ -19,7 +19,7 @@ export function GameCard({ game }: GameCardProps) {
       )}
       <h3 className="font-semibold text-lg mb-1">{game.name}</h3>
       {game.bggRating && (
-        <p className="text-sm text-gray-600">Rating: {game.bggRating.toFixed(1)}</p>
+        <p className="text-sm text-on-surface-variant">Rating: {game.bggRating.toFixed(1)}</p>
       )}
       {game.tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-2">
@@ -27,7 +27,7 @@ export function GameCard({ game }: GameCardProps) {
             <span
               key={tag.id}
               className="text-xs px-2 py-1 rounded"
-              style={{ backgroundColor: tag.colour || "#e5e7eb" }}
+              style={{ backgroundColor: tag.colour || "var(--surface-container-highest)" }}
             >
               {tag.name}
             </span>

@@ -40,22 +40,22 @@ export function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-surface p-6">
+      <div className="flex items-center justify-between rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
         <div>
           <h2 className="text-2xl font-bold text-on-surface">Admin Dashboard</h2>
-          <p className="mt-1 text-on-surface-variant-variant">Manage games, tags, and visibility.</p>
+          <p className="mt-1 text-on-surface-variant">Manage games, tags, and visibility.</p>
         </div>
         <button
           type="button"
           onClick={handleCreate}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-full bg-gradient-to-br from-primary to-primary-container px-4 py-2 text-sm font-medium text-on-primary transition hover:brightness-95"
         >
           Add Game
         </button>
       </div>
 
       {panel && (
-        <div className="rounded-lg border border-gray-200 bg-surface p-6">
+        <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
           <h3 className="mb-4 text-lg font-semibold text-on-surface">
             {panel.mode === "edit" ? `Edit: ${panel.game.name}` : "Add Game"}
           </h3>
@@ -68,10 +68,10 @@ export function AdminPage() {
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-200 bg-surface p-6">
+      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
         <h3 className="mb-4 text-lg font-semibold text-on-surface">Games</h3>
         {isLoading ? (
-          <p className="text-gray-500">Loading…</p>
+          <p className="text-on-surface-variant">Loading…</p>
         ) : (
           <AdminGamesTable games={games} onEdit={handleEdit} />
         )}

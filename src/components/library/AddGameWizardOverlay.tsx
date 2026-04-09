@@ -143,7 +143,7 @@ export function AddGameWizardOverlay({
         className="flex h-full w-full flex-col overflow-hidden bg-surface-container-lowest shadow-[0_32px_80px_rgba(46,47,45,0.18)] md:h-auto md:max-h-[min(46rem,90vh)] md:max-w-4xl md:rounded-[2rem] lg:flex-row"
       >
         <aside className="bg-surface-container-low px-4 py-6 md:px-6 md:py-8 lg:w-64">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant-variant md:text-[11px]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant md:text-[11px]">
             Step {String(step).padStart(2, "0")} of 02
           </p>
           <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-primary md:text-3xl">Add New Game</h1>
@@ -160,14 +160,14 @@ export function AddGameWizardOverlay({
                     className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold md:h-6 md:w-6 ${
                       active || complete
                         ? "bg-primary text-on-primary"
-                        : "bg-surface-container-high text-on-surface-variant-variant"
+                        : "bg-surface-container-high text-on-surface-variant"
                     }`}
                   >
                     {stepNumber}
                   </span>
                   <span
                     className={`text-xs md:text-sm ${
-                      active ? "font-bold text-on-surface" : "text-on-surface-variant-variant"
+                      active ? "font-bold text-on-surface" : "text-on-surface-variant"
                     }`}
                   >
                     {label}

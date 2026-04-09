@@ -26,14 +26,14 @@ export function LibraryToolbar({
           value={searchText ?? ""}
           onChange={(event) => onSearchTextChange(event.target.value)}
           placeholder="Search your library"
-          className="w-full rounded-xl border border-outline/20 bg-white px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
+          className="w-full rounded-xl border border-outline-variant/15 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
         />
       </label>
 
       <select
         value={sortBy}
         onChange={(event) => onSortChange(event.target.value as SortOption, sortDirection)}
-        className="rounded-xl border border-outline/20 bg-white px-4 py-3 text-sm text-on-surface outline-none"
+        className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none"
       >
         <option value="name">Name</option>
         <option value="rating">Rating</option>
@@ -45,7 +45,7 @@ export function LibraryToolbar({
       <button
         type="button"
         onClick={() => onSortChange(sortBy, sortDirection === "asc" ? "desc" : "asc")}
-        className="rounded-xl border border-outline/20 bg-white px-4 py-3 text-sm font-semibold text-on-surface"
+        className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-high"
       >
         {sortDirection === "asc" ? "Ascending" : "Descending"}
       </button>
@@ -53,7 +53,7 @@ export function LibraryToolbar({
       <button
         type="button"
         onClick={onClear}
-        className="rounded-xl border border-outline/20 bg-white px-4 py-3 text-sm font-semibold text-on-surface"
+        className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-high"
       >
         Clear
       </button>

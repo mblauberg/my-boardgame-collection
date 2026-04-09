@@ -29,7 +29,7 @@ export function AddGameCollectionInfoStep({
     <div className="flex flex-1 flex-col">
       <div className="mb-8">
         <h2 className="text-3xl font-extrabold tracking-tight text-on-surface">Library state</h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant-variant">
+        <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant">
           Choose which states apply to this game and add any personal context you want to keep with it.
         </p>
       </div>
@@ -47,7 +47,7 @@ export function AddGameCollectionInfoStep({
                   className={`cursor-pointer rounded-2xl border px-4 py-4 transition ${
                     checked
                       ? "border-primary/30 bg-surface-container-high text-on-surface"
-                      : "border-outline/10 bg-surface-container-low text-on-surface-variant-variant"
+                      : "border-outline/10 bg-surface-container-low text-on-surface-variant"
                   }`}
                 >
                   <input

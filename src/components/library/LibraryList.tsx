@@ -25,7 +25,7 @@ export function LibraryList({
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant-variant">
+      <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
         No games found matching your filters.
       </div>
     );

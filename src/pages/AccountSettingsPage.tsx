@@ -85,7 +85,7 @@ export function AccountSettingsPage() {
 
   if (error) {
     return (
-      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+      <div className="rounded-3xl border border-error/20 bg-error/10 p-8 text-center text-on-surface">
         <p className="text-lg font-semibold">Account settings unavailable</p>
         <p className="mt-2 text-sm leading-6">
           {error.message || "There was a problem loading your profile."}
@@ -265,8 +265,8 @@ export function AccountSettingsPage() {
                   <div
                     className={`rounded-2xl px-4 py-3 text-sm font-medium ${
                       status.type === "error"
-                        ? "border border-error/20 bg-red-50 text-error"
-                        : "border border-emerald-200 bg-emerald-50 text-emerald-900"
+                        ? "border border-error/20 bg-error/10 text-on-surface"
+                        : "border border-secondary/20 bg-secondary/10 text-secondary"
                     }`}
                   >
                     {status.message}

@@ -89,11 +89,11 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
       <GameFormFields register={register} errors={errors} />
 
       {isOwner && game?.bggId ? (
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-md border border-outline-variant/15 bg-surface-container-low p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-on-surface">BoardGameGeek metadata</p>
-              <p className="text-sm text-on-surface-variant-variant">
+              <p className="text-sm text-on-surface-variant">
                 Refresh the linked BGG rating, weight, year, and URL without touching your
                 notes or summary.
               </p>
@@ -102,13 +102,13 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
               type="button"
               onClick={handleBggRefresh}
               disabled={bggRefresh.isPending}
-              className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md border border-outline-variant/15 bg-surface-container-lowest px-4 py-2 text-sm font-medium text-on-surface transition hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-60"
             >
               {bggRefresh.isPending ? "Refreshing BGG…" : "Refresh BGG metadata"}
             </button>
           </div>
           {refreshError ? (
-            <p className="mt-3 text-sm text-error dark:text-error">{refreshError}</p>
+            <p className="mt-3 text-sm text-error">{refreshError}</p>
           ) : null}
         </div>
       ) : null}
@@ -117,14 +117,14 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-surface-container-low"
+          className="rounded-md border border-outline-variant/15 bg-surface-container-lowest px-4 py-2 text-sm font-medium text-on-surface transition hover:bg-surface-container-low"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-gradient-to-br from-primary to-primary-container px-4 py-2 text-sm font-medium text-on-primary transition hover:brightness-95 disabled:opacity-50"
         >
           {isSubmitting ? "Saving…" : "Save"}
         </button>

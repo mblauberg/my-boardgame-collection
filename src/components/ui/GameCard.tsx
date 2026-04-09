@@ -90,26 +90,26 @@ export function GameCard({
         </div>
 
         {description && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant-variant md:text-sm">
+          <p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant md:text-sm">
             {description}
           </p>
         )}
 
         <div className="flex flex-wrap gap-3 pt-1 md:gap-4 md:pt-2">
           {players && (
-            <div className="flex items-center gap-1 text-on-surface-variant-variant md:gap-1.5">
+            <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
               <span className="material-symbols-outlined text-base md:text-lg">group</span>
               <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{players}</span>
             </div>
           )}
           {playTime && (
-            <div className="flex items-center gap-1 text-on-surface-variant-variant md:gap-1.5">
+            <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
               <span className="material-symbols-outlined text-base md:text-lg">schedule</span>
               <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{playTime}</span>
             </div>
           )}
           {weight && (
-             <div className="flex items-center gap-1 text-on-surface-variant-variant md:gap-1.5">
+             <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
               <span className="material-symbols-outlined text-base md:text-lg">fitness_center</span>
               <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{weight}/5</span>
             </div>

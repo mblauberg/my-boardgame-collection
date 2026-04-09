@@ -46,29 +46,29 @@ export function SignInForm() {
   if (isAuthenticated && profile) {
     return (
       <div className="space-y-6">
-        <div className="rounded-xl bg-[#f1f1ee] p-6">
-          <p className="text-base text-[#2e2f2d]">
+        <div className="rounded-xl bg-surface-container-low p-6">
+          <p className="text-base text-on-surface">
             Signed in as <strong className="font-extrabold">{profile.email}</strong>
           </p>
           <div className="mt-4 grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/60">Role</p>
-              <p className="mt-1 text-sm font-medium text-[#2e2f2d]">
+              <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Role</p>
+              <p className="mt-1 text-sm font-medium text-on-surface">
                 {profile.role === "owner" ? "Owner" : "Viewer"}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/60">Username</p>
-              <p className="mt-1 text-sm font-medium text-[#2e2f2d]">
+              <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Username</p>
+              <p className="mt-1 text-sm font-medium text-on-surface">
                 {profile.username ? `@${profile.username}` : "Not set"}
               </p>
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/60">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Public sharing
             </p>
-            <p className="mt-1 text-sm font-medium text-[#2e2f2d]">
+            <p className="mt-1 text-sm font-medium text-on-surface">
               Profile: {profile.is_profile_public ? "Public" : "Private"} · Collection:{" "}
               {profile.is_collection_public ? "Public" : "Private"} · Saved:{" "}
               {profile.is_saved_public ? "Public" : "Private"}
@@ -78,7 +78,7 @@ export function SignInForm() {
         <button
           type="button"
           onClick={handleSignOut}
-          className="w-full rounded-xl bg-transparent border-none text-[#8a4c00] px-6 py-3.5 text-base font-extrabold hover:bg-[#ddddda] transition-colors"
+          className="w-full rounded-xl border border-outline-variant/15 bg-transparent px-6 py-3.5 text-base font-extrabold text-primary transition-colors hover:bg-surface-container-high"
         >
           Sign Out
         </button>
@@ -90,42 +90,42 @@ export function SignInForm() {
     <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
         <div>
-          <label htmlFor="email" className="block text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/70 mb-2">
+          <label htmlFor="email" className="mb-2 block text-xs font-bold uppercase tracking-widest text-on-surface-variant">
             Email
           </label>
           <input
             id="email"
             type="email"
             {...register("email")}
-            className="block w-full rounded-xl bg-[#f1f1ee] border-none px-4 py-3.5 text-[#2e2f2d] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_2px_#8a4c00] transition-shadow text-base"
+            className="block w-full rounded-xl border border-outline-variant/15 bg-surface-container-low px-4 py-3.5 text-base text-on-surface transition-shadow focus:border-primary focus:outline-none focus:shadow-[0_0_0_2px_rgba(138,76,0,0.2)]"
             disabled={status === "loading"}
             placeholder="collector@example.com"
           />
           {errors.email && (
-            <p className="mt-2 text-sm font-semibold text-[#8a4c00]">{errors.email.message}</p>
+            <p className="mt-2 text-sm font-semibold text-primary">{errors.email.message}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full rounded-xl bg-gradient-to-tr from-[#8a4c00] to-[#fd9000] px-6 py-3.5 text-base font-extrabold text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+          className="w-full rounded-xl bg-gradient-to-tr from-primary to-primary-container px-6 py-3.5 text-base font-extrabold text-on-primary shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {status === "loading" ? "Sending..." : "Send Magic Link"}
         </button>
       </form>
 
       {status === "success" && (
-        <div className="rounded-xl bg-[#00675c]/10 p-5 mt-6">
-          <p className="text-sm font-bold text-[#00675c] text-center">
+        <div className="mt-6 rounded-xl border border-secondary/20 bg-secondary/10 p-5">
+          <p className="text-center text-sm font-bold text-secondary">
             Check your email for a magic link to sign in!
           </p>
         </div>
       )}
 
       {status === "error" && errorMessage && (
-        <div className="rounded-xl bg-amber-100 p-5 mt-6">
-          <p className="text-sm font-bold text-amber-900 text-center">{errorMessage}</p>
+        <div className="mt-6 rounded-xl border border-error/20 bg-error/10 p-5">
+          <p className="text-center text-sm font-bold text-on-surface">{errorMessage}</p>
         </div>
       )}
     </div>

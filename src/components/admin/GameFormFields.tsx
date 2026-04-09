@@ -17,10 +17,10 @@ export function GameFormFields({ register, errors }: Props) {
           id="name"
           type="text"
           {...register("name")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         />
         {errors.name && (
-          <p className="mt-1 text-xs text-error dark:text-error">{errors.name.message}</p>
+          <p className="mt-1 text-xs text-error">{errors.name.message}</p>
         )}
       </div>
 
@@ -31,7 +31,7 @@ export function GameFormFields({ register, errors }: Props) {
         <select
           id="status"
           {...register("status")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         >
           <option value="owned">owned</option>
           <option value="buy">buy</option>
@@ -49,7 +49,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="category"
           type="text"
           {...register("category")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         />
       </div>
 
@@ -62,7 +62,7 @@ export function GameFormFields({ register, errors }: Props) {
             id="playersMin"
             type="number"
             {...register("playersMin", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
           />
         </div>
         <div>
@@ -73,7 +73,7 @@ export function GameFormFields({ register, errors }: Props) {
             id="playersMax"
             type="number"
             {...register("playersMax", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
           />
         </div>
       </div>
@@ -87,7 +87,7 @@ export function GameFormFields({ register, errors }: Props) {
             id="playTimeMin"
             type="number"
             {...register("playTimeMin", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
           />
         </div>
         <div>
@@ -98,7 +98,7 @@ export function GameFormFields({ register, errors }: Props) {
             id="playTimeMax"
             type="number"
             {...register("playTimeMax", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
           />
         </div>
       </div>
@@ -111,7 +111,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="summary"
           rows={3}
           {...register("summary")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         />
       </div>
 
@@ -123,7 +123,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="notes"
           rows={3}
           {...register("notes")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         />
       </div>
 
@@ -135,7 +135,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="imageUrl"
           type="text"
           {...register("imageUrl")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         />
       </div>
 
@@ -147,7 +147,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="publishedYear"
           type="number"
           {...register("publishedYear", { valueAsNumber: true })}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
         />
       </div>
 

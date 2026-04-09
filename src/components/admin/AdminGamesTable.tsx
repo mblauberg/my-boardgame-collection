@@ -20,27 +20,27 @@ export function AdminGamesTable({ games, onEdit }: Props) {
         placeholder="Search games…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
       />
 
       <div className="overflow-x-auto rounded-lg border border-outline-variant">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
+        <table className="min-w-full divide-y divide-outline-variant/10 text-sm">
           <thead className="bg-surface-container-low">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-on-surface-variant-variant">Name</th>
-              <th className="px-4 py-3 text-left font-medium text-on-surface-variant-variant">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-on-surface-variant-variant">Flags</th>
-              <th className="px-4 py-3 text-right font-medium text-on-surface-variant-variant">Actions</th>
+              <th className="px-4 py-3 text-left font-medium text-on-surface-variant">Name</th>
+              <th className="px-4 py-3 text-left font-medium text-on-surface-variant">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-on-surface-variant">Flags</th>
+              <th className="px-4 py-3 text-right font-medium text-on-surface-variant">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-surface">
+          <tbody className="divide-y divide-outline-variant/10 bg-surface">
             {filtered.map((game) => (
               <tr key={game.id}>
                 <td className="px-4 py-3 font-medium text-on-surface">{game.name}</td>
-                <td className="px-4 py-3 text-on-surface-variant-variant">{game.status}</td>
+                <td className="px-4 py-3 text-on-surface-variant">{game.status}</td>
                 <td className="px-4 py-3">
                   {game.hidden && (
-                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                       hidden
                     </span>
                   )}
@@ -49,7 +49,7 @@ export function AdminGamesTable({ games, onEdit }: Props) {
                   <button
                     type="button"
                     onClick={() => onEdit(game)}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                    className="text-sm font-medium text-primary hover:text-primary-container"
                   >
                     Edit
                   </button>
@@ -58,7 +58,7 @@ export function AdminGamesTable({ games, onEdit }: Props) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={4} className="px-4 py-6 text-center text-on-surface-variant">
                   No games found.
                 </td>
               </tr>

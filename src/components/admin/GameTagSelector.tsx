@@ -42,7 +42,7 @@ export function GameTagSelector({ gameId, allTags, assignedTags }: Props) {
       <div className="space-y-3">
         {Object.entries(grouped).map(([type, tags]) => (
           <div key={type}>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {type}
             </p>
             <div className="space-y-1">
@@ -67,7 +67,7 @@ export function GameTagSelector({ gameId, allTags, assignedTags }: Props) {
         type="button"
         onClick={handleSave}
         disabled={updateGameTags.isPending}
-        className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+        className="rounded-md bg-gradient-to-br from-primary to-primary-container px-3 py-1.5 text-sm text-on-primary transition hover:brightness-95 disabled:opacity-50"
       >
         {updateGameTags.isPending ? "Saving…" : "Save tags"}
       </button>

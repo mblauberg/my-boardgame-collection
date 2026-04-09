@@ -19,7 +19,7 @@ export function CollectionPage() {
 
   if (error) {
     return (
-      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+      <div className="rounded-3xl border border-error/20 bg-error/10 p-8 text-center text-on-surface">
         <p className="text-lg font-semibold">Collection unavailable</p>
         <p className="mt-2 text-sm leading-6">
           {getSupabaseQueryErrorMessage(error, "collection")}

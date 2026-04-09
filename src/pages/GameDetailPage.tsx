@@ -90,8 +90,8 @@ export function GameDetailPage() {
         isStandalone={!isModal}
       >
         <div className="pt-6">
-          <p className="mb-4 text-red-600">{message}</p>
-          <Link to={backTo} className="text-blue-600 hover:underline">
+          <p className="mb-4 text-on-surface">{message}</p>
+          <Link to={backTo} className="text-primary hover:underline">
             Back to {backLabel.toLowerCase()}
           </Link>
         </div>

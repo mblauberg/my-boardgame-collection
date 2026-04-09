@@ -60,7 +60,7 @@ export function PageSearch() {
           value={value}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
-          className="w-56 rounded-full border-0 bg-surface-container-lowest dark:bg-dark-surface-container-lowest px-4 py-2 text-sm text-on-surface dark:text-dark-on-surface outline-none transition focus:ring-1 focus:ring-primary-container dark:focus:ring-dark-primary-container focus:shadow-[0_0_12px_rgba(255,145,0,0.2)]"
+          className="w-56 rounded-full border border-outline-variant/15 bg-surface-container-lowest px-4 py-2 text-sm text-on-surface outline-none transition focus:border-primary-container focus:shadow-[0_0_12px_rgba(255,145,0,0.2)]"
         />
       </label>
 

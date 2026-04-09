@@ -16,7 +16,7 @@ export function TopNavBar() {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-surface-bright/60 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-4 py-3 md:px-8 md:py-4 max-w-full mx-auto">
+    <nav className="fixed top-0 z-50 flex w-full max-w-full items-center justify-between bg-surface-bright/70 px-4 py-3 shadow-[0_12px_40px_rgba(46,47,45,0.06)] backdrop-blur-xl md:px-8 md:py-4">
       <div className="text-lg font-black text-primary tracking-tighter md:text-2xl">
         <Link to="/">My Board Game Collection</Link>
       </div>
@@ -27,7 +27,10 @@ export function TopNavBar() {
       </div>
       <div className="flex items-center gap-4">
         <PageSearch />
-        <Link to={isAuthenticated ? "/settings" : "/signin"} className="p-2 rounded-full hover:bg-surface-container-low transition-colors scale-95 duration-150 active:opacity-80 flex items-center justify-center">
+        <Link
+          to={isAuthenticated ? "/settings" : "/signin"}
+          className="flex scale-95 items-center justify-center rounded-full p-2 transition-colors duration-150 hover:bg-surface-container-low active:opacity-80"
+        >
           <span className="material-symbols-outlined text-on-surface">account_circle</span>
         </Link>
       </div>

@@ -8,23 +8,23 @@ export function ScenarioCoverageBadge({ ownedCount, buyCount, recCount }: Scenar
   const total = ownedCount + buyCount + recCount;
 
   if (total === 0) {
-    return <span className="text-sm text-gray-500">No matches</span>;
+    return <span className="text-sm text-on-surface-variant">No matches</span>;
   }
 
   return (
     <div className="flex gap-2 text-sm">
       {ownedCount > 0 && (
-        <span className="text-green-700">
+        <span className="text-secondary">
           {ownedCount} owned
         </span>
       )}
       {buyCount > 0 && (
-        <span className="text-blue-700">
+        <span className="text-primary">
           {buyCount} to buy
         </span>
       )}
       {recCount > 0 && (
-        <span className="text-purple-700">
+        <span className="text-primary-container">
           {recCount} rec
         </span>
       )}

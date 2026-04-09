@@ -8,6 +8,7 @@ import type { TagRow } from "../games/games.types";
 import { mapGameRecord } from "../games/gameMappers";
 
 type PublicLibraryRow = Database["public"]["Functions"]["get_public_library"]["Returns"][number];
+type PublicLibraryRowWithOptionalHidden = PublicLibraryRow & { hidden?: boolean };
 type SharedGameTagJoin = Database["public"]["Tables"]["game_tags"]["Row"] & {
   tags: TagRow | null;
 };
@@ -29,7 +30,9 @@ export function usePublicLibraryQuery(username: string, listType: LibraryListTyp
       if (error) throw error;
       if (!data || data.length === 0) return null;
 
-      const rows = data as PublicLibraryRow[];
+      const rows = (data as PublicLibraryRowWithOptionalHidden[]).filter((row) => !row.hidden);
+      if (rows.length === 0) return null;
+
       const gameIds = [...new Set(rows.map((row) => row.game_id))];
       const sharedTagsByGameId = new Map<string, TagRow[]>();
 

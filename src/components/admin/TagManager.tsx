@@ -62,10 +62,10 @@ function TagForm({
           id="tag-name"
           type="text"
           {...register("name")}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface"
         />
         {errors.name && (
-          <p className="mt-1 text-xs text-error dark:text-error">{errors.name.message}</p>
+          <p className="mt-1 text-xs text-error">{errors.name.message}</p>
         )}
       </div>
 
@@ -78,7 +78,7 @@ function TagForm({
           type="text"
           {...register("tagType")}
           placeholder="e.g. theme, mechanic"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface"
         />
       </div>
 
@@ -91,7 +91,7 @@ function TagForm({
           type="text"
           {...register("colour")}
           placeholder="#rrggbb"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface"
         />
       </div>
 
@@ -99,14 +99,14 @@ function TagForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm"
+          className="rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-1.5 text-sm text-on-surface"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+          className="rounded-md bg-gradient-to-br from-primary to-primary-container px-3 py-1.5 text-sm text-on-primary disabled:opacity-50"
         >
           Save
         </button>
@@ -145,14 +145,14 @@ export function TagManager({ tags }: Props) {
         <button
           type="button"
           onClick={() => setPanel({ mode: "create" })}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-primary"
+          className="rounded-md bg-gradient-to-br from-primary to-primary-container px-3 py-1.5 text-sm text-on-primary transition hover:brightness-95"
         >
           Add tag
         </button>
       </div>
 
       {panel && (
-        <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+        <div className="rounded-md border border-outline-variant/15 bg-surface-container-low p-4">
           <p className="mb-3 text-sm font-medium text-on-surface">
             {panel.mode === "edit" ? `Edit: ${panel.tag.name}` : "New tag"}
           </p>
@@ -168,17 +168,17 @@ export function TagManager({ tags }: Props) {
       <div className="space-y-4">
         {Object.entries(grouped).map(([type, typeTags]) => (
           <div key={type}>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {type}
             </p>
-            <div className="divide-y divide-gray-100 rounded-md border border-gray-200 bg-surface">
+            <div className="divide-y divide-outline-variant/10 rounded-md border border-outline-variant/15 bg-surface">
               {typeTags.map((tag) => (
                 <div key={tag.id} className="flex items-center justify-between px-4 py-2">
-                  <span className="text-sm text-gray-800">{tag.name}</span>
+                  <span className="text-sm text-on-surface">{tag.name}</span>
                   <button
                     type="button"
                     onClick={() => setPanel({ mode: "edit", tag })}
-                    className="text-xs font-medium text-blue-600 hover:text-blue-800"
+                    className="text-xs font-medium text-primary hover:text-primary-container"
                   >
                     Edit
                   </button>

@@ -8,7 +8,7 @@ type GameListProps = {
 export function GameList({ games }: GameListProps) {
   if (games.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="py-12 text-center text-on-surface-variant">
         No games found matching your filters.
       </div>
     );

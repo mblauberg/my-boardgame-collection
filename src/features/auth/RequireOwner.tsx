@@ -8,7 +8,7 @@ export function RequireOwner({ children }: PropsWithChildren) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-on-surface-variant">Loading...</div>
       </div>
     );
   }
