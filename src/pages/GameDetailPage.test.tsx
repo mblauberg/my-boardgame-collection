@@ -62,4 +62,56 @@ describe("GameDetailPage", () => {
       "/",
     );
   });
+
+  it("renders loading state inside dialog shell when opened as modal", () => {
+    vi.mocked(useGameDetailQuery).mockReturnValue({
+      data: null,
+      isLoading: true,
+      error: null,
+    } as never);
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/game/a-fake-artist",
+            state: { from: "/", backgroundLocation: { pathname: "/" } },
+          },
+        ]}
+      >
+        <Routes>
+          <Route path="/game/:slug" element={<GameDetailPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("dialog", { name: /loading game details/i })).toBeInTheDocument();
+    expect(screen.getByRole("dialog")).toHaveTextContent(/loading game/i);
+  });
+
+  it("renders error state inside dialog shell when opened as modal", () => {
+    vi.mocked(useGameDetailQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: new Error("Failed to load"),
+    } as never);
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/game/a-fake-artist",
+            state: { from: "/", backgroundLocation: { pathname: "/" } },
+          },
+        ]}
+      >
+        <Routes>
+          <Route path="/game/:slug" element={<GameDetailPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("dialog", { name: /game details unavailable/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /back to collection/i })).toHaveAttribute("href", "/");
+  });
 });
