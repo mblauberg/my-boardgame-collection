@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import { GameCardSkeleton } from "../ui/GameCardSkeleton";
 import type { Game } from "../../types/domain";
@@ -21,6 +21,7 @@ type HorizontalShelfProps = {
 
 export function HorizontalShelf({ title, description, entries }: HorizontalShelfProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
   const upsertLibraryState = useUpsertLibraryState();
