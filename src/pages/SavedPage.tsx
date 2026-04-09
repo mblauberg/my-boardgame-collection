@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
@@ -11,23 +12,14 @@ import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { useSavedQuery } from "../features/library/useSavedQuery";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 import { useProfile } from "../features/auth/useProfile";
-import { SignInPrompt } from "../components/auth/SignInPrompt";
 
 export function SavedPage() {
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const { isAuthenticated } = useProfile();
+  const navigate = useNavigate();
   const { data: entries, isLoading, error } = useSavedQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
-
-  if (!isAuthenticated) {
-    return (
-      <SignInPrompt
-        title="Save Your Favorites"
-        description="Sign in to save games you're interested in and keep track of what's on your radar. Your saved list will be waiting for you across all your devices."
-      />
-    );
-  }
 
   if (isLoading) {
     return (
@@ -38,13 +30,9 @@ export function SavedPage() {
           title={<>Your <span className="text-primary">Saved</span> Games</>}
           description="Loading saved games..."
         />
-        <div className="mb-4 flex items-center gap-2">
-          <div className="h-11 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
-            <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
-          </div>
-          <div className="h-11 w-11 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
-            <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
-          </div>
+        <div className="mb-4 flex justify-end gap-2">
+          <div className="h-14 w-14 rounded-full bg-surface-container-high/30 animate-pulse" />
+          <div className="h-14 w-14 rounded-full bg-surface-container-high/30 animate-pulse" />
         </div>
         <div className="editorial-grid">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -78,6 +66,15 @@ export function SavedPage() {
         description="Games you're interested in trying. Save titles to explore later and keep track of what's on your radar."
       />
 
+      {!isAuthenticated && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-on-surface">
+          <span>You're browsing as a guest. Your saves are stored locally on this device.</span>
+          <Link to="/signin" className="shrink-0 font-semibold text-primary hover:underline">
+            Sign in to sync
+          </Link>
+        </div>
+      )}
+
       <div className="library-search-section mb-8">
         <FilterBar
           filters={filters}
@@ -92,12 +89,14 @@ export function SavedPage() {
       </div>
 
       <LibraryList entries={sortedEntries} totalCount={entries?.length ?? 0} cardContext="saved" getGameLinkState={() => ({ from: "/saved" })} />
-      <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
-      <AddGameWizardOverlay
-        isOpen={isAddGameOpen}
-        defaultState={{ isSaved: true, isLoved: false, isInCollection: false }}
-        onClose={() => setIsAddGameOpen(false)}
-      />
+      <FloatingActionButton onClick={isAuthenticated ? () => setIsAddGameOpen(true) : () => navigate("/signin")} />
+      {isAuthenticated && (
+        <AddGameWizardOverlay
+          isOpen={isAddGameOpen}
+          defaultState={{ isSaved: true, isLoved: false, isInCollection: false }}
+          onClose={() => setIsAddGameOpen(false)}
+        />
+      )}
     </>
   );
 }

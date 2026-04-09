@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import { GameCardSkeleton } from "../ui/GameCardSkeleton";
 import type { Game } from "../../types/domain";
@@ -21,21 +21,13 @@ type HorizontalShelfProps = {
 
 export function HorizontalShelf({ title, description, entries }: HorizontalShelfProps) {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { profile, isAuthenticated } = useProfile();
+  const { profile } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
   const upsertLibraryState = useUpsertLibraryState();
   const deleteLibraryEntry = useDeleteLibraryEntry();
   const { ref, isInView } = useInView();
 
   function handleToggleSaved(game: Game) {
-    if (!isAuthenticated) {
-      navigate("/signin");
-      return;
-    }
-
-    if (!profile?.id) return;
-
     const existingEntry = getLibraryEntryForGame(libraryEntries, game.id);
     const currentState = getLibraryStateSnapshot(existingEntry);
     const nextState = {
@@ -44,14 +36,14 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
     };
 
     if (!hasAnyLibraryState(nextState) && existingEntry) {
-      deleteLibraryEntry.mutate({ id: existingEntry.id, userId: profile.id });
+      deleteLibraryEntry.mutate({ id: existingEntry.id, userId: profile?.id, gameId: game.id });
       return;
     }
 
     if (!hasAnyLibraryState(nextState)) return;
 
     upsertLibraryState.mutate({
-      userId: profile.id,
+      ...(profile?.id ? { userId: profile.id } : { game }),
       gameId: game.id,
       isSaved: nextState.isSaved,
       isLoved: nextState.isLoved,

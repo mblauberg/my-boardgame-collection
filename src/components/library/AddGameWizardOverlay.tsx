@@ -70,7 +70,7 @@ export function AddGameWizardOverlay({
   defaultState,
   onClose,
 }: AddGameWizardOverlayProps) {
-  const { user, isAuthenticated } = useSession();
+  const { user } = useSession();
   const { mutateAsync, isPending } = useSaveBggGameToLibrary();
   const [step, setStep] = useState(1);
   const [query, setQuery] = useState("");
@@ -212,7 +212,6 @@ export function AddGameWizardOverlay({
               value={collectionInfo}
               onChange={setCollectionInfo}
               submitError={submitError}
-              isAuthenticated={isAuthenticated}
             />
           ) : null}
 

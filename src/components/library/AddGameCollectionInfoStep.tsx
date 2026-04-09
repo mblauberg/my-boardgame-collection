@@ -4,7 +4,6 @@ type AddGameCollectionInfoStepProps = {
   value: AddGameWizardCollectionInfo;
   onChange: (value: AddGameWizardCollectionInfo) => void;
   submitError: string | null;
-  isAuthenticated: boolean;
 };
 
 const sentimentOptions = [
@@ -23,7 +22,6 @@ export function AddGameCollectionInfoStep({
   value,
   onChange,
   submitError,
-  isAuthenticated,
 }: AddGameCollectionInfoStepProps) {
   return (
     <div className="flex flex-1 flex-col">
@@ -106,12 +104,6 @@ export function AddGameCollectionInfoStep({
             placeholder="Optional notes about this game"
           />
         </label>
-
-        {!isAuthenticated ? (
-          <div className="rounded-2xl border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error">
-            Sign in is required before you can save this game.
-          </div>
-        ) : null}
 
         {submitError ? (
           <div className="rounded-2xl border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error">

@@ -23,14 +23,33 @@ const DISCOVER_SECTION_IDS = ['by-player-count', 'by-mechanic', 'hidden-gems', '
 const SKIP_SHELF_IDS = ['for-you']; // Skip until we have user library data
 const EXPLORE_SHELF_IDS = [...HERO_SHELF_IDS, ...DISCOVER_SECTION_IDS];
 
-function SearchBarSkeleton() {
+function ShelfSkeleton() {
   return (
-    <div className="mb-4 flex items-center gap-2">
-      <div className="h-14 flex-1 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
-        <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+    <div className="mb-16">
+      <div className="mb-6">
+        <div className="h-8 w-48 bg-surface-container-high/40 rounded animate-pulse mb-2" />
+        <div className="h-4 w-96 bg-surface-container-high/30 rounded animate-pulse" />
       </div>
-      <div className="h-14 w-14 rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm">
-        <div className="h-full w-full animate-pulse rounded-full bg-surface-container-high/40" />
+      <div className="editorial-grid">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <GameCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DiscoverSectionSkeleton() {
+  return (
+    <div className="mb-12">
+      <div className="bg-surface-container-low rounded-2xl p-8">
+        <div className="flex items-start gap-4">
+          <div className="h-8 w-8 bg-surface-container-high/40 rounded animate-pulse" />
+          <div className="flex-1">
+            <div className="h-8 w-64 bg-surface-container-high/40 rounded animate-pulse mb-2" />
+            <div className="h-4 w-full max-w-2xl bg-surface-container-high/30 rounded animate-pulse" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -117,10 +136,25 @@ export function ExplorePage() {
           title={<>Find Your Next <br className="hidden sm:block" /><span className="text-primary">Big Thing</span></>}
           description="Loading curated shelves..."
         />
-        <SearchBarSkeleton />
-        <div className="editorial-grid">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <GameCardSkeleton key={i} />
+        
+        <div className="mb-8 flex justify-end gap-2">
+          <div className="h-14 w-14 bg-surface-container-high/30 rounded-full animate-pulse" />
+          <div className="h-14 w-14 bg-surface-container-high/30 rounded-full animate-pulse" />
+        </div>
+
+        <div className="mb-20">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ShelfSkeleton key={i} />
+          ))}
+        </div>
+
+        <div className="mb-16">
+          <div className="mb-8">
+            <div className="h-10 w-64 bg-surface-container-high/40 rounded animate-pulse mb-3" />
+            <div className="h-4 w-full max-w-2xl bg-surface-container-high/30 rounded animate-pulse" />
+          </div>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <DiscoverSectionSkeleton key={i} />
           ))}
         </div>
       </>
@@ -148,7 +182,12 @@ export function ExplorePage() {
             title="Searching..."
             description={`Looking for "${debouncedQuery}"`}
           />
-          <SearchBarSkeleton />
+          
+          <div className="mb-8 flex gap-2">
+            <div className="h-14 w-14 bg-surface-container-high/30 rounded-full animate-pulse" />
+            <div className="h-14 w-14 bg-surface-container-high/30 rounded-full animate-pulse" />
+          </div>
+
           <div className="editorial-grid">
             {Array.from({ length: 6 }).map((_, i) => (
               <GameCardSkeleton key={i} />
