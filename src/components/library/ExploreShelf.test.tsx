@@ -35,7 +35,7 @@ const game: Game = {
 
 function LocationStateProbe() {
   const location = useLocation();
-  return <div>{location.state?.from ?? "missing"}</div>;
+  return <pre>{JSON.stringify(location.state)}</pre>;
 }
 
 describe("ExploreShelf", () => {
@@ -53,6 +53,7 @@ describe("ExploreShelf", () => {
 
     await user.click(screen.getByRole("link", { name: /a fake artist/i }));
 
-    expect(screen.getByText("/explore")).toBeInTheDocument();
+    expect(screen.getByText(/"from":"\/explore"/i)).toBeInTheDocument();
+    expect(screen.getByText(/"backgroundLocation"/i)).toBeInTheDocument();
   });
 });

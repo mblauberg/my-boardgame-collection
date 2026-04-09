@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import type { LibraryEntry } from "../../features/library/library.types";
 import { MoveToCollectionButton } from "./MoveToCollectionButton";
@@ -26,6 +26,8 @@ export function LibraryList({
   isMovePending = false,
   getGameLinkState,
 }: LibraryListProps) {
+  const location = useLocation();
+
   if (entries.length === 0) {
     return (
       <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
@@ -36,33 +38,38 @@ export function LibraryList({
 
   return (
     <div className="editorial-grid">
-      {entries.map((entry) => (
-        <article key={entry.id} className="space-y-4">
-          <Link
-            aria-label={entry.game.name}
-            state={getGameLinkState ? getGameLinkState(entry) : undefined}
-            to={`/game/${entry.game.slug}`}
-          >
-            <GameCard
-              title={entry.game.name}
-              image={entry.game.imageUrl ?? undefined}
-              description={entry.game.summary ?? undefined}
-              players={formatPlayers(entry)}
-              playTime={formatPlayTime(entry)}
-              weight={entry.game.bggWeight?.toFixed(1)}
-              isFavorite={entry.sentiment === "like"}
-              badge={entry.listType === "wishlist" ? "Wishlist" : "In Stock"}
-            />
-          </Link>
+      {entries.map((entry) => {
+        const customState = getGameLinkState ? getGameLinkState(entry) : {};
+        const linkState = {
+          ...customState,
+          from: location.pathname,
+          backgroundLocation: location,
+        };
 
-          {entry.listType === "wishlist" && onMoveToCollection ? (
-            <MoveToCollectionButton
-              disabled={isMovePending}
-              onClick={() => onMoveToCollection(entry.id)}
-            />
-          ) : null}
-        </article>
-      ))}
+        return (
+          <article key={entry.id} className="space-y-4">
+            <Link aria-label={entry.game.name} state={linkState} to={`/game/${entry.game.slug}`}>
+              <GameCard
+                title={entry.game.name}
+                image={entry.game.imageUrl ?? undefined}
+                description={entry.game.summary ?? undefined}
+                players={formatPlayers(entry)}
+                playTime={formatPlayTime(entry)}
+                weight={entry.game.bggWeight?.toFixed(1)}
+                isFavorite={entry.sentiment === "like"}
+                badge={entry.listType === "wishlist" ? "Wishlist" : "In Stock"}
+              />
+            </Link>
+
+            {entry.listType === "wishlist" && onMoveToCollection ? (
+              <MoveToCollectionButton
+                disabled={isMovePending}
+                onClick={() => onMoveToCollection(entry.id)}
+              />
+            ) : null}
+          </article>
+        );
+      })}
     </div>
   );
 }

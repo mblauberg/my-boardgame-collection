@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import type { Game } from "../../types/domain";
 
@@ -8,12 +8,18 @@ type ExploreShelfProps = {
 };
 
 export function ExploreShelf({ title, entries }: ExploreShelfProps) {
+  const location = useLocation();
+
   return (
     <section className="mb-16">
       <h2 className="mb-8 text-3xl font-extrabold">{title}</h2>
       <div className="editorial-grid">
         {entries.map((game) => (
-          <Link key={game.id} state={{ from: "/explore" }} to={`/game/${game.slug}`}>
+          <Link
+            key={game.id}
+            state={{ from: location.pathname, backgroundLocation: location }}
+            to={`/game/${game.slug}`}
+          >
             <GameCard
               title={game.name}
               image={game.imageUrl ?? undefined}

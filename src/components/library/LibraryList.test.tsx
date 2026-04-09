@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { LibraryList } from "./LibraryList";
 import type { LibraryEntry } from "../../features/library/library.types";
 
@@ -45,6 +46,11 @@ function createEntry(listType: LibraryEntry["listType"]): LibraryEntry {
   };
 }
 
+function LocationStateProbe() {
+  const location = useLocation();
+  return <pre>{JSON.stringify(location.state)}</pre>;
+}
+
 describe("LibraryList", () => {
   it("renders wishlist items with a move-to-collection button", () => {
     render(
@@ -67,16 +73,29 @@ describe("LibraryList", () => {
     expect(screen.queryByRole("button", { name: /move to collection/i })).not.toBeInTheDocument();
   });
 
-  it("passes route state through game links when provided", () => {
+  it("passes route state through game links when provided", async () => {
+    const user = userEvent.setup();
+
     render(
-      <MemoryRouter>
-        <LibraryList
-          entries={[createEntry("collection")]}
-          getGameLinkState={() => ({ from: "/wishlist" })}
-        />
+      <MemoryRouter initialEntries={["/"]}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <LibraryList
+                entries={[createEntry("collection")]}
+                getGameLinkState={() => ({ from: "/wishlist" })}
+              />
+            }
+          />
+          <Route path="/game/:slug" element={<LocationStateProbe />} />
+        </Routes>
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("link", { name: /heat/i })).toHaveAttribute("href", "/game/heat");
+    await user.click(screen.getByRole("link", { name: /heat/i }));
+
+    expect(screen.getByText(/"from":"\/"/i)).toBeInTheDocument();
+    expect(screen.getByText(/"backgroundLocation"/i)).toBeInTheDocument();
   });
 });
