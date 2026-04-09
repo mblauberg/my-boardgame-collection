@@ -77,14 +77,14 @@ export function AccountSettingsPage() {
           </div>
           
           <div className="md:col-span-1 bg-surface-container-low p-6 rounded-xl flex flex-col justify-center border border-outline-variant/5">
-            <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Wishlist</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Saved</div>
             <div className="text-3xl font-black text-primary">28</div>
             <div className="mt-4 flex -space-x-2">
               <div className="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
-                <img className="w-full h-full object-cover" alt="wishlist game 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBguiXq6FABe6DPf9lfiEPbCCTVBrIUg58ODeYu2KhPpnAGKOjjaOs5OdvQk9tlZF7I8lbGoPtnb-6tdk5dm2-O-sfmgMnUMZN3NBkhja_aW21qoXBdxntq3LfMuSzVI0s0tTx69sAcikesOS4j_Ap-pHP9VETfmFqiTQNGIgmJpAqa0ySiAs9UTwLGitG0cdCwVMbs_ET_j89w0Du_L30a2Myop_K134ZQTVsIBMkrXUhILhx_goZM3Mh4FrVeuMP0xGtCA9M5Ao4" />
+                <img className="w-full h-full object-cover" alt="saved game 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBguiXq6FABe6DPf9lfiEPbCCTVBrIUg58ODeYu2KhPpnAGKOjjaOs5OdvQk9tlZF7I8lbGoPtnb-6tdk5dm2-O-sfmgMnUMZN3NBkhja_aW21qoXBdxntq3LfMuSzVI0s0tTx69sAcikesOS4j_Ap-pHP9VETfmFqiTQNGIgmJpAqa0ySiAs9UTwLGitG0cdCwVMbs_ET_j89w0Du_L30a2Myop_K134ZQTVsIBMkrXUhILhx_goZM3Mh4FrVeuMP0xGtCA9M5Ao4" />
               </div>
               <div className="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
-                <img className="w-full h-full object-cover" alt="wishlist game 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOu7gWVczr4EeMNrqtYpKe5CML7RFRzhtIEkf7XgOg7vxme3oUyn6LqrouxGmWQkJW7_EvN4GM1kFxCqLOAZnmo5sxOvOJLhNYn1P-qUw_mUPXvlEKmKdJ2wwNlbYpjGxANchh6j104-IgykehhEfKbRXWGJWLiSmBayPfldU69-YAyo5ln7Ha7Mp433J0rIGPvkhUYvxr8_g7sLN0lb9GY7eTk-FEW2eC3mhgxigSLp53lNIVypbZrOt2Mkk0EMl5bx0MiAZBi3Q" />
+                <img className="w-full h-full object-cover" alt="saved game 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOu7gWVczr4EeMNrqtYpKe5CML7RFRzhtIEkf7XgOg7vxme3oUyn6LqrouxGmWQkJW7_EvN4GM1kFxCqLOAZnmo5sxOvOJLhNYn1P-qUw_mUPXvlEKmKdJ2wwNlbYpjGxANchh6j104-IgykehhEfKbRXWGJWLiSmBayPfldU69-YAyo5ln7Ha7Mp433J0rIGPvkhUYvxr8_g7sLN0lb9GY7eTk-FEW2eC3mhgxigSLp53lNIVypbZrOt2Mkk0EMl5bx0MiAZBi3Q" />
               </div>
               <div className="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold">+26</div>
             </div>
@@ -153,7 +153,7 @@ export function AccountSettingsPage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-on-surface">Smart Alerts</h4>
-                  <p className="text-sm text-on-surface-variant">Notify when wishlisted games go on sale</p>
+                  <p className="text-sm text-on-surface-variant">Notify when saved games go on sale</p>
                 </div>
               </div>
               <button className="w-12 h-6 bg-primary rounded-full relative p-1 flex items-center justify-end transition-colors shrink-0">

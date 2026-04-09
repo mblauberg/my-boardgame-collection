@@ -7,7 +7,7 @@ export type PublicProfile = {
   username: string;
   is_profile_public: boolean;
   is_collection_public: boolean;
-  is_wishlist_public: boolean;
+  is_saved_public: boolean;
 };
 
 export function usePublicProfileQuery(username: string) {

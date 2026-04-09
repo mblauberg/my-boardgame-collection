@@ -27,7 +27,7 @@ describe("AppShell", () => {
 
     expect(screen.getByRole("link", { name: /the game haven/i })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Collection" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Wishlist" })).toHaveAttribute("href", "/wishlist");
+    expect(screen.getByRole("link", { name: "Saved" })).toHaveAttribute("href", "/saved");
     expect(screen.getByRole("link", { name: "Explore" })).toHaveAttribute("href", "/explore");
     expect(screen.getByText("Route body")).toBeInTheDocument();
   });

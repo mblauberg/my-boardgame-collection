@@ -7,7 +7,7 @@ export interface Profile {
   username: string | null;
   is_profile_public: boolean;
   is_collection_public: boolean;
-  is_wishlist_public: boolean;
+  is_saved_public: boolean;
   created_at: string;
   updated_at: string;
 }

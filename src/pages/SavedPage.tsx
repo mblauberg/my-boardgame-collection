@@ -4,28 +4,26 @@ import { FloatingActionButton } from "../components/layout/FloatingActionButton"
 import { LibraryList } from "../components/library/LibraryList";
 import { LibraryToolbar } from "../components/library/LibraryToolbar";
 import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
-import { useMoveWishlistToCollection } from "../features/library/useLibraryEntryMutations";
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
-import { useWishlistQuery } from "../features/library/useWishlistQuery";
+import { useSavedQuery } from "../features/library/useSavedQuery";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
-export function WishlistPage() {
+export function SavedPage() {
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
-  const { data: entries, isLoading, error } = useWishlistQuery();
-  const moveToCollection = useMoveWishlistToCollection();
+  const { data: entries, isLoading, error } = useSavedQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
 
   if (isLoading) {
-    return <div className="p-8 text-center">Loading wishlist...</div>;
+    return <div className="p-8 text-center">Loading saved games...</div>;
   }
 
   if (error) {
     return (
       <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
-        <p className="text-lg font-semibold">Wishlist unavailable</p>
+        <p className="text-lg font-semibold">Saved games unavailable</p>
         <p className="mt-2 text-sm leading-6">
-          {getSupabaseQueryErrorMessage(error, "wishlist")}
+          {getSupabaseQueryErrorMessage(error, "saved games")}
         </p>
       </div>
     );
@@ -39,10 +37,10 @@ export function WishlistPage() {
       <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-            Future Games
+            On Your Radar
           </p>
           <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-on-surface md:text-7xl">
-            The <span className="text-primary">Wishlist</span>
+            Your <span className="text-primary">Saved</span> Games
           </h1>
         </div>
       </header>
@@ -56,24 +54,12 @@ export function WishlistPage() {
         onClear={clearFilters}
       />
 
-      <LibraryList
-        entries={sortedEntries}
-        getGameLinkState={() => ({ from: "/wishlist" })}
-        isMovePending={moveToCollection.isPending}
-        onMoveToCollection={(entryId) => {
-          const entry = sortedEntries.find((candidate) => candidate.id === entryId);
-          if (!entry) return;
-
-          moveToCollection.mutate({
-            id: entryId,
-            userId: entry.userId,
-          });
-        }}
-      />
+      <LibraryList entries={sortedEntries} getGameLinkState={() => ({ from: "/saved" })} />
       <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
       <AddGameWizardOverlay
         isOpen={isAddGameOpen}
         defaultListType="wishlist"
+        defaultState={{ isSaved: true, isLoved: false, isInCollection: false }}
         onClose={() => setIsAddGameOpen(false)}
       />
     </>

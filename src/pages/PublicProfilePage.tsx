@@ -30,8 +30,8 @@ export function PublicProfilePage() {
     profile.is_collection_public
       ? { href: `/u/${profile.username}/collection`, label: "Collection" }
       : null,
-    profile.is_wishlist_public
-      ? { href: `/u/${profile.username}/wishlist`, label: "Wishlist" }
+    profile.is_saved_public
+      ? { href: `/u/${profile.username}/saved`, label: "Saved" }
       : null,
   ].filter((section): section is { href: string; label: string } => section !== null);
 

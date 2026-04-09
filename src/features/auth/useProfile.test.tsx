@@ -46,7 +46,7 @@ const ownerFixture: { session: Session; profile: Profile } = {
     username: "owner-user",
     is_profile_public: false,
     is_collection_public: false,
-    is_wishlist_public: false,
+    is_saved_public: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -74,7 +74,7 @@ const viewerFixture: { session: Session; profile: Profile } = {
     username: null,
     is_profile_public: false,
     is_collection_public: false,
-    is_wishlist_public: false,
+    is_saved_public: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -129,7 +129,7 @@ describe("useProfile", () => {
       expect(result.current.profile?.username).toBeNull();
       expect(result.current.profile?.is_profile_public).toBe(false);
       expect(result.current.profile?.is_collection_public).toBe(false);
-      expect(result.current.profile?.is_wishlist_public).toBe(false);
+      expect(result.current.profile?.is_saved_public).toBe(false);
     });
   });
 

@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
+
+vi.mock("../../pages/AuthCallbackPage", () => ({
+  AuthCallbackPage: () => <div>Completing sign in</div>,
+}));
+
 import { AppRoutes, appRouteDefinitions } from "./routes";
 
 function renderWithRouter(initialEntry: string) {
@@ -22,9 +27,9 @@ function renderWithRouter(initialEntry: string) {
 }
 
 describe("AppRoutes", () => {
-  it("registers wishlist in the app route definitions and removes buy order", () => {
+  it("registers saved in the app route definitions and removes buy order", () => {
     expect(appRouteDefinitions).toEqual(
-      expect.arrayContaining([expect.objectContaining({ path: "/wishlist", label: "Wishlist" })]),
+      expect.arrayContaining([expect.objectContaining({ path: "/saved", label: "Saved" })]),
     );
     expect(appRouteDefinitions).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ path: "/buy-order" })]),

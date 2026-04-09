@@ -64,8 +64,8 @@ export function SignInForm() {
           </p>
           <p className="mt-1 text-sm text-gray-700">
             Profile: {profile.is_profile_public ? "Public" : "Private"} · Collection:{" "}
-            {profile.is_collection_public ? "Public" : "Private"} · Wishlist:{" "}
-            {profile.is_wishlist_public ? "Public" : "Private"}
+            {profile.is_collection_public ? "Public" : "Private"} · Saved:{" "}
+            {profile.is_saved_public ? "Public" : "Private"}
           </p>
         </div>
         <button

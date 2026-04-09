@@ -17,7 +17,7 @@ describe("PublicProfilePage", () => {
         username: "alice",
         is_profile_public: true,
         is_collection_public: true,
-        is_wishlist_public: false,
+        is_saved_public: false,
       },
       isLoading: false,
       error: null,
@@ -33,7 +33,7 @@ describe("PublicProfilePage", () => {
 
     expect(screen.getByRole("heading", { name: /alice/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /collection/i })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /wishlist/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /saved/i })).not.toBeInTheDocument();
   });
 
   it("renders not found style output when the profile is not public", async () => {

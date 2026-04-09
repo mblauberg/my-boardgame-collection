@@ -11,7 +11,7 @@ export type UpdateProfileInput = {
   username?: string | null;
   is_profile_public?: boolean;
   is_collection_public?: boolean;
-  is_wishlist_public?: boolean;
+  is_saved_public?: boolean;
 };
 
 function normalizeUsername(username: string | null | undefined) {
@@ -30,7 +30,7 @@ export function useUpdateProfileMutation() {
       const wantsPublicVisibility =
         input.is_profile_public === true ||
         input.is_collection_public === true ||
-        input.is_wishlist_public === true;
+        input.is_saved_public === true;
 
       if (wantsPublicVisibility && !username) {
         throw new Error("Choose a username before enabling public profile visibility.");
@@ -42,7 +42,7 @@ export function useUpdateProfileMutation() {
       if (input.is_collection_public !== undefined) {
         patch.is_collection_public = input.is_collection_public;
       }
-      if (input.is_wishlist_public !== undefined) patch.is_wishlist_public = input.is_wishlist_public;
+      if (input.is_saved_public !== undefined) patch.is_saved_public = input.is_saved_public;
 
       const { data, error } = await supabase
         .from("profiles")

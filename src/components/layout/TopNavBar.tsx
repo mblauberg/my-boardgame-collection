@@ -20,7 +20,7 @@ export function TopNavBar() {
       </div>
       <div className="hidden md:flex items-center gap-8">
         <Link className={getLinkClass("/explore")} to="/explore">Explore</Link>
-        <Link className={getLinkClass("/wishlist")} to="/wishlist">Wishlist</Link>
+        <Link className={getLinkClass("/saved")} to="/saved">Saved</Link>
         <Link className={getLinkClass("/")} to="/">Collection</Link>
       </div>
       <div className="flex items-center gap-4">

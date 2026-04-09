@@ -6,8 +6,8 @@ import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 function getBackLabel(path: string) {
   if (path === "/explore") return "Explore";
-  if (path === "/wishlist") return "Wishlist";
-  if (path.startsWith("/u/") && path.endsWith("/wishlist")) return "Public wishlist";
+  if (path === "/saved") return "Saved";
+  if (path.startsWith("/u/") && path.endsWith("/saved")) return "Public saved";
   if (path.startsWith("/u/") && path.endsWith("/collection")) return "Public collection";
   return "Collection";
 }
