@@ -54,6 +54,11 @@ const game = {
   bggUrl: null,
   imageUrl: null,
   summary: null,
+  publishedYear: null,
+  playersMin: null,
+  playersMax: null,
+  playTimeMin: null,
+  playTimeMax: null,
 };
 
 describe("GameDetailPage", () => {
@@ -157,7 +162,7 @@ describe("GameDetailPage", () => {
     expect(screen.getByRole("link", { name: /back to collection/i })).toHaveAttribute("href", "/");
   });
 
-  it("saves pasted image URLs for games without images", async () => {
+  it("sends owner metadata updates for missing fields", async () => {
     const user = userEvent.setup();
     const mutateAsync = vi.fn().mockResolvedValue({});
     profileState.isOwner = true;
@@ -179,6 +184,11 @@ describe("GameDetailPage", () => {
 
     await user.click(screen.getByRole("button", { name: /edit game/i }));
     await user.type(screen.getByLabelText(/image url/i), " https://example.com/cover.jpg ");
+    await user.type(screen.getByLabelText(/published year/i), "2022");
+    await user.type(screen.getByLabelText(/players min/i), "2");
+    await user.type(screen.getByLabelText(/players max/i), "5");
+    await user.type(screen.getByLabelText(/play time min/i), "45");
+    await user.type(screen.getByLabelText(/play time max/i), "90");
     await user.click(screen.getByRole("button", { name: /^save$/i }));
 
     await waitFor(() => {
@@ -186,12 +196,54 @@ describe("GameDetailPage", () => {
         id: "game-1",
         imageUrl: "https://example.com/cover.jpg",
         summary: null,
+        publishedYear: 2022,
+        playersMin: 2,
+        playersMax: 5,
+        playTimeMin: 45,
+        playTimeMax: 90,
         userId: "user-1",
+        isOwner: true,
         bggId: 266192,
         name: "A Fake Artist",
         slug: "a-fake-artist",
         bggUrl: null,
       });
+    });
+  });
+
+  it("passes non-owner context so requests are submitted instead of direct writes", async () => {
+    const user = userEvent.setup();
+    const mutateAsync = vi.fn().mockResolvedValue({});
+    profileState.isOwner = false;
+    updateMutationState.mutateAsync = mutateAsync;
+
+    vi.mocked(useGameDetailQuery).mockReturnValue({
+      data: game,
+      isLoading: false,
+      error: null,
+    } as never);
+
+    render(
+      <MemoryRouter initialEntries={["/game/a-fake-artist"]}>
+        <Routes>
+          <Route path="/game/:slug" element={<GameDetailPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /edit game/i }));
+    await user.type(screen.getByLabelText(/summary/i), " Submit this description ");
+    await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+    await waitFor(() => {
+      expect(mutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "game-1",
+          summary: "Submit this description",
+          isOwner: false,
+          userId: "user-1",
+        }),
+      );
     });
   });
 

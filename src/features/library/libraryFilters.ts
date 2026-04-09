@@ -10,6 +10,13 @@ export type LibraryFilters = {
   playerCount?: number | null;
   playTime?: number | null;
   maxWeight?: number | null;
+  playersMin?: number;
+  playersMax?: number;
+  playTimeMin?: number;
+  playTimeMax?: number;
+  weightMin?: number;
+  weightMax?: number;
+  isLoved?: boolean;
 };
 
 export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFilters) {
@@ -18,6 +25,7 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
   return entries.filter((entry) => {
     if (filters.surface === "collection" && !entry.isInCollection) return false;
     if (filters.surface === "saved" && !entry.isSaved) return false;
+    if (filters.isLoved && !entry.isLoved) return false;
 
     if (searchText) {
       const haystack = `${entry.game.name} ${entry.game.summary ?? ""}`.toLowerCase();
@@ -49,6 +57,12 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
       }
     }
 
+    if (filters.playersMin != null || filters.playersMax != null) {
+      const { playersMin, playersMax } = entry.game;
+      if (playersMin != null && filters.playersMax != null && playersMin > filters.playersMax) return false;
+      if (playersMax != null && filters.playersMin != null && playersMax < filters.playersMin) return false;
+    }
+
     if (filters.playTime != null) {
       const { playTimeMin, playTimeMax } = entry.game;
       if (
@@ -60,8 +74,22 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
       }
     }
 
+    if (filters.playTimeMin != null || filters.playTimeMax != null) {
+      const { playTimeMin, playTimeMax } = entry.game;
+      if (playTimeMin != null && filters.playTimeMax != null && playTimeMin > filters.playTimeMax) return false;
+      if (playTimeMax != null && filters.playTimeMin != null && playTimeMax < filters.playTimeMin) return false;
+    }
+
     if (filters.maxWeight != null && entry.game.bggWeight != null && entry.game.bggWeight > filters.maxWeight) {
       return false;
+    }
+
+    if (filters.weightMin != null || filters.weightMax != null) {
+      const weight = entry.game.bggWeight;
+      if (weight != null) {
+        if (filters.weightMin != null && weight < filters.weightMin) return false;
+        if (filters.weightMax != null && weight > filters.weightMax) return false;
+      }
     }
 
     return true;
@@ -83,6 +111,8 @@ export function sortLibraryEntries(
 ) {
   return [...entries].sort((left, right) => {
     switch (sortBy) {
+      case "rank":
+        return compareValues(left.game.bggRank ?? 999999, right.game.bggRank ?? 999999, direction);
       case "name":
         return compareValues(left.game.name, right.game.name, direction);
       case "rating":
@@ -91,12 +121,6 @@ export function sortLibraryEntries(
         return compareValues(left.game.bggWeight ?? -1, right.game.bggWeight ?? -1, direction);
       case "year":
         return compareValues(left.game.publishedYear ?? -1, right.game.publishedYear ?? -1, direction);
-      case "priority":
-        return compareValues(
-          left.priority ?? Number.MAX_SAFE_INTEGER,
-          right.priority ?? Number.MAX_SAFE_INTEGER,
-          direction
-        );
       default:
         return 0;
     }

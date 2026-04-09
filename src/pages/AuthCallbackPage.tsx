@@ -59,7 +59,7 @@ export function AuthCallbackPage() {
 
   return (
     <div className="mx-auto max-w-md py-12 px-4">
-      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
         <h1 className="text-2xl font-bold text-on-surface">Completing sign in</h1>
         <p className="mt-3 text-sm text-on-surface-variant">
           This should only take a moment while your magic link session is confirmed.

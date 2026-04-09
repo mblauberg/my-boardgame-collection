@@ -4,35 +4,140 @@
 
 @layer base {
   :root {
-    --surface: #f7f6f3;
-    --surface-container-low: #f1f1ee;
-    --surface-container-lowest: #ffffff;
-    --surface-container-high: #e2e3df;
-    --surface-container-highest: #ddddda;
-    --surface-bright: #f7f6f3;
-    --on-surface: #2e2f2d;
-    --on-surface-variant: #5b5c5a;
-    --primary: #8a4c00;
-    --primary-container: #fd9000;
-    --on-primary-fixed: #1e0c00;
-    --outline-variant: #adadab;
-    --surface-tint: #8a4c00;
+    /* Surface scale — light mode (warm off-white) */
+    --surface: 247 246 243;
+    --surface-container-low: 241 241 238;
+    --surface-container-lowest: 255 255 255;
+    --surface-container-high: 226 227 223;
+    --surface-container-highest: 221 221 218;
+    --surface-bright: 247 246 243;
+    --surface-dim: 212 213 209;
+    --surface-variant: 221 221 218;
+
+    /* Content */
+    --on-surface: 46 47 45;
+    --on-surface-variant: 91 92 90;
+
+    /* Primary — amber/orange */
+    --primary: 138 76 0;
+    --primary-container: 253 144 0;
+    --on-primary: 255 240 230;
+    --on-primary-fixed: 30 12 0;
+    --on-primary-container: 70 36 0;
+    --primary-fixed: 253 144 0;
+    --primary-fixed-dim: 234 132 0;
+    --primary-dim: 121 66 0;
+    --surface-tint: 138 76 0;
+    --inverse-primary: 253 144 0;
+
+    /* Secondary — teal */
+    --secondary: 0 103 92;
+    --secondary-container: 141 245 228;
+    --on-secondary: 192 255 243;
+    --on-secondary-container: 0 92 83;
+    --secondary-fixed: 141 245 228;
+    --secondary-fixed-dim: 127 230 213;
+    --secondary-dim: 0 90 80;
+    --on-secondary-fixed: 0 72 64;
+    --on-secondary-fixed-variant: 0 103 92;
+
+    /* Tertiary — yellow */
+    --tertiary: 109 90 0;
+    --tertiary-container: 253 215 62;
+    --on-tertiary: 255 242 207;
+    --on-tertiary-container: 92 75 0;
+    --tertiary-fixed: 253 215 62;
+    --tertiary-fixed-dim: 238 201 48;
+    --tertiary-dim: 95 78 0;
+    --on-tertiary-fixed: 70 57 0;
+    --on-tertiary-fixed-variant: 103 85 0;
+
+    /* Error — red */
+    --error: 176 37 0;
+    --error-container: 249 86 48;
+    --on-error: 255 239 236;
+    --on-error-container: 82 12 0;
+    --error-dim: 185 41 2;
+
+    /* Outline */
+    --outline: 118 119 117;
+    --outline-variant: 173 173 171;
+
+    /* Misc surface */
+    --on-background: 46 47 45;
+    --background: 247 246 243;
+    --inverse-surface: 13 15 13;
+    --inverse-on-surface: 157 157 155;
   }
 
-  .dark {
-    --surface: #131313;
-    --surface-container-low: #1c1b1b;
-    --surface-container-lowest: #0e0e0e;
-    --surface-container-high: #2a2a2a;
-    --surface-container-highest: #2a2a2a;
-    --surface-bright: #3a3a3a;
-    --on-surface: #e5e2e1;
-    --on-surface-variant: #dcc2ae;
-    --primary: #ffb97c;
-    --primary-container: #ff9100;
-    --on-primary-fixed: #2e1500;
-    --outline-variant: #564334;
-    --surface-tint: #ffb778;
+  :root.dark,
+  body.dark {
+    /* Surface scale — dark mode (obsidian) */
+    --surface: 19 19 19;
+    --surface-container-low: 28 27 27;
+    --surface-container-lowest: 14 14 14;
+    --surface-container-high: 42 42 42;
+    --surface-container-highest: 42 42 42;
+    --surface-bright: 58 58 58;
+    --surface-dim: 22 22 22;
+    --surface-variant: 68 68 68;
+
+    /* Content */
+    --on-surface: 242 236 231;
+    --on-surface-variant: 230 215 202;
+
+    /* Primary — warm orange/amber */
+    --primary: 255 185 124;
+    --primary-container: 255 145 0;
+    --on-primary: 70 36 0;
+    --on-primary-fixed: 46 21 0;
+    --on-primary-container: 255 221 178;
+    --primary-fixed: 253 144 0;
+    --primary-fixed-dim: 234 132 0;
+    --primary-dim: 255 149 58;
+    --surface-tint: 255 183 120;
+    --inverse-primary: 138 76 0;
+
+    /* Secondary — lighter teal for dark bg */
+    --secondary: 77 218 215;
+    --secondary-container: 0 79 70;
+    --on-secondary: 0 55 48;
+    --on-secondary-container: 141 245 228;
+    --secondary-fixed: 141 245 228;
+    --secondary-fixed-dim: 127 230 213;
+    --secondary-dim: 0 146 140;
+    --on-secondary-fixed: 0 72 64;
+    --on-secondary-fixed-variant: 0 103 92;
+
+    /* Tertiary — stays bright yellow, good contrast on dark */
+    --tertiary: 238 201 48;
+    --tertiary-container: 0 184 254;
+    --on-tertiary: 57 46 0;
+    --on-tertiary-container: 255 242 207;
+    --tertiary-fixed: 253 215 62;
+    --tertiary-fixed-dim: 238 201 48;
+    --tertiary-dim: 200 165 0;
+    --on-tertiary-fixed: 70 57 0;
+    --on-tertiary-fixed-variant: 103 85 0;
+
+    /* Error — MD3 dark error */
+    --error: 255 180 171;
+    --error-container: 147 0 10;
+    --on-error: 105 0 5;
+    --on-error-container: 255 218 214;
+    --error-dim: 220 50 40;
+
+    /* Outline */
+    --outline: 140 140 140;
+    --outline-variant: 86 67 52;
+
+    /* Misc surface */
+    --on-background: 229 226 225;
+    --background: 19 19 19;
+    --inverse-surface: 229 226 225;
+    --inverse-on-surface: 46 47 45;
+    
+    --ambient-shadow-color: rgb(var(--surface-tint) / 0.08);
   }
 }
 
@@ -40,11 +145,15 @@ body {
   margin: 0;
   min-width: 320px;
   font-family: "Manrope", -apple-system, sans-serif;
-  color: var(--on-surface);
-  background-color: var(--surface);
+  color: rgb(var(--on-surface));
+  background-color: rgb(var(--surface));
   transition:
     background-color 180ms ease,
     color 180ms ease;
+}
+
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 .material-symbols-outlined {
@@ -64,7 +173,7 @@ body {
 @media (min-width: 768px) {
   .editorial-grid {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 3rem;
+    gap: 2.25rem;
   }
 }
 
@@ -72,7 +181,7 @@ body {
   overflow-x: auto;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--primary) 30%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, rgb(var(--primary)) 30%, transparent) transparent;
 }
 
 .horizontal-scroll::-webkit-scrollbar {
@@ -84,17 +193,91 @@ body {
 }
 
 .horizontal-scroll::-webkit-scrollbar-thumb {
-  background-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  background-color: color-mix(in srgb, rgb(var(--primary)) 30%, transparent);
   border-radius: 4px;
 }
 
 .horizontal-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, var(--primary) 50%, transparent);
+  background-color: color-mix(in srgb, rgb(var(--primary)) 50%, transparent);
 }
 
 .glass-nav {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+}
+
+.overlay-sticky-header-glass {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface) / 0.72),
+    rgb(var(--surface-container-low) / 0.56)
+  );
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 6px 20px rgb(var(--on-surface) / 0.06);
+}
+
+.dark .overlay-sticky-header-glass {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-low) / 0.84),
+    rgb(var(--surface-container-high) / 0.68)
+  );
+}
+
+.game-card-hero-overlay {
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--surface) / 0) 26%,
+      rgb(var(--surface) / 0.24) 60%,
+      rgb(var(--surface) / 0.84) 100%
+    ),
+    radial-gradient(
+      130% 64% at 50% 100%,
+      rgb(var(--primary-container) / 0.22) 0%,
+      rgb(var(--primary-container) / 0) 72%
+    );
+  opacity: 0.84;
+  transition: opacity 220ms ease;
+}
+
+.group:hover .game-card-hero-overlay {
+  opacity: 0.98;
+}
+
+.dark .game-card-hero-overlay {
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--surface) / 0) 18%,
+      rgb(var(--surface) / 0.44) 58%,
+      rgb(var(--surface) / 0.95) 100%
+    ),
+    radial-gradient(
+      130% 64% at 50% 100%,
+      rgb(var(--primary) / 0.26) 0%,
+      rgb(var(--primary) / 0) 74%
+    );
+}
+
+.game-card-title-glass {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-lowest) / 0.74),
+    rgb(var(--surface-container-low) / 0.52)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgb(var(--on-surface) / 0.1);
+}
+
+.dark .game-card-title-glass {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--surface-container-low) / 0.9),
+    rgb(var(--surface-container-high) / 0.78)
+  );
 }
 
 a {

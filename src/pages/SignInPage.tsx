@@ -11,7 +11,7 @@ export function SignInPage() {
           The curated portal to your board game gallery.
         </p>
       </div>
-      <div className="w-full max-w-md rounded-xl bg-surface-container-lowest p-8 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+      <div className="w-full max-w-md rounded-xl bg-surface-container-lowest p-8 shadow-ambient">
         <SignInForm />
       </div>
     </div>

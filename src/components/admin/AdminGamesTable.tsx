@@ -23,7 +23,7 @@ export function AdminGamesTable({ games, onEdit }: Props) {
         className="w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
       />
 
-      <div className="overflow-x-auto rounded-lg border border-outline-variant">
+      <div className="hidden sm:block overflow-x-auto rounded-lg border border-outline-variant">
         <table className="min-w-full divide-y divide-outline-variant/10 text-sm">
           <thead className="bg-surface-container-low">
             <tr>
@@ -65,6 +65,35 @@ export function AdminGamesTable({ games, onEdit }: Props) {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="sm:hidden space-y-2">
+        {filtered.map((game) => (
+          <div key={game.id} className="flex items-center justify-between rounded-xl bg-surface-container-low p-4">
+            <div className="min-w-0">
+              <p className="font-semibold text-on-surface truncate">{game.name}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <p className="text-xs text-on-surface-variant">{game.status}</p>
+                {game.hidden && (
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    hidden
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onEdit(game)}
+              className="ml-4 shrink-0 text-sm font-medium text-primary hover:text-primary-container"
+            >
+              Edit
+            </button>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <p className="py-6 text-center text-on-surface-variant">No games found.</p>
+        )}
       </div>
     </div>
   );

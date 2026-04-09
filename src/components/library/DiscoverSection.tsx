@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { HorizontalShelf } from "./HorizontalShelf";
+import { useInView } from "../../hooks/useInView";
 import type { Game } from "../../types/domain";
 
 type DiscoverSectionProps = {
@@ -16,13 +17,14 @@ type DiscoverSectionProps = {
 
 export function DiscoverSection({ title, emoji, description, shelves }: DiscoverSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { ref, isInView } = useInView();
   
   const totalGames = shelves.reduce((sum, shelf) => sum + shelf.entries.length, 0);
   
   if (totalGames === 0) return null;
 
   return (
-    <section className="mb-12">
+    <section ref={ref} className="mb-12">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full text-left bg-surface-container-low rounded-2xl p-8 transition-all duration-300 hover:bg-surface-container-highest"
@@ -50,7 +52,7 @@ export function DiscoverSection({ title, emoji, description, shelves }: Discover
         </div>
       </button>
 
-      {isExpanded && (
+      {isExpanded && isInView && (
         <div className="mt-8 space-y-8">
           {shelves.map((shelf) => (
             <HorizontalShelf

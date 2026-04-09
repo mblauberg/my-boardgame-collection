@@ -59,6 +59,18 @@ In this system, "Flat is boring, but Deep is distracting." We use **Tonal Layeri
 
 ## 5. Components
 
+### Floating Liquid-Glass Header Ovals
+Introduce a floating, liquid-glass overlay header composed of compact, oval elements rather than a full-width opaque strip. Guidelines:
+
+- Transparent sticky host: the header sits in a sticky container (e.g., position: sticky) with a mostly transparent backdrop so page art remains visible. Avoid full-width opaque bars; prefer a narrow host band that breathes with the layout.
+- Title as an oval glass pill: place the collection or page title inside a horizontally elongated glass "pill" (oval) with a soft linear translucency and subtle internal highlight to read as a single, elevated object.
+- Actions as circular glass pills: group action buttons (filters, sort, export) into small circular glass pills to the right of the title to create a compact toolbar motif.
+- Layered translucency + blur + soft highlight/shadow: achieve depth with layered translucent gradients over the host (two or three micro-gradients), a moderate backdrop-filter blur (e.g., 8–24px), and a soft ambient shadow/highlight pair (tinted by surface tint) rather than hard strokes.
+- No hard border/divider: adhere to the "No-Line" rule — do not use 1px borders or divider rules to separate the header from content. Rely on translucency, contrast, and spacing to delineate.
+
+These ovals should read as lightweight, textural UI jewelry that lets underlying game art show through while remaining legible and tappable. Keep spacing airy and prioritize hit target sizes over compact visual density.
+
+
 ### Buttons
 *   **Primary:** Gradient of `primary` to `primary-container`. `md` rounded corners. White text (`on-primary`).
 *   **Secondary:** `secondary-container` (#8df5e4) with `on-secondary-container` (#005c53) text. No border.

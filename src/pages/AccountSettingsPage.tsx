@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { PageHeader } from "../components/layout/PageHeader";
 import { useProfile } from "../features/auth/useProfile";
 import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
 import { useTheme } from "../lib/theme";
@@ -104,15 +105,18 @@ export function AccountSettingsPage() {
 
   return (
     <>
-      <div className="mt-2">
-        <section className="relative space-y-10">
-          <div className="absolute right-0 top-0 flex items-center gap-3">
+      <PageHeader
+        eyebrow="Account Settings"
+        title={<>Manage Your <span className="text-primary">Account</span></>}
+        description="Update your public identity and choose which parts of your library other players can see."
+        actions={
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle dark mode"
               aria-pressed={theme === "dark"}
-              className="flex items-center gap-2 rounded-2xl bg-surface/70 px-4 py-3 text-on-surface shadow-[0_12px_40px_rgba(46,47,45,0.06)] backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-[0_16px_48px_rgba(46,47,45,0.08)]"
+              className="flex items-center gap-2 rounded-2xl bg-surface/70 px-4 py-3 text-on-surface shadow-ambient backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-ambient-lg dark:bg-[rgb(42_42_42/0.7)] dark:hover:bg-[rgb(58_58_58/0.7)]"
             >
               <span className="material-symbols-outlined text-[20px] text-on-surface">
                 {theme === "dark" ? "light_mode" : "dark_mode"}
@@ -121,41 +125,20 @@ export function AccountSettingsPage() {
             {profile.username && (
               <Link
                 to={`/u/${profile.username}`}
-                className="flex items-center gap-3 rounded-2xl bg-surface/70 px-5 py-3 shadow-[0_12px_40px_rgba(46,47,45,0.06)] backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-[0_16px_48px_rgba(46,47,45,0.08)]"
+                className="flex items-center gap-3 rounded-2xl bg-surface/70 px-5 py-3 shadow-ambient backdrop-blur-[24px] transition-all hover:bg-surface-bright/70 hover:shadow-ambient-lg dark:bg-[rgb(42_42_42/0.7)] dark:hover:bg-[rgb(58_58_58/0.7)]"
               >
                 <span className="material-symbols-outlined text-[20px] text-primary">visibility</span>
                 <span className="text-sm font-semibold text-on-surface">View Profile</span>
               </Link>
             )}
           </div>
-          
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.1em] text-primary">
-                Account Settings
-              </span>
-              <h1 className="mt-2 text-4xl font-extrabold tracking-tighter text-on-surface md:text-5xl">
-                Manage your account details.
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-on-surface-variant">
-                Update your public identity and choose which parts of your library other players can
-                see.
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2 rounded-full bg-secondary-fixed/20 px-4 py-2">
-                <span className="h-2 w-2 rounded-full bg-secondary"></span>
-                <span className="text-xs font-bold uppercase tracking-wider text-on-secondary-container">
-                  {isOwner ? "Owner Mode" : "Player Mode"}
-                </span>
-              </div>
-            </div>
-          </div>
+        }
+      />
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
             <div className="space-y-6">
               <form
-                className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-[0_12px_40px_rgba(46,47,45,0.06)]"
+                className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-ambient dark:bg-[rgb(28_27_27)]"
                 onSubmit={(event) => {
                   event.preventDefault();
                   void handleSave();
@@ -176,7 +159,7 @@ export function AccountSettingsPage() {
                     value={profile.email ?? ""}
                     disabled
                     readOnly
-                    className="mt-3 w-full rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant"
+                    className="mt-3 w-full rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant dark:bg-[rgb(42_42_42)]"
                   />
                 </label>
 
@@ -192,12 +175,12 @@ export function AccountSettingsPage() {
                       }))
                     }
                     placeholder="Choose a public username"
-                    className="mt-3 w-full rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30 focus:bg-surface-container-high"
+                    className="mt-3 w-full rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30 focus:bg-surface-container-high dark:bg-[rgb(42_42_42)] dark:focus:bg-[rgb(58_58_58)]"
                   />
                 </label>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4 dark:bg-[rgb(42_42_42)]">
                     <input
                       type="checkbox"
                       aria-label="Public profile"
@@ -218,7 +201,7 @@ export function AccountSettingsPage() {
                     </span>
                   </label>
 
-                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4 dark:bg-[rgb(42_42_42)]">
                     <input
                       type="checkbox"
                       aria-label="Public collection"
@@ -239,7 +222,7 @@ export function AccountSettingsPage() {
                     </span>
                   </label>
 
-                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4 dark:bg-[rgb(42_42_42)]">
                     <input
                       type="checkbox"
                       aria-label="Public saved"
@@ -287,7 +270,7 @@ export function AccountSettingsPage() {
                 </div>
               </form>
 
-              <div className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+              <div className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-ambient dark:bg-[rgb(28_27_27)]">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
                     Preferences
@@ -297,7 +280,7 @@ export function AccountSettingsPage() {
                   </h2>
                 </div>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4 dark:bg-[rgb(42_42_42)]">
                   <input type="checkbox" className="mt-1" />
                   <span>
                     <span className="block text-sm font-bold text-on-surface">Email Updates</span>
@@ -307,7 +290,7 @@ export function AccountSettingsPage() {
                   </span>
                 </label>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4 dark:bg-[rgb(42_42_42)]">
                   <input type="checkbox" className="mt-1" />
                   <span>
                     <span className="block text-sm font-bold text-on-surface">BGG Sync Alerts</span>
@@ -320,7 +303,7 @@ export function AccountSettingsPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6">
+              <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6 dark:bg-[rgb(28_27_27)]">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
                   Account Summary
                 </p>
@@ -354,7 +337,7 @@ export function AccountSettingsPage() {
                 </dl>
               </div>
 
-              <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6">
+              <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6 dark:bg-[rgb(28_27_27)]">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
                   Quick Tip
                 </p>
@@ -366,8 +349,6 @@ export function AccountSettingsPage() {
               </div>
             </div>
           </div>
-        </section>
-      </div>
     </>
   );
 }

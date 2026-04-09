@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export interface GameCardProps {
   title: string;
   image?: string;
@@ -8,6 +10,7 @@ export interface GameCardProps {
   rating?: number;
   isFavorite?: boolean;
   badge?: "In Collection" | "Saved";
+  topRightSlot?: React.ReactNode;
 }
 
 const MOCK_IMAGES = [
@@ -35,19 +38,24 @@ export function GameCard({
   weight,
   rating,
   isFavorite,
-  badge
+  badge,
+  topRightSlot,
 }: GameCardProps) {
   const displayImage = image ?? getFallbackImage(title);
   const displayTitle = title.replace(/_/g, " ");
+  const hasStats = Boolean(players || playTime || weight);
+  const hasDetails = Boolean(description || hasStats);
 
   return (
-    <article className="group relative overflow-hidden rounded-xl bg-surface-container-lowest transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
-      <div className="relative aspect-[3/2] overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+    <article className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest transition-all duration-300 hover:-translate-y-1 hover:shadow-ambient-lg dark:bg-[rgb(28_27_27)]">
+      <div className="relative aspect-[4/5] overflow-hidden">
         <img
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           alt={`Cover art for ${displayTitle}`}
           src={displayImage}
         />
+
+        <div className="game-card-hero-overlay pointer-events-none absolute inset-0" />
         
         <div className="absolute left-3 right-3 top-3 flex items-start justify-between md:left-4 md:right-4 md:top-4">
           {rating && rating > 0 ? (
@@ -55,67 +63,69 @@ export function GameCard({
               <span className="material-symbols-outlined text-sm text-tertiary-fixed md:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
                 star
               </span>
-              <span className="text-xs font-bold text-white md:text-sm">{rating.toFixed(1)}</span>
+              <span className="text-xs font-bold text-surface md:text-sm">{rating.toFixed(1)}</span>
             </div>
           ) : (
             <div />
           )}
           
-          {badge && (
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider md:px-3 md:py-1 md:text-xs ${
-              badge === "In Collection"
-                ? "bg-secondary-fixed text-on-secondary-container"
-                : "bg-tertiary-fixed text-on-tertiary-fixed"
-            }`}>
+          {topRightSlot ?? (badge && (
+            <span className="rounded-full border border-primary/70 bg-gradient-to-br from-primary-container to-primary px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed shadow-ambient md:px-3 md:py-1.5 md:text-xs">
               {badge}
             </span>
-          )}
+          ))}
+        </div>
+
+        <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4">
+          <div className="game-card-title-glass flex items-start justify-between gap-2 rounded-xl px-2.5 py-2 md:px-3 md:py-2.5">
+            <h3 className="min-w-0 flex-1 line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl dark:text-[rgb(245_238_232)]">
+              {displayTitle}
+            </h3>
+            {isFavorite ? (
+              <span
+                aria-label="Loved"
+                className="material-symbols-outlined flex-shrink-0 text-primary text-lg md:text-xl"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                favorite
+              </span>
+            ) : null}
+          </div>
         </div>
       </div>
 
-      <div className="space-y-3 p-4 md:space-y-4 md:p-6">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 flex-1 text-xl font-extrabold leading-tight text-on-surface md:text-2xl">
-            {displayTitle}
-          </h3>
-          {isFavorite ? (
-            <span
-              aria-label="Loved"
-              className="material-symbols-outlined flex-shrink-0 text-primary text-xl md:text-2xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              favorite
-            </span>
+      {hasDetails ? (
+        <div className="space-y-2.5 p-4 md:space-y-3 md:p-5">
+          {description && (
+            <p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant md:text-sm">
+              {description}
+            </p>
+          )}
+
+          {hasStats ? (
+            <div className="flex flex-wrap gap-3 pt-1 md:gap-4 md:pt-2">
+              {players && (
+                <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
+                  <span className="material-symbols-outlined text-base md:text-lg">group</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{players}</span>
+                </div>
+              )}
+              {playTime && (
+                <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
+                  <span className="material-symbols-outlined text-base md:text-lg">schedule</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{playTime}</span>
+                </div>
+              )}
+              {weight && (
+                 <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
+                  <span className="material-symbols-outlined text-base md:text-lg">fitness_center</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{weight}/5</span>
+                </div>
+              )}
+            </div>
           ) : null}
         </div>
-
-        {description && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant md:text-sm">
-            {description}
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-3 pt-1 md:gap-4 md:pt-2">
-          {players && (
-            <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
-              <span className="material-symbols-outlined text-base md:text-lg">group</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{players}</span>
-            </div>
-          )}
-          {playTime && (
-            <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
-              <span className="material-symbols-outlined text-base md:text-lg">schedule</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{playTime}</span>
-            </div>
-          )}
-          {weight && (
-             <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
-              <span className="material-symbols-outlined text-base md:text-lg">fitness_center</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{weight}/5</span>
-            </div>
-          )}
-        </div>
-      </div>
+      ) : null}
     </article>
   );
 }

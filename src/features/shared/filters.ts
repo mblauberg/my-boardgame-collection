@@ -1,6 +1,7 @@
 export type GameFilters = {
   search?: string;
   tagSlugs?: string[];
+  isLoved?: boolean;
   playersMin?: number;
   playersMax?: number;
   playTimeMin?: number;
@@ -9,5 +10,5 @@ export type GameFilters = {
   weightMax?: number;
 };
 
-export type SortOption = "name" | "rating" | "weight" | "year" | "priority";
+export type SortOption = "rank" | "rating" | "weight" | "year" | "name";
 export type SortDirection = "asc" | "desc";

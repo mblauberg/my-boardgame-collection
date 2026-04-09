@@ -93,11 +93,11 @@ export function GameDetailOverlay({
         role="dialog"
         aria-labelledby={titleId}
         aria-modal="true"
-        className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-[0_12px_40px_rgba(46,47,45,0.06)] md:mt-4 md:h-[calc(100vh-2rem)] md:max-w-4xl md:rounded-[1.75rem] sm:mt-8 sm:h-auto sm:max-h-[90vh]"
+        className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-ambient md:mt-4 md:h-[calc(100vh-2rem)] md:max-w-4xl md:rounded-[1.75rem] sm:mt-8 sm:h-auto sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className="sticky top-0 z-10 flex items-center justify-between bg-surface/85 px-4 py-4 backdrop-blur-xl md:px-6 md:py-5 sm:px-8 sm:py-6"
+          className="overlay-sticky-header-glass sticky top-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5 sm:px-8 sm:py-6"
           data-testid="overlay-header"
         >
           <h2 id={titleId} className="text-xl font-bold text-on-surface md:text-2xl">
@@ -108,19 +108,19 @@ export function GameDetailOverlay({
               <button
                 onClick={onEdit}
                 aria-label="Edit game"
-                className="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-colors"
+                className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
               >
                 <span className="material-symbols-outlined text-xl md:text-2xl">edit</span>
               </button>
             )}
-            <button
-              ref={closeButtonRef}
-              onClick={onRequestClose}
-              aria-label="Close game details"
-              className="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-colors"
-            >
-              <span className="material-symbols-outlined text-xl md:text-2xl">close</span>
-            </button>
+              <button
+                ref={closeButtonRef}
+                onClick={onRequestClose}
+                aria-label="Close game details"
+                className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-xl md:text-2xl">close</span>
+              </button>
           </div>
         </div>
         <div className="overlay-scrollbar flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6 sm:px-8 sm:pb-8">

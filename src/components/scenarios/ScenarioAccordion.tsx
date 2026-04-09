@@ -42,7 +42,7 @@ export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
         const totalGames = preset.sections.reduce((sum, s) => sum + s.games.length, 0);
 
         return (
-          <div key={preset.id} className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+          <div key={preset.id} className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-ambient">
             <button
               type="button"
               onClick={() => togglePreset(preset.id)}

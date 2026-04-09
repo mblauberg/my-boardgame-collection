@@ -5,6 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Game } from '../../types/domain';
 
+vi.mock('../../hooks/useInView', () => ({
+  useInView: () => ({ ref: { current: null }, isInView: true }),
+}));
+
 function makeGame(overrides: Partial<Game> = {}): Game {
   return {
     id: '1',
@@ -64,7 +68,7 @@ const mockShelves = [
 describe('DiscoverSection', () => {
   it('renders collapsed by default', () => {
     const queryClient = new QueryClient();
-    
+
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -85,7 +89,7 @@ describe('DiscoverSection', () => {
 
   it('expands when clicked', () => {
     const queryClient = new QueryClient();
-    
+
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -107,7 +111,7 @@ describe('DiscoverSection', () => {
 
   it('does not render when no games', () => {
     const queryClient = new QueryClient();
-    
+
     const { container } = render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>

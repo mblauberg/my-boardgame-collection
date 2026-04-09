@@ -169,7 +169,7 @@ describe("ExploreShelf", () => {
     expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });
 
-  it("renders saved quick actions even when game is in collection", async () => {
+  it("shows in-collection badge instead of saved action when game is in collection", async () => {
     libraryQueryState.data = [
       createEntry({
         isSaved: false,
@@ -182,8 +182,8 @@ describe("ExploreShelf", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /saved/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "false");
+      expect(screen.queryByRole("button", { name: /saved/i })).not.toBeInTheDocument();
+      expect(screen.getByText("In Collection")).toBeInTheDocument();
     });
   });
 });

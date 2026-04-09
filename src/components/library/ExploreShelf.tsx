@@ -72,9 +72,9 @@ export function ExploreShelf({ title, description, entries }: ExploreShelfProps)
           </span>
         </div>
         {description && (
-          <p className="text-base text-on-surface-variant leading-relaxed max-w-2xl">
-            {description}
-          </p>
+            <p className="text-base text-on-surface-variant leading-relaxed max-w-2xl">
+              {description}
+            </p>
         )}
       </div>
       {!isInView ? (
@@ -96,44 +96,44 @@ export function ExploreShelf({ title, description, entries }: ExploreShelfProps)
             const entry = getLibraryEntryForGame(libraryEntries, game.id);
             const isInCollection = entry?.isInCollection ?? false;
 
-            return (
-              <article key={game.id} className="relative">
-                {isAuthenticated && profile?.id ? (
-                  <div className="absolute right-3 top-3 z-10">
-                    <LibraryStateIconButton
-                      label="Saved"
-                      icon="bookmark"
-                      isActive={entry?.isSaved ?? false}
-                      disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
-                      onClick={() => handleToggleSaved(game)}
-                    />
-                  </div>
-                ) : null}
+            const bookmarkButton = isAuthenticated && profile?.id && !isInCollection ? (
+              <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                <LibraryStateIconButton
+                  label="Saved"
+                  icon="bookmark"
+                  isActive={entry?.isSaved ?? false}
+                  disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
+                  onClick={() => handleToggleSaved(game)}
+                />
+              </div>
+            ) : undefined;
 
-                <Link
-                  state={{ from: location.pathname, backgroundLocation: location }}
-                  to={`/game/${game.slug}`}
-                >
-                  <GameCard
-                    title={game.name}
-                    image={game.imageUrl ?? undefined}
-                    description={game.summary ?? undefined}
-                    players={
-                      game.playersMin != null && game.playersMax != null
-                        ? `${game.playersMin}-${game.playersMax} Players`
-                        : undefined
-                    }
-                    playTime={
-                      game.playTimeMin != null && game.playTimeMax != null
-                        ? `${game.playTimeMin}-${game.playTimeMax} Min`
-                        : undefined
-                    }
-                    weight={game.bggWeight?.toFixed(1)}
-                    rating={game.bggRating ?? undefined}
-                    badge={isInCollection ? "In Collection" : undefined}
-                  />
-                </Link>
-              </article>
+            return (
+              <Link
+                key={game.id}
+                state={{ from: location.pathname, backgroundLocation: location }}
+                to={`/game/${game.slug}`}
+              >
+                <GameCard
+                  title={game.name}
+                  image={game.imageUrl ?? undefined}
+                  description={game.summary ?? undefined}
+                  players={
+                    game.playersMin != null && game.playersMax != null
+                      ? `${game.playersMin}-${game.playersMax} Players`
+                      : undefined
+                  }
+                  playTime={
+                    game.playTimeMin != null && game.playTimeMax != null
+                      ? `${game.playTimeMin}-${game.playTimeMax} Min`
+                      : undefined
+                  }
+                  weight={game.bggWeight?.toFixed(1)}
+                  rating={game.bggRating ?? undefined}
+                  badge={isInCollection ? "In Collection" : undefined}
+                  topRightSlot={bookmarkButton}
+                />
+              </Link>
             );
           })}
         </div>

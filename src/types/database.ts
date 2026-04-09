@@ -213,6 +213,55 @@ export type Database = {
         };
         Update: Partial<Database["public"]["Tables"]["library_entries"]["Insert"]>;
       };
+      game_metadata_requests: {
+        Relationships: [
+          {
+            foreignKeyName: "game_metadata_requests_game_id_fkey";
+            columns: ["game_id"];
+            isOneToOne: false;
+            referencedRelation: "games";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "game_metadata_requests_requested_by_fkey";
+            columns: ["requested_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+        Row: {
+          id: string;
+          game_id: string;
+          requested_by: string;
+          status: "pending" | "approved" | "rejected";
+          image_url: string | null;
+          summary: string | null;
+          published_year: number | null;
+          players_min: number | null;
+          players_max: number | null;
+          play_time_min: number | null;
+          play_time_max: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          game_id: string;
+          requested_by: string;
+          status?: "pending" | "approved" | "rejected";
+          image_url?: string | null;
+          summary?: string | null;
+          published_year?: number | null;
+          players_min?: number | null;
+          players_max?: number | null;
+          play_time_min?: number | null;
+          play_time_max?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["game_metadata_requests"]["Insert"]>;
+      };
       user_tags: {
         Relationships: [
           {
@@ -352,8 +401,26 @@ export type Database = {
           p_game_id: string;
           p_image_url?: string | null;
           p_summary?: string | null;
+          p_published_year?: number | null;
+          p_players_min?: number | null;
+          p_players_max?: number | null;
+          p_play_time_min?: number | null;
+          p_play_time_max?: number | null;
         };
         Returns: Database["public"]["Tables"]["games"]["Row"];
+      };
+      submit_game_metadata_request: {
+        Args: {
+          p_game_id: string;
+          p_image_url?: string | null;
+          p_summary?: string | null;
+          p_published_year?: number | null;
+          p_players_min?: number | null;
+          p_players_max?: number | null;
+          p_play_time_min?: number | null;
+          p_play_time_max?: number | null;
+        };
+        Returns: Database["public"]["Tables"]["game_metadata_requests"]["Row"];
       };
       import_bgg_games_batch: {
         Args: {

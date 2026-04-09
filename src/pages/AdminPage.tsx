@@ -40,7 +40,7 @@ export function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+      <div className="flex items-center justify-between rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
         <div>
           <h2 className="text-2xl font-bold text-on-surface">Admin Dashboard</h2>
           <p className="mt-1 text-on-surface-variant">Manage games, tags, and visibility.</p>
@@ -55,7 +55,7 @@ export function AdminPage() {
       </div>
 
       {panel && (
-        <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+        <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
           <h3 className="mb-4 text-lg font-semibold text-on-surface">
             {panel.mode === "edit" ? `Edit: ${panel.game.name}` : "Add Game"}
           </h3>
@@ -68,7 +68,7 @@ export function AdminPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
         <h3 className="mb-4 text-lg font-semibold text-on-surface">Games</h3>
         {isLoading ? (
           <p className="text-on-surface-variant">Loading…</p>

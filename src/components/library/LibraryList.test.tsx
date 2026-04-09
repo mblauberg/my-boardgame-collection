@@ -1,8 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { renderWithProviders } from "../../test/testUtils";
 import { LibraryList } from "./LibraryList";
 import type { LibraryEntry } from "../../features/library/library.types";
+
+vi.mock("../../features/auth/useSession", () => ({
+  useSession: () => ({ user: null }),
+}));
+
+vi.mock("../../features/library/useLibraryEntryMutations", () => ({
+  useUpsertLibraryState: () => ({ mutate: vi.fn(), isPending: false }),
+  useMoveSavedToCollection: () => ({ mutate: vi.fn(), isPending: false }),
+  useDeleteLibraryEntry: () => ({ mutate: vi.fn(), isPending: false }),
+}));
 
 function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
   return {
@@ -57,10 +68,8 @@ function LocationStateProbe() {
 
 describe("LibraryList", () => {
   it("renders saved items without move-to-collection controls", () => {
-    render(
-      <MemoryRouter>
-        <LibraryList entries={[createEntry({ isSaved: true })]} />
-      </MemoryRouter>,
+    renderWithProviders(
+      <LibraryList entries={[createEntry({ isSaved: true })]} />
     );
 
     expect(screen.getByRole("link", { name: /heat/i })).toBeInTheDocument();
@@ -69,10 +78,8 @@ describe("LibraryList", () => {
   });
 
   it("renders collection entries with an in-collection badge", () => {
-    render(
-      <MemoryRouter>
-        <LibraryList entries={[createEntry({ isSaved: true, isInCollection: true })]} />
-      </MemoryRouter>,
+    renderWithProviders(
+      <LibraryList entries={[createEntry({ isSaved: true, isInCollection: true })]} />
     );
 
     expect(screen.getByText("In Collection")).toBeInTheDocument();
@@ -81,21 +88,20 @@ describe("LibraryList", () => {
   it("passes route state through game links when provided", async () => {
     const user = userEvent.setup();
 
-    render(
-      <MemoryRouter initialEntries={["/saved"]}>
-        <Routes>
-          <Route
-            path="/saved"
-            element={
-              <LibraryList
-                entries={[createEntry({ isInCollection: true })]}
-                getGameLinkState={() => ({ surface: "saved" })}
-              />
-            }
-          />
-          <Route path="/game/:slug" element={<LocationStateProbe />} />
-        </Routes>
-      </MemoryRouter>,
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/saved"
+          element={
+            <LibraryList
+              entries={[createEntry({ isInCollection: true })]}
+              getGameLinkState={() => ({ surface: "saved" })}
+            />
+          }
+        />
+        <Route path="/game/:slug" element={<LocationStateProbe />} />
+      </Routes>,
+      "/saved"
     );
 
     await user.click(screen.getByRole("link", { name: /heat/i }));

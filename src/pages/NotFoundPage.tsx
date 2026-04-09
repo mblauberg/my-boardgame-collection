@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export function NotFoundPage() {
   return (
-    <section className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-lowest/90 p-8 shadow-[0_12px_40px_rgba(46,47,45,0.06)]">
+    <section className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-lowest/90 p-8 shadow-ambient">
       <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">Missing Route</p>
       <h2 className="mt-3 text-3xl font-bold tracking-tight text-on-surface">Page not found</h2>
       <p className="mt-4 max-w-2xl text-base leading-7 text-on-surface-variant">

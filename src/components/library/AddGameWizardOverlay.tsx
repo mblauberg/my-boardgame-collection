@@ -142,40 +142,44 @@ export function AddGameWizardOverlay({
         aria-label="Add new game"
         className="flex h-full w-full flex-col overflow-hidden bg-surface-container-lowest shadow-[0_32px_80px_rgba(46,47,45,0.18)] md:h-auto md:max-h-[min(46rem,90vh)] md:max-w-4xl md:rounded-[2rem] lg:flex-row"
       >
-        <aside className="bg-surface-container-low px-4 py-6 md:px-6 md:py-8 lg:w-64">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant md:text-[11px]">
-            Step {String(step).padStart(2, "0")} of 02
-          </p>
-          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-primary md:text-3xl">Add New Game</h1>
-
-          <ol className="mt-6 space-y-3 md:mt-8 md:space-y-4">
-            {stepLabels.map((label, index) => {
-              const stepNumber = index + 1;
-              const active = stepNumber === step;
-              const complete = stepNumber < step;
-
-              return (
-                <li key={label} className="flex items-center gap-2 md:gap-3">
-                  <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold md:h-6 md:w-6 ${
-                      active || complete
-                        ? "bg-primary text-on-primary"
-                        : "bg-surface-container-high text-on-surface-variant"
-                    }`}
-                  >
-                    {stepNumber}
-                  </span>
-                  <span
-                    className={`text-xs md:text-sm ${
-                      active ? "font-bold text-on-surface" : "text-on-surface-variant"
-                    }`}
-                  >
-                    {label}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
+        <aside className="bg-surface-container-low px-4 py-4 lg:w-64 lg:px-6 lg:py-8">
+          {/* Mobile: compact inline progress */}
+          <div className="flex items-center gap-3 lg:hidden">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+              Step {String(step).padStart(2, "0")} of 02
+            </p>
+            <span className="text-xs font-bold text-primary">{stepLabels[step - 1]}</span>
+          </div>
+          {/* Desktop: full sidebar */}
+          <div className="hidden lg:block">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+              Step {String(step).padStart(2, "0")} of 02
+            </p>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-primary">Add New Game</h1>
+            <ol className="mt-8 space-y-4">
+              {stepLabels.map((label, index) => {
+                const stepNumber = index + 1;
+                const active = stepNumber === step;
+                const complete = stepNumber < step;
+                return (
+                  <li key={label} className="flex items-center gap-3">
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                        active || complete
+                          ? "bg-primary text-on-primary"
+                          : "bg-surface-container-high text-on-surface-variant"
+                      }`}
+                    >
+                      {stepNumber}
+                    </span>
+                    <span className={`text-sm ${active ? "font-bold text-on-surface" : "text-on-surface-variant"}`}>
+                      {label}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </aside>
 
         <section className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-6 md:min-h-[38rem] md:px-6 md:pt-8 sm:px-8">

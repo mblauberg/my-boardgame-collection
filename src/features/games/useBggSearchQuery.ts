@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "../../lib/utils/useDebounce";
 import { searchBggGames } from "./bggApi";
 
 export function useBggSearchQuery(query: string) {
-  const normalizedQuery = query.trim();
+  const debouncedQuery = useDebounce(query.trim(), 1000);
 
   return useQuery({
-    queryKey: ["bgg", "search", normalizedQuery],
-    enabled: normalizedQuery.length >= 2,
+    queryKey: ["bgg", "search", debouncedQuery],
+    enabled: debouncedQuery.length >= 2,
     retry: false,
-    queryFn: async () => searchBggGames(normalizedQuery),
+    queryFn: async () => searchBggGames(debouncedQuery),
   });
 }

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
+import { PageHeader } from "../components/layout/PageHeader";
 import { LibraryList } from "../components/library/LibraryList";
+import { FilterBar } from "../components/library/FilterBar";
+import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
+import { SAVED_PRESETS } from "../components/library/QuickFilterPresets";
 import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { useSavedQuery } from "../features/library/useSavedQuery";
@@ -33,18 +37,26 @@ export function SavedPage() {
 
   return (
     <>
-      <header className="mb-8 flex flex-col gap-4 md:mb-12 md:gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-primary md:mb-2">
-            On Your Radar
-          </p>
-          <h1 className="max-w-2xl text-3xl font-extrabold tracking-tight text-on-surface md:text-5xl lg:text-7xl">
-            Your <span className="text-primary">Saved</span> Games
-          </h1>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="On Your Radar"
+        title={<>Your <span className="text-primary">Saved</span> Games</>}
+        description="Games you're interested in trying. Save titles to explore later and keep track of what's on your radar."
+      />
 
-      <LibraryList entries={sortedEntries} getGameLinkState={() => ({ from: "/saved" })} />
+      <div className="mb-8">
+        <FilterBar
+          filters={filters}
+          sortBy={sortBy}
+          sortDirection={sortDirection}
+          onFiltersChange={updateFilters}
+          onSortChange={updateSort}
+          onClearFilters={clearFilters}
+          presets={SAVED_PRESETS}
+          searchPlaceholder="Search saved games..."
+        />
+      </div>
+
+      <LibraryList entries={sortedEntries} cardContext="saved" getGameLinkState={() => ({ from: "/saved" })} />
       <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
       <AddGameWizardOverlay
         isOpen={isAddGameOpen}

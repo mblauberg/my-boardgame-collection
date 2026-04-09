@@ -201,7 +201,7 @@ export function useMoveSavedToCollection() {
   return useMutation({
     mutationFn: async ({ id }: MoveLibraryEntryInput) => {
       const supabase = getSupabaseBrowserClient();
-      const patch: LibraryEntryUpdate = { is_in_collection: true };
+      const patch: LibraryEntryUpdate = { is_in_collection: true, is_saved: false };
 
       const { data, error } = await supabase
         .from("library_entries")

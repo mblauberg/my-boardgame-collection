@@ -128,4 +128,14 @@ describe("AccountSettingsPage", () => {
     expect(screen.getByRole("button", { name: /toggle dark mode/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view profile/i })).toBeInTheDocument();
   });
+
+  it("uses explicit dark-mode text and surface classes for readability", () => {
+    renderAccountSettingsPage();
+
+    const heroHeading = screen.getByRole("heading", { name: /manage your account/i });
+    expect(heroHeading).toHaveClass("dark:text-[rgb(229_226_225)]");
+
+    const saveButton = screen.getByRole("button", { name: /save settings/i });
+    expect(saveButton.closest("form")).toHaveClass("dark:bg-[rgb(28_27_27)]");
+  });
 });

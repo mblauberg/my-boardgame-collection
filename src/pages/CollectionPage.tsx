@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
+import { PageHeader } from "../components/layout/PageHeader";
 import { LibraryList } from "../components/library/LibraryList";
+import { FilterBar } from "../components/library/FilterBar";
+import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
+import { COLLECTION_PRESETS } from "../components/library/QuickFilterPresets";
 import { filterLibraryEntries, sortLibraryEntries } from "../features/library/libraryFilters";
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
@@ -14,7 +18,23 @@ export function CollectionPage() {
     useLibraryFilters();
 
   if (isLoading) {
-    return <div className="p-8 text-center">Loading collection...</div>;
+    return (
+      <>
+        <PageHeader
+          eyebrow="Curated Collection"
+          title={<>Your <span className="text-primary">Collection</span></>}
+          description="Loading your collection..."
+        />
+        <div className="mb-8 rounded-xl bg-surface-container-low p-6 dark:bg-[#1c1b1b]">
+          <div className="h-10 bg-surface-container rounded-full animate-pulse" />
+        </div>
+        <div className="editorial-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <GameCardSkeleton key={i} />
+          ))}
+        </div>
+      </>
+    );
   }
 
   if (error) {
@@ -33,18 +53,26 @@ export function CollectionPage() {
 
   return (
     <>
-      <header className="mb-8 flex flex-col gap-4 md:mb-12 md:gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-primary md:mb-2">
-            Curated Collection
-          </p>
-          <h1 className="max-w-2xl text-3xl font-extrabold tracking-tight text-on-surface md:text-5xl lg:text-7xl">
-            Your <span className="text-primary">Collection</span>
-          </h1>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Curated Collection"
+        title={<>Your <span className="text-primary">Collection</span></>}
+        description="Games you own and love. Build your personal library and track the titles that make it to your shelf."
+      />
 
-      <LibraryList entries={sortedEntries} getGameLinkState={() => ({ from: "/" })} />
+      <div className="mb-8">
+        <FilterBar
+          filters={filters}
+          sortBy={sortBy}
+          sortDirection={sortDirection}
+          onFiltersChange={updateFilters}
+          onSortChange={updateSort}
+          onClearFilters={clearFilters}
+          presets={COLLECTION_PRESETS}
+          searchPlaceholder="Search your collection..."
+        />
+      </div>
+
+      <LibraryList entries={sortedEntries} cardContext="collection" getGameLinkState={() => ({ from: "/" })} />
       <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
       <AddGameWizardOverlay
         isOpen={isAddGameOpen}

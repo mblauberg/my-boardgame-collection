@@ -20,7 +20,7 @@ export function GameDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { profile } = useProfile();
+  const { profile, isOwner } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const contributeGameMetadata = useContributeGameMetadata();
@@ -53,19 +53,45 @@ export function GameDetailPage() {
     setIsEditing(false);
   };
 
-  const handleSaveEdit = async (values: { imageUrl: string; summary: string }) => {
+  const handleSaveEdit = async (values: {
+    imageUrl: string;
+    summary: string;
+    publishedYear: string;
+    playersMin: string;
+    playersMax: string;
+    playTimeMin: string;
+    playTimeMax: string;
+  }) => {
     if (!game) return;
     setSaveError(null);
 
+    const parseOptionalNumber = (value: string) => {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      const parsed = Number.parseInt(trimmed, 10);
+      return Number.isNaN(parsed) ? null : parsed;
+    };
+
     const imageUrl = values.imageUrl.trim();
     const summary = values.summary.trim();
+    const publishedYear = parseOptionalNumber(values.publishedYear);
+    const playersMin = parseOptionalNumber(values.playersMin);
+    const playersMax = parseOptionalNumber(values.playersMax);
+    const playTimeMin = parseOptionalNumber(values.playTimeMin);
+    const playTimeMax = parseOptionalNumber(values.playTimeMax);
 
     try {
       await contributeGameMetadata.mutateAsync({
         id: game.id,
         imageUrl: imageUrl || null,
         summary: summary || null,
+        publishedYear,
+        playersMin,
+        playersMax,
+        playTimeMin,
+        playTimeMax,
         userId: profile?.id ?? null,
+        isOwner,
         bggId: game.bggId,
         name: game.name,
         slug: game.slug,

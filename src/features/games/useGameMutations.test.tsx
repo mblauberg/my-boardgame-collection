@@ -149,7 +149,7 @@ describe("useContributeGameMetadata", () => {
     mockRpc.mockReset();
   });
 
-  it("saves contributed image URLs through the metadata RPC", async () => {
+  it("saves owner metadata edits through the metadata RPC", async () => {
     const { queryClient, Wrapper } = makeWrapper();
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 
@@ -161,7 +161,13 @@ describe("useContributeGameMetadata", () => {
       result.current.mutate({
         id: "game-1",
         imageUrl: "https://example.com/cover.jpg",
-        summary: null,
+        summary: "Pushed by owner",
+        publishedYear: 2021,
+        playersMin: 2,
+        playersMax: 5,
+        playTimeMin: 45,
+        playTimeMax: 90,
+        isOwner: true,
       });
     });
 
@@ -170,7 +176,12 @@ describe("useContributeGameMetadata", () => {
     expect(mockRpc).toHaveBeenCalledWith("update_game_missing_metadata", {
       p_game_id: "game-1",
       p_image_url: "https://example.com/cover.jpg",
-      p_summary: null,
+      p_summary: "Pushed by owner",
+      p_published_year: 2021,
+      p_players_min: 2,
+      p_players_max: 5,
+      p_play_time_min: 45,
+      p_play_time_max: 90,
     });
 
     expect(invalidateSpy).toHaveBeenCalledWith(
@@ -211,6 +222,7 @@ describe("useContributeGameMetadata", () => {
         id: "game-1",
         imageUrl: "https://example.com/cover.jpg",
         summary: null,
+        isOwner: true,
       });
     });
 
@@ -220,68 +232,25 @@ describe("useContributeGameMetadata", () => {
     );
   });
 
-  it("falls back to save_bgg_game_for_user when direct updates are blocked", async () => {
+  it("submits a metadata request for non-owner users", async () => {
     const { Wrapper } = makeWrapper();
 
-    const selectSingle = vi
-      .fn()
-      .mockResolvedValueOnce({
-        data: { id: "game-1", image_url: null, summary: null },
-        error: null,
-      })
-      .mockResolvedValueOnce({ data: gameRowFixture, error: null });
-
+    const selectSingle = vi.fn().mockResolvedValue({ data: gameRowFixture, error: null });
     const selectSpy = vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({ single: selectSingle }),
-    });
-
-    const updateSpy = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: null,
-            error: { code: "PGRST116", message: "No rows returned" },
-          }),
-        }),
-      }),
-    });
-
-    const librarySelectSpy = vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          maybeSingle: vi.fn().mockResolvedValue({
-            data: {
-              is_saved: true,
-              is_loved: false,
-              is_in_collection: true,
-              sentiment: "neutral",
-              notes: "Existing note",
-            },
-            error: null,
-          }),
-        }),
+        single: selectSingle,
       }),
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === "games") {
-        return {
-          select: selectSpy,
-          update: updateSpy,
-        };
-      }
-
-      return {
-        select: librarySelectSpy,
-      };
+      if (table !== "games") return {};
+      return { select: selectSpy };
     });
 
-    mockRpc
-      .mockResolvedValueOnce({
-        data: null,
-        error: { code: "PGRST202", message: "Function not found" },
-      })
-      .mockResolvedValueOnce({ data: {}, error: null });
+    mockRpc.mockResolvedValue({
+      data: { id: "request-1" },
+      error: null,
+    });
 
     const { result } = renderHook(() => useContributeGameMetadata(), { wrapper: Wrapper });
 
@@ -289,7 +258,13 @@ describe("useContributeGameMetadata", () => {
       result.current.mutate({
         id: "game-1",
         imageUrl: "https://example.com/cover.jpg",
-        summary: null,
+        summary: "Community summary",
+        publishedYear: 2022,
+        playersMin: 1,
+        playersMax: 4,
+        playTimeMin: 30,
+        playTimeMax: 60,
+        isOwner: false,
         userId: "user-1",
         bggId: 266192,
         name: "Wingspan",
@@ -299,22 +274,22 @@ describe("useContributeGameMetadata", () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockRpc).toHaveBeenNthCalledWith(
-      2,
-      "save_bgg_game_for_user",
+    expect(mockRpc).toHaveBeenCalledWith(
+      "submit_game_metadata_request",
       expect.objectContaining({
-        p_user_id: "user-1",
-        p_bgg_id: 266192,
-        p_name: "Wingspan",
-        p_slug: "wingspan",
-        p_bgg_url: "https://boardgamegeek.com/boardgame/266192",
+        p_game_id: "game-1",
         p_image_url: "https://example.com/cover.jpg",
-        p_is_saved: true,
-        p_is_loved: false,
-        p_is_in_collection: true,
-        p_sentiment: "neutral",
-        p_notes: "Existing note",
+        p_summary: "Community summary",
+        p_published_year: 2022,
+        p_players_min: 1,
+        p_players_max: 4,
+        p_play_time_min: 30,
+        p_play_time_max: 60,
       }),
+    );
+    expect(mockRpc).not.toHaveBeenCalledWith(
+      "update_game_missing_metadata",
+      expect.anything(),
     );
   });
 });

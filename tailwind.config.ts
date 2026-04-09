@@ -1,69 +1,97 @@
 import type { Config } from "tailwindcss";
 
+function withOpacity(varName: string) {
+  return `rgb(var(${varName}) / <alpha-value>)`;
+}
+
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   darkMode: "class",
   theme: {
     extend: {
       colors: {
-        // Using CSS variables for automatic dark mode
-        "surface": "var(--surface)",
-        "surface-container-low": "var(--surface-container-low)",
-        "surface-container-lowest": "var(--surface-container-lowest)",
-        "surface-container-high": "var(--surface-container-high)",
-        "surface-container-highest": "var(--surface-container-highest)",
-        "surface-bright": "var(--surface-bright)",
-        "on-surface": "var(--on-surface)",
-        "on-surface-variant": "var(--on-surface-variant)",
-        "primary": "var(--primary)",
-        "primary-container": "var(--primary-container)",
-        "on-primary-fixed": "var(--on-primary-fixed)",
-        "outline-variant": "var(--outline-variant)",
-        "surface-tint": "var(--surface-tint)",
-        
-        // Static colors (same in light/dark)
-        "outline": "#767775",
-        "error-container": "#f95630",
-        "error": "#b02500",
-        "on-background": "#2e2f2d",
-        "primary-fixed": "#fd9000",
-        "on-error-container": "#520c00",
-        "secondary-fixed": "#8df5e4",
-        "on-secondary-container": "#005c53",
-        "on-primary-fixed-variant": "#532b00",
-        "secondary-fixed-dim": "#7fe6d5",
-        "tertiary-dim": "#5f4e00",
-        "tertiary": "#6d5a00",
-        "secondary": "#00675c",
-        "on-tertiary-fixed-variant": "#675500",
-        "tertiary-fixed": "#fdd73e",
-        "primary-dim": "#794200",
-        "inverse-primary": "#fd9000",
-        "inverse-surface": "#0d0f0d",
-        "on-tertiary-container": "#5c4b00",
-        "on-primary-container": "#462400",
-        "secondary-dim": "#005a50",
-        "on-secondary-fixed-variant": "#00675c",
-        "error-dim": "#b92902",
-        "secondary-container": "#8df5e4",
-        "on-tertiary": "#fff2cf",
-        "surface-dim": "#d4d5d1",
-        "tertiary-fixed-dim": "#eec930",
-        "on-secondary-fixed": "#004840",
-        "primary-fixed-dim": "#ea8400",
-        "on-primary": "#fff0e6",
-        "background": "#f7f6f3",
-        "tertiary-container": "#fdd73e",
-        "inverse-on-surface": "#9d9d9b",
-        "surface-variant": "#ddddda",
-        "on-error": "#ffefec",
-        "on-tertiary-fixed": "#463900",
-        "on-secondary": "#c0fff3",
+        // All dynamic colors use RGB channel CSS vars — opacity modifiers (/20, /70 etc) work correctly
+        "surface":                    withOpacity("--surface"),
+        "surface-container-low":      withOpacity("--surface-container-low"),
+        "surface-container-lowest":   withOpacity("--surface-container-lowest"),
+        "surface-container-high":     withOpacity("--surface-container-high"),
+        "surface-container-highest":  withOpacity("--surface-container-highest"),
+        "surface-bright":             withOpacity("--surface-bright"),
+        "surface-dim":                withOpacity("--surface-dim"),
+        "surface-variant":            withOpacity("--surface-variant"),
+        "on-surface":                 withOpacity("--on-surface"),
+        "on-surface-variant":         withOpacity("--on-surface-variant"),
+
+        // Primary — amber/orange
+        "primary":               withOpacity("--primary"),
+        "primary-container":     withOpacity("--primary-container"),
+        "on-primary":            withOpacity("--on-primary"),
+        "on-primary-fixed":      withOpacity("--on-primary-fixed"),
+        "on-primary-container":  withOpacity("--on-primary-container"),
+        "primary-fixed":         withOpacity("--primary-fixed"),
+        "primary-fixed-dim":     withOpacity("--primary-fixed-dim"),
+        "primary-dim":           withOpacity("--primary-dim"),
+        "surface-tint":          withOpacity("--surface-tint"),
+        "inverse-primary":       withOpacity("--inverse-primary"),
+
+        // Secondary — teal (theme-aware)
+        "secondary":                  withOpacity("--secondary"),
+        "secondary-container":        withOpacity("--secondary-container"),
+        "on-secondary":               withOpacity("--on-secondary"),
+        "on-secondary-container":     withOpacity("--on-secondary-container"),
+        "secondary-fixed":            withOpacity("--secondary-fixed"),
+        "secondary-fixed-dim":        withOpacity("--secondary-fixed-dim"),
+        "secondary-dim":              withOpacity("--secondary-dim"),
+        "on-secondary-fixed":         withOpacity("--on-secondary-fixed"),
+        "on-secondary-fixed-variant": withOpacity("--on-secondary-fixed-variant"),
+
+        // Tertiary — yellow (theme-aware)
+        "tertiary":                   withOpacity("--tertiary"),
+        "tertiary-container":         withOpacity("--tertiary-container"),
+        "on-tertiary":                withOpacity("--on-tertiary"),
+        "on-tertiary-container":      withOpacity("--on-tertiary-container"),
+        "tertiary-fixed":             withOpacity("--tertiary-fixed"),
+        "tertiary-fixed-dim":         withOpacity("--tertiary-fixed-dim"),
+        "tertiary-dim":               withOpacity("--tertiary-dim"),
+        "on-tertiary-fixed":          withOpacity("--on-tertiary-fixed"),
+        "on-tertiary-fixed-variant":  withOpacity("--on-tertiary-fixed-variant"),
+
+        // Error (theme-aware — dark mode uses lighter accessible error)
+        "error":              withOpacity("--error"),
+        "error-container":    withOpacity("--error-container"),
+        "on-error":           withOpacity("--on-error"),
+        "on-error-container": withOpacity("--on-error-container"),
+        "error-dim":          withOpacity("--error-dim"),
+
+        // Outline (theme-aware)
+        "outline":         withOpacity("--outline"),
+        "outline-variant": withOpacity("--outline-variant"),
+
+        // Misc surface (theme-aware)
+        "background":          withOpacity("--background"),
+        "on-background":       withOpacity("--on-background"),
+        "inverse-surface":     withOpacity("--inverse-surface"),
+        "inverse-on-surface":  withOpacity("--inverse-on-surface"),
+
+        // Legacy aliases that must stay for backwards compat
+        "on-primary-fixed-variant": withOpacity("--primary-dim"),
+      },
+      boxShadow: {
+        // Light mode uses on-surface, dark mode can use surface-tint if we want via classes,
+        // but since we want it to adapt automatically:
+        // Actually, Tailwind doesn't allow CSS var opacity easily in inline shadow color, but having a custom
+        // shadow that references a dedicated var works. Wait, we can just use `shadow-ambient`.
+        // Let's define it using the `on-surface` by default, but we'll override the color via `shadow-surface-tint/8` in dark mode where needed if we just use tailwind shadow colors.
+        // Actually tailwind lets us do `shadow-ambient` and it uses the configured color if no color utility is applied.
+        "ambient": "0 12px 40px var(--ambient-shadow-color, rgb(var(--on-surface) / 0.06))",
+        "ambient-lg": "0 16px 48px var(--ambient-shadow-color, rgb(var(--on-surface) / 0.08))"
       },
       borderRadius: {
         "DEFAULT": "0.25rem",
         "lg": "0.5rem",
         "xl": "0.75rem",
+        "2xl": "1rem",
+        "3xl": "1.5rem",
         "full": "9999px"
       },
       fontFamily: {
@@ -75,3 +103,4 @@ export default {
   },
   plugins: [],
 } satisfies Config;
+

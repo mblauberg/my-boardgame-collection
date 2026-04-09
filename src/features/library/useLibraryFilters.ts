@@ -12,9 +12,16 @@ export function useLibraryFilters() {
     playerCount: searchParams.get("players") ? Number(searchParams.get("players")) : undefined,
     playTime: searchParams.get("playTime") ? Number(searchParams.get("playTime")) : undefined,
     maxWeight: searchParams.get("maxWeight") ? Number(searchParams.get("maxWeight")) : undefined,
+    playersMin: searchParams.get("playersMin") ? Number(searchParams.get("playersMin")) : undefined,
+    playersMax: searchParams.get("playersMax") ? Number(searchParams.get("playersMax")) : undefined,
+    playTimeMin: searchParams.get("playTimeMin") ? Number(searchParams.get("playTimeMin")) : undefined,
+    playTimeMax: searchParams.get("playTimeMax") ? Number(searchParams.get("playTimeMax")) : undefined,
+    weightMin: searchParams.get("weightMin") ? Number(searchParams.get("weightMin")) : undefined,
+    weightMax: searchParams.get("weightMax") ? Number(searchParams.get("weightMax")) : undefined,
+    isLoved: searchParams.get("loved") === "true" ? true : undefined,
   };
 
-  const sortBy = (searchParams.get("sortBy") as SortOption) || "name";
+  const sortBy = (searchParams.get("sortBy") as SortOption) || "rank";
   const sortDirection = (searchParams.get("sortDir") as SortDirection) || "asc";
 
   const updateFilters = (nextFilters: Partial<LibraryFilters>) => {

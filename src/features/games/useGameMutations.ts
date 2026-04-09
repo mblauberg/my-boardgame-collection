@@ -37,29 +37,35 @@ type ContributeGameMetadataInput = {
   id: string;
   imageUrl?: string | null;
   summary?: string | null;
+  publishedYear?: number | null;
+  playersMin?: number | null;
+  playersMax?: number | null;
+  playTimeMin?: number | null;
+  playTimeMax?: number | null;
   userId?: string | null;
+  isOwner?: boolean;
   bggId?: number | null;
   name?: string;
   slug?: string;
   bggUrl?: string | null;
 };
 type RpcErrorLike = { code?: string; message?: string; status?: number } | null;
-type GameMetadataFields = Pick<Database["public"]["Tables"]["games"]["Row"], "id" | "image_url" | "summary">;
-type LibraryEntryState = Pick<
-  Database["public"]["Tables"]["library_entries"]["Row"],
-  "is_saved" | "is_loved" | "is_in_collection" | "sentiment" | "notes"
+type GameMetadataFields = Pick<
+  Database["public"]["Tables"]["games"]["Row"],
+  | "id"
+  | "image_url"
+  | "summary"
+  | "published_year"
+  | "players_min"
+  | "players_max"
+  | "play_time_min"
+  | "play_time_max"
 >;
 
 function isMissingMetadataRpcError(error: RpcErrorLike) {
   const code = error?.code;
   const message = error?.message ?? "";
   return code === "PGRST202" || code === "42883" || message.includes("update_game_missing_metadata");
-}
-
-function isNoRowsOrPermissionError(error: RpcErrorLike) {
-  const code = error?.code;
-  const status = error?.status;
-  return code === "PGRST116" || status === 401 || status === 403;
 }
 
 export function useCreateGame() {
@@ -160,32 +166,90 @@ export function useContributeGameMetadata() {
   return useMutation({
     mutationFn: async (input: ContributeGameMetadataInput): Promise<GameRow> => {
       const supabase = getSupabaseBrowserClient();
+      const gamesTable = supabase.from("games");
+      const trimmedImageUrl = input.imageUrl?.trim() || null;
+      const trimmedSummary = input.summary?.trim() || null;
+
+      if (!input.isOwner) {
+        if (!input.userId) {
+          throw new Error("Authentication required to submit metadata requests");
+        }
+
+        const { error: requestError } = await supabase.rpc("submit_game_metadata_request", {
+          p_game_id: input.id,
+          p_image_url: trimmedImageUrl,
+          p_summary: trimmedSummary,
+          p_published_year: input.publishedYear ?? null,
+          p_players_min: input.playersMin ?? null,
+          p_players_max: input.playersMax ?? null,
+          p_play_time_min: input.playTimeMin ?? null,
+          p_play_time_max: input.playTimeMax ?? null,
+        });
+
+        if (requestError) throw requestError;
+
+        const { data: existingGame, error: existingGameError } = await gamesTable
+          .select("*")
+          .eq("id", input.id)
+          .single();
+
+        if (existingGameError) throw existingGameError;
+        return existingGame as GameRow;
+      }
 
       const { data, error } = await supabase.rpc("update_game_missing_metadata", {
         p_game_id: input.id,
-        p_image_url: input.imageUrl ?? null,
-        p_summary: input.summary ?? null,
+        p_image_url: trimmedImageUrl,
+        p_summary: trimmedSummary,
+        p_published_year: input.publishedYear ?? null,
+        p_players_min: input.playersMin ?? null,
+        p_players_max: input.playersMax ?? null,
+        p_play_time_min: input.playTimeMin ?? null,
+        p_play_time_max: input.playTimeMax ?? null,
       });
 
       if (!error) return data as GameRow;
       if (!isMissingMetadataRpcError(error)) throw error;
 
-      const gamesTable = supabase.from("games");
       const { data: currentMetadata, error: metadataError } = await gamesTable
-        .select("id, image_url, summary")
+        .select("id, image_url, summary, published_year, players_min, players_max, play_time_min, play_time_max")
         .eq("id", input.id)
         .single();
 
       if (metadataError) throw metadataError;
 
       const metadata = currentMetadata as GameMetadataFields;
-      const patch: Pick<GameUpdate, "image_url" | "summary"> = {};
+      const patch: Pick<
+        GameUpdate,
+        | "image_url"
+        | "summary"
+        | "published_year"
+        | "players_min"
+        | "players_max"
+        | "play_time_min"
+        | "play_time_max"
+      > = {};
 
-      if (metadata.image_url === null && input.imageUrl) {
-        patch.image_url = input.imageUrl;
+      if (metadata.image_url === null && trimmedImageUrl) {
+        patch.image_url = trimmedImageUrl;
       }
-      if (metadata.summary === null && input.summary) {
-        patch.summary = input.summary;
+      if (metadata.summary === null && trimmedSummary) {
+        patch.summary = trimmedSummary;
+      }
+      if (metadata.published_year === null && input.publishedYear !== null && input.publishedYear !== undefined) {
+        patch.published_year = input.publishedYear;
+      }
+      if (metadata.players_min === null && input.playersMin !== null && input.playersMin !== undefined) {
+        patch.players_min = input.playersMin;
+      }
+      if (metadata.players_max === null && input.playersMax !== null && input.playersMax !== undefined) {
+        patch.players_max = input.playersMax;
+      }
+      if (metadata.play_time_min === null && input.playTimeMin !== null && input.playTimeMin !== undefined) {
+        patch.play_time_min = input.playTimeMin;
+      }
+      if (metadata.play_time_max === null && input.playTimeMax !== null && input.playTimeMax !== undefined) {
+        patch.play_time_max = input.playTimeMax;
       }
 
       if (Object.keys(patch).length === 0) {
@@ -204,55 +268,7 @@ export function useContributeGameMetadata() {
         .select()
         .single();
 
-      if (updateError) {
-        if (
-          !isNoRowsOrPermissionError(updateError) ||
-          !input.userId ||
-          !input.bggId ||
-          !input.name ||
-          !input.slug
-        ) {
-          throw updateError;
-        }
-
-        const fallbackBggUrl =
-          input.bggUrl?.trim() || `https://boardgamegeek.com/boardgame/${input.bggId}`;
-
-        const { data: existingLibraryEntry, error: existingLibraryEntryError } = await supabase
-          .from("library_entries")
-          .select("is_saved, is_loved, is_in_collection, sentiment, notes")
-          .eq("user_id", input.userId)
-          .eq("game_id", input.id)
-          .maybeSingle();
-
-        if (existingLibraryEntryError) throw existingLibraryEntryError;
-        const libraryState = existingLibraryEntry as LibraryEntryState | null;
-
-        const { error: saveFallbackError } = await supabase.rpc("save_bgg_game_for_user", {
-          p_user_id: input.userId,
-          p_bgg_id: input.bggId,
-          p_name: input.name,
-          p_slug: input.slug,
-          p_bgg_url: fallbackBggUrl,
-          p_image_url: input.imageUrl ?? null,
-          p_summary: input.summary ?? null,
-          p_is_saved: libraryState?.is_saved ?? false,
-          p_is_loved: libraryState?.is_loved ?? false,
-          p_is_in_collection: libraryState?.is_in_collection ?? false,
-          p_sentiment: libraryState?.sentiment ?? null,
-          p_notes: libraryState?.notes ?? null,
-        });
-
-        if (saveFallbackError) throw saveFallbackError;
-
-        const { data: savedGame, error: savedGameError } = await gamesTable
-          .select("*")
-          .eq("id", input.id)
-          .single();
-
-        if (savedGameError) throw savedGameError;
-        return savedGame as GameRow;
-      }
+      if (updateError) throw updateError;
 
       return updatedGame as GameRow;
     },

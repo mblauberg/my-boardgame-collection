@@ -81,5 +81,6 @@ describe("CollectionPage", () => {
     expect(
       screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("dark:bg-[rgb(28_27_27)]");
   });
 });

@@ -22,28 +22,28 @@ export function LibraryStateActionGroup({
   return (
     <div className="flex flex-wrap gap-3" role="group" aria-label="Library actions">
       <LibraryStateIconButton
-        label="Saved"
-        icon="bookmark"
-        isActive={isSaved}
-        disabled={disabled}
-        showLabel
-        onClick={onToggleSaved}
-      />
-      <LibraryStateIconButton
         label="Loved"
         icon="favorite"
         isActive={isLoved}
         disabled={disabled}
         showLabel
-        onClick={onToggleLoved}
+        onClick={() => onToggleLoved()}
+      />
+      <LibraryStateIconButton
+        label="Saved"
+        icon="bookmark"
+        isActive={isSaved}
+        disabled={disabled || isInCollection}
+        showLabel
+        onClick={() => onToggleSaved()}
       />
       <LibraryStateIconButton
         label="In Collection"
         icon="shelves"
         isActive={isInCollection}
-        disabled={disabled}
+        disabled={disabled || isSaved}
         showLabel
-        onClick={onToggleCollection}
+        onClick={() => onToggleCollection()}
       />
     </div>
   );

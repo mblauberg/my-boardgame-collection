@@ -1,11 +1,22 @@
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { screen } from "@testing-library/react";
+import { Route, Routes } from "react-router-dom";
+import { renderWithProviders } from "../test/testUtils";
 
 const mockUsePublicLibraryQuery = vi.fn();
 
 vi.mock("../features/library/usePublicLibraryQuery", () => ({
   usePublicLibraryQuery: (username: string, listType: "collection" | "saved") =>
     mockUsePublicLibraryQuery(username, listType),
+}));
+
+vi.mock("../features/auth/useSession", () => ({
+  useSession: () => ({ user: null }),
+}));
+
+vi.mock("../features/library/useLibraryEntryMutations", () => ({
+  useUpsertLibraryState: () => ({ mutate: vi.fn(), isPending: false }),
+  useMoveSavedToCollection: () => ({ mutate: vi.fn(), isPending: false }),
+  useDeleteLibraryEntry: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 import { PublicCollectionPage } from "./PublicCollectionPage";
@@ -21,12 +32,11 @@ describe("PublicCollectionPage", () => {
       error: null,
     });
 
-    render(
-      <MemoryRouter initialEntries={["/u/alice/collection"]}>
-        <Routes>
-          <Route path="/u/:username/collection" element={<PublicCollectionPage />} />
-        </Routes>
-      </MemoryRouter>,
+    renderWithProviders(
+      <Routes>
+        <Route path="/u/:username/collection" element={<PublicCollectionPage />} />
+      </Routes>,
+      "/u/alice/collection"
     );
 
     expect(screen.getByRole("heading", { name: /alice/i })).toBeInTheDocument();

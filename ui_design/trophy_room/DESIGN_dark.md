@@ -46,6 +46,18 @@ Forget traditional drop shadows. We create height through light and translucency
 
 ## 5. Components: Precision & Prestige
 
+### Floating Liquid-Glass Header Ovals
+A floating liquid-glass header in dark mode should be lean and contrast-aware. Guidelines:
+
+- Transparent sticky host: use a sticky, semi-transparent host that avoids full-width opaque strips. The host should preserve the Obsidian canvas while providing just enough separation for interactive elements.
+- Title in an oval glass pill: display the page or collection title in an elongated oval glass pill. Use translucent fills with layered micro-gradients and a subtle inner highlight to create a polished, tactile look.
+- Actions in circular glass pills: place secondary actions into circular glass pills with consistent spacing. These should be compact, elevated, and visually distinct from the title pill.
+- Layered translucency + blur + soft highlight/shadow: favor deeper backdrop-filter blurs (e.g., 12–28px) and slightly stronger translucency than light mode so the pills contrast against the dark canvas. Combine multiple translucent gradient layers and a faint, tinted ambient shadow/highlight rather than any hard stroke.
+- No hard border/divider: remain faithful to the "No-Line" rule — do not introduce 1px borders. Use increased opacity and spacing for contrast instead.
+
+Note: in dark mode, increase pill opacity modestly (e.g., +5–10%) relative to light mode to ensure legibility and tap-target clarity while keeping the overall glassy, editorial aesthetic.
+
+
 ### Buttons
 *   **Primary:** Background: Gradient (`primary_container` to `primary`). Text: `on_primary_fixed` (`#2e1500`). Shape: `md` (`0.375rem`).
 *   **Secondary:** Background: Transparent. Border: Ghost Border (15% `outline_variant`). Text: `primary`.

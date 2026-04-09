@@ -76,16 +76,26 @@ describe("GameDetailOverlay", () => {
 
   it("uses the trophy-room backdrop and header treatment", () => {
     render(
-      <GameDetailOverlay title="Heat" titleId="game-detail-title" onRequestClose={vi.fn()}>
+      <GameDetailOverlay title="Heat" titleId="game-detail-title" onRequestClose={vi.fn()} onEdit={vi.fn()}>
         body
       </GameDetailOverlay>,
     );
 
     const backdrop = screen.getByTestId("overlay-backdrop");
     const header = screen.getByTestId("overlay-header");
+    const titleHeading = screen.getByRole("heading", { name: /heat/i });
+    const closeButton = screen.getByRole("button", { name: /close game details/i });
+    const editButton = screen.getByRole("button", { name: /edit game/i });
 
     expect(backdrop.className).toContain("bg-on-surface/10");
     expect(backdrop.className).not.toContain("bg-black/50");
     expect(header.className).not.toContain("border-b");
+    expect(header.className).toContain("overlay-sticky-header-glass");
+
+    // New failing assertions for floating header/title/action pills
+    expect(header.className).toContain("overlay-floating-header");
+    expect(titleHeading.className).toContain("overlay-header-title-pill");
+    expect(closeButton.className).toContain("overlay-header-action-pill");
+    expect(editButton.className).toContain("overlay-header-action-pill");
   });
 });

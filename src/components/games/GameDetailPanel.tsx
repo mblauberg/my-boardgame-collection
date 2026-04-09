@@ -76,7 +76,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
   return (
     <div className="space-y-6">
       {game.imageUrl && (
-        <div className="relative -mx-6 -mt-6">
+        <div className="relative -mx-4 -mt-4 md:-mx-6 md:-mt-6">
           <img src={game.imageUrl} alt={game.name} className="w-full h-64 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
         </div>
@@ -218,7 +218,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               <span
                 key={tag.id}
                 className="px-4 py-2 rounded-full text-sm font-medium"
-                style={{ backgroundColor: tag.colour || "var(--surface-container-highest)" }}
+                style={{ backgroundColor: tag.colour || "rgb(var(--surface-container-highest))" }}
               >
                 {tag.name}
               </span>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Game } from "../../types/domain";
 import { AdminGamesTable } from "./AdminGamesTable";
@@ -67,21 +67,22 @@ describe("AdminGamesTable", () => {
   it("renders all game names", () => {
     render(<AdminGamesTable games={games} onEdit={vi.fn()} />);
 
-    expect(screen.getByText("Heat")).toBeInTheDocument();
-    expect(screen.getByText("Wingspan")).toBeInTheDocument();
+    // Component renders both desktop table and mobile card list
+    expect(screen.getAllByText("Heat").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Wingspan").length).toBeGreaterThan(0);
   });
 
   it("shows status for each game", () => {
     render(<AdminGamesTable games={games} onEdit={vi.fn()} />);
 
-    expect(screen.getByText("owned")).toBeInTheDocument();
-    expect(screen.getByText("buy")).toBeInTheDocument();
+    expect(screen.getAllByText("owned").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("buy").length).toBeGreaterThan(0);
   });
 
   it("shows a hidden badge for hidden games", () => {
     render(<AdminGamesTable games={games} onEdit={vi.fn()} />);
 
-    expect(screen.getByText(/hidden/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/hidden/i).length).toBeGreaterThan(0);
   });
 
   it("filters games by search term", async () => {
@@ -91,8 +92,8 @@ describe("AdminGamesTable", () => {
 
     await user.type(screen.getByPlaceholderText(/search/i), "wing");
 
-    expect(screen.getByText("Wingspan")).toBeInTheDocument();
-    expect(screen.queryByText("Heat")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Wingspan").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Heat")).toHaveLength(0);
   });
 
   it("calls onEdit when the edit button is clicked", async () => {
