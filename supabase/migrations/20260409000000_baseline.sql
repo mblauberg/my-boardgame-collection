@@ -724,7 +724,7 @@ drop policy if exists "games_public_read" on public.games;
 create policy "games_public_read"
 on public.games
 for select
-using (true);
+using (hidden = false or public.is_owner());
 
 drop policy if exists "games_owner_insert" on public.games;
 create policy "games_owner_insert"

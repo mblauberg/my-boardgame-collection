@@ -36,10 +36,12 @@ export function mapLegacyGameToLibraryEntry(
     return {
       user_id: userId,
       game_id: gameId,
-      list_type: "collection" as const,
+      is_saved: false,
+      is_loved: false,
+      is_in_collection: true,
+      sentiment: null,
       notes: game.rationale ?? null,
       priority: null,
-      sentiment: null,
     };
   }
 
@@ -47,10 +49,12 @@ export function mapLegacyGameToLibraryEntry(
     return {
       user_id: userId,
       game_id: gameId,
-      list_type: "wishlist" as const,
+      is_saved: true,
+      is_loved: false,
+      is_in_collection: false,
+      sentiment: null,
       notes: game.rationale ?? null,
       priority: null,
-      sentiment: null,
     };
   }
 

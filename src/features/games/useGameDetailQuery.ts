@@ -22,6 +22,7 @@ export function useGameDetailQuery(slug: string) {
         .from("games")
         .select("*")
         .eq("slug", slug)
+        .eq("hidden", false)
         .single();
 
       if (gameError) throw gameError;

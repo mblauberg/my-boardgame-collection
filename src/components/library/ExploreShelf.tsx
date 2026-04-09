@@ -98,7 +98,7 @@ export function ExploreShelf({ title, description, entries }: ExploreShelfProps)
 
             return (
               <article key={game.id} className="relative">
-                {isAuthenticated && profile?.id && !isInCollection ? (
+                {isAuthenticated && profile?.id ? (
                   <div className="absolute right-3 top-3 z-10">
                     <LibraryStateIconButton
                       label="Saved"

@@ -78,7 +78,7 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
 
             return (
               <article key={game.id} className="relative" style={{ width: '320px', flexShrink: 0 }}>
-                {isAuthenticated && profile?.id && !isInCollection ? (
+                {isAuthenticated && profile?.id ? (
                   <div className="absolute right-3 top-3 z-10">
                     <LibraryStateIconButton
                       label="Saved"

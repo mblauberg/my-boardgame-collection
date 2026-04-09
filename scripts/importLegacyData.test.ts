@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { buildGameTagRows, mapLegacyGameToLibraryEntry } from './importLegacyData.js';
 
 describe('importLegacyData', () => {
-  it('maps owned games into collection library entries', () => {
+  it('maps owned games into collection library entries with boolean columns', () => {
     expect(
       mapLegacyGameToLibraryEntry(
         {
@@ -64,7 +64,7 @@ describe('importLegacyData', () => {
     ).toBeNull();
   });
 
-  it('maps buy games into saved library entries', () => {
+  it('maps buy games into saved library entries with boolean columns', () => {
     expect(
       mapLegacyGameToLibraryEntry(
         {
