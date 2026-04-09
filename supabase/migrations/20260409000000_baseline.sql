@@ -38,6 +38,12 @@ begin
   else
     new.slug := public.slugify(new.slug);
   end if;
+
+  -- Always append bgg_id when present to guarantee uniqueness across name collisions
+  if new.bgg_id is not null then
+    new.slug := new.slug || '-' || new.bgg_id::text;
+  end if;
+
   return new;
 end;
 $$;
@@ -69,6 +75,7 @@ create table if not exists public.profiles (
   is_profile_public boolean not null default false,
   is_collection_public boolean not null default false,
   is_wishlist_public boolean not null default false,
+  is_saved_public boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint profiles_username_lowercase_check check (
@@ -82,14 +89,11 @@ create table if not exists public.profiles (
   ),
   constraint profiles_public_wishlist_requires_username_check check (
     not is_wishlist_public or username is not null
+  ),
+  constraint profiles_public_saved_requires_username_check check (
+    not is_saved_public or username is not null
   )
 );
-
-alter table public.profiles
-  add column if not exists username text,
-  add column if not exists is_profile_public boolean not null default false,
-  add column if not exists is_collection_public boolean not null default false,
-  add column if not exists is_wishlist_public boolean not null default false;
 
 alter table public.profiles
   drop constraint if exists profiles_username_lowercase_check,
@@ -107,6 +111,10 @@ alter table public.profiles
   drop constraint if exists profiles_public_wishlist_requires_username_check,
   add constraint profiles_public_wishlist_requires_username_check check (
     not is_wishlist_public or username is not null
+  ),
+  drop constraint if exists profiles_public_saved_requires_username_check,
+  add constraint profiles_public_saved_requires_username_check check (
+    not is_saved_public or username is not null
   );
 
 create table if not exists public.games (
@@ -119,6 +127,21 @@ create table if not exists public.games (
   buy_priority integer,
   bgg_rating numeric(3,1),
   bgg_weight numeric(3,1),
+  bgg_rank integer,
+  bgg_bayesaverage numeric(5,2),
+  bgg_usersrated integer,
+  is_expansion boolean,
+  abstracts_rank integer,
+  cgs_rank integer,
+  childrensgames_rank integer,
+  familygames_rank integer,
+  partygames_rank integer,
+  strategygames_rank integer,
+  thematic_rank integer,
+  wargames_rank integer,
+  bgg_data_source text,
+  bgg_data_updated_at timestamptz,
+  bgg_snapshot_payload jsonb,
   players_min integer,
   players_max integer,
   play_time_min integer,
@@ -132,6 +155,9 @@ create table if not exists public.games (
   is_expansion_included boolean not null default false,
   image_url text,
   published_year integer,
+  search_vector tsvector generated always as (
+    setweight(to_tsvector('english', coalesce(name, '')), 'A')
+  ) stored,
   hidden boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -149,6 +175,15 @@ create table if not exists public.games (
   ),
   constraint games_bgg_weight_check check (
     bgg_weight is null or (bgg_weight >= 0.0 and bgg_weight <= 5.0)
+  ),
+  constraint games_bgg_url_format_check check (
+    bgg_url is null or bgg_url like 'https://boardgamegeek.com/%'
+  ),
+  constraint games_published_year_range_check check (
+    published_year is null or (published_year >= 1600 and published_year <= 2100)
+  ),
+  constraint games_image_url_https_check check (
+    image_url is null or image_url like 'https://%'
   )
 );
 
@@ -158,7 +193,8 @@ create table if not exists public.tags (
   slug text not null unique,
   tag_type text,
   colour text,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists public.game_tags (
@@ -172,7 +208,9 @@ create table if not exists public.library_entries (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   game_id uuid not null references public.games(id) on delete cascade,
-  list_type text not null check (list_type in ('collection', 'wishlist')),
+  is_saved boolean not null default false,
+  is_loved boolean not null default false,
+  is_in_collection boolean not null default false,
   sentiment text check (sentiment in ('like', 'dislike', 'neutral')),
   notes text,
   priority integer,
@@ -190,7 +228,8 @@ create table if not exists public.user_tags (
   colour text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (user_id, slug)
+  unique (user_id, slug),
+  unique (user_id, name)
 );
 
 create table if not exists public.user_game_tags (
@@ -228,9 +267,7 @@ as $$
 begin
   insert into public.profiles (id, email, role)
   values (new.id, new.email, 'viewer')
-  on conflict (id) do update
-    set email = excluded.email,
-        updated_at = now();
+  on conflict (id) do nothing;
 
   return new;
 end;
@@ -247,7 +284,7 @@ as $$
   from public.profiles p
   where p.is_profile_public = true
     and p.username is not null
-    and p.username like lower(coalesce(prefix, '')) || '%'
+    and lower(p.username) like lower(coalesce(prefix, '')) || '%'
   order by p.username asc
   limit 10;
 $$;
@@ -258,14 +295,21 @@ returns table (
   username text,
   is_profile_public boolean,
   is_collection_public boolean,
-  is_wishlist_public boolean
+  is_wishlist_public boolean,
+  is_saved_public boolean
 )
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select p.id, p.username, p.is_profile_public, p.is_collection_public, p.is_wishlist_public
+  select
+    p.id,
+    p.username,
+    p.is_profile_public,
+    p.is_collection_public,
+    p.is_wishlist_public,
+    p.is_saved_public
   from public.profiles p
   where p.is_profile_public = true
     and p.username = lower(btrim(p_username))
@@ -301,7 +345,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_list_type not in ('collection', 'wishlist') then
+  if p_list_type not in ('collection', 'wishlist', 'saved') then
     raise exception 'Invalid list type: %', p_list_type;
   end if;
 
@@ -332,10 +376,10 @@ begin
   join public.games g on g.id = le.game_id
   where p.is_profile_public = true
     and p.username = lower(btrim(p_username))
-    and le.list_type = p_list_type
     and (
-      (p_list_type = 'collection' and p.is_collection_public = true)
-      or (p_list_type = 'wishlist' and p.is_wishlist_public = true)
+      (p_list_type = 'collection' and p.is_collection_public = true and le.is_in_collection = true)
+      or (p_list_type = 'wishlist'   and p.is_wishlist_public = true)
+      or (p_list_type = 'saved'      and p.is_saved_public = true and le.is_saved = true)
     )
   order by le.created_at desc, g.name asc;
 end;
@@ -356,7 +400,9 @@ create or replace function public.save_bgg_game_for_user(
   p_bgg_rating numeric default null,
   p_bgg_weight numeric default null,
   p_summary text default null,
-  p_list_type text default 'wishlist',
+  p_is_saved boolean default true,
+  p_is_loved boolean default false,
+  p_is_in_collection boolean default false,
   p_sentiment text default null,
   p_notes text default null
 )
@@ -390,89 +436,167 @@ begin
     raise exception 'BGG URL is required';
   end if;
 
-  if p_list_type not in ('collection', 'wishlist') then
-    raise exception 'Invalid list type: %', p_list_type;
-  end if;
-
   if p_sentiment is not null and p_sentiment not in ('like', 'dislike', 'neutral') then
     raise exception 'Invalid sentiment: %', p_sentiment;
   end if;
 
+  -- Slug base; bgg_id suffix appended by ensure_slug trigger
   v_slug := public.slugify(coalesce(nullif(btrim(p_slug), ''), p_name));
   if v_slug = '' then
     raise exception 'Slug cannot be empty';
   end if;
 
-  insert into public.games (
-    name,
-    slug,
-    bgg_id,
-    bgg_url,
-    bgg_rating,
-    bgg_weight,
-    players_min,
-    players_max,
-    play_time_min,
-    play_time_max,
-    summary,
-    image_url,
-    published_year
-  )
-  values (
-    p_name,
-    v_slug,
-    p_bgg_id,
-    p_bgg_url,
-    p_bgg_rating,
-    p_bgg_weight,
-    p_players_min,
-    p_players_max,
-    p_play_time_min,
-    p_play_time_max,
-    p_summary,
-    p_image_url,
-    p_published_year
-  )
-  on conflict (bgg_id) where bgg_id is not null
-  do update
-    set name = excluded.name,
-        slug = excluded.slug,
-        bgg_url = excluded.bgg_url,
-        bgg_rating = excluded.bgg_rating,
-        bgg_weight = excluded.bgg_weight,
-        players_min = excluded.players_min,
-        players_max = excluded.players_max,
-        play_time_min = excluded.play_time_min,
-        play_time_max = excluded.play_time_max,
-        summary = excluded.summary,
-        image_url = excluded.image_url,
-        published_year = excluded.published_year,
-        updated_at = now()
-  returning * into v_game;
+  if public.is_owner() then
+    -- Owner: full catalog upsert including BGG fields
+    insert into public.games (
+      name, slug, bgg_id, bgg_url, bgg_rating, bgg_weight,
+      players_min, players_max, play_time_min, play_time_max,
+      summary, image_url, published_year
+    )
+    values (
+      p_name, v_slug, p_bgg_id, p_bgg_url, p_bgg_rating, p_bgg_weight,
+      p_players_min, p_players_max, p_play_time_min, p_play_time_max,
+      p_summary, p_image_url, p_published_year
+    )
+    on conflict (bgg_id) where bgg_id is not null
+    do update set
+      name           = excluded.name,
+      slug           = excluded.slug,
+      bgg_url        = excluded.bgg_url,
+      bgg_rating     = coalesce(excluded.bgg_rating, games.bgg_rating),
+      bgg_weight     = coalesce(excluded.bgg_weight, games.bgg_weight),
+      players_min    = coalesce(excluded.players_min, games.players_min),
+      players_max    = coalesce(excluded.players_max, games.players_max),
+      play_time_min  = coalesce(excluded.play_time_min, games.play_time_min),
+      play_time_max  = coalesce(excluded.play_time_max, games.play_time_max),
+      summary        = coalesce(excluded.summary, games.summary),
+      image_url      = coalesce(excluded.image_url, games.image_url),
+      published_year = coalesce(excluded.published_year, games.published_year),
+      updated_at     = now()
+    returning * into v_game;
+  else
+    -- Non-owner: ensure game exists, then update only non-BGG fields.
+    -- bgg_* fields, status, hidden, buy_priority are never touched.
+    insert into public.games (name, slug, bgg_id, bgg_url)
+    values (p_name, v_slug, p_bgg_id, p_bgg_url)
+    on conflict (bgg_id) where bgg_id is not null
+    do update set
+      summary        = coalesce(excluded.summary, games.summary),
+      image_url      = case when games.image_url is null then excluded.image_url else games.image_url end,
+      published_year = coalesce(excluded.published_year, games.published_year),
+      players_min    = coalesce(excluded.players_min, games.players_min),
+      players_max    = coalesce(excluded.players_max, games.players_max),
+      play_time_min  = coalesce(excluded.play_time_min, games.play_time_min),
+      play_time_max  = coalesce(excluded.play_time_max, games.play_time_max),
+      updated_at     = now()
+    returning * into v_game;
+
+    if v_game.id is null then
+      select * into v_game from public.games where bgg_id = p_bgg_id;
+    end if;
+  end if;
 
   insert into public.library_entries (
-    user_id,
-    game_id,
-    list_type,
-    sentiment,
-    notes
+    user_id, game_id, is_saved, is_loved, is_in_collection, sentiment, notes
   )
   values (
-    p_user_id,
-    v_game.id,
-    p_list_type,
-    p_sentiment,
-    p_notes
+    p_user_id, v_game.id, p_is_saved, p_is_loved, p_is_in_collection, p_sentiment, p_notes
   )
   on conflict (user_id, game_id)
   do update
-    set list_type = excluded.list_type,
-        sentiment = excluded.sentiment,
-        notes = excluded.notes,
-        updated_at = now()
+    set is_saved         = excluded.is_saved,
+        is_loved         = excluded.is_loved,
+        is_in_collection = excluded.is_in_collection,
+        sentiment        = excluded.sentiment,
+        notes            = excluded.notes,
+        updated_at       = now()
   returning * into v_library_entry;
 
   return v_library_entry;
+end;
+$$;
+
+create or replace function public.import_bgg_games_batch(
+  batch jsonb
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_owner() then
+    raise exception 'Owner role required';
+  end if;
+
+  insert into public.games (
+    bgg_id,
+    name,
+    published_year,
+    bgg_rank,
+    bgg_bayesaverage,
+    bgg_rating,
+    bgg_usersrated,
+    is_expansion,
+    abstracts_rank,
+    cgs_rank,
+    childrensgames_rank,
+    familygames_rank,
+    partygames_rank,
+    strategygames_rank,
+    thematic_rank,
+    wargames_rank,
+    bgg_data_source,
+    bgg_data_updated_at,
+    bgg_snapshot_payload,
+    status
+  )
+  select
+    (item->>'bgg_id')::integer,
+    item->>'name',
+    (item->>'published_year')::integer,
+    (item->>'bgg_rank')::integer,
+    (item->>'bgg_bayesaverage')::numeric,
+    (item->>'bgg_rating')::numeric,
+    (item->>'bgg_usersrated')::integer,
+    (item->>'is_expansion')::boolean,
+    (item->>'abstracts_rank')::integer,
+    (item->>'cgs_rank')::integer,
+    (item->>'childrensgames_rank')::integer,
+    (item->>'familygames_rank')::integer,
+    (item->>'partygames_rank')::integer,
+    (item->>'strategygames_rank')::integer,
+    (item->>'thematic_rank')::integer,
+    (item->>'wargames_rank')::integer,
+    coalesce(item->>'bgg_data_source', 'bgg_csv'),
+    (item->>'bgg_data_updated_at')::timestamptz,
+    item->'bgg_snapshot_payload',
+    'archived'
+  from jsonb_array_elements(batch) as item
+  on conflict (bgg_id) where bgg_id is not null
+  do update set
+    name = coalesce(public.games.name, excluded.name),
+    published_year = excluded.published_year,
+    bgg_rank = excluded.bgg_rank,
+    bgg_bayesaverage = excluded.bgg_bayesaverage,
+    bgg_rating = coalesce(public.games.bgg_rating, excluded.bgg_rating),
+    bgg_usersrated = excluded.bgg_usersrated,
+    is_expansion = excluded.is_expansion,
+    abstracts_rank = excluded.abstracts_rank,
+    cgs_rank = excluded.cgs_rank,
+    childrensgames_rank = excluded.childrensgames_rank,
+    familygames_rank = excluded.familygames_rank,
+    partygames_rank = excluded.partygames_rank,
+    strategygames_rank = excluded.strategygames_rank,
+    thematic_rank = excluded.thematic_rank,
+    wargames_rank = excluded.wargames_rank,
+    bgg_data_source = excluded.bgg_data_source,
+    bgg_data_updated_at = excluded.bgg_data_updated_at,
+    bgg_snapshot_payload = excluded.bgg_snapshot_payload,
+    updated_at = now()
+  where public.games.bgg_data_updated_at is null
+    or excluded.bgg_data_updated_at is null
+    or excluded.bgg_data_updated_at >= public.games.bgg_data_updated_at;
 end;
 $$;
 
@@ -488,14 +612,15 @@ create index if not exists idx_games_status on public.games(status);
 create index if not exists idx_games_hidden on public.games(hidden);
 create index if not exists idx_games_buy_priority on public.games(buy_priority);
 create index if not exists idx_games_name on public.games(name);
-create index if not exists idx_games_bgg_id on public.games(bgg_id);
 create unique index if not exists idx_games_bgg_id_unique
 on public.games (bgg_id)
 where bgg_id is not null;
+create index if not exists idx_games_search_vector
+on public.games using gin(search_vector);
 create index if not exists idx_tags_tag_type on public.tags(tag_type);
 create index if not exists idx_game_tags_tag_id on public.game_tags(tag_id);
-create index if not exists idx_library_entries_user_list_type
-on public.library_entries (user_id, list_type);
+create index if not exists idx_library_entries_user_id
+on public.library_entries (user_id);
 create index if not exists idx_library_entries_game_id
 on public.library_entries (game_id);
 create index if not exists idx_user_tags_user_id
@@ -536,6 +661,12 @@ create trigger trg_tags_ensure_slug
 before insert or update on public.tags
 for each row
 execute function public.ensure_slug();
+
+drop trigger if exists trg_tags_set_updated_at on public.tags;
+create trigger trg_tags_set_updated_at
+before update on public.tags
+for each row
+execute function public.set_updated_at();
 
 drop trigger if exists trg_library_entries_set_updated_at on public.library_entries;
 create trigger trg_library_entries_set_updated_at
@@ -784,6 +915,38 @@ using (
       and le.user_id = auth.uid()
   )
 );
+
+-- -----------------------------------------------------------------------------
+-- Storage
+-- -----------------------------------------------------------------------------
+
+insert into storage.buckets (id, name, public)
+values ('game-images', 'game-images', true)
+on conflict (id) do nothing;
+
+drop policy if exists "game-images_public_read" on storage.objects;
+create policy "game-images_public_read"
+on storage.objects for select
+using (bucket_id = 'game-images');
+
+drop policy if exists "game-images_insert" on storage.objects;
+create policy "game-images_insert"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'game-images');
+
+drop policy if exists "game-images_update" on storage.objects;
+create policy "game-images_update"
+on storage.objects for update
+to authenticated
+using  (bucket_id = 'game-images' and public.is_owner())
+with check (bucket_id = 'game-images' and public.is_owner());
+
+drop policy if exists "game-images_delete" on storage.objects;
+create policy "game-images_delete"
+on storage.objects for delete
+to authenticated
+using (bucket_id = 'game-images' and public.is_owner());
 
 commit;
 

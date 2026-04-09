@@ -93,7 +93,7 @@ describe("AppRouter", () => {
   it("renders the game route without background content on direct entry", async () => {
     renderAppRouter(["/game/heat"]);
 
-    expect(screen.queryByRole("dialog", { name: /heat/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /heat/i })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /your collection/i })).not.toBeInTheDocument();
   });
 });

@@ -36,13 +36,14 @@ export function GameCard({
   badge
 }: GameCardProps) {
   const displayImage = image ?? getFallbackImage(title);
+  const displayTitle = title.replace(/_/g, " ");
 
   return (
-    <article className="group relative bg-surface-container-low rounded-xl overflow-visible p-6 transition-all duration-300 hover:translate-y-[-4px]">
-      <div className="relative -mt-12 mb-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+    <article className="group relative bg-surface-container-low rounded-xl overflow-hidden transition-all duration-300 hover:translate-y-[-4px]">
+      <div className="relative aspect-[3/2] overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
         <img
           className="w-full h-full object-cover"
-          alt={`Cover art for ${title}`}
+          alt={`Cover art for ${displayTitle}`}
           src={displayImage}
         />
         
@@ -59,13 +60,15 @@ export function GameCard({
         )}
       </div>
 
-      <div className="space-y-4">
-        <div className="flex justify-between items-start gap-3">
-          <h3 className="text-2xl font-extrabold text-on-surface leading-tight">{title}</h3>
+      <div className="p-6 space-y-4">
+        <div className="flex justify-between items-start gap-2">
+          <h3 className="text-2xl font-extrabold text-on-surface leading-tight flex-1 min-w-0">
+            {displayTitle}
+          </h3>
           {isFavorite ? (
             <span
               aria-label="Loved"
-              className="material-symbols-outlined text-primary"
+              className="material-symbols-outlined flex-shrink-0 text-primary"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               favorite

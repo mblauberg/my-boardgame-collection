@@ -208,7 +208,7 @@ export function AddGameWizardOverlay({
           </ol>
         </aside>
 
-        <section className="flex min-h-[38rem] flex-1 flex-col px-6 py-8 sm:px-8">
+        <section className="flex min-h-[38rem] flex-1 flex-col overflow-y-auto px-6 pt-8 sm:px-8">
           <div className="mb-6 flex justify-end">
             <button
               type="button"
@@ -249,7 +249,7 @@ export function AddGameWizardOverlay({
             />
           ) : null}
 
-          <div className="mt-8 flex items-center justify-between gap-3 border-t border-outline/10 pt-6">
+          <div className={`mt-8 flex items-center justify-between gap-3 border-t border-outline/10 pt-6 pb-8 ${step === 1 && selectedGame ? 'sticky bottom-0 -mx-6 bg-surface-container-lowest px-6 sm:-mx-8 sm:px-8' : ''}`}>
             <button
               type="button"
               onClick={() => (step === 1 ? handleClose() : setStep((current) => current - 1))}

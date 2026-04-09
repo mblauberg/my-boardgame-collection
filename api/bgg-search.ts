@@ -54,6 +54,13 @@ export function parseBggSearchResults(xml: string) {
   });
 }
 
+/**
+ * Creates a BGG search API handler that proxies requests to BoardGameGeek XML API
+ * @param options - Configuration options
+ * @param options.readToken - Function to read BGG application token from environment
+ * @param options.fetchImpl - Fetch implementation for testing
+ * @returns Request handler function
+ */
 export function createBggSearchHandler({
   fetchImpl = fetch,
   getToken = readBggApplicationToken,

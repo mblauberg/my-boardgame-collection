@@ -10,6 +10,10 @@ import type {
 const BGG_API_BASE_URL = "https://boardgamegeek.com/xmlapi2/thing";
 const BGG_SEARCH_PATH = "/api/bgg-search";
 const BGG_REFRESH_PATH = "/api/bgg-refresh";
+const BGG_REQUEST_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// In-memory cache for BGG API requests to prevent duplicate calls
+const bggRequestCache = new Map<string, { promise: Promise<BggThing>; timestamp: number }>();
 
 const bggSearchResponseSchema = z.object({
   results: z.array(
@@ -33,7 +37,7 @@ const bggRefreshResponseSchema = z.object({
 });
 
 const offlineGameRowSchema = z.object({
-  bgg_id: z.number().int(),
+  bgg_id: z.number().int().nullable(),
   name: z.string(),
   published_year: z.number().int().nullable(),
   bgg_url: z.string().nullable(),
@@ -165,24 +169,26 @@ async function searchOfflineGames(query: string): Promise<BggSearchResponse> {
     .sort();
 
   return {
-    results: games.map((game): BggSearchResult => ({
-      id: game.bgg_id,
-      name: game.name,
-      yearPublished: game.published_year,
-      bggUrl: game.bgg_url,
-      imageUrl: game.image_url,
-      playersMin: game.players_min,
-      playersMax: game.players_max,
-      playTimeMin: game.play_time_min,
-      playTimeMax: game.play_time_max,
-      averageRating: game.bgg_rating,
-      averageWeight: game.bgg_weight,
-      summary: game.summary,
-      bggRank: game.bgg_rank,
-      bggBayesAverage: game.bgg_bayesaverage,
-      bggUsersRated: game.bgg_usersrated,
-      isExpansion: game.is_expansion,
-    })),
+    results: games
+      .filter((game) => game.bgg_id !== null)
+      .map((game): BggSearchResult => ({
+        id: game.bgg_id!,
+        name: game.name,
+        yearPublished: game.published_year,
+        bggUrl: game.bgg_url,
+        imageUrl: game.image_url,
+        playersMin: game.players_min,
+        playersMax: game.players_max,
+        playTimeMin: game.play_time_min,
+        playTimeMax: game.play_time_max,
+        averageRating: game.bgg_rating,
+        averageWeight: game.bgg_weight,
+        summary: game.summary,
+        bggRank: game.bgg_rank,
+        bggBayesAverage: game.bgg_bayesaverage,
+        bggUsersRated: game.bgg_usersrated,
+        isExpansion: game.is_expansion,
+      })),
     source: {
       kind: "snapshot",
       label: "Local BGG snapshot",
@@ -191,9 +197,38 @@ async function searchOfflineGames(query: string): Promise<BggSearchResponse> {
   };
 }
 
+/**
+ * Fetches game details from BoardGameGeek XML API with request deduplication
+ * @param bggId - BoardGameGeek game ID
+ * @param fetchImpl - Fetch implementation (for testing)
+ * @returns Game metadata from BGG
+ */
 export async function fetchBggThing(
   bggId: number,
   fetchImpl: typeof fetch = fetch,
+): Promise<BggThing> {
+  const cacheKey = `bgg-thing-${bggId}`;
+  const now = Date.now();
+  
+  // Check cache and return if valid
+  const cached = bggRequestCache.get(cacheKey);
+  if (cached && (now - cached.timestamp) < BGG_REQUEST_CACHE_TTL) {
+    return cached.promise;
+  }
+  
+  // Create new request
+  const promise = fetchBggThingImpl(bggId, fetchImpl);
+  bggRequestCache.set(cacheKey, { promise, timestamp: now });
+  
+  // Clear cache entry after TTL
+  setTimeout(() => bggRequestCache.delete(cacheKey), BGG_REQUEST_CACHE_TTL);
+  
+  return promise;
+}
+
+async function fetchBggThingImpl(
+  bggId: number,
+  fetchImpl: typeof fetch,
 ): Promise<BggThing> {
   const response = await fetchImpl(buildBggThingUrl(bggId));
 
@@ -220,6 +255,7 @@ export async function fetchBggThing(
     },
   };
 }
+
 
 export async function searchBggGames(
   query: string,

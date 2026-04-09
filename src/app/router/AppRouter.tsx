@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
 import { AppRoutes } from "./routes";
 import { GameDetailPage } from "../../pages/GameDetailPage";
+import { ErrorBoundary } from "./ErrorBoundary";
 import type { Location } from "react-router-dom";
 
 function AppContent() {
@@ -10,7 +11,7 @@ function AppContent() {
   const backgroundLocation = state?.backgroundLocation;
 
   return (
-    <>
+    <ErrorBoundary>
       <AppShell>
         <AppRoutes location={backgroundLocation ?? location} />
       </AppShell>
@@ -19,7 +20,7 @@ function AppContent() {
           <Route path="/game/:slug" element={<GameDetailPage />} />
         </Routes>
       ) : null}
-    </>
+    </ErrorBoundary>
   );
 }
 

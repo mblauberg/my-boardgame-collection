@@ -1,196 +1,381 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { useProfile } from "../features/auth/useProfile";
+import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
+
+type FormState = {
+  username: string;
+  isProfilePublic: boolean;
+  isCollectionPublic: boolean;
+  isSavedPublic: boolean;
+};
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string" &&
+    error.message.length > 0
+  ) {
+    return error.message;
+  }
+
+  return "Unable to save your settings right now.";
+}
+
+function getFormState(profile: ReturnType<typeof useProfile>["profile"]): FormState {
+  return {
+    username: profile?.username ?? "",
+    isProfilePublic: profile?.is_profile_public ?? false,
+    isCollectionPublic: profile?.is_collection_public ?? false,
+    isSavedPublic: profile?.is_saved_public ?? false,
+  };
+}
 
 export function AccountSettingsPage() {
-  const { profile } = useProfile();
-  const isOwner = profile?.role === "owner";
+  const { profile, isLoading, isOwner, isAuthenticated, error } = useProfile();
+  const { mutateAsync, isPending } = useUpdateProfileMutation();
+  const [formState, setFormState] = useState<FormState>(() => getFormState(null));
+  const [isAddGameOpen, setIsAddGameOpen] = useState(false);
+  const [status, setStatus] = useState<{ type: "idle" | "success" | "error"; message: string | null }>({
+    type: "idle",
+    message: null,
+  });
+
+  useEffect(() => {
+    setFormState(getFormState(profile));
+  }, [
+    profile?.id,
+    profile?.username,
+    profile?.is_profile_public,
+    profile?.is_collection_public,
+    profile?.is_saved_public,
+  ]);
+
+  async function handleSave() {
+    if (!profile?.id || isPending) return;
+
+    try {
+      setStatus({ type: "idle", message: null });
+      await mutateAsync({
+        id: profile.id,
+        username: formState.username,
+        is_profile_public: formState.isProfilePublic,
+        is_collection_public: formState.isCollectionPublic,
+        is_saved_public: formState.isSavedPublic,
+      });
+      setStatus({ type: "success", message: "Settings saved." });
+    } catch (mutationError) {
+      setStatus({
+        type: "error",
+        message: getErrorMessage(mutationError),
+      });
+    }
+  }
+
+  if (isLoading) {
+    return <div className="p-8 text-center">Loading account settings...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
+        <p className="text-lg font-semibold">Account settings unavailable</p>
+        <p className="mt-2 text-sm leading-6">
+          {error.message || "There was a problem loading your profile."}
+        </p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !profile) {
+    return (
+      <div className="rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 text-center">
+        <p className="text-lg font-semibold text-on-surface">Sign in to manage your account.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 mt-2">
-      {/* Sidebar Navigation (Account Specific) */}
-      <aside className="w-full md:w-64 flex-shrink-0">
-        <div className="flex flex-col h-full p-6 bg-surface-container-low dark:bg-[#121212] rounded-xl">
-          <div className="mb-8">
-            <h2 className="text-xl font-black uppercase tracking-widest text-primary font-headline">The Game Haven</h2>
-            <p className="text-sm text-on-surface-variant font-medium">Curated Board Gaming</p>
-          </div>
-          <nav className="space-y-2">
-            <a className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#2e2f2d] text-primary dark:text-primary-fixed rounded-xl shadow-sm font-semibold transition-all duration-200" href="#">
-              <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>account_circle</span>
-              <span>Profile</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl transition-all duration-200" href="#">
-              <span className="material-symbols-outlined shrink-0">analytics</span>
-              <span>Stats</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl transition-all duration-200" href="#">
-              <span className="material-symbols-outlined shrink-0">link</span>
-              <span>Connections</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-[#2e2f2d] hover:pl-6 rounded-xl transition-all duration-200" href="#">
-              <span className="material-symbols-outlined shrink-0">notifications</span>
-              <span>Alerts</span>
-            </a>
-          </nav>
+    <>
+      <div className="mt-2 flex flex-col gap-8 md:flex-row">
+        <aside className="w-full flex-shrink-0 md:w-64">
+          <div className="flex h-full flex-col rounded-xl bg-surface-container-low p-6 dark:bg-[#121212]">
+            <div className="mb-8">
+              <h2 className="font-headline text-xl font-black uppercase tracking-widest text-primary">
+                My Board Game Collection
+              </h2>
+              <p className="text-sm font-medium text-on-surface-variant">Curated Board Gaming</p>
+            </div>
 
-          <div className="mt-auto pt-8">
-            <button className="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-primary/20 hover:scale-[0.98] active:scale-95 transition-all">
-              <span className="material-symbols-outlined shrink-0">add</span>
-              Add New Game
-            </button>
-          </div>
-        </div>
-      </aside>
+            <nav className="space-y-2">
+              <Link
+                to="/settings"
+                className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 font-semibold text-primary shadow-sm transition-all duration-200 dark:bg-[#2e2f2d] dark:text-primary-fixed"
+              >
+                <span
+                  className="material-symbols-outlined shrink-0"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  account_circle
+                </span>
+                <span>Account Details</span>
+              </Link>
+              <Link
+                to={profile.username ? `/u/${profile.username}` : "/settings"}
+                className="flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface transition-all duration-200 hover:bg-surface-container-highest hover:pl-6 dark:text-outline-variant dark:hover:bg-[#2e2f2d]"
+              >
+                <span className="material-symbols-outlined shrink-0">visibility</span>
+                <span>Public Profile</span>
+              </Link>
+              <Link
+                to="/"
+                className="flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface transition-all duration-200 hover:bg-surface-container-highest hover:pl-6 dark:text-outline-variant dark:hover:bg-[#2e2f2d]"
+              >
+                <span className="material-symbols-outlined shrink-0">inventory_2</span>
+                <span>Collection</span>
+              </Link>
+              <Link
+                to="/saved"
+                className="flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface transition-all duration-200 hover:bg-surface-container-highest hover:pl-6 dark:text-outline-variant dark:hover:bg-[#2e2f2d]"
+              >
+                <span className="material-symbols-outlined shrink-0">bookmark</span>
+                <span>Saved</span>
+              </Link>
+            </nav>
 
-      {/* Main Content Area */}
-      <section className="flex-1 space-y-12">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-[0.1em] text-primary">Account Dashboard</span>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface mt-2">
-              Welcome back, {profile?.username ?? "Player"}.
-            </h1>
-          </div>
-          <div className="flex gap-4">
-            <div className="px-4 py-2 bg-secondary-fixed rounded-full flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-secondary"></span>
-              <span className="text-on-secondary-container text-xs font-bold uppercase tracking-wider">
-                {isOwner ? "Owner Mode" : "Player Mode"}
-              </span>
+            <div className="mt-auto pt-8">
+              <button
+                type="button"
+                onClick={() => setIsAddGameOpen(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary to-primary-container py-4 font-bold text-on-primary shadow-lg transition-all hover:scale-[0.98] hover:shadow-primary/20 active:scale-95"
+              >
+                <span className="material-symbols-outlined shrink-0">add</span>
+                Add New Game
+              </button>
             </div>
           </div>
-        </div>
+        </aside>
 
-        {/* Bento Grid Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4">
-          <div className="md:col-span-2 md:row-span-2 bg-surface-container-lowest p-8 rounded-xl flex flex-col justify-between shadow-sm border border-outline-variant/10">
-            <span className="material-symbols-outlined text-primary text-4xl mb-4">inventory_2</span>
+        <section className="flex-1 space-y-10">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-6xl font-black text-on-surface tracking-tighter">142</div>
-              <div className="text-lg font-medium text-on-surface-variant">Games in your collection</div>
-            </div>
-            <div className="pt-4 border-t border-surface-container mt-4">
-              <p className="text-sm text-on-surface-variant leading-relaxed">
-                Your collection has grown by <span className="font-bold text-secondary">12%</span> this month. Most played genre: <span className="font-bold text-primary">Eurogames</span>.
+              <span className="text-xs font-bold uppercase tracking-[0.1em] text-primary">
+                Account Settings
+              </span>
+              <h1 className="mt-2 text-4xl font-extrabold tracking-tighter text-on-surface md:text-5xl">
+                Manage your account details.
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-on-surface-variant">
+                Update your public identity and choose which parts of your library other players can
+                see.
               </p>
             </div>
-          </div>
-          
-          <div className="md:col-span-1 bg-surface-container-low p-6 rounded-xl flex flex-col justify-center border border-outline-variant/5">
-            <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Saved</div>
-            <div className="text-3xl font-black text-primary">28</div>
-            <div className="mt-4 flex -space-x-2">
-              <div className="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
-                <img className="w-full h-full object-cover" alt="saved game 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBguiXq6FABe6DPf9lfiEPbCCTVBrIUg58ODeYu2KhPpnAGKOjjaOs5OdvQk9tlZF7I8lbGoPtnb-6tdk5dm2-O-sfmgMnUMZN3NBkhja_aW21qoXBdxntq3LfMuSzVI0s0tTx69sAcikesOS4j_Ap-pHP9VETfmFqiTQNGIgmJpAqa0ySiAs9UTwLGitG0cdCwVMbs_ET_j89w0Du_L30a2Myop_K134ZQTVsIBMkrXUhILhx_goZM3Mh4FrVeuMP0xGtCA9M5Ao4" />
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2 rounded-full bg-secondary-fixed px-4 py-2">
+                <span className="h-2 w-2 rounded-full bg-secondary"></span>
+                <span className="text-xs font-bold uppercase tracking-wider text-on-secondary-container">
+                  {isOwner ? "Owner Mode" : "Player Mode"}
+                </span>
               </div>
-              <div className="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
-                <img className="w-full h-full object-cover" alt="saved game 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOu7gWVczr4EeMNrqtYpKe5CML7RFRzhtIEkf7XgOg7vxme3oUyn6LqrouxGmWQkJW7_EvN4GM1kFxCqLOAZnmo5sxOvOJLhNYn1P-qUw_mUPXvlEKmKdJ2wwNlbYpjGxANchh6j104-IgykehhEfKbRXWGJWLiSmBayPfldU69-YAyo5ln7Ha7Mp433J0rIGPvkhUYvxr8_g7sLN0lb9GY7eTk-FEW2eC3mhgxigSLp53lNIVypbZrOt2Mkk0EMl5bx0MiAZBi3Q" />
-              </div>
-              <div className="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold">+26</div>
             </div>
           </div>
-          
-          <div className="md:col-span-1 bg-surface-container-low p-6 rounded-xl flex flex-col justify-center border border-outline-variant/5">
-            <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Total Playtime</div>
-            <div className="text-3xl font-black text-secondary">842h</div>
-            <div className="mt-2 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
-              <div className="h-full bg-secondary w-3/4 rounded-full"></div>
-            </div>
-            <div className="text-[10px] mt-2 font-medium text-on-surface-variant">Top 5% of global players</div>
-          </div>
-          
-          <div className="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl flex items-center gap-6 shadow-sm border border-outline-variant/10">
-            <div className="w-16 h-16 shrink-0 bg-surface-container-low rounded-xl flex items-center justify-center">
-              <span className="material-symbols-outlined text-3xl text-tertiary">workspace_premium</span>
-            </div>
-            <div>
-              <div className="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Achievement</div>
-              <div className="text-xl font-bold text-on-surface">Master Strategist</div>
-              <p className="text-sm text-on-surface-variant">Won 50+ games of heavy complexity</p>
-            </div>
-          </div>
-        </div>
 
-        {/* Preferences Section */}
-        <div className="space-y-6">
-          <h3 className="text-2xl font-bold tracking-tight border-b border-surface-container pb-4">Preferences &amp; Personalization</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div className="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-primary">dark_mode</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface">Dark Mode</h4>
-                  <p className="text-sm text-on-surface-variant">Switch to high-contrast night view</p>
-                </div>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
+            <form
+              className="space-y-6 rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 shadow-sm"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSave();
+              }}
+            >
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  Account Details
+                </p>
+                <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
+                  Profile and sharing
+                </h2>
               </div>
-              <button className="w-12 h-6 bg-surface-container-highest rounded-full relative p-1 flex items-center transition-colors shrink-0">
-                <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-              </button>
-            </div>
-            
-            <div className="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-primary">visibility</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface">Public Profile</h4>
-                  <p className="text-sm text-on-surface-variant">Allow others to see your collection</p>
-                </div>
-              </div>
-              <button className="w-12 h-6 bg-primary rounded-full relative p-1 flex items-center justify-end transition-colors shrink-0">
-                <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-              </button>
-            </div>
-            
-            <div className="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-primary">notifications_active</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface">Smart Alerts</h4>
-                  <p className="text-sm text-on-surface-variant">Notify when saved games go on sale</p>
-                </div>
-              </div>
-              <button className="w-12 h-6 bg-primary rounded-full relative p-1 flex items-center justify-end transition-colors shrink-0">
-                <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-              </button>
-            </div>
-            
-            <div className="bg-surface-container-low p-6 rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-colors group cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-primary">sync</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface">BGG Sync</h4>
-                  <p className="text-sm text-on-surface-variant">Last synced: 14 mins ago</p>
-                </div>
-              </div>
-              <button className="text-xs font-bold uppercase tracking-widest text-primary hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors shrink-0">Re-sync</button>
-            </div>
 
+              <label className="block">
+                <span className="text-sm font-semibold text-on-surface">Email</span>
+                <input
+                  value={profile.email ?? ""}
+                  disabled
+                  readOnly
+                  className="mt-3 w-full rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-semibold text-on-surface">Username</span>
+                <input
+                  aria-label="Username"
+                  value={formState.username}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      username: event.target.value,
+                    }))
+                  }
+                  placeholder="Choose a public username"
+                  className="mt-3 w-full rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30"
+                />
+              </label>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <input
+                    type="checkbox"
+                    aria-label="Public profile"
+                    checked={formState.isProfilePublic}
+                    onChange={(event) =>
+                      setFormState((current) => ({
+                        ...current,
+                        isProfilePublic: event.target.checked,
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-sm font-bold text-on-surface">Public Profile</span>
+                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                      Allow people to discover your profile page.
+                    </span>
+                  </span>
+                </label>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <input
+                    type="checkbox"
+                    aria-label="Public collection"
+                    checked={formState.isCollectionPublic}
+                    onChange={(event) =>
+                      setFormState((current) => ({
+                        ...current,
+                        isCollectionPublic: event.target.checked,
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-sm font-bold text-on-surface">Public Collection</span>
+                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                      Show your collection on your public profile.
+                    </span>
+                  </span>
+                </label>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-outline/10 bg-surface-container-low p-4">
+                  <input
+                    type="checkbox"
+                    aria-label="Public saved"
+                    checked={formState.isSavedPublic}
+                    onChange={(event) =>
+                      setFormState((current) => ({
+                        ...current,
+                        isSavedPublic: event.target.checked,
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-sm font-bold text-on-surface">Public Saved</span>
+                    <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
+                      Let others browse the games you have saved for later.
+                    </span>
+                  </span>
+                </label>
+              </div>
+
+              {status.message ? (
+                <div
+                  className={`rounded-2xl px-4 py-3 text-sm font-medium ${
+                    status.type === "error"
+                      ? "border border-error/20 bg-red-50 text-error"
+                      : "border border-emerald-200 bg-emerald-50 text-emerald-900"
+                  }`}
+                >
+                  {status.message}
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline/10 pt-6">
+                <p className="text-sm text-on-surface-variant">
+                  Public sharing requires a username when any visibility toggle is enabled.
+                </p>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="rounded-full bg-primary px-5 py-3 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isPending ? "Saving..." : "Save Settings"}
+                </button>
+              </div>
+            </form>
+
+            <div className="space-y-4">
+              <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+                  Account Summary
+                </p>
+                <dl className="mt-5 space-y-4">
+                  <div>
+                    <dt className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                      Role
+                    </dt>
+                    <dd className="mt-1 text-sm font-medium text-on-surface">
+                      {isOwner ? "Owner" : "Viewer"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                      Public URL
+                    </dt>
+                    <dd className="mt-1 text-sm font-medium text-on-surface">
+                      {profile.username ? `@${profile.username}` : "Set a username to share publicly"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                      Visibility
+                    </dt>
+                    <dd className="mt-1 text-sm font-medium text-on-surface">
+                      Profile: {formState.isProfilePublic ? "Public" : "Private"} · Collection:{" "}
+                      {formState.isCollectionPublic ? "Public" : "Private"} · Saved:{" "}
+                      {formState.isSavedPublic ? "Public" : "Private"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div className="rounded-3xl border border-outline/10 bg-surface-container-low p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+                  Next Step
+                </p>
+                <h3 className="mt-2 text-xl font-bold text-on-surface">Add a game straight to your shelf</h3>
+                <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                  The account CTA now opens the add-game wizard in collection mode so new entries land
+                  in your library by default.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+      </div>
 
-        {/* Danger Zone */}
-        <div className="pt-8 border-t border-surface-container">
-          <div className="bg-error-container/10 p-6 md:p-8 rounded-xl border border-error-container/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <h3 className="text-xl font-bold text-error">Account Deletion</h3>
-              <p className="text-on-surface-variant mt-1 text-sm md:text-base">Permanently remove your collection data and profile history.</p>
-            </div>
-            <button className="px-6 py-3 bg-error text-on-error rounded-xl font-bold hover:bg-error-dim transition-colors shadow-lg shadow-error/20 shrink-0">
-              Delete Account
-            </button>
-          </div>
-        </div>
-
-      </section>
-    </div>
+      <AddGameWizardOverlay
+        isOpen={isAddGameOpen}
+        defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
+        onClose={() => setIsAddGameOpen(false)}
+      />
+    </>
   );
 }

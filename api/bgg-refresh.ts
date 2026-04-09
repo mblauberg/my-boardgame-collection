@@ -68,6 +68,14 @@ function createAuthenticatedSupabaseClient(accessToken: string): SupabaseClientL
   }) as unknown as SupabaseClientLike;
 }
 
+/**
+ * Creates a BGG refresh API handler that fetches and updates game metadata from BoardGameGeek
+ * Requires owner authentication and valid game with bgg_id
+ * @param options - Configuration options
+ * @param options.createSupabaseClient - Factory for authenticated Supabase client
+ * @param options.fetchImpl - Fetch implementation for testing
+ * @returns Request handler function
+ */
 export function createBggRefreshHandler({
   createSupabaseClient = createAuthenticatedSupabaseClient,
   fetchImpl = fetch,

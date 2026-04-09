@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { ProfileSearch } from "../library/ProfileSearch";
+import { useProfile } from "../../features/auth/useProfile";
 
 export function TopNavBar() {
   const location = useLocation();
+  const { isAuthenticated } = useProfile();
 
   const getLinkClass = (path: string) => {
     const isActive = location.pathname === path;
@@ -16,7 +18,7 @@ export function TopNavBar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-[#1a1b1e]/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-8 py-4 max-w-full mx-auto">
       <div className="text-2xl font-black text-amber-800 dark:text-amber-400 tracking-tighter">
-        <Link to="/">The Game Haven</Link>
+        <Link to="/">My Board Game Collection</Link>
       </div>
       <div className="hidden md:flex items-center gap-8">
         <Link className={getLinkClass("/explore")} to="/explore">Explore</Link>
@@ -25,8 +27,8 @@ export function TopNavBar() {
       </div>
       <div className="flex items-center gap-4">
         <ProfileSearch />
-        <Link to="/settings" className="p-2 rounded-full hover:bg-surface-container-high transition-colors scale-95 duration-150 active:opacity-80 flex items-center justify-center">
-          <span className="material-symbols-outlined text-on-surface">account_circle</span>
+        <Link to={isAuthenticated ? "/settings" : "/signin"} className="p-2 rounded-full hover:bg-[#ddddda] dark:hover:bg-gray-800 transition-colors scale-95 duration-150 active:opacity-80 flex items-center justify-center">
+          <span className="material-symbols-outlined text-[#2e2f2d] dark:text-[#ddddda]">account_circle</span>
         </Link>
       </div>
     </nav>

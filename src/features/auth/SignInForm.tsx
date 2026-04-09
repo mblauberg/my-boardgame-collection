@@ -45,33 +45,40 @@ export function SignInForm() {
 
   if (isAuthenticated && profile) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <p className="text-sm text-gray-600">
-            Signed in as <strong>{profile.email}</strong>
+      <div className="space-y-6">
+        <div className="rounded-xl bg-[#f1f1ee] p-6">
+          <p className="text-base text-[#2e2f2d]">
+            Signed in as <strong className="font-extrabold">{profile.email}</strong>
           </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Role: {profile.role === "owner" ? "Owner" : "Viewer"}
-          </p>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Username
-          </p>
-          <p className="mt-1 text-sm text-gray-700">
-            {profile.username ? `@${profile.username}` : "Not set"}
-          </p>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Public sharing
-          </p>
-          <p className="mt-1 text-sm text-gray-700">
-            Profile: {profile.is_profile_public ? "Public" : "Private"} · Collection:{" "}
-            {profile.is_collection_public ? "Public" : "Private"} · Saved:{" "}
-            {profile.is_saved_public ? "Public" : "Private"}
-          </p>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/60">Role</p>
+              <p className="mt-1 text-sm font-medium text-[#2e2f2d]">
+                {profile.role === "owner" ? "Owner" : "Viewer"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/60">Username</p>
+              <p className="mt-1 text-sm font-medium text-[#2e2f2d]">
+                {profile.username ? `@${profile.username}` : "Not set"}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/60">
+              Public sharing
+            </p>
+            <p className="mt-1 text-sm font-medium text-[#2e2f2d]">
+              Profile: {profile.is_profile_public ? "Public" : "Private"} · Collection:{" "}
+              {profile.is_collection_public ? "Public" : "Private"} · Saved:{" "}
+              {profile.is_saved_public ? "Public" : "Private"}
+            </p>
+          </div>
         </div>
         <button
           type="button"
           onClick={handleSignOut}
-          className="w-full rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+          className="w-full rounded-xl bg-transparent border-none text-[#8a4c00] px-6 py-3.5 text-base font-extrabold hover:bg-[#ddddda] transition-colors"
         >
           Sign Out
         </button>
@@ -80,44 +87,45 @@ export function SignInForm() {
   }
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-xs font-bold uppercase tracking-widest text-[#2e2f2d]/70 mb-2">
             Email
           </label>
           <input
             id="email"
             type="email"
             {...register("email")}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+            className="block w-full rounded-xl bg-[#f1f1ee] border-none px-4 py-3.5 text-[#2e2f2d] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_2px_#8a4c00] transition-shadow text-base"
             disabled={status === "loading"}
+            placeholder="collector@example.com"
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            <p className="mt-2 text-sm font-semibold text-[#8a4c00]">{errors.email.message}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="w-full rounded-xl bg-gradient-to-tr from-[#8a4c00] to-[#fd9000] px-6 py-3.5 text-base font-extrabold text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {status === "loading" ? "Sending..." : "Send Magic Link"}
         </button>
       </form>
 
       {status === "success" && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-          <p className="text-sm text-green-800">
+        <div className="rounded-xl bg-[#00675c]/10 p-5 mt-6">
+          <p className="text-sm font-bold text-[#00675c] text-center">
             Check your email for a magic link to sign in!
           </p>
         </div>
       )}
 
       {status === "error" && errorMessage && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-800">{errorMessage}</p>
+        <div className="rounded-xl bg-amber-100 p-5 mt-6">
+          <p className="text-sm font-bold text-amber-900 text-center">{errorMessage}</p>
         </div>
       )}
     </div>

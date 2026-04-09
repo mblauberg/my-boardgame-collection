@@ -25,7 +25,7 @@ describe("AppShell", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByRole("link", { name: /the game haven/i })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /my board game collection/i })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Collection" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Saved" })).toHaveAttribute("href", "/saved");
     expect(screen.getByRole("link", { name: "Explore" })).toHaveAttribute("href", "/explore");

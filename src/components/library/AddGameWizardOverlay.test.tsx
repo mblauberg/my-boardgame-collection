@@ -160,6 +160,23 @@ describe("AddGameWizardOverlay", () => {
     expect(screen.getByRole("checkbox", { name: /in collection/i })).not.toBeChecked();
   });
 
+  it("keeps collection mode enabled when launched for adding directly to the collection", async () => {
+    const user = userEvent.setup();
+
+    renderOverlay({
+      defaultState: { isSaved: false, isLoved: false, isInCollection: true },
+    });
+
+    await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
+    await user.click(screen.getByRole("button", { name: /select everdell/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
+
+    expect(screen.getByRole("checkbox", { name: /saved/i })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /loved/i })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /in collection/i })).toBeChecked();
+  });
+
   it("submits saved, loved, collection state, sentiment, and notes", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

@@ -50,7 +50,9 @@ export function useExploreQuery() {
       .filter((entry) => entry.isSaved || entry.isInCollection)
       .map((entry) => entry.gameId),
   );
-  const catalog = (gamesQuery.data ?? []).map(toCandidate);
+  const catalog = (gamesQuery.data ?? [])
+    .filter((game) => (game.bggUsersRated ?? 0) > 5000)
+    .map(toCandidate);
   const saveCountByGameId = new Map<string, number>();
 
   for (const entry of libraryEntries) {

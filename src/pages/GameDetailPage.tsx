@@ -36,14 +36,18 @@ export function GameDetailPage() {
   };
 
   if (isLoading) {
-    if (isModal) {
-      return (
-        <GameDetailOverlay title="Loading game details" titleId="game-detail-title" onRequestClose={handleClose}>
+    return (
+      <GameDetailOverlay
+        title="Loading game details"
+        titleId="game-detail-title"
+        onRequestClose={handleClose}
+        isStandalone={!isModal}
+      >
+        <div className="pt-6">
           <p>Loading game...</p>
-        </GameDetailOverlay>
-      );
-    }
-    return <div className="p-8 text-center">Loading game...</div>;
+        </div>
+      </GameDetailOverlay>
+    );
   }
 
   if (error || !game) {
@@ -51,41 +55,31 @@ export function GameDetailPage() {
       ? getSupabaseQueryErrorMessage(error, "game detail")
       : "Game not found";
 
-    if (isModal) {
-      return (
-        <GameDetailOverlay title="Game details unavailable" titleId="game-detail-title" onRequestClose={handleClose}>
-          <p className="text-red-600 mb-4">{message}</p>
+    return (
+      <GameDetailOverlay
+        title="Game details unavailable"
+        titleId="game-detail-title"
+        onRequestClose={handleClose}
+        isStandalone={!isModal}
+      >
+        <div className="pt-6">
+          <p className="mb-4 text-red-600">{message}</p>
           <Link to={backTo} className="text-blue-600 hover:underline">
             Back to {backLabel.toLowerCase()}
           </Link>
-        </GameDetailOverlay>
-      );
-    }
-
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-600 mb-4">{message}</p>
-        <Link to={backTo} className="text-blue-600 hover:underline">
-          Back to {backLabel.toLowerCase()}
-        </Link>
-      </div>
-    );
-  }
-
-  if (isModal) {
-    return (
-      <GameDetailOverlay title={game.name} titleId="game-detail-title" onRequestClose={handleClose}>
-        <GameDetailPanel game={game} />
+        </div>
       </GameDetailOverlay>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link to={backTo} className="text-blue-600 hover:underline mb-6 inline-block">
-        ← Back to {backLabel.toLowerCase()}
-      </Link>
+    <GameDetailOverlay
+      title={game.name}
+      titleId="game-detail-title"
+      onRequestClose={handleClose}
+      isStandalone={!isModal}
+    >
       <GameDetailPanel game={game} />
-    </div>
+    </GameDetailOverlay>
   );
 }

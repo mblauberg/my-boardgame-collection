@@ -37,8 +37,6 @@ export function ExplorePage() {
       {data?.shelves.map((shelf) => (
         <ExploreShelf key={shelf.id} title={shelf.title} entries={shelf.entries} />
       ))}
-
-      <FloatingActionButton />
     </>
   );
 }

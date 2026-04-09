@@ -8,3 +8,10 @@ coverage
 *.log
 npm-debug.log*
 .worktrees/
+
+# Large data files
+data/boardgames_ranks.csv
+
+# Test and dev artifacts
+.playwright-cli/
+.vitest/

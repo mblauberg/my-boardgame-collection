@@ -2,20 +2,22 @@
 
 Multi-user board game collection app built on a shared BoardGameGeek-backed catalog plus user-owned library entries.
 
-The app is built with Vite, React, TypeScript, and Supabase. It includes private collection and wishlist management, public profile sharing by username, an Explore view, admin tools, scenarios, legacy-data migration scripts, and BoardGameGeek metadata utilities.
+The app is built with Vite, React, TypeScript, and Supabase. It includes private collection and saved game management, public profile sharing by username, an Explore view, admin tools, scenarios, legacy-data migration scripts, and BoardGameGeek metadata utilities.
 
 ## Features
 
 - shared catalog of games and shared tags in Supabase
-- per-user collection and wishlist library entries
+- per-user library entries with independent saved, loved, and in-collection states
 - public profile sharing by username with per-section visibility controls
 - game detail pages with catalog-safe metadata and BoardGameGeek links
 - private Explore shelves driven by catalog data and library signals
 - magic-link auth plus protected admin route
-- admin CRUD for games and tags
+- admin CRUD for games and tags with BGG search and refresh
 - scenarios page driven by preset rules instead of hard-coded lists
 - BGG metadata refresh and search helpers
+- BGG CSV import for bulk catalog seeding
 - deterministic legacy-data seed generation and import scripts
+- Supabase migrations for schema evolution
 
 ## Tech Stack
 
@@ -136,26 +138,83 @@ The migration pipeline:
 - Normalizes player counts, time, status, and metadata
 - Derives tags from categories and game attributes
 - Seeds the shared catalog and shared tags
-- Backfills the primary user profile into `library_entries` for owned and wishlist rows
+- Backfills the primary user profile into `library_entries` for owned and saved rows
+
+### Importing BGG CSV Data
+
+After a fresh Supabase reset, re-import the shared catalog with:
+
+```bash
+npm run migrate:import-bgg
+```
+
+To bulk-import games from a BoardGameGeek CSV export:
+
+```bash
+npm run migrate:import-bgg
+```
+
+This script:
+
+- Reads `data/boardgames_ranks.csv`
+- Extracts BGG ID, name, year, rank, and other metadata
+- Creates or updates games in the catalog
+- Adds BGG-specific columns like `bgg_rank`, `bgg_average_rating`, `bgg_num_ratings`
 
 ## Project Structure
 
 ```text
 .
+├── api/
+│   ├── bgg-search.ts
+│   ├── bgg-refresh.ts
+│   └── *.test.ts
 ├── board-game-collection.jsx
+├── data/
+│   ├── boardgames_ranks.csv
+│   └── README.md
 ├── docs/
+│   ├── plans/
 │   └── specs/
 ├── schema.sql
 ├── scripts/
+│   ├── legacy/
+│   ├── output/
+│   ├── generateSeedData.ts
+│   ├── importLegacyData.ts
+│   └── importBggCsv.ts
+├── supabase/
+│   ├── config.toml
+│   └── migrations/
 ├── src/
 │   ├── app/
+│   │   ├── providers/
+│   │   └── router/
 │   ├── components/
+│   │   ├── admin/
+│   │   ├── games/
+│   │   ├── layout/
+│   │   ├── library/
+│   │   ├── scenarios/
+│   │   └── ui/
 │   ├── config/
 │   ├── features/
+│   │   ├── auth/
+│   │   ├── games/
+│   │   ├── library/
+│   │   ├── profiles/
+│   │   ├── scenarios/
+│   │   ├── shared/
+│   │   └── tags/
 │   ├── lib/
+│   │   ├── query/
+│   │   ├── supabase/
+│   │   └── utils/
 │   ├── pages/
 │   ├── styles/
+│   ├── test/
 │   └── types/
+├── ui_design/
 └── README.md
 ```
 
@@ -163,8 +222,9 @@ Key files:
 
 - `board-game-collection.jsx`: legacy source data and historical scenario references
 - `src/config/scenarioPresets.ts`: config-driven scenario matching logic
-- `docs/superpowers/plans/2026-04-08-multi-user-library-redesign.md`: implementation plan
+- `docs/specs/2026-04-09-saved-loved-library-design.md`: saved/loved/collection state design
 - `scripts/output/seed-data.json`: generated seed payload for Supabase imports
+- `supabase/migrations/`: single baseline schema migration for project resets
 
 ## Available Scripts
 
@@ -176,13 +236,14 @@ Key files:
 - `npm run test:run`: run Vitest once
 - `npm run migrate:generate`: generate seed data from legacy file
 - `npm run migrate:import`: import seed data to Supabase with `SUPABASE_SERVICE_ROLE_KEY`
+- `npm run migrate:import-bgg`: import games from BGG CSV export
 
 ## Product Model
 
 - `games` is the shared catalog
-- `library_entries` stores whether a signed-in user has a game in their collection or wishlist
+- `library_entries` stores per-user saved, loved, and in-collection states
 - public pages live under `/u/:username`
-- public collection and wishlist pages only expose catalog-safe data
+- public collection and saved pages only expose catalog-safe data
 
 ## Notes On Legacy Data
 

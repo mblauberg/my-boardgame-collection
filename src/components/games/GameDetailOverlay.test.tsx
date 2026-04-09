@@ -47,4 +47,45 @@ describe("GameDetailOverlay", () => {
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
+
+  it("keeps keyboard focus trapped inside the dialog", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <>
+        <button>Outside action</button>
+        <GameDetailOverlay title="Heat" titleId="game-detail-title" onRequestClose={vi.fn()}>
+          <button>Inside action</button>
+        </GameDetailOverlay>
+      </>,
+    );
+
+    const closeButton = screen.getByRole("button", { name: /close game details/i });
+    const insideButton = screen.getByRole("button", { name: /inside action/i });
+    const outsideButton = screen.getByRole("button", { name: /outside action/i });
+
+    expect(closeButton).toHaveFocus();
+
+    await user.tab();
+    expect(insideButton).toHaveFocus();
+
+    await user.tab();
+    expect(closeButton).toHaveFocus();
+    expect(outsideButton).not.toHaveFocus();
+  });
+
+  it("uses the trophy-room backdrop and header treatment", () => {
+    render(
+      <GameDetailOverlay title="Heat" titleId="game-detail-title" onRequestClose={vi.fn()}>
+        body
+      </GameDetailOverlay>,
+    );
+
+    const backdrop = screen.getByTestId("overlay-backdrop");
+    const header = screen.getByTestId("overlay-header");
+
+    expect(backdrop.className).toContain("bg-on-surface/10");
+    expect(backdrop.className).not.toContain("bg-black/50");
+    expect(header.className).not.toContain("border-b");
+  });
 });

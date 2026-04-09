@@ -87,20 +87,23 @@ export function AddGameDetailsStep({ game, onChange }: AddGameDetailsStepProps) 
           <div className="mb-6">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Selected Game</p>
             <h3 className="mt-2 text-3xl font-extrabold tracking-tight text-on-surface">{game.name}</h3>
-            {game.yearPublished ? (
-              <p className="mt-2 text-sm text-on-surface-variant">Published {game.yearPublished}</p>
-            ) : null}
+            <div className="mt-3 space-y-1 text-sm text-on-surface-variant">
+              {game.yearPublished && <p>Published {game.yearPublished}</p>}
+              {game.averageRating && <p>Rating: {game.averageRating.toFixed(1)}/10</p>}
+              {game.averageWeight && <p>Weight: {game.averageWeight.toFixed(1)}/5</p>}
+              {game.bggRank && <p>BGG Rank: #{game.bggRank}</p>}
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-3">
             <div className="rounded-2xl bg-white/80 px-4 py-3 flex flex-col justify-center">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant mb-2">
                 Players
               </p>
-              <div className="flex items-center gap-2">
-                <input type="number" min="1" value={game.playersMin || ""} onChange={e => handleNumberChange("playersMin", e.target.value)} placeholder="Min" className="w-[4.5rem] rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface" />
+              <div className="flex items-center gap-2 justify-center">
+                <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={2} value={game.playersMin || ""} onChange={e => handleNumberChange("playersMin", e.target.value)} placeholder="Min" className="w-12 rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                 <span className="text-on-surface-variant text-sm font-medium">-</span>
-                <input type="number" min="1" value={game.playersMax || ""} onChange={e => handleNumberChange("playersMax", e.target.value)} placeholder="Max" className="w-[4.5rem] rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface" />
+                <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={2} value={game.playersMax || ""} onChange={e => handleNumberChange("playersMax", e.target.value)} placeholder="Max" className="w-12 rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               </div>
             </div>
 
@@ -108,39 +111,12 @@ export function AddGameDetailsStep({ game, onChange }: AddGameDetailsStepProps) 
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant mb-2">
                 Play Time (min)
               </p>
-              <div className="flex items-center gap-2">
-                <input type="number" min="1" value={game.playTimeMin || ""} onChange={e => handleNumberChange("playTimeMin", e.target.value)} placeholder="Min" className="w-[4.5rem] rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface" />
+              <div className="flex items-center gap-2 justify-center">
+                <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={3} value={game.playTimeMin || ""} onChange={e => handleNumberChange("playTimeMin", e.target.value)} placeholder="Min" className="w-14 rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                 <span className="text-on-surface-variant text-sm font-medium">-</span>
-                <input type="number" min="1" value={game.playTimeMax || ""} onChange={e => handleNumberChange("playTimeMax", e.target.value)} placeholder="Max" className="w-[4.5rem] rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface" />
+                <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={3} value={game.playTimeMax || ""} onChange={e => handleNumberChange("playTimeMax", e.target.value)} placeholder="Max" className="w-14 rounded-lg bg-surface px-2 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-center text-on-surface [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               </div>
             </div>
-
-            <div className="rounded-2xl bg-white/80 px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant mb-2">
-                Rating
-              </p>
-              <input type="number" step="0.1" min="1" max="10" value={game.averageRating || ""} onChange={e => handleNumberChange("averageRating", e.target.value)} placeholder="Optional" className="w-full rounded-lg bg-surface px-3 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-on-surface" />
-            </div>
-
-            <div className="rounded-2xl bg-white/80 px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant mb-2">
-                Weight (1-5)
-              </p>
-              <input type="number" step="0.1" min="1" max="5" value={game.averageWeight || ""} onChange={e => handleNumberChange("averageWeight", e.target.value)} placeholder="Optional" className="w-full rounded-lg bg-surface px-3 py-1.5 text-sm border border-outline/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-on-surface" />
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-2xl bg-white/80 px-4 py-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant mb-2">
-              Summary
-            </p>
-            <textarea
-              value={game.summary || ""}
-              onChange={e => handleStringChange("summary", e.target.value)}
-              placeholder="A brief description of the game..."
-              rows={4}
-              className="mt-1 block w-full rounded-xl border border-outline/20 bg-surface px-3 py-2 text-sm text-on-surface placeholder-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-y min-h-20"
-            />
           </div>
         </div>
       </div>

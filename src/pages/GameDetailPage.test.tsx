@@ -19,7 +19,7 @@ const game = {
 };
 
 describe("GameDetailPage", () => {
-  it("uses the explore route for the back link when opened from explore", () => {
+  it("renders the game inside the overlay shell when opened without background state", () => {
     vi.mocked(useGameDetailQuery).mockReturnValue({
       data: game,
       isLoading: false,
@@ -36,13 +36,11 @@ describe("GameDetailPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("link", { name: /back to explore/i })).toHaveAttribute(
-      "href",
-      "/explore",
-    );
+    expect(screen.getByRole("dialog", { name: /a fake artist/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /close game details/i })).toBeInTheDocument();
   });
 
-  it("defaults to the collection route when no origin route is provided", () => {
+  it("uses the standalone trophy-room canvas on direct entry", () => {
     vi.mocked(useGameDetailQuery).mockReturnValue({
       data: game,
       isLoading: false,
@@ -57,10 +55,8 @@ describe("GameDetailPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("link", { name: /back to collection/i })).toHaveAttribute(
-      "href",
-      "/",
-    );
+    expect(screen.getByRole("dialog", { name: /a fake artist/i })).toBeInTheDocument();
+    expect(screen.getByTestId("overlay-backdrop").className).toContain("bg-surface");
   });
 
   it("renders loading state inside dialog shell when opened as modal", () => {
