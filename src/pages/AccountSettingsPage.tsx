@@ -165,8 +165,8 @@ export function AccountSettingsPage() {
       <PageHeader
         className="mb-8"
         eyebrow="Account"
-        title={<>Shape Your <span className="text-primary">Identity</span></>}
-        description="Keep your public presence polished, then manage sign-in methods through a quieter, more security-focused surface."
+        title={<>Your <span className="text-primary">Account</span></>}
+        description="Manage your username, public visibility, and sign-in methods."
         actions={
           profile.username ? (
             <Link
@@ -198,12 +198,8 @@ export function AccountSettingsPage() {
               Profile and sharing
             </p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-on-surface">
-              Public identity, kept intentional.
+              Public profile
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-on-surface-variant">
-              Keep the account page focused on the fields that already persist today: your username and
-              what other players can see.
-            </p>
           </div>
 
           <label className="block">
@@ -222,8 +218,12 @@ export function AccountSettingsPage() {
             />
           </label>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <label className="flex cursor-pointer items-start gap-3 rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-4 dark:bg-surface-container-high/45">
+          <div className="grid gap-3 md:grid-cols-3">
+            <label className={`flex cursor-pointer flex-col gap-3 rounded-[1.5rem] border p-4 transition-all duration-200 ${
+              formState.isProfilePublic
+                ? "border-primary/25 bg-primary/5 dark:bg-primary/10"
+                : "border-outline/10 bg-surface-container-low hover:border-outline/25 dark:bg-surface-container-high/45"
+            }`}>
               <input
                 type="checkbox"
                 aria-label="Public profile"
@@ -234,17 +234,24 @@ export function AccountSettingsPage() {
                     isProfilePublic: event.target.checked,
                   }))
                 }
-                className="mt-1"
+                className="sr-only"
               />
-              <span>
-                <span className="block text-sm font-bold text-on-surface">Public profile</span>
-                <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
-                  Allow people to discover your profile page.
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-on-surface">Public profile</span>
+                <span className={`material-symbols-outlined text-[20px] transition-colors duration-200 ${formState.isProfilePublic ? "text-primary" : "text-on-surface-variant/30"}`}>
+                  {formState.isProfilePublic ? "check_circle" : "radio_button_unchecked"}
                 </span>
+              </div>
+              <span className="text-xs leading-5 text-on-surface-variant">
+                Allow people to discover your profile page.
               </span>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-4 dark:bg-surface-container-high/45">
+            <label className={`flex cursor-pointer flex-col gap-3 rounded-[1.5rem] border p-4 transition-all duration-200 ${
+              formState.isCollectionPublic
+                ? "border-primary/25 bg-primary/5 dark:bg-primary/10"
+                : "border-outline/10 bg-surface-container-low hover:border-outline/25 dark:bg-surface-container-high/45"
+            }`}>
               <input
                 type="checkbox"
                 aria-label="Public collection"
@@ -255,17 +262,24 @@ export function AccountSettingsPage() {
                     isCollectionPublic: event.target.checked,
                   }))
                 }
-                className="mt-1"
+                className="sr-only"
               />
-              <span>
-                <span className="block text-sm font-bold text-on-surface">Public collection</span>
-                <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
-                  Show your collection on your public profile.
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-on-surface">Public collection</span>
+                <span className={`material-symbols-outlined text-[20px] transition-colors duration-200 ${formState.isCollectionPublic ? "text-primary" : "text-on-surface-variant/30"}`}>
+                  {formState.isCollectionPublic ? "check_circle" : "radio_button_unchecked"}
                 </span>
+              </div>
+              <span className="text-xs leading-5 text-on-surface-variant">
+                Show your collection on your public profile.
               </span>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-4 dark:bg-surface-container-high/45">
+            <label className={`flex cursor-pointer flex-col gap-3 rounded-[1.5rem] border p-4 transition-all duration-200 ${
+              formState.isSavedPublic
+                ? "border-primary/25 bg-primary/5 dark:bg-primary/10"
+                : "border-outline/10 bg-surface-container-low hover:border-outline/25 dark:bg-surface-container-high/45"
+            }`}>
               <input
                 type="checkbox"
                 aria-label="Public saved"
@@ -276,30 +290,23 @@ export function AccountSettingsPage() {
                     isSavedPublic: event.target.checked,
                   }))
                 }
-                className="mt-1"
+                className="sr-only"
               />
-              <span>
-                <span className="block text-sm font-bold text-on-surface">Public saved</span>
-                <span className="mt-1 block text-xs leading-5 text-on-surface-variant">
-                  Let others browse the games you have saved for later.
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-on-surface">Public saved</span>
+                <span className={`material-symbols-outlined text-[20px] transition-colors duration-200 ${formState.isSavedPublic ? "text-primary" : "text-on-surface-variant/30"}`}>
+                  {formState.isSavedPublic ? "check_circle" : "radio_button_unchecked"}
                 </span>
+              </div>
+              <span className="text-xs leading-5 text-on-surface-variant">
+                Let others browse the games you have saved for later.
               </span>
             </label>
           </div>
 
-          <div className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-4 dark:bg-surface-container-high/45">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
-              Visibility snapshot
-            </p>
-            <p className="mt-2 text-sm font-medium text-on-surface">
-              Profile: {formState.isProfilePublic ? "Public" : "Private"} · Collection:{" "}
-              {formState.isCollectionPublic ? "Public" : "Private"} · Saved:{" "}
-              {formState.isSavedPublic ? "Public" : "Private"}
-            </p>
-            <p className="mt-2 text-xs leading-5 text-on-surface-variant">
-              Public sharing requires a username when any visibility toggle is enabled.
-            </p>
-          </div>
+          <p className="text-xs leading-5 text-on-surface-variant">
+            Public sharing requires a username when any visibility toggle is enabled.
+          </p>
 
           {status.message ? (
             <div
@@ -316,10 +323,6 @@ export function AccountSettingsPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline/10 pt-6">
             <div>
               <p className="text-sm font-semibold text-on-surface">{isOwner ? "Owner" : "Viewer"} account</p>
-              <p className="mt-1 text-sm text-on-surface-variant">
-                Username and visibility stay here. Security details live in the adjacent sign-in methods
-                surface.
-              </p>
             </div>
             <button
               type="submit"
@@ -340,10 +343,8 @@ export function AccountSettingsPage() {
 
           <section className="rounded-[2rem] border border-error/10 bg-surface-container-lowest/90 p-6 shadow-ambient dark:bg-surface-container-low/80">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-error/70">Session</p>
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-on-surface">Signed in, but understated.</h2>
             <p className="mt-3 text-sm leading-6 text-on-surface-variant">
-              You are signed in as <span className="font-semibold text-on-surface">{summary.primaryEmail}</span>.
-              Sign out stays visually distinct, but secondary to profile and security management.
+              Signed in as <span className="font-semibold text-on-surface">{summary.primaryEmail}</span>.
             </p>
 
             <button

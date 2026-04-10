@@ -6,14 +6,6 @@ type SignInMethodsSheetProps = {
   summary: AccountSecuritySummary;
 };
 
-function formatProviderNote(count: number) {
-  if (count === 0) {
-    return "Provider linking appears here after the upcoming identity foundation work ships.";
-  }
-
-  return count === 1 ? "1 provider connected." : `${count} providers connected.`;
-}
-
 export function SignInMethodsPanelContent({ summary }: { summary: AccountSecuritySummary }) {
   return (
     <div className="space-y-6">
@@ -58,8 +50,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
           </div>
         ) : (
           <p className="mt-4 text-sm leading-6 text-on-surface-variant">
-            Use the warm setup card on the main settings page to add your first passkey. The detail
-            surface stays focused on status until the account-security backend lands.
+            No passkeys set up. Add one from your account settings to enable biometric sign-in.
           </p>
         )}
       </section>
@@ -67,9 +58,6 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
       <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 dark:bg-surface-container-high/45">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
           Linked providers
-        </p>
-        <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-          {formatProviderNote(summary.identities.length)}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {summary.identities.length > 0 ? (
