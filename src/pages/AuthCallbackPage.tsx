@@ -59,10 +59,10 @@ export function AuthCallbackPage() {
 
   return (
     <div className="mx-auto max-w-md py-12 px-4">
-      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
+      <div className="glass-surface-panel rounded-2xl p-6 shadow-ambient">
         <h1 className="text-2xl font-bold text-on-surface">Completing sign in</h1>
         <p className="mt-3 text-sm text-on-surface-variant">
-          This should only take a moment while your magic link session is confirmed.
+          This should only take a moment while your sign-in session is confirmed.
         </p>
 
         {errorMessage ? (
@@ -77,7 +77,7 @@ export function AuthCallbackPage() {
           </div>
         ) : (
           <p className="mt-4 text-sm text-on-surface-variant">
-            If nothing changes, wait a few seconds and request a new magic link.
+            If nothing changes, wait a few seconds and try your preferred sign-in option again.
           </p>
         )}
       </div>

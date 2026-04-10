@@ -6,10 +6,14 @@ import type { ReactNode } from "react";
 // Mock the Supabase client
 const mockSignIn = vi.fn();
 const mockSignOut = vi.fn();
+const mockSignInWithOAuth = vi.fn();
+const mockLinkIdentity = vi.fn();
 const mockSupabase = {
   auth: {
     signInWithOtp: mockSignIn,
     signOut: mockSignOut,
+    signInWithOAuth: mockSignInWithOAuth,
+    linkIdentity: mockLinkIdentity,
     getSession: vi.fn().mockResolvedValue({
       data: { session: null },
       error: null,
@@ -45,6 +49,15 @@ describe("SignInForm", () => {
   beforeEach(() => {
     mockSignIn.mockClear();
     mockSignOut.mockClear();
+    mockSignInWithOAuth.mockClear();
+    mockLinkIdentity.mockClear();
+    mockSignInWithOAuth.mockImplementation(async ({ options }: { options?: { skipBrowserRedirect?: boolean } }) => {
+      if (options?.skipBrowserRedirect) {
+        return { data: { url: "https://oauth.example.com/preflight" }, error: null };
+      }
+
+      return { data: { url: "https://oauth.example.com/auth" }, error: null };
+    });
   });
 
   it("submits a magic-link request for a valid email address", async () => {
@@ -100,5 +113,77 @@ describe("SignInForm", () => {
     await user.click(screen.getByRole("button", { name: /send magic link/i }));
 
     expect(await screen.findByText(/network error/i)).toBeInTheDocument();
+  });
+
+  it("offers multiple OAuth sign-in options", async () => {
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue with apple/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue with github/i })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /continue with google/i })).toBeEnabled();
+    });
+  });
+
+  it("starts OAuth sign in when a provider button is clicked", async () => {
+    const user = userEvent.setup();
+
+    render(<SignInForm />, { wrapper: TestWrapper });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /continue with google/i })).toBeEnabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /continue with google/i }));
+
+    await waitFor(() => {
+      const calls = mockSignInWithOAuth.mock.calls.map(([arg]) => arg);
+      const interactiveGoogleCall = calls.find(
+        (call) => call.provider === "google" && !call.options?.skipBrowserRedirect,
+      );
+
+      expect(interactiveGoogleCall).toEqual(
+        expect.objectContaining({
+          provider: "google",
+          options: expect.objectContaining({
+            redirectTo: expect.stringContaining("/auth/callback"),
+          }),
+        }),
+      );
+    });
+  });
+
+  it("greys out unavailable OAuth providers and keeps them unclickable", async () => {
+    const user = userEvent.setup();
+    mockSignInWithOAuth.mockImplementation(async ({ provider, options }) => {
+      if (options?.skipBrowserRedirect) {
+        if (provider === "apple") {
+          return {
+            data: { url: null },
+            error: { message: "Unsupported provider: missing OAuth secret" },
+          };
+        }
+
+        return { data: { url: "https://oauth.example.com/preflight" }, error: null };
+      }
+
+      return { data: { url: "https://oauth.example.com/auth" }, error: null };
+    });
+
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    const appleButton = screen.getByRole("button", { name: /continue with apple/i });
+    await waitFor(() => {
+      expect(appleButton).toBeDisabled();
+    });
+
+    await user.click(appleButton);
+
+    const interactiveAppleCalls = mockSignInWithOAuth.mock.calls
+      .map(([arg]) => arg)
+      .filter((call) => call.provider === "apple" && !call.options?.skipBrowserRedirect);
+
+    expect(interactiveAppleCalls).toHaveLength(0);
   });
 });

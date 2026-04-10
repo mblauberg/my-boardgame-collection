@@ -44,13 +44,33 @@ Copy `.env.example` to `.env.local` and fill in:
 ```
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
+VITE_SITE_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=...
 BGG_APPLICATION_TOKEN=...
+SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=...
+SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=...
+SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID=...
+SUPABASE_AUTH_EXTERNAL_APPLE_SECRET=...
+SUPABASE_AUTH_EXTERNAL_GITHUB_CLIENT_ID=...
+SUPABASE_AUTH_EXTERNAL_GITHUB_SECRET=...
 ```
 
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` — used by the browser app
+- `VITE_SITE_URL` — used for auth callback redirects (`/auth/callback`)
 - `SUPABASE_SERVICE_ROLE_KEY` — only needed for local import scripts; never expose in client code
 - `BGG_APPLICATION_TOKEN` — required by the BGG XML API proxy (`/api/bgg-search`)
+- `SUPABASE_AUTH_EXTERNAL_*` — required to run OAuth providers (Google, Apple, GitHub) in the local Supabase CLI stack
+
+### 2.1 Auth provider setup with Supabase CLI
+
+After filling auth env vars, restart the local stack so `supabase/config.toml` changes apply:
+
+```bash
+supabase stop
+supabase start
+```
+
+This project enables Google, Apple, GitHub, and magic-link sign in. Supabase automatically links identities with the same verified email, and manual identity linking is also enabled.
 
 ### 3. Apply the schema
 

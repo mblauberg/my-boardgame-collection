@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/layout/PageHeader";
 import { useProfile } from "../features/auth/useProfile";
 import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
+import { getSupabaseBrowserClient } from "../lib/supabase/client";
 
 type FormState = {
   username: string;
@@ -41,11 +42,21 @@ function getFormState(profile: ReturnType<typeof useProfile>["profile"]): FormSt
 export function AccountSettingsPage() {
   const { profile, isLoading, isOwner, isAuthenticated, error } = useProfile();
   const { mutateAsync, isPending } = useUpdateProfileMutation();
+  const navigate = useNavigate();
   const [formState, setFormState] = useState<FormState>(() => getFormState(null));
   const [status, setStatus] = useState<{ type: "idle" | "success" | "error"; message: string | null }>({
     type: "idle",
     message: null,
   });
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    const supabase = getSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    navigate("/signin");
+  }
 
   useEffect(() => {
     setFormState(getFormState(profile));
@@ -337,6 +348,28 @@ export function AccountSettingsPage() {
               </div>
             </div>
           </div>
+
+        <div className="mt-6 rounded-3xl border border-error/10 bg-surface-container-lowest p-6 shadow-ambient dark:bg-[rgb(28_27_27)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-error/70">
+                Session
+              </p>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                You are signed in as <span className="font-semibold text-on-surface">{profile.email}</span>.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              disabled={isSigningOut}
+              className="flex items-center gap-2 rounded-full border border-error/20 bg-error/10 px-5 py-3 text-sm font-bold text-error backdrop-blur-[24px] transition-all hover:bg-error/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              {isSigningOut ? "Signing out..." : "Sign Out"}
+            </button>
+          </div>
+        </div>
     </>
   );
 }
