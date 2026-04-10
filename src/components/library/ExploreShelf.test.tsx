@@ -1,12 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { ExploreShelf } from "./ExploreShelf";
 import type { Game } from "../../types/domain";
 import type { LibraryEntry } from "../../features/library/library.types";
+import { renderWithProviders } from "../../test/testUtils";
 
 const profileState = vi.hoisted(() => ({
-  profile: { id: "user-1" },
+  profile: { id: "user-1" } as { id: string } | null,
   isOwner: true,
   isAuthenticated: true,
   isLoading: false,
@@ -28,6 +28,11 @@ const deleteMutationState = vi.hoisted(() => ({
   isPending: false,
 }));
 
+const guestStorageState = vi.hoisted(() => ({
+  upsertGuestLibraryEntry: vi.fn(),
+  removeGuestLibraryEntry: vi.fn(),
+}));
+
 vi.mock("../../features/auth/useProfile", () => ({
   useProfile: () => profileState,
 }));
@@ -39,6 +44,12 @@ vi.mock("../../features/library/useLibraryQuery", () => ({
 vi.mock("../../features/library/useLibraryEntryMutations", () => ({
   useUpsertLibraryState: () => upsertMutationState,
   useDeleteLibraryEntry: () => deleteMutationState,
+}));
+
+vi.mock("../../features/library/guestLibraryStorage", () => ({
+  GUEST_LIBRARY_USER_ID: "__guest__",
+  upsertGuestLibraryEntry: guestStorageState.upsertGuestLibraryEntry,
+  removeGuestLibraryEntry: guestStorageState.removeGuestLibraryEntry,
 }));
 
 const gameFixture: Game = {
@@ -98,14 +109,12 @@ describe("ExploreShelf", () => {
     upsertMutationState.isPending = false;
     deleteMutationState.mutate = vi.fn();
     deleteMutationState.isPending = false;
+    guestStorageState.upsertGuestLibraryEntry.mockReset();
+    guestStorageState.removeGuestLibraryEntry.mockReset();
   });
 
   it("renders a saved quick action for each explore game", () => {
-    render(
-      <MemoryRouter>
-        <ExploreShelf title="Trending now" entries={[gameFixture]} />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<ExploreShelf title="Trending now" entries={[gameFixture]} />);
 
     expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "false");
   });
@@ -122,11 +131,7 @@ describe("ExploreShelf", () => {
       }),
     ];
 
-    render(
-      <MemoryRouter>
-        <ExploreShelf title="Trending now" entries={[gameFixture]} />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<ExploreShelf title="Trending now" entries={[gameFixture]} />);
 
     await user.click(screen.getByRole("button", { name: /saved/i }));
 
@@ -150,17 +155,43 @@ describe("ExploreShelf", () => {
       }),
     ];
 
-    render(
-      <MemoryRouter>
-        <ExploreShelf title="Trending now" entries={[gameFixture]} />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<ExploreShelf title="Trending now" entries={[gameFixture]} />);
 
     await user.click(screen.getByRole("button", { name: /saved/i }));
 
     expect(deleteMutationState.mutate).toHaveBeenCalledWith({
       id: "entry-1",
       accountId: "user-1",
+    });
+    expect(upsertMutationState.mutate).not.toHaveBeenCalled();
+  });
+
+  it("lets guests save from explore using local guest storage", async () => {
+    const user = userEvent.setup();
+    profileState.profile = null;
+    profileState.isAuthenticated = false;
+    libraryQueryState.data = [
+      createEntry({
+        accountId: "__guest__",
+        isSaved: false,
+        isLoved: true,
+        isInCollection: false,
+        sentiment: "like",
+        notes: "Guest shortlist",
+      }),
+    ];
+
+    renderWithProviders(<ExploreShelf title="Trending now" entries={[gameFixture]} />);
+
+    await user.click(screen.getByRole("button", { name: /saved/i }));
+
+    expect(guestStorageState.upsertGuestLibraryEntry).toHaveBeenCalledWith({
+      game: gameFixture,
+      isSaved: true,
+      isLoved: true,
+      isInCollection: false,
+      sentiment: "like",
+      notes: "Guest shortlist",
     });
     expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });

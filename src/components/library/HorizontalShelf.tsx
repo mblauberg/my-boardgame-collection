@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { GameCard } from "../ui/GameCard";
 import type { Game } from "../../types/domain";
 import { useProfile } from "../../features/auth/useProfile";
@@ -9,6 +10,12 @@ import {
   hasAnyLibraryState,
 } from "../../features/library/libraryState";
 import { useLibraryQuery } from "../../features/library/useLibraryQuery";
+import {
+  GUEST_LIBRARY_USER_ID,
+  removeGuestLibraryEntry,
+  upsertGuestLibraryEntry,
+} from "../../features/library/guestLibraryStorage";
+import { libraryKeys } from "../../features/library/libraryKeys";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 
 type HorizontalShelfProps = {
@@ -19,14 +26,19 @@ type HorizontalShelfProps = {
 
 export function HorizontalShelf({ title, description, entries }: HorizontalShelfProps) {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
   const upsertLibraryState = useUpsertLibraryState();
   const deleteLibraryEntry = useDeleteLibraryEntry();
 
-  function handleToggleSaved(game: Game) {
-    if (!profile?.id) return;
+  function invalidateGuestLibraryEntries() {
+    void queryClient.invalidateQueries({
+      queryKey: libraryKeys.library(GUEST_LIBRARY_USER_ID),
+    });
+  }
 
+  function handleToggleSaved(game: Game) {
     const existingEntry = getLibraryEntryForGame(libraryEntries, game.id);
     const currentState = getLibraryStateSnapshot(existingEntry);
     const nextState = {
@@ -34,22 +46,41 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
       isSaved: !currentState.isSaved,
     };
 
-    if (!hasAnyLibraryState(nextState) && existingEntry) {
-      deleteLibraryEntry.mutate({ id: existingEntry.id, accountId: profile.id });
+    if (isAuthenticated && profile?.id) {
+      if (!hasAnyLibraryState(nextState) && existingEntry) {
+        deleteLibraryEntry.mutate({ id: existingEntry.id, accountId: profile.id });
+        return;
+      }
+
+      if (!hasAnyLibraryState(nextState)) return;
+
+      upsertLibraryState.mutate({
+        accountId: profile.id,
+        gameId: game.id,
+        isSaved: nextState.isSaved,
+        isLoved: nextState.isLoved,
+        isInCollection: nextState.isInCollection,
+        sentiment: nextState.sentiment,
+        notes: nextState.notes,
+      });
       return;
     }
 
-    if (!hasAnyLibraryState(nextState)) return;
+    if (!hasAnyLibraryState(nextState)) {
+      removeGuestLibraryEntry(game.id);
+      invalidateGuestLibraryEntries();
+      return;
+    }
 
-    upsertLibraryState.mutate({
-      accountId: profile.id,
-      gameId: game.id,
+    upsertGuestLibraryEntry({
+      game,
       isSaved: nextState.isSaved,
       isLoved: nextState.isLoved,
       isInCollection: nextState.isInCollection,
       sentiment: nextState.sentiment,
       notes: nextState.notes,
     });
+    invalidateGuestLibraryEntries();
   }
 
   if (entries.length === 0) return null;
@@ -83,7 +114,7 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
                     <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
                       In Collection
                     </span>
-                  ) : isAuthenticated && profile?.id ? (
+                  ) : (
                     <LibraryStateIconButton
                       label="Saved"
                       icon="bookmark"
@@ -91,7 +122,7 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
                       disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
                       onClick={() => handleToggleSaved(game)}
                     />
-                  ) : null}
+                  )}
                 </div>
 
                 <Link

@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { GameCard } from "../ui/GameCard";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import type { LibraryEntry } from "../../features/library/library.types";
-import { GUEST_LIBRARY_USER_ID } from "../../features/library/guestLibraryStorage";
+import {
+  GUEST_LIBRARY_USER_ID,
+  upsertGuestLibraryEntry,
+} from "../../features/library/guestLibraryStorage";
+import { libraryKeys } from "../../features/library/libraryKeys";
 import { useProfile } from "../../features/auth/useProfile";
 import {
   useMoveWishlistToCollection,
@@ -34,10 +39,28 @@ export function LibraryList({
   getGameLinkState,
 }: LibraryListProps) {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const { profile, isAuthenticated } = useProfile();
   const upsert = useUpsertLibraryState();
   const moveToCollection = useMoveWishlistToCollection();
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
+
+  function handleGuestUpsert(
+    entry: LibraryEntry,
+    updates: Partial<Pick<LibraryEntry, "isSaved" | "isLoved" | "isInCollection">>,
+  ) {
+    upsertGuestLibraryEntry({
+      game: entry.game,
+      isSaved: updates.isSaved ?? entry.isSaved,
+      isLoved: updates.isLoved ?? entry.isLoved,
+      isInCollection: updates.isInCollection ?? entry.isInCollection,
+      sentiment: entry.sentiment,
+      notes: entry.notes,
+    });
+    void queryClient.invalidateQueries({
+      queryKey: libraryKeys.library(GUEST_LIBRARY_USER_ID),
+    });
+  }
 
   if (entries.length === 0) {
     return (
@@ -59,9 +82,6 @@ export function LibraryList({
           backgroundLocation: location,
         };
 
-        // Resolve accountId: prefer authenticated profile, fall back to entry's accountId (covers guests)
-        const accountId = profile?.id ?? entry.accountId ?? GUEST_LIBRARY_USER_ID;
-
         let topRightSlot: React.ReactNode = undefined;
 
         if (cardContext === "collection") {
@@ -72,22 +92,24 @@ export function LibraryList({
               isActive={entry.isLoved}
               onClick={(e) => {
                 e.preventDefault();
-                upsert.mutate({
-                  accountId,
-                  gameId: entry.game.id,
-                  isSaved: entry.isSaved,
-                  isLoved: !entry.isLoved,
-                  isInCollection: entry.isInCollection,
-                  sentiment: entry.sentiment,
-                  notes: entry.notes,
-                });
+                if (isAuthenticated && profile?.id) {
+                  upsert.mutate({
+                    accountId: profile.id,
+                    gameId: entry.game.id,
+                    isSaved: entry.isSaved,
+                    isLoved: !entry.isLoved,
+                    isInCollection: entry.isInCollection,
+                    sentiment: entry.sentiment,
+                    notes: entry.notes,
+                  });
+                } else {
+                  handleGuestUpsert(entry, { isLoved: !entry.isLoved });
+                }
               }}
             />
           );
         } else if (cardContext === "saved") {
           const moved = movedIds.has(entry.id);
-
-          // Guest entries that are already in collection show as moved
           const isGuestAlreadyMoved =
             entry.accountId === GUEST_LIBRARY_USER_ID && entry.isInCollection;
 
@@ -117,24 +139,23 @@ export function LibraryList({
                       { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
                     );
                   } else {
-                    upsert.mutate(
-                      {
-                        accountId: GUEST_LIBRARY_USER_ID,
-                        gameId: entry.game.id,
-                        isSaved: false,
-                        isLoved: entry.isLoved,
-                        isInCollection: true,
-                        sentiment: entry.sentiment,
-                        notes: entry.notes,
-                      },
-                      { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
-                    );
+                    handleGuestUpsert(entry, { isSaved: false, isInCollection: true });
+                    setMovedIds((prev) => new Set(prev).add(entry.id));
                   }
                 }}
               />
             );
           }
         }
+
+        // For explore search results (no cardContext), show "In Collection" or "Saved" badge
+        const badge = !cardContext
+          ? entry.isInCollection
+            ? "In Collection"
+            : entry.isSaved
+              ? "Saved"
+              : undefined
+          : undefined;
 
         return (
           <article key={entry.id} className="space-y-4">
@@ -148,6 +169,7 @@ export function LibraryList({
                 weight={entry.game.bggWeight?.toFixed(1)}
                 rating={entry.game.bggRating ?? undefined}
                 isFavorite={entry.isLoved}
+                badge={badge}
                 topRightSlot={topRightSlot}
               />
             </Link>

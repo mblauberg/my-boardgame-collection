@@ -1,9 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GameDetailPanel } from "./GameDetailPanel";
 import type { Game } from "../../types/domain";
 import type { LibraryEntry } from "../../features/library/library.types";
+import { renderWithProviders } from "../../test/testUtils";
 
 const profileState = vi.hoisted(() => ({
   profile: null as { id: string } | null,
@@ -28,6 +29,11 @@ const deleteMutationState = vi.hoisted(() => ({
   isPending: false,
 }));
 
+const guestStorageState = vi.hoisted(() => ({
+  upsertGuestLibraryEntry: vi.fn(),
+  removeGuestLibraryEntry: vi.fn(),
+}));
+
 vi.mock("../../features/auth/useProfile", () => ({
   useProfile: () => profileState,
 }));
@@ -39,6 +45,12 @@ vi.mock("../../features/library/useLibraryQuery", () => ({
 vi.mock("../../features/library/useLibraryEntryMutations", () => ({
   useUpsertLibraryState: () => upsertMutationState,
   useDeleteLibraryEntry: () => deleteMutationState,
+}));
+
+vi.mock("../../features/library/guestLibraryStorage", () => ({
+  GUEST_LIBRARY_USER_ID: "__guest__",
+  upsertGuestLibraryEntry: guestStorageState.upsertGuestLibraryEntry,
+  removeGuestLibraryEntry: guestStorageState.removeGuestLibraryEntry,
 }));
 
 describe("GameDetailPanel", () => {
@@ -115,10 +127,12 @@ describe("GameDetailPanel", () => {
     upsertMutationState.isPending = false;
     deleteMutationState.mutate = vi.fn();
     deleteMutationState.isPending = false;
+    guestStorageState.upsertGuestLibraryEntry.mockReset();
+    guestStorageState.removeGuestLibraryEntry.mockReset();
   });
 
   it("renders public metadata and the BGG link for a game", () => {
-    render(<GameDetailPanel game={gameFixture} />);
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
     expect(screen.getByText("Heat")).toBeInTheDocument();
     expect(screen.getByText("Published: 2022")).toBeInTheDocument();
@@ -130,19 +144,19 @@ describe("GameDetailPanel", () => {
   });
 
   it("renders tags", () => {
-    render(<GameDetailPanel game={gameFixture} />);
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
     expect(screen.getByText("Racing")).toBeInTheDocument();
   });
 
   it("renders summary without private note sections", () => {
-    render(<GameDetailPanel game={gameFixture} />);
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
     expect(screen.getByText("Summary")).toBeInTheDocument();
     expect(screen.getByText("A racing game about heat management")).toBeInTheDocument();
     expect(screen.queryByText("Notes")).not.toBeInTheDocument();
   });
 
   it("renders snapshot rank metadata and provenance details", () => {
-    render(<GameDetailPanel game={gameFixture} />);
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
     expect(screen.getByText(/overall rank/i)).toBeInTheDocument();
     expect(screen.getByText("#32")).toBeInTheDocument();
@@ -166,7 +180,7 @@ describe("GameDetailPanel", () => {
       }),
     ];
 
-    render(<GameDetailPanel game={gameFixture} />);
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
     const lovedButton = screen.getByRole("button", { name: /loved/i });
     expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "true");
@@ -196,13 +210,43 @@ describe("GameDetailPanel", () => {
       }),
     ];
 
-    render(<GameDetailPanel game={gameFixture} />);
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
     await user.click(screen.getByRole("button", { name: /loved/i }));
 
     expect(deleteMutationState.mutate).toHaveBeenCalledWith({
       id: "entry-1",
       accountId: "user-1",
+    });
+    expect(upsertMutationState.mutate).not.toHaveBeenCalled();
+  });
+
+  it("lets guests update library state using local guest storage", async () => {
+    const user = userEvent.setup();
+    profileState.profile = null;
+    profileState.isAuthenticated = false;
+    libraryQueryState.data = [
+      createEntry({
+        accountId: "__guest__",
+        isSaved: false,
+        isLoved: true,
+        isInCollection: false,
+        sentiment: "like",
+        notes: "Guest note",
+      }),
+    ];
+
+    renderWithProviders(<GameDetailPanel game={gameFixture} />);
+
+    await user.click(screen.getByRole("button", { name: /saved/i }));
+
+    expect(guestStorageState.upsertGuestLibraryEntry).toHaveBeenCalledWith({
+      game: gameFixture,
+      isSaved: true,
+      isLoved: true,
+      isInCollection: false,
+      sentiment: "like",
+      notes: "Guest note",
     });
     expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });

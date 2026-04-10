@@ -6,7 +6,7 @@ import type { Game } from "../../types/domain";
 import type { LibraryEntry } from "../../features/library/library.types";
 
 const profileState = vi.hoisted(() => ({
-  profile: { id: "user-1" },
+  profile: { id: "user-1" } as { id: string } | null,
   isOwner: true,
   isAuthenticated: true,
   isLoading: false,
@@ -28,6 +28,11 @@ const deleteMutationState = vi.hoisted(() => ({
   isPending: false,
 }));
 
+const guestStorageState = vi.hoisted(() => ({
+  upsertGuestLibraryEntry: vi.fn(),
+  removeGuestLibraryEntry: vi.fn(),
+}));
+
 vi.mock("../../features/auth/useProfile", () => ({
   useProfile: () => profileState,
 }));
@@ -39,6 +44,12 @@ vi.mock("../../features/library/useLibraryQuery", () => ({
 vi.mock("../../features/library/useLibraryEntryMutations", () => ({
   useUpsertLibraryState: () => upsertMutationState,
   useDeleteLibraryEntry: () => deleteMutationState,
+}));
+
+vi.mock("../../features/library/guestLibraryStorage", () => ({
+  GUEST_LIBRARY_USER_ID: "__guest__",
+  upsertGuestLibraryEntry: guestStorageState.upsertGuestLibraryEntry,
+  removeGuestLibraryEntry: guestStorageState.removeGuestLibraryEntry,
 }));
 
 const gameFixture: Game = {
@@ -98,6 +109,8 @@ describe("HorizontalShelf", () => {
     upsertMutationState.isPending = false;
     deleteMutationState.mutate = vi.fn();
     deleteMutationState.isPending = false;
+    guestStorageState.upsertGuestLibraryEntry.mockReset();
+    guestStorageState.removeGuestLibraryEntry.mockReset();
   });
 
   it("renders saved quick actions for in-collection games", async () => {
@@ -150,5 +163,35 @@ describe("HorizontalShelf", () => {
       notes: "Great game",
     });
     expect(deleteMutationState.mutate).not.toHaveBeenCalled();
+  });
+
+  it("lets guests save from horizontal shelves using local guest storage", async () => {
+    const user = userEvent.setup();
+    profileState.profile = null;
+    profileState.isAuthenticated = false;
+    libraryQueryState.data = [
+      createEntry({
+        accountId: "__guest__",
+        isSaved: false,
+        isLoved: true,
+        isInCollection: false,
+        sentiment: "like",
+        notes: "Guest shortlist",
+      }),
+    ];
+
+    renderWithProviders(<HorizontalShelf title="Quick picks" entries={[gameFixture]} />);
+
+    await user.click(screen.getByRole("button", { name: /saved/i }));
+
+    expect(guestStorageState.upsertGuestLibraryEntry).toHaveBeenCalledWith({
+      game: gameFixture,
+      isSaved: true,
+      isLoved: true,
+      isInCollection: false,
+      sentiment: "like",
+      notes: "Guest shortlist",
+    });
+    expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });
 });

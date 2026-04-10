@@ -5,6 +5,7 @@ import { useAccount } from "../accounts/useAccount";
 import type { TagRow } from "../games/games.types";
 import { libraryKeys } from "./libraryKeys";
 import { mapLibraryEntryRecord, type LibraryEntryJoin, type SharedGameTagJoin } from "./libraryMappers";
+import { GUEST_LIBRARY_USER_ID, readGuestLibraryEntries } from "./guestLibraryStorage";
 
 export async function fetchLibraryEntries(accountId: string) {
   const supabase = getSupabaseBrowserClient();
@@ -42,13 +43,20 @@ export async function fetchLibraryEntries(accountId: string) {
 }
 
 export function useLibraryQuery() {
-  const { account, isAuthenticated } = useAccount();
+  const { account, isAuthenticated, isLoading } = useAccount();
   const accountId = account?.id;
 
+  // Guests use localStorage; authenticated users use Supabase.
+  // Wait for auth state to resolve before running either path.
   return useQuery({
-    queryKey: libraryKeys.library(accountId),
+    queryKey: libraryKeys.library(isAuthenticated ? accountId : GUEST_LIBRARY_USER_ID),
     retry: shouldRetrySupabaseQuery,
-    enabled: isAuthenticated && !!accountId,
-    queryFn: async () => fetchLibraryEntries(accountId!),
+    enabled: !isLoading,
+    queryFn: () => {
+      if (isAuthenticated && accountId) {
+        return fetchLibraryEntries(accountId);
+      }
+      return readGuestLibraryEntries();
+    },
   });
 }
