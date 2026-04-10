@@ -4,9 +4,13 @@ import { PasskeyRegistrationPrompt, PASSKEY_PROMPT_SUPPRESSION_KEY } from "./Pas
 
 const mockInvoke = vi.fn();
 const mockStartRegistration = vi.fn();
+const mockGetSession = vi.fn();
 
 vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => ({
+    auth: {
+      getSession: mockGetSession,
+    },
     functions: {
       invoke: mockInvoke,
     },
@@ -22,6 +26,15 @@ describe("PasskeyRegistrationPrompt", () => {
     localStorage.clear();
     mockInvoke.mockReset();
     mockStartRegistration.mockReset();
+    mockGetSession.mockReset();
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "test-access-token",
+        },
+      },
+      error: null,
+    });
   });
 
   it("renders when user has no passkeys and is not suppressed", async () => {
@@ -54,5 +67,32 @@ describe("PasskeyRegistrationPrompt", () => {
 
     expect(screen.queryByRole("button", { name: /set up passkey/i })).not.toBeInTheDocument();
     expect(localStorage.getItem(PASSKEY_PROMPT_SUPPRESSION_KEY)).not.toBeNull();
+  });
+
+  it("sends bearer auth when requesting passkey registration options", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      data: { challenge: "challenge-1" },
+      error: null,
+    });
+    mockStartRegistration.mockResolvedValue({ id: "credential-id" });
+    mockInvoke.mockResolvedValueOnce({
+      data: { ok: true },
+      error: null,
+    });
+
+    render(<PasskeyRegistrationPrompt hasPasskeys={false} />);
+    await user.click(await screen.findByRole("button", { name: /set up passkey/i }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith(
+        "passkey-register-options",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Authorization: "Bearer test-access-token",
+          }),
+        }),
+      );
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
-import { getServiceClient, getSiteUrl, getUserFromRequest } from "../_shared/auth.ts";
+import { getAccountContextFromRequest, getServiceClient, getSiteUrl } from "../_shared/auth.ts";
 
 function createRawToken(): string {
   const bytes = new Uint8Array(32);
@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
-  const userId = await getUserFromRequest(req);
-  if (!userId) {
+  const accountContext = await getAccountContextFromRequest(req);
+  if (!accountContext) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
   }
 
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   const { data: existingRequest } = await supabase
     .from("email_merge_tokens")
     .select("id")
-    .eq("from_user_id", userId)
+    .eq("from_account_id", accountContext.accountId)
     .is("used_at", null)
     .gte("expires_at", new Date().toISOString())
     .maybeSingle();
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   const tokenHash = await hashToken(rawToken);
 
   const { error: insertError } = await supabase.from("email_merge_tokens").insert({
-    from_user_id: userId,
+    from_account_id: accountContext.accountId,
     to_email: normalizedEmail,
     token_hash: tokenHash,
   });

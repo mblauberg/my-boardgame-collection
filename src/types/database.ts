@@ -119,7 +119,7 @@ export type Database = {
         Row: {
           created_at: string
           expires_at: string
-          from_user_id: string
+          from_account_id: string
           id: string
           to_email: string
           token_hash: string
@@ -128,7 +128,7 @@ export type Database = {
         Insert: {
           created_at?: string
           expires_at?: string
-          from_user_id: string
+          from_account_id: string
           id?: string
           to_email: string
           token_hash: string
@@ -137,7 +137,7 @@ export type Database = {
         Update: {
           created_at?: string
           expires_at?: string
-          from_user_id?: string
+          from_account_id?: string
           id?: string
           to_email?: string
           token_hash?: string
@@ -432,30 +432,31 @@ export type Database = {
       }
       passkey_challenges: {
         Row: {
+          account_id: string | null
           challenge: string
           created_at: string
           expires_at: string
           id: string
-          user_id: string | null
         }
         Insert: {
+          account_id?: string | null
           challenge: string
           created_at?: string
           expires_at?: string
           id?: string
-          user_id?: string | null
         }
         Update: {
+          account_id?: string | null
           challenge?: string
           created_at?: string
           expires_at?: string
           id?: string
-          user_id?: string | null
         }
         Relationships: []
       }
       passkeys: {
         Row: {
+          account_id: string
           counter: number
           created_at: string
           credential_id: string
@@ -464,9 +465,9 @@ export type Database = {
           last_used_at: string | null
           public_key: string
           transports: string[] | null
-          user_id: string
         }
         Insert: {
+          account_id: string
           counter?: number
           created_at?: string
           credential_id: string
@@ -475,9 +476,9 @@ export type Database = {
           last_used_at?: string | null
           public_key: string
           transports?: string[] | null
-          user_id: string
         }
         Update: {
+          account_id?: string
           counter?: number
           created_at?: string
           credential_id?: string
@@ -486,7 +487,6 @@ export type Database = {
           last_used_at?: string | null
           public_key?: string
           transports?: string[] | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -641,6 +641,10 @@ export type Database = {
           primary_email: string
         }[]
       }
+      get_account_security_summary: {
+        Args: { p_account_id: string }
+        Returns: Json
+      }
       get_public_library: {
         Args: { p_list_type: string; p_username: string }
         Returns: {
@@ -723,6 +727,27 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      sync_account_email: {
+        Args: {
+          p_account_id: string
+          p_email: string
+          p_is_primary?: boolean
+          p_verified_at?: string | null
+        }
+        Returns: undefined
+      }
+      sync_account_identity: {
+        Args: {
+          p_account_id: string
+          p_auth_identity_id: string | null
+          p_auth_user_id: string
+          p_provider: string | null
+          p_provider_email: string | null
+          p_provider_email_verified?: boolean | null
+          p_provider_subject: string | null
+        }
+        Returns: undefined
       }
       search_public_profiles: {
         Args: { prefix?: string }
@@ -1014,4 +1039,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

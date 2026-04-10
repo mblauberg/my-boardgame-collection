@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     .from("passkey_challenges")
     .select("id, challenge")
     .eq("challenge", challenge)
-    .is("user_id", null)
+    .is("account_id", null)
     .gte("expires_at", new Date().toISOString())
     .single();
 
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
   const { data: passkey, error: passkeyError } = await supabase
     .from("passkeys")
-    .select("user_id, credential_id, public_key, counter, transports")
+    .select("account_id, credential_id, public_key, counter, transports")
     .eq("credential_id", credential.id)
     .single();
 
@@ -72,7 +72,18 @@ Deno.serve(async (req) => {
 
   await supabase.from("passkey_challenges").delete().eq("id", challengeRow.id);
 
-  const { data: userData, error: userError } = await supabase.auth.admin.getUserById(passkey.user_id);
+  const { data: account, error: accountError } = await supabase
+    .from("accounts")
+    .select("primary_auth_user_id")
+    .eq("id", passkey.account_id)
+    .single();
+  if (accountError || !account) {
+    return Response.json({ error: "Account not found" }, { status: 500, headers: corsHeaders });
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.admin.getUserById(
+    account.primary_auth_user_id,
+  );
   const email = userData.user?.email;
   if (userError || !email) {
     return Response.json({ error: "User not found" }, { status: 500, headers: corsHeaders });

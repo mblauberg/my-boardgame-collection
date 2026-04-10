@@ -1,13 +1,19 @@
 import { generateRegistrationOptions } from "npm:@simplewebauthn/server";
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
-import { getRpIdForRequest, getServiceClient, getUserFromRequest } from "../_shared/auth.ts";
+import {
+  getAccountContextFromRequest,
+  getAuthUserFromRequest,
+  getRpIdForRequest,
+  getServiceClient,
+} from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
-  const userId = await getUserFromRequest(req);
-  if (!userId) {
+  const authUser = await getAuthUserFromRequest(req);
+  const accountContext = await getAccountContextFromRequest(req);
+  if (!authUser || !accountContext) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
   }
 
@@ -15,15 +21,14 @@ Deno.serve(async (req) => {
   const { data: existingPasskeys } = await supabase
     .from("passkeys")
     .select("credential_id, transports")
-    .eq("user_id", userId);
+    .eq("account_id", accountContext.accountId);
 
-  const { data: userData } = await supabase.auth.admin.getUserById(userId);
-  const userEmail = userData.user?.email ?? userId;
+  const userEmail = authUser.email ?? accountContext.primaryAuthUserId;
 
   const options = await generateRegistrationOptions({
     rpName: "My Boardgame Collection",
     rpID: getRpIdForRequest(req),
-    userID: new TextEncoder().encode(userId),
+    userID: new TextEncoder().encode(accountContext.accountId),
     userName: userEmail,
     userDisplayName: userEmail,
     attestationType: "none",
@@ -38,7 +43,7 @@ Deno.serve(async (req) => {
   });
 
   const { error: insertError } = await supabase.from("passkey_challenges").insert({
-    user_id: userId,
+    account_id: accountContext.accountId,
     challenge: options.challenge,
   });
 

@@ -411,6 +411,12 @@ verify_jwt = false
 [functions.email-merge-verify]
 verify_jwt = false
 
+[functions.account-sync-session]
+verify_jwt = false
+
+[functions.account-security-summary]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

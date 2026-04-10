@@ -1,12 +1,12 @@
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
-import { getServiceClient, getUserFromRequest } from "../_shared/auth.ts";
+import { getAccountContextFromRequest, getServiceClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
-  const userId = await getUserFromRequest(req);
-  if (!userId) {
+  const accountContext = await getAccountContextFromRequest(req);
+  if (!accountContext) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
   }
 
@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   const { data, error } = await supabase
     .from("passkeys")
     .select("id, device_name, last_used_at, created_at")
-    .eq("user_id", userId)
+    .eq("account_id", accountContext.accountId)
     .order("created_at", { ascending: false });
 
   if (error) {

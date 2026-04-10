@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 
 const mockNavigate = vi.fn();
 const mockGetSession = vi.fn();
+const mockInvoke = vi.fn();
 const mockOnAuthStateChange = vi.fn(() => ({
   data: { subscription: { unsubscribe: vi.fn() } },
 }));
@@ -21,6 +22,9 @@ vi.mock("../lib/supabase/client", () => ({
     auth: {
       getSession: mockGetSession,
       onAuthStateChange: mockOnAuthStateChange,
+    },
+    functions: {
+      invoke: mockInvoke,
     },
   }),
 }));
@@ -50,18 +54,21 @@ describe("AuthCallbackPage", () => {
   beforeEach(() => {
     mockNavigate.mockReset();
     mockGetSession.mockReset();
+    mockInvoke.mockReset();
     mockOnAuthStateChange.mockClear();
   });
 
-  it("redirects signed-in users back into the app", async () => {
+  it("syncs account security before redirecting after sign-in", async () => {
     mockGetSession.mockResolvedValue({
       data: { session: { access_token: "token", user: { id: "user-1" } } },
       error: null,
     });
+    mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
 
     renderPage();
 
     await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("account-sync-session", undefined);
       expect(mockNavigate).toHaveBeenCalledWith("/signin", { replace: true });
     });
   });
