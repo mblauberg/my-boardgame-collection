@@ -2,8 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { startAuthentication } from "@simplewebauthn/browser";
 
+const mockUseProfile = vi.fn();
 const mockSignIn = vi.fn();
 const mockSignOut = vi.fn();
 const mockSignInWithOAuth = vi.fn();
@@ -40,8 +42,14 @@ vi.mock("@simplewebauthn/browser", () => ({
   startAuthentication: vi.fn(),
 }));
 
+vi.mock("./useProfile", () => ({
+  useProfile: () => mockUseProfile(),
+}));
+
 // eslint-disable-next-line import/first
 import { SignInForm } from "./SignInForm";
+// eslint-disable-next-line import/first
+import { SignInPage } from "../../pages/SignInPage";
 
 function TestWrapper({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient({
@@ -57,6 +65,7 @@ function TestWrapper({ children }: { children: ReactNode }) {
 
 describe("SignInForm", () => {
   beforeEach(() => {
+    mockUseProfile.mockReset();
     mockSignIn.mockClear();
     mockSignOut.mockClear();
     mockSignInWithOAuth.mockClear();
@@ -79,6 +88,25 @@ describe("SignInForm", () => {
       }
       return { data: null, error: null };
     });
+
+    mockUseProfile.mockReturnValue({
+      profile: null,
+      isOwner: false,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    });
+  });
+
+  it("renders sign-in inside a dialog-style overlay shell", () => {
+    render(
+      <MemoryRouter>
+        <SignInPage />
+      </MemoryRouter>,
+      { wrapper: TestWrapper },
+    );
+
+    expect(screen.getByRole("dialog", { name: /sign in/i })).toBeInTheDocument();
   });
 
   it("renders the email field before OAuth buttons", () => {
@@ -101,6 +129,30 @@ describe("SignInForm", () => {
     render(<SignInForm />, { wrapper: TestWrapper });
 
     expect(screen.queryByRole("button", { name: /passkey/i })).not.toBeInTheDocument();
+  });
+
+  it("does not render authenticated provider-link management inside SignInForm", () => {
+    mockUseProfile.mockReturnValue({
+      profile: {
+        id: "user-1",
+        email: "owner@example.com",
+        role: "owner",
+        username: "owner",
+        is_profile_public: true,
+        is_collection_public: true,
+        is_saved_public: false,
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
+      },
+      isOwner: true,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    expect(screen.queryByText(/link another sign-in method/i)).not.toBeInTheDocument();
   });
 
   it("submits a magic-link request for a valid email address", async () => {

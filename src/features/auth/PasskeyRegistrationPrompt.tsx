@@ -13,6 +13,7 @@ type RegistrationOptionsResponse = PublicKeyCredentialCreationOptionsJSON;
 
 interface PasskeyRegistrationPromptProps {
   hasPasskeys: boolean;
+  compact?: boolean;
 }
 
 function isSuppressed(): boolean {
@@ -25,7 +26,10 @@ function isSuppressed(): boolean {
   return Date.now() - parsed < SUPPRESSION_DURATION_MS;
 }
 
-export function PasskeyRegistrationPrompt({ hasPasskeys }: PasskeyRegistrationPromptProps) {
+export function PasskeyRegistrationPrompt({
+  hasPasskeys,
+  compact = false,
+}: PasskeyRegistrationPromptProps) {
   const [dismissed, setDismissed] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
@@ -70,20 +74,33 @@ export function PasskeyRegistrationPrompt({ hasPasskeys }: PasskeyRegistrationPr
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl border border-secondary/20 bg-secondary/10 p-4 text-center text-sm font-bold text-secondary">
-        Passkey saved — you&apos;re all set
+      <div className="rounded-[1.5rem] border border-secondary/20 bg-secondary/10 p-4 text-center text-sm font-bold text-secondary">
+        Passkey enabled
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
+    <div
+      className={`rounded-[1.5rem] border p-5 ${
+        compact
+          ? "border-primary/15 bg-[linear-gradient(145deg,rgba(253,144,0,0.12),rgba(253,144,0,0.03))]"
+          : "border-primary/20 bg-primary/5"
+      }`}
+    >
       <div className="flex items-start gap-3">
         <Icon icon="mdi:passkey" className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
         <div className="flex-1">
-          <p className="text-sm font-bold text-on-surface">Sign in faster next time</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-bold text-on-surface">Set up passkey</p>
+            {compact ? (
+              <span className="rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary">
+                Recommended
+              </span>
+            ) : null}
+          </div>
           <p className="mt-1 text-xs leading-5 text-on-surface-variant">
-            Set up a passkey to log in with Face ID or Touch ID — no email link needed.
+            Use Face ID, Touch ID, or your device PIN instead of waiting on an email link.
           </p>
           <div className="mt-4 flex gap-3">
             <button
@@ -92,7 +109,7 @@ export function PasskeyRegistrationPrompt({ hasPasskeys }: PasskeyRegistrationPr
               disabled={status === "loading"}
               className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary disabled:opacity-60"
             >
-              {status === "loading" ? "Setting up..." : "Create passkey"}
+              {status === "loading" ? "Setting up..." : "Set up passkey"}
             </button>
             <button
               type="button"

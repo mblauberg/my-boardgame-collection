@@ -28,14 +28,14 @@ describe("PasskeyRegistrationPrompt", () => {
     render(<PasskeyRegistrationPrompt hasPasskeys={false} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/sign in faster next time/i)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /set up passkey/i })).toBeInTheDocument();
     });
   });
 
   it("does not render when user already has passkeys", () => {
     render(<PasskeyRegistrationPrompt hasPasskeys />);
 
-    expect(screen.queryByText(/sign in faster next time/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /set up passkey/i })).not.toBeInTheDocument();
   });
 
   it("does not render when suppression flag is within 30 days", () => {
@@ -43,7 +43,7 @@ describe("PasskeyRegistrationPrompt", () => {
 
     render(<PasskeyRegistrationPrompt hasPasskeys={false} />);
 
-    expect(screen.queryByText(/sign in faster next time/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /set up passkey/i })).not.toBeInTheDocument();
   });
 
   it("dismisses and stores suppression flag when 'Maybe later' is clicked", async () => {
@@ -52,7 +52,7 @@ describe("PasskeyRegistrationPrompt", () => {
     render(<PasskeyRegistrationPrompt hasPasskeys={false} />);
     await user.click(screen.getByRole("button", { name: /maybe later/i }));
 
-    expect(screen.queryByText(/sign in faster next time/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /set up passkey/i })).not.toBeInTheDocument();
     expect(localStorage.getItem(PASSKEY_PROMPT_SUPPRESSION_KEY)).not.toBeNull();
   });
 });

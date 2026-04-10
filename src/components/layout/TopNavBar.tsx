@@ -1,9 +1,11 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getSignInRouteState } from "../../features/auth/signInNavigation";
 import { useProfile } from "../../features/auth/useProfile";
 import { useTheme } from "../../lib/theme";
 
 export function TopNavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated } = useProfile();
   const { theme, toggleTheme } = useTheme();
 
@@ -38,12 +40,24 @@ export function TopNavBar() {
             {theme === "dark" ? "light_mode" : "dark_mode"}
           </span>
         </button>
-        <Link
-          to={isAuthenticated ? "/settings" : "/signin"}
-          className="glass-action-button flex scale-95 items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80"
-        >
-          <span className="material-symbols-outlined text-on-surface">account_circle</span>
-        </Link>
+        {isAuthenticated ? (
+          <Link
+            to="/settings"
+            aria-label="Open account settings"
+            className="glass-action-button flex scale-95 items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80"
+          >
+            <span className="material-symbols-outlined text-on-surface">account_circle</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            aria-label="Open account"
+            onClick={() => navigate("/signin", { state: getSignInRouteState(location) })}
+            className="glass-action-button flex scale-95 items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80"
+          >
+            <span className="material-symbols-outlined text-on-surface">account_circle</span>
+          </button>
+        )}
       </div>
     </nav>
   );

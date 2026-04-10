@@ -6,6 +6,10 @@ vi.mock("../../pages/AuthCallbackPage", () => ({
   AuthCallbackPage: () => <div>Completing sign in</div>,
 }));
 
+vi.mock("../../pages/SignInMethodsPage", () => ({
+  SignInMethodsPage: () => <div>Sign-in methods mobile page</div>,
+}));
+
 import { AppRoutes, appRouteDefinitions } from "./routes";
 
 function renderWithRouter(initialEntry: string) {
@@ -41,5 +45,11 @@ describe("AppRoutes", () => {
 
     expect(screen.getByText(/completing sign in/i)).toBeInTheDocument();
     expect(screen.queryByText(/missing route/i)).not.toBeInTheDocument();
+  });
+
+  it("renders the sign-in methods detail route", () => {
+    renderWithRouter("/settings/sign-in-methods");
+
+    expect(screen.getByText(/sign-in methods mobile page/i)).toBeInTheDocument();
   });
 });

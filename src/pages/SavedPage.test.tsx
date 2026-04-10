@@ -1,7 +1,10 @@
 import userEvent from "@testing-library/user-event";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { screen } from "@testing-library/react";
+import { useLocation } from "react-router-dom";
 import { SavedPage } from "./SavedPage";
+import { renderWithProviders } from "../test/testUtils";
+
+const mockUseProfile = vi.fn();
 
 vi.mock("../features/library/useSavedQuery", () => ({
   useSavedQuery: vi.fn(),
@@ -39,7 +42,33 @@ vi.mock("../components/library/AddGameWizardOverlay", () => ({
 
 import { useSavedQuery } from "../features/library/useSavedQuery";
 
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: () => mockUseProfile(),
+}));
+
+function LocationProbe() {
+  const location = useLocation();
+
+  return (
+    <div>
+      <div data-testid="location-pathname">{location.pathname}</div>
+      <div data-testid="location-state">{JSON.stringify(location.state)}</div>
+    </div>
+  );
+}
+
 describe("SavedPage", () => {
+  beforeEach(() => {
+    mockUseProfile.mockReset();
+    mockUseProfile.mockReturnValue({
+      profile: null,
+      isOwner: false,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    });
+  });
+
   it("renders the saved heading and list", () => {
     vi.mocked(useSavedQuery).mockReturnValue({
       data: [],
@@ -47,19 +76,19 @@ describe("SavedPage", () => {
       error: null,
     } as never);
 
-    const { container } = render(
-      <MemoryRouter>
+    const { container } = renderWithProviders(
+      <>
         <SavedPage />
-      </MemoryRouter>,
+      </>,
     );
 
     expect(screen.getByRole("heading", { name: /saved/i })).toBeInTheDocument();
     expect(screen.getByText(/saved list/i)).toBeInTheDocument();
     expect(screen.getByText("On Your Radar").closest("div")).toHaveClass("glass-surface-panel");
-    expect(container.querySelector(".library-search-section")).toHaveClass("mb-4");
+    expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
   });
 
-  it("opens the add-game wizard with saved as the default destination", async () => {
+  it("routes guest sign-in prompts through sign-in overlay state", async () => {
     const user = userEvent.setup();
 
     vi.mocked(useSavedQuery).mockReturnValue({
@@ -68,10 +97,40 @@ describe("SavedPage", () => {
       error: null,
     } as never);
 
-    render(
-      <MemoryRouter>
+    renderWithProviders(
+      <>
         <SavedPage />
-      </MemoryRouter>,
+        <LocationProbe />
+      </>,
+      "/saved",
+    );
+
+    await user.click(screen.getByRole("link", { name: /sign in to sync/i }));
+
+    expect(screen.getByTestId("location-pathname")).toHaveTextContent("/signin");
+    expect(screen.getByTestId("location-state")).toHaveTextContent('"pathname":"/saved"');
+  });
+
+  it("opens the add-game wizard with saved as the default destination", async () => {
+    const user = userEvent.setup();
+    mockUseProfile.mockReturnValue({
+      profile: { id: "user-1" },
+      isOwner: false,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+
+    vi.mocked(useSavedQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as never);
+
+    renderWithProviders(
+      <>
+        <SavedPage />
+      </>,
     );
 
     await user.click(screen.getByRole("button", { name: /open add game wizard/i }));

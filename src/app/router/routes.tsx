@@ -12,6 +12,7 @@ import { PublicProfilePage } from "../../pages/PublicProfilePage";
 import { PublicCollectionPage } from "../../pages/PublicCollectionPage";
 import { PublicSavedPage } from "../../pages/PublicSavedPage";
 import { AccountSettingsPage } from "../../pages/AccountSettingsPage";
+import { SignInMethodsPage } from "../../pages/SignInMethodsPage";
 import { RequireOwner } from "../../features/auth/RequireOwner";
 
 export type AppRouteDefinition = {
@@ -31,6 +32,7 @@ export const appRouteDefinitions: AppRouteDefinition[] = [
   { path: "/auth/callback", label: "Auth Callback", showInNav: false },
   { path: "/admin", label: "Admin", showInNav: true, requiresOwner: true },
   { path: "/settings", label: "Settings", showInNav: false },
+  { path: "/settings/sign-in-methods", label: "Sign-In Methods", showInNav: false },
   { path: "/u/:username", label: "Profile", showInNav: false },
   { path: "/u/:username/collection", label: "Public Collection", showInNav: false },
   { path: "/u/:username/saved", label: "Public Saved", showInNav: false },
@@ -52,6 +54,7 @@ export function AppRoutes({ location }: AppRoutesProps) {
       <Route path="/signin" element={<SignInPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/settings" element={<AccountSettingsPage />} />
+      <Route path="/settings/sign-in-methods" element={<SignInMethodsPage />} />
       <Route path="/u/:username" element={<PublicProfilePage />} />
       <Route path="/u/:username/collection" element={<PublicCollectionPage />} />
       <Route path="/u/:username/saved" element={<PublicSavedPage />} />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
@@ -12,10 +12,12 @@ import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { useSavedQuery } from "../features/library/useSavedQuery";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 import { useProfile } from "../features/auth/useProfile";
+import { getSignInRouteState } from "../features/auth/signInNavigation";
 
 export function SavedPage() {
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const { isAuthenticated } = useProfile();
+  const location = useLocation();
   const navigate = useNavigate();
   const { data: entries, isLoading, error } = useSavedQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
@@ -69,7 +71,11 @@ export function SavedPage() {
       {!isAuthenticated && (
         <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-on-surface">
           <span>You're browsing as a guest. Your saves are stored locally on this device.</span>
-          <Link to="/signin" className="shrink-0 font-semibold text-primary hover:underline">
+          <Link
+            to="/signin"
+            state={getSignInRouteState(location)}
+            className="shrink-0 font-semibold text-primary hover:underline"
+          >
             Sign in to sync
           </Link>
         </div>
@@ -89,7 +95,13 @@ export function SavedPage() {
       </div>
 
       <LibraryList entries={sortedEntries} totalCount={entries?.length ?? 0} cardContext="saved" getGameLinkState={() => ({ from: "/saved" })} />
-      <FloatingActionButton onClick={isAuthenticated ? () => setIsAddGameOpen(true) : () => navigate("/signin")} />
+      <FloatingActionButton
+        onClick={
+          isAuthenticated
+            ? () => setIsAddGameOpen(true)
+            : () => navigate("/signin", { state: getSignInRouteState(location) })
+        }
+      />
       {isAuthenticated && (
         <AddGameWizardOverlay
           isOpen={isAddGameOpen}

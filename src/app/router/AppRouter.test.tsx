@@ -4,12 +4,28 @@ import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
 import { AppRoutes } from "./routes";
 import { GameDetailPage } from "../../pages/GameDetailPage";
+import { SignInPage } from "../../pages/SignInPage";
 import { ExploreSearchProvider } from "../../features/library/ExploreSearchContext";
 import { ThemeProvider } from "../../lib/theme";
 import type { Location } from "react-router-dom";
 
 vi.mock("../../features/auth/useProfile", () => ({
-  useProfile: () => ({ data: null, isLoading: false }),
+  useProfile: () => ({
+    profile: null,
+    isOwner: false,
+    isAuthenticated: false,
+    isLoading: false,
+    error: null,
+  }),
+}));
+
+vi.mock("../../features/auth/useSession", () => ({
+  useSession: () => ({
+    session: null,
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+  }),
 }));
 
 vi.mock("../../features/games/useGameDetailQuery", () => ({
@@ -32,6 +48,14 @@ vi.mock("../../features/library/useCollectionQuery", () => ({
   useCollectionQuery: () => ({ data: [], isLoading: false }),
 }));
 
+vi.mock("../../pages/SignInPage", () => ({
+  SignInPage: () => (
+    <div role="dialog" aria-modal="true" aria-label="Sign in">
+      Sign in
+    </div>
+  ),
+}));
+
 function AppContent() {
   const location = useLocation();
   const state = location.state as { backgroundLocation?: Location } | null;
@@ -44,6 +68,7 @@ function AppContent() {
       </AppShell>
       {backgroundLocation ? (
         <Routes>
+          <Route path="/signin" element={<SignInPage />} />
           <Route path="/game/:slug" element={<GameDetailPage />} />
         </Routes>
       ) : null}
@@ -101,5 +126,26 @@ describe("AppRouter", () => {
 
     expect(screen.getByRole("dialog", { name: /heat/i })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /your collection/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps the collection page rendered behind the sign-in overlay", async () => {
+    renderAppRouter([
+      "/",
+      {
+        pathname: "/signin",
+        state: {
+          backgroundLocation: {
+            pathname: "/",
+            search: "",
+            hash: "",
+            state: null,
+            key: "default",
+          },
+        },
+      },
+    ]);
+
+    expect(screen.getByRole("heading", { name: /your collection/i })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /sign in/i })).toBeInTheDocument();
   });
 });

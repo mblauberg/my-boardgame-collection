@@ -1,7 +1,10 @@
 import userEvent from "@testing-library/user-event";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { screen } from "@testing-library/react";
+import { useLocation } from "react-router-dom";
 import { CollectionPage } from "./CollectionPage";
+import { renderWithProviders } from "../test/testUtils";
+
+const mockUseProfile = vi.fn();
 
 vi.mock("../features/library/useCollectionQuery", () => ({
   useCollectionQuery: vi.fn(),
@@ -39,7 +42,33 @@ vi.mock("../components/library/AddGameWizardOverlay", () => ({
 
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
 
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: () => mockUseProfile(),
+}));
+
+function LocationProbe() {
+  const location = useLocation();
+
+  return (
+    <div>
+      <div data-testid="location-pathname">{location.pathname}</div>
+      <div data-testid="location-state">{JSON.stringify(location.state)}</div>
+    </div>
+  );
+}
+
 describe("CollectionPage", () => {
+  beforeEach(() => {
+    mockUseProfile.mockReset();
+    mockUseProfile.mockReturnValue({
+      profile: null,
+      isOwner: false,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    });
+  });
+
   it("shows setup guidance when Supabase is missing the public tables", () => {
     vi.mocked(useCollectionQuery).mockReturnValue({
       data: undefined,
@@ -51,17 +80,17 @@ describe("CollectionPage", () => {
       },
     } as never);
 
-    render(
-      <MemoryRouter>
+    renderWithProviders(
+      <>
         <CollectionPage />
-      </MemoryRouter>,
+      </>,
     );
 
     expect(screen.getByText(/schema\.sql/i)).toBeInTheDocument();
     expect(screen.getByText(/migrate:import/i)).toBeInTheDocument();
   });
 
-  it("opens the add-game wizard with collection as the default destination", async () => {
+  it("routes guest sign-in prompts through sign-in overlay state", async () => {
     const user = userEvent.setup();
 
     vi.mocked(useCollectionQuery).mockReturnValue({
@@ -70,10 +99,40 @@ describe("CollectionPage", () => {
       error: null,
     } as never);
 
-    const { container } = render(
-      <MemoryRouter>
+    renderWithProviders(
+      <>
         <CollectionPage />
-      </MemoryRouter>,
+        <LocationProbe />
+      </>,
+      "/",
+    );
+
+    await user.click(screen.getByRole("link", { name: /sign in to sync/i }));
+
+    expect(screen.getByTestId("location-pathname")).toHaveTextContent("/signin");
+    expect(screen.getByTestId("location-state")).toHaveTextContent('"pathname":"/"');
+  });
+
+  it("opens the add-game wizard with collection as the default destination", async () => {
+    const user = userEvent.setup();
+    mockUseProfile.mockReturnValue({
+      profile: { id: "user-1" },
+      isOwner: false,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+
+    vi.mocked(useCollectionQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as never);
+
+    const { container } = renderWithProviders(
+      <>
+        <CollectionPage />
+      </>,
     );
 
     await user.click(screen.getByRole("button", { name: /open add game wizard/i }));
@@ -82,6 +141,6 @@ describe("CollectionPage", () => {
       screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("glass-surface-panel");
-    expect(container.querySelector(".library-search-section")).toHaveClass("mb-4");
+    expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
   });
 });
