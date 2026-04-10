@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
-import { useSession } from "../../features/auth/useSession";
+import { getSupabaseBrowserClient } from "../../lib/supabase/client";
+import { useAccount } from "../../features/accounts/useAccount";
 import { useBggSearchQuery } from "../../features/games/useBggSearchQuery";
 import { useSaveBggGameToLibrary } from "../../features/library/useLibraryEntryMutations";
 import { AddGameCollectionInfoStep } from "./AddGameCollectionInfoStep";
+import { AddGameDetailsStep } from "./AddGameDetailsStep";
 import { AddGameSearchStep } from "./AddGameSearchStep";
 import type {
   AddGameWizardCollectionInfo,
+  AddGameWizardDefaultListType,
   AddGameWizardDefaultState,
   AddGameWizardSelectedGame,
 } from "./addGameWizard.types";
 
 type AddGameWizardOverlayProps = {
   isOpen: boolean;
+  defaultListType?: AddGameWizardDefaultListType;
   defaultState?: AddGameWizardDefaultState;
   onClose: () => void;
 };
 
-const stepLabels = ["Find your game", "Collection info"] as const;
+const stepLabels = ["Find your game", "Game details", "Collection info"] as const;
 
-function getInitialState(defaultState?: AddGameWizardDefaultState): AddGameWizardCollectionInfo {
+function getInitialState(
+  defaultListType: AddGameWizardDefaultListType | undefined,
+  defaultState?: AddGameWizardDefaultState,
+): AddGameWizardCollectionInfo {
   if (defaultState) {
     return {
       ...defaultState,
@@ -28,9 +35,9 @@ function getInitialState(defaultState?: AddGameWizardDefaultState): AddGameWizar
   }
 
   return {
-    isSaved: false,
+    isSaved: defaultListType === "wishlist",
     isLoved: false,
-    isInCollection: true,
+    isInCollection: defaultListType !== "wishlist",
     sentiment: null,
     notes: "",
   };
@@ -67,16 +74,17 @@ function normalizeSearchResult(result: Record<string, unknown>): AddGameWizardSe
 
 export function AddGameWizardOverlay({
   isOpen,
+  defaultListType,
   defaultState,
   onClose,
 }: AddGameWizardOverlayProps) {
-  const { user } = useSession();
+  const { account, isAuthenticated } = useAccount();
   const { mutateAsync, isPending } = useSaveBggGameToLibrary();
   const [step, setStep] = useState(1);
   const [query, setQuery] = useState("");
   const [selectedGame, setSelectedGame] = useState<AddGameWizardSelectedGame | null>(null);
   const [collectionInfo, setCollectionInfo] = useState<AddGameWizardCollectionInfo>(
-    getInitialState(defaultState),
+    getInitialState(defaultListType, defaultState),
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -91,15 +99,15 @@ export function AddGameWizardOverlay({
     setStep(1);
     setQuery("");
     setSelectedGame(null);
-    setCollectionInfo(getInitialState(defaultState));
+    setCollectionInfo(getInitialState(defaultListType, defaultState));
     setSubmitError(null);
-  }, [isOpen, defaultState]);
+  }, [isOpen, defaultListType, defaultState]);
 
   function handleClose() {
     setStep(1);
     setQuery("");
     setSelectedGame(null);
-    setCollectionInfo(getInitialState(defaultState));
+    setCollectionInfo(getInitialState(defaultListType, defaultState));
     setSubmitError(null);
     onClose();
   }
@@ -111,13 +119,35 @@ export function AddGameWizardOverlay({
   }
 
   async function handleSubmit() {
-    if (!user?.id || !selectedGame || isPending) return;
+    if (!account?.id || !selectedGame || isPending) return;
 
     try {
       setSubmitError(null);
+      
+      let finalImageUrl = selectedGame.customImageUrl || selectedGame.imageUrl;
+
+      if (selectedGame.customImageFile) {
+        const supabase = getSupabaseBrowserClient();
+        const fileExt = selectedGame.customImageFile.name.split('.').pop() || 'tmp';
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${account.id}/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("game-images")
+          .upload(filePath, selectedGame.customImageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from("game-images")
+          .getPublicUrl(filePath);
+          
+        finalImageUrl = publicUrlData.publicUrl;
+      }
+
       await mutateAsync({
-        userId: user.id,
-        selectedGame,
+        accountId: account.id,
+        selectedGame: { ...selectedGame, imageUrl: finalImageUrl },
         isSaved: collectionInfo.isSaved,
         isLoved: collectionInfo.isLoved,
         isInCollection: collectionInfo.isInCollection,
@@ -132,65 +162,62 @@ export function AddGameWizardOverlay({
 
   if (!isOpen) return null;
 
-  const nextDisabled = (step === 1 && !selectedGame) || (step === 2 && (!user?.id || isPending));
+  const nextDisabled =
+    (step === 1 && !selectedGame) || (step === 3 && (!account?.id || isPending));
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-on-surface/20 backdrop-blur-sm md:px-4 md:py-6">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-on-surface/20 px-4 py-6 backdrop-blur-sm">
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Add new game"
-        className="flex h-full w-full flex-col overflow-hidden bg-surface-container-lowest shadow-[0_32px_80px_rgba(46,47,45,0.18)] md:h-auto md:max-h-[min(46rem,90vh)] md:max-w-4xl md:rounded-[2rem] lg:flex-row"
+        className="flex max-h-[min(46rem,90vh)] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_32px_80px_rgba(46,47,45,0.18)] lg:flex-row"
       >
-        <aside className="bg-surface-container-low px-4 py-4 lg:w-64 lg:px-6 lg:py-8">
-          {/* Mobile: compact inline progress */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-              Step {String(step).padStart(2, "0")} of 02
-            </p>
-            <span className="text-xs font-bold text-primary">{stepLabels[step - 1]}</span>
-          </div>
-          {/* Desktop: full sidebar */}
-          <div className="hidden lg:block">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-              Step {String(step).padStart(2, "0")} of 02
-            </p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-primary">Add New Game</h1>
-            <ol className="mt-8 space-y-4">
-              {stepLabels.map((label, index) => {
-                const stepNumber = index + 1;
-                const active = stepNumber === step;
-                const complete = stepNumber < step;
-                return (
-                  <li key={label} className="flex items-center gap-3">
-                    <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                        active || complete
-                          ? "bg-primary text-on-primary"
-                          : "bg-surface-container-high text-on-surface-variant"
-                      }`}
-                    >
-                      {stepNumber}
-                    </span>
-                    <span className={`text-sm ${active ? "font-bold text-on-surface" : "text-on-surface-variant"}`}>
-                      {label}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
+        <aside className="bg-surface-container-low px-6 py-8 lg:w-64">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+            Step {String(step).padStart(2, "0")} of 03
+          </p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-primary">Add New Game</h1>
+
+          <ol className="mt-8 space-y-4">
+            {stepLabels.map((label, index) => {
+              const stepNumber = index + 1;
+              const active = stepNumber === step;
+              const complete = stepNumber < step;
+
+              return (
+                <li key={label} className="flex items-center gap-3">
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                      active || complete
+                        ? "bg-primary text-on-primary"
+                        : "bg-surface-container-high text-on-surface-variant"
+                    }`}
+                  >
+                    {stepNumber}
+                  </span>
+                  <span
+                    className={`text-sm ${
+                      active ? "font-bold text-on-surface" : "text-on-surface-variant"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
         </aside>
 
-        <section className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-6 md:min-h-[38rem] md:px-6 md:pt-8 sm:px-8">
-          <div className="mb-4 flex justify-end md:mb-6">
+        <section className="flex min-h-[38rem] flex-1 flex-col overflow-y-auto px-6 pt-8 sm:px-8">
+          <div className="mb-6 flex justify-end">
             <button
               type="button"
               aria-label="Close add game wizard"
               onClick={handleClose}
               className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface"
             >
-              <span className="material-symbols-outlined text-xl md:text-2xl">close</span>
+              <span className="material-symbols-outlined">close</span>
             </button>
           </div>
 
@@ -207,7 +234,14 @@ export function AddGameWizardOverlay({
             />
           ) : null}
 
-          {step === 2 ? (
+          {step === 2 && selectedGame ? (
+            <AddGameDetailsStep 
+              game={selectedGame} 
+              onChange={(updates) => setSelectedGame((prev) => (prev ? { ...prev, ...updates } : null))}
+            />
+          ) : null}
+
+          {step === 3 ? (
             <AddGameCollectionInfoStep
               value={collectionInfo}
               onChange={setCollectionInfo}
@@ -215,21 +249,21 @@ export function AddGameWizardOverlay({
             />
           ) : null}
 
-          <div className={`mt-6 flex items-center justify-between gap-3 border-t border-outline/10 pt-4 pb-6 md:mt-8 md:pt-6 md:pb-8 ${step === 1 && selectedGame ? 'sticky bottom-0 -mx-4 bg-surface-container-lowest px-4 md:-mx-6 md:px-6 sm:-mx-8 sm:px-8' : ''}`}>
+          <div className={`mt-8 flex items-center justify-between gap-3 border-t border-outline/10 pt-6 pb-8 ${step === 1 && selectedGame ? 'sticky bottom-0 -mx-6 bg-surface-container-lowest px-6 sm:-mx-8 sm:px-8' : ''}`}>
             <button
               type="button"
               onClick={() => (step === 1 ? handleClose() : setStep((current) => current - 1))}
-              className="rounded-full px-3 py-2 text-xs font-semibold text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface md:px-4 md:text-sm"
+              className="rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface"
             >
               {step === 1 ? "Cancel" : "Back"}
             </button>
 
-            {step < 2 ? (
+            {step < 3 ? (
               <button
                 type="button"
                 onClick={() => setStep((current) => current + 1)}
                 disabled={nextDisabled}
-                className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-5 py-2.5 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-sm"
+                className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-6 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>
@@ -238,7 +272,7 @@ export function AddGameWizardOverlay({
                 type="button"
                 onClick={handleSubmit}
                 disabled={nextDisabled}
-                className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-5 py-2.5 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-sm"
+                className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-6 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? "Adding..." : "Add game"}
               </button>

@@ -1,41 +1,35 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { authKeys } from "./authKeys";
-import { useSession } from "./useSession";
 import type { ProfileState, Profile } from "./auth.types";
 import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
+import { useAccount } from "../accounts/useAccount";
 
 export function useProfile(): ProfileState {
-  const { user, isAuthenticated, isLoading: sessionLoading } = useSession();
-  const queryClient = useQueryClient();
+  const { account, isAuthenticated, isLoading: accountLoading, error: accountError } =
+    useAccount();
 
   const {
     data: profile,
     isLoading: profileLoading,
     error,
   } = useQuery({
-    queryKey: authKeys.profile(user?.id),
+    queryKey: authKeys.profile(account?.id),
     retry: shouldRetrySupabaseQuery,
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!account?.id) return null;
 
       const supabase = getSupabaseBrowserClient();
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+        .eq("id", account.id)
+        .single();
 
       if (error) throw error;
-      if (!data) {
-        await supabase.auth.signOut();
-        queryClient.setQueryData(authKeys.session(), { session: null });
-        return null;
-      }
-
       return data as Profile;
     },
-    enabled: !!user?.id,
+    enabled: !!account?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
@@ -43,7 +37,7 @@ export function useProfile(): ProfileState {
     profile: profile ?? null,
     isOwner: profile?.role === "owner",
     isAuthenticated,
-    isLoading: sessionLoading || profileLoading,
-    error: error as Error | null,
+    isLoading: accountLoading || profileLoading,
+    error: (accountError ?? error) as Error | null,
   };
 }

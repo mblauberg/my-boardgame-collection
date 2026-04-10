@@ -7,6 +7,16 @@ vi.mock("../features/library/useCollectionQuery", () => ({
   useCollectionQuery: vi.fn(),
 }));
 
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: () => ({
+    isAuthenticated: true,
+    isOwner: false,
+    isLoading: false,
+    profile: null,
+    error: null,
+  }),
+}));
+
 vi.mock("../features/library/useLibraryFilters", () => ({
   useLibraryFilters: () => ({
     filters: {},
@@ -82,6 +92,6 @@ describe("CollectionPage", () => {
       screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("glass-surface-panel");
-    expect(container.querySelector(".library-search-section")).toHaveClass("mb-4");
+    expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
   });
 });

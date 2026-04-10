@@ -1,5 +1,7 @@
 import type { LibrarySentiment } from "../../features/library/library.types";
 
+export type AddGameWizardDefaultListType = "collection" | "wishlist";
+
 export type AddGameWizardSelectedGame = {
   id: number;
   name: string;
@@ -17,6 +19,8 @@ export type AddGameWizardSelectedGame = {
   bggBayesAverage?: number | null;
   bggUsersRated?: number | null;
   isExpansion?: boolean | null;
+  customImageUrl?: string | null;
+  customImageFile?: File | null;
 };
 
 export type AddGameWizardCollectionInfo = {

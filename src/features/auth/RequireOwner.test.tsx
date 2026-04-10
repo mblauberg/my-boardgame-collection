@@ -14,6 +14,7 @@ const mockSupabase = {
       data: { subscription: { unsubscribe: vi.fn() } },
     })),
   },
+  rpc: vi.fn(),
   from: vi.fn(),
 };
 
@@ -99,10 +100,23 @@ function renderWithRouter(
     error: null,
   });
 
+  mockSupabase.rpc.mockResolvedValue({
+    data: fixture
+      ? [
+          {
+            account_id: fixture.profile.id,
+            primary_email: fixture.profile.email,
+            primary_auth_user_id: fixture.session.user.id,
+          },
+        ]
+      : [],
+    error: null,
+  });
+
   mockSupabase.from.mockReturnValue({
     select: vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
-        maybeSingle: vi.fn().mockResolvedValue({
+        single: vi.fn().mockResolvedValue({
           data: fixture?.profile ?? null,
           error: fixture ? null : { message: "Not found" },
         }),

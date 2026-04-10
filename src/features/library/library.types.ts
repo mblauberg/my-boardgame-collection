@@ -2,7 +2,7 @@ import type { Game, Tag } from "../../types/domain";
 import type { Database } from "../../types/database";
 
 export type LibrarySurface = "collection" | "saved";
-export type LibraryListType = LibrarySurface;
+export type LibraryListType = LibrarySurface | "wishlist";
 export type LibrarySentiment = "like" | "dislike" | "neutral" | null;
 
 export type LibraryEntryRow = Database["public"]["Tables"]["library_entries"]["Row"];
@@ -11,7 +11,8 @@ export type UserGameTagRow = Database["public"]["Tables"]["user_game_tags"]["Row
 
 export type LibraryEntry = {
   id: string;
-  userId: string;
+  accountId?: string;
+  userId?: string;
   gameId: string;
   isSaved: boolean;
   isLoved: boolean;

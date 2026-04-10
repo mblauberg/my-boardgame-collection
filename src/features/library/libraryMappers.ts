@@ -26,6 +26,13 @@ function mapUserTag(row: UserTagRow) {
   };
 }
 
+function mapSentiment(value: string | null): LibraryEntry["sentiment"] {
+  if (value === "like" || value === "dislike" || value === "neutral") {
+    return value;
+  }
+  return null;
+}
+
 export function mapLibraryEntryRecord(
   record: LibraryEntryJoin,
   sharedTagRows: TagRow[],
@@ -41,18 +48,19 @@ export function mapLibraryEntryRecord(
     .map(mapUserTag);
 
   const isSaved = record.is_saved;
-  const isLoved = record.is_loved ?? record.sentiment === "like";
+  const isLoved = record.is_loved;
   const isInCollection = record.is_in_collection;
 
   return {
     id: record.id,
-    userId: record.user_id,
+    accountId: record.account_id,
+    userId: record.account_id,
     gameId: record.game_id,
     isSaved,
     isLoved,
     isInCollection,
     listType: isInCollection ? "collection" : isSaved ? "saved" : undefined,
-    sentiment: record.sentiment,
+    sentiment: mapSentiment(record.sentiment),
     notes: record.notes,
     priority: record.priority,
     game: mapGameRecord({ ...record.games, tags: sharedTagRows }),

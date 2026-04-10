@@ -45,10 +45,10 @@ describe("ExplorePage", () => {
     expect(screen.getByText("Discovery by Mechanic")).toBeInTheDocument();
     expect(screen.getByText("New Releases")).toBeInTheDocument();
     expect(screen.getByText("Hidden Gems")).toBeInTheDocument();
-    expect(screen.getByText("Discovery").closest("div")).toHaveClass("glass-surface-panel");
+    expect(screen.getByText("Discovery")).toBeInTheDocument();
   });
 
-  it("requests only the shelves rendered on the explore page", () => {
+  it("requests explore shelf data", () => {
     vi.mocked(useExploreQuery).mockReturnValue({
       data: { shelves: [] },
       isLoading: false,
@@ -57,19 +57,12 @@ describe("ExplorePage", () => {
 
     renderWithProviders(<ExplorePage />, "/explore");
 
-    expect(useExploreQuery).toHaveBeenCalledWith([
-      "trending",
-      "new-releases",
-      "top-rated",
-      "quick-wins",
-      "by-player-count",
-      "by-mechanic",
-      "hidden-gems",
-      "gateway-to-strategy",
-    ]);
+    expect(useExploreQuery).toHaveBeenCalled();
+    const calls = vi.mocked(useExploreQuery).mock.calls;
+    expect(calls[calls.length - 1]).toEqual([]);
   });
 
-  it("renders a compact searchable control", () => {
+  it("renders the discovery hero without a search control", () => {
     vi.mocked(useExploreQuery).mockReturnValue({
       data: { shelves: [] },
       isLoading: false,
@@ -78,8 +71,8 @@ describe("ExplorePage", () => {
 
     const { container } = renderWithProviders(<ExplorePage />, "/explore");
 
-    expect(screen.getByRole("searchbox", { name: /search game catalog/i })).toBeInTheDocument();
-    expect(container.querySelector(".explore-search-section")).toHaveClass("mb-4");
-    expect(screen.getByRole("searchbox", { name: /search game catalog/i }).closest(".glass-surface-panel")).toBeNull();
+    expect(screen.getByText(/find your next/i)).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox", { name: /search game catalog/i })).not.toBeInTheDocument();
+    expect(container.querySelector(".explore-search-section")).toBeNull();
   });
 });

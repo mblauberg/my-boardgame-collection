@@ -43,7 +43,7 @@ function getSnapshotRanks(game: Game) {
 
 export function GameDetailPanel({ game }: GameDetailPanelProps) {
   const snapshotRanks = getSnapshotRanks(game);
-  const { profile } = useProfile();
+  const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
   const upsertLibraryState = useUpsertLibraryState();
   const deleteLibraryEntry = useDeleteLibraryEntry();
@@ -53,18 +53,17 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
   function handleStateChange(
     nextState: Pick<typeof currentState, "isSaved" | "isLoved" | "isInCollection">,
   ) {
+    if (!profile?.id) return;
+
     if (!hasAnyLibraryState(nextState) && existingEntry) {
-      deleteLibraryEntry.mutate({
-        ...(profile?.id ? { userId: profile.id, id: existingEntry.id } : {}),
-        gameId: game.id,
-      });
+      deleteLibraryEntry.mutate({ id: existingEntry.id, accountId: profile.id });
       return;
     }
 
     if (!hasAnyLibraryState(nextState)) return;
 
     upsertLibraryState.mutate({
-      ...(profile?.id ? { userId: profile.id } : { game }),
+      accountId: profile.id,
       gameId: game.id,
       isSaved: nextState.isSaved,
       isLoved: nextState.isLoved,
@@ -77,44 +76,49 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
   return (
     <div className="space-y-6">
       {game.imageUrl && (
-        <div className="relative -mx-4 -mt-16 md:-mx-6 md:-mt-20 sm:-mx-8 sm:-mt-24">
-          <img src={game.imageUrl} alt={game.name} className="w-full h-80 object-cover" />
+        <div className="relative -mx-6 -mt-6">
+          <img src={game.imageUrl} alt={game.name} className="w-full h-64 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
         </div>
       )}
 
       <div className="space-y-6">
-        {game.publishedYear && (
-          <p className="text-on-surface-variant">Published: {game.publishedYear}</p>
-        )}
+        <div>
+          <h1 className="text-4xl font-bold text-on-surface">{game.name}</h1>
+          {game.publishedYear && (
+            <p className="text-on-surface-variant mt-1">Published: {game.publishedYear}</p>
+          )}
+        </div>
 
-        <LibraryStateActionGroup
-          isSaved={currentState.isSaved}
-          isLoved={currentState.isLoved}
-          isInCollection={currentState.isInCollection}
-          disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
-          onToggleSaved={() =>
-            handleStateChange({
-              isSaved: !currentState.isSaved,
-              isLoved: currentState.isLoved,
-              isInCollection: currentState.isSaved ? currentState.isInCollection : false,
-            })
-          }
-          onToggleLoved={() =>
-            handleStateChange({
-              isSaved: currentState.isSaved,
-              isLoved: !currentState.isLoved,
-              isInCollection: currentState.isInCollection,
-            })
-          }
-          onToggleCollection={() =>
-            handleStateChange({
-              isSaved: currentState.isInCollection ? currentState.isSaved : false,
-              isLoved: currentState.isLoved,
-              isInCollection: !currentState.isInCollection,
-            })
-          }
-        />
+        {isAuthenticated && profile?.id ? (
+          <LibraryStateActionGroup
+            isSaved={currentState.isSaved}
+            isLoved={currentState.isLoved}
+            isInCollection={currentState.isInCollection}
+            disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
+            onToggleSaved={() =>
+              handleStateChange({
+                isSaved: !currentState.isSaved,
+                isLoved: currentState.isLoved,
+                isInCollection: currentState.isInCollection,
+              })
+            }
+            onToggleLoved={() =>
+              handleStateChange({
+                isSaved: currentState.isSaved,
+                isLoved: !currentState.isLoved,
+                isInCollection: currentState.isInCollection,
+              })
+            }
+            onToggleCollection={() =>
+              handleStateChange({
+                isSaved: currentState.isSaved,
+                isLoved: currentState.isLoved,
+                isInCollection: !currentState.isInCollection,
+              })
+            }
+          />
+        ) : null}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {game.playersMin && game.playersMax && (
@@ -162,7 +166,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
                 ) : null}
               </div>
               {game.isExpansion ? (
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-900">
                   Expansion
                 </span>
               ) : null}
@@ -217,7 +221,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               <span
                 key={tag.id}
                 className="px-4 py-2 rounded-full text-sm font-medium"
-                style={{ backgroundColor: tag.colour || "rgb(var(--surface-container-highest))" }}
+                style={{ backgroundColor: tag.colour || "#e5e7eb" }}
               >
                 {tag.name}
               </span>

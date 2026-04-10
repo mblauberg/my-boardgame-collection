@@ -177,13 +177,13 @@ export function useContributeGameMetadata() {
 
         const { error: requestError } = await supabase.rpc("submit_game_metadata_request", {
           p_game_id: input.id,
-          p_image_url: trimmedImageUrl,
-          p_summary: trimmedSummary,
-          p_published_year: input.publishedYear ?? null,
-          p_players_min: input.playersMin ?? null,
-          p_players_max: input.playersMax ?? null,
-          p_play_time_min: input.playTimeMin ?? null,
-          p_play_time_max: input.playTimeMax ?? null,
+          p_image_url: trimmedImageUrl ?? undefined,
+          p_summary: trimmedSummary ?? undefined,
+          p_published_year: input.publishedYear ?? undefined,
+          p_players_min: input.playersMin ?? undefined,
+          p_players_max: input.playersMax ?? undefined,
+          p_play_time_min: input.playTimeMin ?? undefined,
+          p_play_time_max: input.playTimeMax ?? undefined,
         });
 
         if (requestError) throw requestError;
@@ -199,13 +199,13 @@ export function useContributeGameMetadata() {
 
       const { data, error } = await supabase.rpc("update_game_missing_metadata", {
         p_game_id: input.id,
-        p_image_url: trimmedImageUrl,
-        p_summary: trimmedSummary,
-        p_published_year: input.publishedYear ?? null,
-        p_players_min: input.playersMin ?? null,
-        p_players_max: input.playersMax ?? null,
-        p_play_time_min: input.playTimeMin ?? null,
-        p_play_time_max: input.playTimeMax ?? null,
+        p_image_url: trimmedImageUrl ?? undefined,
+        p_summary: trimmedSummary ?? undefined,
+        p_published_year: input.publishedYear ?? undefined,
+        p_players_min: input.playersMin ?? undefined,
+        p_players_max: input.playersMax ?? undefined,
+        p_play_time_min: input.playTimeMin ?? undefined,
+        p_play_time_max: input.playTimeMax ?? undefined,
       });
 
       if (!error) return data as GameRow;

@@ -55,6 +55,7 @@ function writeStoredGuestLibraryMap(entries: StoredGuestLibraryMap) {
 function toLibraryEntry(gameId: string, entry: StoredGuestLibraryEntry): LibraryEntry {
   return {
     id: `guest-${gameId}`,
+    accountId: GUEST_LIBRARY_USER_ID,
     userId: GUEST_LIBRARY_USER_ID,
     gameId,
     isSaved: entry.isSaved,

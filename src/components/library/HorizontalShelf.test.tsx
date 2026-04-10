@@ -73,7 +73,7 @@ const gameFixture: Game = {
 function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
   return {
     id: "entry-1",
-    userId: "user-1",
+    accountId: "user-1",
     gameId: gameFixture.id,
     isSaved: false,
     isLoved: false,
@@ -141,7 +141,7 @@ describe("HorizontalShelf", () => {
     await user.click(screen.getByRole("button", { name: /saved/i }));
 
     expect(upsertMutationState.mutate).toHaveBeenCalledWith({
-      userId: "user-1",
+      accountId: "user-1",
       gameId: gameFixture.id,
       isSaved: true,
       isLoved: true,

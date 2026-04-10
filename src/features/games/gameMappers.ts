@@ -1,6 +1,15 @@
 import type { Game, Tag } from "../../types/domain";
 import type { GameWithTags, TagRow } from "./games.types";
 
+const GAME_STATUSES: readonly Game["status"][] = ["owned", "buy", "new_rec", "cut", "archived"];
+
+function mapStatus(status: string): Game["status"] {
+  if ((GAME_STATUSES as readonly string[]).includes(status)) {
+    return status as Game["status"];
+  }
+  return "archived";
+}
+
 export function mapTag(row: TagRow): Tag {
   return {
     id: row.id,
@@ -18,7 +27,7 @@ export function mapGameRecord(record: GameWithTags): Game {
     slug: record.slug,
     bggId: record.bgg_id,
     bggUrl: record.bgg_url,
-    status: record.status,
+    status: mapStatus(record.status),
     buyPriority: record.buy_priority,
     bggRating: record.bgg_rating,
     bggWeight: record.bgg_weight,

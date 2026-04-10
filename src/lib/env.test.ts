@@ -38,17 +38,18 @@ describe("hasPublicEnv", () => {
 });
 
 describe("database typings", () => {
-  it("includes the multi-user library tables and public profile fields", () => {
+  it("includes account-oriented library and profile fields", () => {
     expectTypeOf<LibraryEntryRow>().toMatchTypeOf<{
       id: string;
-      user_id: string;
+      account_id: string;
       game_id: string;
       is_saved: boolean;
       is_in_collection: boolean;
-      sentiment: "like" | "dislike" | "neutral" | null;
+      sentiment: string | null;
     }>();
 
     expectTypeOf<ProfileRow>().toMatchTypeOf<{
+      id: string;
       username: string | null;
       is_profile_public: boolean;
       is_collection_public: boolean;

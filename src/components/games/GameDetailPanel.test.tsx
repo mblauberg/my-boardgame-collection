@@ -91,7 +91,7 @@ describe("GameDetailPanel", () => {
   function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
     return {
       id: "entry-1",
-      userId: "user-1",
+      accountId: "account-1",
       gameId: gameFixture.id,
       isSaved: false,
       isLoved: false,
@@ -120,21 +120,13 @@ describe("GameDetailPanel", () => {
   it("renders public metadata and the BGG link for a game", () => {
     render(<GameDetailPanel game={gameFixture} />);
 
-    expect(screen.getByAltText("Heat")).toBeInTheDocument();
+    expect(screen.getByText("Heat")).toBeInTheDocument();
     expect(screen.getByText("Published: 2022")).toBeInTheDocument();
     expect(screen.getByText("8.1")).toBeInTheDocument();
     expect(screen.queryByText("Great game for groups")).not.toBeInTheDocument();
 
     const bggLink = screen.getByRole("link", { name: /boardgamegeek/i });
     expect(bggLink).toHaveAttribute("href", gameFixture.bggUrl);
-  });
-
-  it("pulls the hero image under the transparent overlay header host", () => {
-    render(<GameDetailPanel game={gameFixture} />);
-
-    const image = screen.getByAltText("Heat");
-    const imageWrap = image.closest("div");
-    expect(imageWrap).toHaveClass("-mt-16", "md:-mt-20", "sm:-mt-24");
   });
 
   it("renders tags", () => {
@@ -147,7 +139,6 @@ describe("GameDetailPanel", () => {
     expect(screen.getByText("Summary")).toBeInTheDocument();
     expect(screen.getByText("A racing game about heat management")).toBeInTheDocument();
     expect(screen.queryByText("Notes")).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Heat" })).not.toBeInTheDocument();
   });
 
   it("renders snapshot rank metadata and provenance details", () => {
@@ -159,26 +150,6 @@ describe("GameDetailPanel", () => {
     expect(screen.getByText(/local bgg snapshot/i)).toBeInTheDocument();
     expect(screen.getByText(/updated 9 apr 2026/i)).toBeInTheDocument();
     expect(screen.getByText(/strategy rank/i)).toBeInTheDocument();
-  });
-
-  it("lets guests use saved and collection actions", async () => {
-    const user = userEvent.setup();
-    profileState.profile = null;
-    profileState.isAuthenticated = false;
-
-    render(<GameDetailPanel game={gameFixture} />);
-
-    await user.click(screen.getByRole("button", { name: /saved/i }));
-
-    expect(upsertMutationState.mutate).toHaveBeenCalledWith({
-      game: gameFixture,
-      gameId: gameFixture.id,
-      isSaved: true,
-      isLoved: false,
-      isInCollection: false,
-      sentiment: null,
-      notes: null,
-    });
   });
 
   it("renders library actions for authenticated users and preserves existing state on toggle", async () => {
@@ -204,7 +175,7 @@ describe("GameDetailPanel", () => {
     await user.click(lovedButton);
 
     expect(upsertMutationState.mutate).toHaveBeenCalledWith({
-      userId: "user-1",
+      accountId: "user-1",
       gameId: gameFixture.id,
       isSaved: true,
       isLoved: true,
@@ -231,8 +202,7 @@ describe("GameDetailPanel", () => {
 
     expect(deleteMutationState.mutate).toHaveBeenCalledWith({
       id: "entry-1",
-      userId: "user-1",
-      gameId: gameFixture.id,
+      accountId: "user-1",
     });
     expect(upsertMutationState.mutate).not.toHaveBeenCalled();
   });

@@ -5,14 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const mutateAsync = vi.fn();
 const useBggSearchQuery = vi.fn();
-const useSession = vi.fn();
+const useAccount = vi.fn();
 
 vi.mock("../../features/games/useBggSearchQuery", () => ({
   useBggSearchQuery: (query: string) => useBggSearchQuery(query),
 }));
 
-vi.mock("../../features/auth/useSession", () => ({
-  useSession: () => useSession(),
+vi.mock("../../features/accounts/useAccount", () => ({
+  useAccount: () => useAccount(),
 }));
 
 vi.mock("../../features/library/useLibraryEntryMutations", () => ({
@@ -66,6 +66,7 @@ function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizard
   return render(
     <AddGameWizardOverlay
       isOpen
+      defaultListType="collection"
       defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
       onClose={vi.fn()}
       {...props}
@@ -77,11 +78,11 @@ function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizard
 describe("AddGameWizardOverlay", () => {
   beforeEach(() => {
     mutateAsync.mockReset();
-    useSession.mockReturnValue({
-      session: { user: { id: "user-1" } },
-      user: { id: "user-1" },
+    useAccount.mockReturnValue({
+      account: { id: "account-1" },
       isAuthenticated: true,
       isLoading: false,
+      error: null,
     });
     useBggSearchQuery.mockImplementation((query: string) => ({
       data:
@@ -120,7 +121,7 @@ describe("AddGameWizardOverlay", () => {
     expect(nextButton).toBeEnabled();
   });
 
-  it("preserves search query and selection when moving back from collection info", async () => {
+  it("preserves search query and selection when moving back from details", async () => {
     const user = userEvent.setup();
 
     renderOverlay();
@@ -130,8 +131,7 @@ describe("AddGameWizardOverlay", () => {
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
 
-    expect(screen.getByRole("heading", { name: /library state/i })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: /game details/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /game details/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /back/i }));
 
@@ -146,32 +146,18 @@ describe("AddGameWizardOverlay", () => {
     const user = userEvent.setup();
 
     renderOverlay({
+      defaultListType: "wishlist",
       defaultState: { isSaved: true, isLoved: false, isInCollection: false },
     });
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
 
     expect(screen.getByRole("checkbox", { name: /saved/i })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: /loved/i })).not.toBeChecked();
     expect(screen.getByRole("checkbox", { name: /in collection/i })).not.toBeChecked();
-  });
-
-  it("keeps collection mode enabled when launched for adding directly to the collection", async () => {
-    const user = userEvent.setup();
-
-    renderOverlay({
-      defaultState: { isSaved: false, isLoved: false, isInCollection: true },
-    });
-
-    await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
-    await user.click(screen.getByRole("button", { name: /select everdell/i }));
-    await user.click(screen.getByRole("button", { name: /next/i }));
-
-    expect(screen.getByRole("checkbox", { name: /saved/i })).not.toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /loved/i })).not.toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /in collection/i })).toBeChecked();
   });
 
   it("submits saved, loved, collection state, sentiment, and notes", async () => {
@@ -187,6 +173,7 @@ describe("AddGameWizardOverlay", () => {
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("checkbox", { name: /saved/i }));
     await user.click(screen.getByRole("checkbox", { name: /loved/i }));
     await user.click(screen.getByRole("radio", { name: /^like$/i }));
@@ -196,7 +183,7 @@ describe("AddGameWizardOverlay", () => {
     await waitFor(() =>
       expect(mutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: "user-1",
+          accountId: "account-1",
           isSaved: true,
           isLoved: true,
           isInCollection: false,
@@ -221,6 +208,7 @@ describe("AddGameWizardOverlay", () => {
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /^add game$/i }));
 

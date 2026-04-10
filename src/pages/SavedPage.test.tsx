@@ -7,6 +7,16 @@ vi.mock("../features/library/useSavedQuery", () => ({
   useSavedQuery: vi.fn(),
 }));
 
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: () => ({
+    isAuthenticated: true,
+    isOwner: false,
+    isLoading: false,
+    profile: null,
+    error: null,
+  }),
+}));
+
 vi.mock("../features/library/useLibraryFilters", () => ({
   useLibraryFilters: () => ({
     filters: {},
@@ -56,7 +66,7 @@ describe("SavedPage", () => {
     expect(screen.getByRole("heading", { name: /saved/i })).toBeInTheDocument();
     expect(screen.getByText(/saved list/i)).toBeInTheDocument();
     expect(screen.getByText("On Your Radar").closest("div")).toHaveClass("glass-surface-panel");
-    expect(container.querySelector(".library-search-section")).toHaveClass("mb-4");
+    expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
   });
 
   it("opens the add-game wizard with saved as the default destination", async () => {

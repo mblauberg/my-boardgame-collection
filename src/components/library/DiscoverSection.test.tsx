@@ -9,6 +9,10 @@ vi.mock('../../hooks/useInView', () => ({
   useInView: () => ({ ref: { current: null }, isInView: true }),
 }));
 
+vi.mock('./HorizontalShelf', () => ({
+  HorizontalShelf: ({ title }: { title: string }) => <div>{title}</div>,
+}));
+
 function makeGame(overrides: Partial<Game> = {}): Game {
   return {
     id: '1',

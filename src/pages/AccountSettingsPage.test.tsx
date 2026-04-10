@@ -174,7 +174,7 @@ describe("AccountSettingsPage", () => {
 
     await waitFor(() =>
       expect(mutateAsync).toHaveBeenCalledWith({
-        id: "user-1",
+        accountId: "user-1",
         username: "collector-alice",
         is_profile_public: true,
         is_collection_public: true,

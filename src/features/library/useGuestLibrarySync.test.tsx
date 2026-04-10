@@ -5,7 +5,7 @@ import type { Game } from "../../types/domain";
 import { upsertGuestLibraryEntry, readGuestLibraryEntries } from "./guestLibraryStorage";
 
 const sessionState = vi.hoisted(() => ({
-  user: null as { id: string } | null,
+  account: null as { id: string } | null,
   isAuthenticated: false,
 }));
 
@@ -16,12 +16,12 @@ const mockSupabase = {
   })),
 };
 
-vi.mock("../auth/useSession", () => ({
-  useSession: () => ({
-    session: null,
-    user: sessionState.user,
+vi.mock("../accounts/useAccount", () => ({
+  useAccount: () => ({
+    account: sessionState.account,
     isAuthenticated: sessionState.isAuthenticated,
     isLoading: false,
+    error: null,
   }),
 }));
 
@@ -81,7 +81,7 @@ function makeWrapper() {
 
 describe("useGuestLibrarySync", () => {
   beforeEach(() => {
-    sessionState.user = null;
+    sessionState.account = null;
     sessionState.isAuthenticated = false;
     upsertSpy.mockReset();
     mockSupabase.from.mockClear();
@@ -103,7 +103,7 @@ describe("useGuestLibrarySync", () => {
       error: null,
     });
 
-    sessionState.user = { id: "user-1" };
+    sessionState.account = { id: "account-1" };
     sessionState.isAuthenticated = true;
 
     const { Wrapper } = makeWrapper();
@@ -112,14 +112,14 @@ describe("useGuestLibrarySync", () => {
     await waitFor(() =>
       expect(upsertSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          user_id: "user-1",
+          account_id: "account-1",
           game_id: gameFixture.id,
           is_saved: true,
           is_loved: false,
           is_in_collection: false,
           notes: "Guest note",
         }),
-        expect.objectContaining({ onConflict: "user_id,game_id" }),
+        expect.objectContaining({ onConflict: "account_id,game_id" }),
       ),
     );
 

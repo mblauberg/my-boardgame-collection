@@ -7,7 +7,7 @@ import type { Database } from "../../types/database";
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 
 export type UpdateProfileInput = {
-  id: string;
+  accountId: string;
   username?: string | null;
   is_profile_public?: boolean;
   is_collection_public?: boolean;
@@ -47,7 +47,7 @@ export function useUpdateProfileMutation() {
       const { data, error } = await supabase
         .from("profiles")
         .update(patch)
-        .eq("id", input.id)
+        .eq("id", input.accountId)
         .select("*")
         .single();
 

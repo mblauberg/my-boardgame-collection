@@ -1,19 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
-import { useProfile } from "../auth/useProfile";
+import { useAccount } from "../accounts/useAccount";
 import type { TagRow } from "../games/games.types";
-import { GUEST_LIBRARY_USER_ID, readGuestLibraryEntries } from "./guestLibraryStorage";
 import { libraryKeys } from "./libraryKeys";
 import { mapLibraryEntryRecord, type LibraryEntryJoin, type SharedGameTagJoin } from "./libraryMappers";
 
-export async function fetchLibraryEntries(userId: string) {
+export async function fetchLibraryEntries(accountId: string) {
   const supabase = getSupabaseBrowserClient();
 
   const { data, error } = await supabase
     .from("library_entries")
     .select("*, games(*), user_game_tags(library_entry_id, user_tag_id, created_at, user_tags(*))")
-    .eq("user_id", userId)
+    .eq("account_id", accountId)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -43,19 +42,13 @@ export async function fetchLibraryEntries(userId: string) {
 }
 
 export function useLibraryQuery() {
-  const { profile, isAuthenticated } = useProfile();
-  const userId = profile?.id;
-  const queryScope = isAuthenticated && userId ? userId : GUEST_LIBRARY_USER_ID;
+  const { account, isAuthenticated } = useAccount();
+  const accountId = account?.id;
 
   return useQuery({
-    queryKey: libraryKeys.library(queryScope),
+    queryKey: libraryKeys.library(accountId),
     retry: shouldRetrySupabaseQuery,
-    enabled: isAuthenticated ? !!userId : true,
-    queryFn: async () => {
-      if (!isAuthenticated || !userId) {
-        return readGuestLibraryEntries();
-      }
-      return fetchLibraryEntries(userId);
-    },
+    enabled: isAuthenticated && !!accountId,
+    queryFn: async () => fetchLibraryEntries(accountId!),
   });
 }
