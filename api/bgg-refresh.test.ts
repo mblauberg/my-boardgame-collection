@@ -14,6 +14,7 @@ function makeRequest(token?: string, body: Record<string, unknown> = { gameId: "
 
 function makeSupabase({
   user = { id: "user-1" },
+  accountContext = [{ account_id: "account-1" }],
   profile = { role: "owner" as const },
   game = { id: "game-1", bgg_id: 174430 },
 } = {}) {
@@ -50,6 +51,7 @@ function makeSupabase({
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user }, error: null }),
     },
+    rpc: vi.fn().mockResolvedValue({ data: accountContext, error: null }),
     from,
     update,
   };

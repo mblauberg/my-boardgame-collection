@@ -23,7 +23,7 @@ describe("getSupabaseQueryErrorMessage", () => {
         },
         "collection",
       ),
-    ).toMatch(/schema\.sql/);
+    ).toMatch(/supabase db reset/);
   });
 });
 

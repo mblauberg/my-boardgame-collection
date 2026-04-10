@@ -9,6 +9,7 @@ const requestSchema = z.object({
 });
 
 type ServerEnvLike = Record<string, string | undefined>;
+type CurrentAccountContextLike = { account_id: string };
 
 type SupabaseClientLike = {
   auth: {
@@ -27,6 +28,9 @@ type SupabaseClientLike = {
       eq: (column: string, value: string) => Promise<{ error: { message?: string } | null }>;
     };
   };
+  rpc: (
+    fn: "get_current_account_context",
+  ) => Promise<{ data: CurrentAccountContextLike[] | null; error: { message?: string } | null }>;
 };
 
 function json(data: unknown, init: ResponseInit = {}) {
@@ -109,10 +113,17 @@ export function createBggRefreshHandler({
       return json({ error: "Authentication required." }, { status: 401 });
     }
 
+    const { data: accountContext, error: accountContextError } =
+      await supabase.rpc("get_current_account_context");
+
+    if (accountContextError || !accountContext?.[0]?.account_id) {
+      return json({ error: "Unable to verify owner access." }, { status: 500 });
+    }
+
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", userData.user.id)
+      .eq("id", accountContext[0].account_id)
       .single();
 
     if (profileError) {

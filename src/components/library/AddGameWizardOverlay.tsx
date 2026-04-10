@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { useAccount } from "../../features/accounts/useAccount";
+import { useProfile } from "../../features/auth/useProfile";
 import { useBggSearchQuery } from "../../features/games/useBggSearchQuery";
+import {
+  createGuestImportedGameId,
+  hasAnyLibraryState,
+} from "../../features/library/libraryState";
+import { useLibraryQuery } from "../../features/library/useLibraryQuery";
 import { useSaveBggGameToLibrary } from "../../features/library/useLibraryEntryMutations";
+import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
+import { slugify } from "../../lib/utils/slugify";
+import type { Game } from "../../types/domain";
 import { AddGameCollectionInfoStep } from "./AddGameCollectionInfoStep";
 import { AddGameDetailsStep } from "./AddGameDetailsStep";
 import { AddGameSearchStep } from "./AddGameSearchStep";
@@ -21,6 +30,19 @@ type AddGameWizardOverlayProps = {
 };
 
 const stepLabels = ["Find your game", "Game details", "Collection info"] as const;
+
+function isHttpsUrl(value: string | null | undefined) {
+  return !!value && value.startsWith("https://");
+}
+
+async function readFileAsDataUrl(file: File) {
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(reader.error ?? new Error("Unable to read image file."));
+    reader.readAsDataURL(file);
+  });
+}
 
 function getInitialState(
   defaultListType: AddGameWizardDefaultListType | undefined,
@@ -72,6 +94,57 @@ function normalizeSearchResult(result: Record<string, unknown>): AddGameWizardSe
   };
 }
 
+function buildGuestImportedGame(
+  selectedGame: AddGameWizardSelectedGame,
+  imageUrl: string | null,
+): Game {
+  const timestamp = new Date().toISOString();
+
+  return {
+    id: createGuestImportedGameId(selectedGame.id),
+    name: selectedGame.name,
+    slug: `${slugify(selectedGame.name)}-guest-bgg-${selectedGame.id}`,
+    bggId: selectedGame.id,
+    bggUrl: selectedGame.bggUrl,
+    status: "archived",
+    buyPriority: null,
+    bggRating: selectedGame.averageRating,
+    bggWeight: selectedGame.averageWeight,
+    bggRank: selectedGame.bggRank ?? null,
+    bggBayesAverage: selectedGame.bggBayesAverage ?? null,
+    bggUsersRated: selectedGame.bggUsersRated ?? null,
+    isExpansion: selectedGame.isExpansion ?? null,
+    abstractsRank: null,
+    cgsRank: null,
+    childrensGamesRank: null,
+    familyGamesRank: null,
+    partyGamesRank: null,
+    strategyGamesRank: null,
+    thematicRank: null,
+    wargamesRank: null,
+    bggDataSource: "guest_bgg_search",
+    bggDataUpdatedAt: null,
+    bggSnapshotPayload: null,
+    playersMin: selectedGame.playersMin,
+    playersMax: selectedGame.playersMax,
+    playTimeMin: selectedGame.playTimeMin,
+    playTimeMax: selectedGame.playTimeMax,
+    category: null,
+    summary: selectedGame.summary,
+    notes: null,
+    recommendationVerdict: null,
+    recommendationColour: null,
+    gapReason: null,
+    isExpansionIncluded: false,
+    imageUrl,
+    publishedYear: selectedGame.yearPublished,
+    hidden: false,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    tags: [],
+  };
+}
+
 export function AddGameWizardOverlay({
   isOpen,
   defaultListType,
@@ -79,6 +152,9 @@ export function AddGameWizardOverlay({
   onClose,
 }: AddGameWizardOverlayProps) {
   const { account, isAuthenticated } = useAccount();
+  const { isOwner } = useProfile();
+  const { data: libraryEntries } = useLibraryQuery();
+  const libraryStateActions = useLibraryStateActions();
   const { mutateAsync, isPending } = useSaveBggGameToLibrary();
   const [step, setStep] = useState(1);
   const [query, setQuery] = useState("");
@@ -92,6 +168,15 @@ export function AddGameWizardOverlay({
   const results = Array.isArray(search.data?.results)
     ? search.data.results.map((result) => normalizeSearchResult(result as Record<string, unknown>))
     : [];
+  const canUploadImageFiles = !isAuthenticated || isOwner;
+  const imageUploadHelpText = !isAuthenticated
+    ? "Guest image uploads stay local on this device until you sign in and sync."
+    : isOwner
+      ? "Owner uploads are stored in the shared game image bucket."
+      : "Custom image file uploads are restricted to guest-local saves or owner accounts. Use a custom HTTPS image URL instead.";
+  const existingLibraryEntry = selectedGame
+    ? (libraryEntries ?? []).find((entry) => entry.game.bggId === selectedGame.id) ?? null
+    : null;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -119,41 +204,79 @@ export function AddGameWizardOverlay({
   }
 
   async function handleSubmit() {
-    if (!account?.id || !selectedGame || isPending) return;
+    if (!selectedGame || isPending || !hasAnyLibraryState(collectionInfo)) return;
 
     try {
       setSubmitError(null);
-      
-      let finalImageUrl = selectedGame.customImageUrl || selectedGame.imageUrl;
+
+      let finalImageUrl = selectedGame.customImageUrl?.trim() || selectedGame.imageUrl;
 
       if (selectedGame.customImageFile) {
-        const supabase = getSupabaseBrowserClient();
-        const fileExt = selectedGame.customImageFile.name.split('.').pop() || 'tmp';
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `${account.id}/${fileName}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from("game-images")
-          .upload(filePath, selectedGame.customImageFile);
+        if (!canUploadImageFiles) {
+          setSubmitError(imageUploadHelpText);
+          return;
+        }
 
-        if (uploadError) throw uploadError;
+        if (isAuthenticated && account?.id && isOwner) {
+          const supabase = getSupabaseBrowserClient();
+          const fileExt = selectedGame.customImageFile.name.split(".").pop() || "tmp";
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+          const filePath = `${account.id}/${fileName}`;
 
-        const { data: publicUrlData } = supabase.storage
-          .from("game-images")
-          .getPublicUrl(filePath);
-          
-        finalImageUrl = publicUrlData.publicUrl;
+          const { error: uploadError } = await supabase.storage
+            .from("game-images")
+            .upload(filePath, selectedGame.customImageFile);
+
+          if (uploadError) throw uploadError;
+
+          const { data: publicUrlData } = supabase.storage
+            .from("game-images")
+            .getPublicUrl(filePath);
+
+          finalImageUrl = publicUrlData.publicUrl;
+        } else {
+          finalImageUrl = await readFileAsDataUrl(selectedGame.customImageFile);
+        }
       }
 
-      await mutateAsync({
-        accountId: account.id,
-        selectedGame: { ...selectedGame, imageUrl: finalImageUrl },
-        isSaved: collectionInfo.isSaved,
-        isLoved: collectionInfo.isLoved,
-        isInCollection: collectionInfo.isInCollection,
-        sentiment: collectionInfo.sentiment,
-        notes: collectionInfo.notes,
-      });
+      if (existingLibraryEntry) {
+        libraryStateActions.applyStatePatch(existingLibraryEntry.game, existingLibraryEntry, {
+          isSaved: collectionInfo.isSaved,
+          isLoved: collectionInfo.isLoved,
+          isInCollection: collectionInfo.isInCollection,
+        });
+        handleClose();
+        return;
+      }
+
+      if (isAuthenticated && account?.id) {
+        if (finalImageUrl && !isHttpsUrl(finalImageUrl)) {
+          setSubmitError("Synced game images must use an HTTPS URL.");
+          return;
+        }
+
+        await mutateAsync({
+          accountId: account.id,
+          selectedGame: { ...selectedGame, imageUrl: finalImageUrl },
+          isSaved: collectionInfo.isSaved,
+          isLoved: collectionInfo.isLoved,
+          isInCollection: collectionInfo.isInCollection,
+          sentiment: collectionInfo.sentiment,
+          notes: collectionInfo.notes,
+        });
+        handleClose();
+        return;
+      }
+
+      libraryStateActions.applyStatePatch(
+        buildGuestImportedGame(selectedGame, finalImageUrl),
+        null,
+        {
+          isSaved: collectionInfo.isSaved,
+          isLoved: collectionInfo.isLoved,
+          isInCollection: collectionInfo.isInCollection,
+        },
+      );
       handleClose();
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Unable to save this game.");
@@ -163,7 +286,8 @@ export function AddGameWizardOverlay({
   if (!isOpen) return null;
 
   const nextDisabled =
-    (step === 1 && !selectedGame) || (step === 3 && (!account?.id || isPending));
+    (step === 1 && !selectedGame) ||
+    (step === 3 && (!hasAnyLibraryState(collectionInfo) || isPending));
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-on-surface/20 px-4 py-6 backdrop-blur-sm">
@@ -235,9 +359,13 @@ export function AddGameWizardOverlay({
           ) : null}
 
           {step === 2 && selectedGame ? (
-            <AddGameDetailsStep 
-              game={selectedGame} 
-              onChange={(updates) => setSelectedGame((prev) => (prev ? { ...prev, ...updates } : null))}
+            <AddGameDetailsStep
+              game={selectedGame}
+              canUploadImageFiles={canUploadImageFiles}
+              imageUploadHelpText={imageUploadHelpText}
+              onChange={(updates) =>
+                setSelectedGame((prev) => (prev ? { ...prev, ...updates } : null))
+              }
             />
           ) : null}
 
@@ -249,7 +377,13 @@ export function AddGameWizardOverlay({
             />
           ) : null}
 
-          <div className={`mt-8 flex items-center justify-between gap-3 border-t border-outline/10 pt-6 pb-8 ${step === 1 && selectedGame ? 'sticky bottom-0 -mx-6 bg-surface-container-lowest px-6 sm:-mx-8 sm:px-8' : ''}`}>
+          <div
+            className={`mt-8 flex items-center justify-between gap-3 border-t border-outline/10 pt-6 pb-8 ${
+              step === 1 && selectedGame
+                ? "sticky bottom-0 -mx-6 bg-surface-container-lowest px-6 sm:-mx-8 sm:px-8"
+                : ""
+            }`}
+          >
             <button
               type="button"
               onClick={() => (step === 1 ? handleClose() : setStep((current) => current - 1))}
@@ -274,7 +408,7 @@ export function AddGameWizardOverlay({
                 disabled={nextDisabled}
                 className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-6 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isPending ? "Adding..." : "Add game"}
+                {isPending ? "Adding..." : isAuthenticated ? "Add and sync" : "Add locally"}
               </button>
             )}
           </div>

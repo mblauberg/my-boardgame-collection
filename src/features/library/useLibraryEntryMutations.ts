@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
+import { slugify } from "../../lib/utils/slugify";
 import type { Database } from "../../types/database";
 import { libraryKeys } from "./libraryKeys";
 import type { LibrarySentiment } from "./library.types";
+import { normalizeLibraryStateSnapshot } from "./libraryState";
 
 type LibraryEntryRow = Database["public"]["Tables"]["library_entries"]["Row"];
 type LibraryEntryUpdate = Database["public"]["Tables"]["library_entries"]["Update"];
@@ -15,11 +17,6 @@ type UpsertLibraryStateInput = {
   isInCollection: boolean;
   sentiment?: LibrarySentiment;
   notes?: string | null;
-};
-
-type MoveLibraryEntryInput = {
-  id: string;
-  accountId: string;
 };
 
 type UpdateSentimentInput = {
@@ -58,16 +55,24 @@ type SaveBggGameInput = {
   notes?: string | null;
 };
 
-function slugify(input: string) {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+function resolveNormalizedLibraryState(
+  input: Pick<
+    UpsertLibraryStateInput,
+    "isSaved" | "isLoved" | "isInCollection" | "sentiment" | "notes"
+  >,
+) {
+  return normalizeLibraryStateSnapshot({
+    isSaved: input.isSaved,
+    isLoved: input.isLoved,
+    isInCollection: input.isInCollection,
+    sentiment: input.sentiment ?? null,
+    notes: input.notes ?? null,
+  });
 }
 
 async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<LibraryEntryRow> {
   const supabase = getSupabaseBrowserClient();
+  const nextState = resolveNormalizedLibraryState(input);
 
   const { data, error } = await supabase
     .from("library_entries")
@@ -75,11 +80,11 @@ async function upsertLibraryState(input: UpsertLibraryStateInput): Promise<Libra
       {
         account_id: input.accountId,
         game_id: input.gameId,
-        is_saved: input.isSaved,
-        is_loved: input.isLoved,
-        is_in_collection: input.isInCollection,
-        sentiment: input.sentiment ?? null,
-        notes: input.notes ?? null,
+        is_saved: nextState.isSaved,
+        is_loved: nextState.isLoved,
+        is_in_collection: nextState.isInCollection,
+        sentiment: nextState.sentiment,
+        notes: nextState.notes,
       },
       { onConflict: "account_id,game_id" },
     )
@@ -152,30 +157,6 @@ export function useAddToWishlist() {
   });
 }
 
-export function useMoveWishlistToCollection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id }: MoveLibraryEntryInput) => {
-      const supabase = getSupabaseBrowserClient();
-      const patch: LibraryEntryUpdate = { is_in_collection: true };
-
-      const { data, error } = await supabase
-        .from("library_entries")
-        .update(patch)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as LibraryEntryRow;
-    },
-    onSuccess: (_entry, variables) => {
-      invalidateLibraryQueries(queryClient, variables.accountId);
-    },
-  });
-}
-
 export function useUpdateLibraryEntrySentiment() {
   const queryClient = useQueryClient();
 
@@ -229,6 +210,13 @@ export function useSaveBggGameToLibrary() {
       notes,
     }: SaveBggGameInput) => {
       const supabase = getSupabaseBrowserClient();
+      const nextState = resolveNormalizedLibraryState({
+        isSaved,
+        isLoved,
+        isInCollection,
+        sentiment,
+        notes,
+      });
       const { data, error } = await supabase.rpc("save_bgg_game_for_account", {
         p_account_id: accountId,
         p_bgg_id: selectedGame.id,
@@ -244,11 +232,11 @@ export function useSaveBggGameToLibrary() {
         p_bgg_rating: selectedGame.averageRating ?? undefined,
         p_bgg_weight: selectedGame.averageWeight ?? undefined,
         p_summary: selectedGame.summary ?? undefined,
-        p_is_saved: isSaved,
-        p_is_loved: isLoved,
-        p_is_in_collection: isInCollection,
-        p_sentiment: sentiment ?? undefined,
-        p_notes: notes ?? undefined,
+        p_is_saved: nextState.isSaved,
+        p_is_loved: nextState.isLoved,
+        p_is_in_collection: nextState.isInCollection,
+        p_sentiment: nextState.sentiment ?? undefined,
+        p_notes: nextState.notes ?? undefined,
       });
 
       if (error) throw error;

@@ -139,4 +139,22 @@ describe("SavedPage", () => {
       screen.getByText(/"isSaved":true,"isLoved":false,"isInCollection":false/i),
     ).toBeInTheDocument();
   });
+
+  it("lets guests open the add-game wizard without being redirected to sign in", async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(useSavedQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as never);
+
+    renderWithProviders(<SavedPage />);
+
+    await user.click(screen.getByRole("button", { name: /open add game wizard/i }));
+
+    expect(
+      screen.getByText(/"isSaved":true,"isLoved":false,"isInCollection":false/i),
+    ).toBeInTheDocument();
+  });
 });

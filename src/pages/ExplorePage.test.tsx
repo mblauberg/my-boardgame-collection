@@ -10,6 +10,10 @@ vi.mock("../features/library/useExploreSearch", () => ({
   useExploreSearch: vi.fn(() => ({ data: [], isLoading: false, error: null })),
 }));
 
+vi.mock("../features/library/useLibraryQuery", () => ({
+  useLibraryQuery: () => ({ data: [], isLoading: false, error: null }),
+}));
+
 vi.mock("../components/library/ExploreShelf", () => ({
   ExploreShelf: ({ title }: { title: string }) => <section>{title}</section>,
 }));
@@ -24,15 +28,21 @@ vi.mock("../components/library/DiscoverSection", () => ({
 
 import { useExploreQuery } from "../features/library/useExploreQuery";
 
+const game = {
+  id: "game-1",
+  name: "Heat",
+  slug: "heat",
+};
+
 describe("ExplorePage", () => {
-  it("renders the Explore shelves", () => {
+  it("renders hero shelves, discover sections, and the search control", () => {
     vi.mocked(useExploreQuery).mockReturnValue({
       data: {
         shelves: [
-          { id: "trending", title: "Trending Now", entries: [], sections: [] },
-          { id: "new-releases", title: "New Releases", entries: [], sections: [] },
-          { id: "by-mechanic", title: "Discovery by Mechanic", entries: [], sections: [] },
-          { id: "hidden-gems", title: "Hidden Gems", entries: [], sections: [] },
+          { id: "trending", title: "Trending Now", entries: [game], sections: [] },
+          { id: "new-releases", title: "New Releases", entries: [game], sections: [] },
+          { id: "by-mechanic", title: "Discovery by Mechanic", entries: [game], sections: [] },
+          { id: "hidden-gems", title: "Hidden Gems", entries: [game], sections: [] },
         ],
       },
       isLoading: false,
@@ -42,13 +52,13 @@ describe("ExplorePage", () => {
     renderWithProviders(<ExplorePage />, "/explore");
 
     expect(screen.getByText("Trending Now")).toBeInTheDocument();
-    expect(screen.getByText("Discovery by Mechanic")).toBeInTheDocument();
     expect(screen.getByText("New Releases")).toBeInTheDocument();
+    expect(screen.getByText("Discovery by Mechanic")).toBeInTheDocument();
     expect(screen.getByText("Hidden Gems")).toBeInTheDocument();
-    expect(screen.getByText("Discovery")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open search/i })).toBeInTheDocument();
   });
 
-  it("requests explore shelf data", () => {
+  it("requests the configured explore shelf ids", () => {
     vi.mocked(useExploreQuery).mockReturnValue({
       data: { shelves: [] },
       isLoading: false,
@@ -57,12 +67,19 @@ describe("ExplorePage", () => {
 
     renderWithProviders(<ExplorePage />, "/explore");
 
-    expect(useExploreQuery).toHaveBeenCalled();
-    const calls = vi.mocked(useExploreQuery).mock.calls;
-    expect(calls[calls.length - 1]).toEqual([]);
+    expect(useExploreQuery).toHaveBeenCalledWith([
+      "trending",
+      "new-releases",
+      "top-rated",
+      "quick-wins",
+      "by-player-count",
+      "by-mechanic",
+      "hidden-gems",
+      "gateway-to-strategy",
+    ]);
   });
 
-  it("renders the discovery hero without a search control", () => {
+  it("renders the discovery hero with the expandable search section", () => {
     vi.mocked(useExploreQuery).mockReturnValue({
       data: { shelves: [] },
       isLoading: false,
@@ -72,7 +89,7 @@ describe("ExplorePage", () => {
     const { container } = renderWithProviders(<ExplorePage />, "/explore");
 
     expect(screen.getByText(/find your next/i)).toBeInTheDocument();
-    expect(screen.queryByRole("searchbox", { name: /search game catalog/i })).not.toBeInTheDocument();
-    expect(container.querySelector(".explore-search-section")).toBeNull();
+    expect(screen.getByRole("button", { name: /open search/i })).toBeInTheDocument();
+    expect(container.querySelector(".explore-search-section")).not.toBeNull();
   });
 });

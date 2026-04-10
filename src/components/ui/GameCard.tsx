@@ -13,20 +13,47 @@ export interface GameCardProps {
   topRightSlot?: React.ReactNode;
 }
 
-const MOCK_IMAGES = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBM3c82fCVsizmmSICSohN_Bj3I4T5uSQU9obgMs3cEo_UxZ1c5eh4ol9iaC2mWr89AvRm7tjoHyu4mfBGUAewjylHX9AOVOCVsaqbKpu69fpy9M1zBmErRmkhpn53-c4Ssx3jSLUzROYMaSJjkZ-nxMTXYH9S3Q-z3-n_oaB8-sKh1jtvdHcnxjx-HzVL-KrQTxJf8WyYF_D82hOa1mpythxhhoz6Q26RruN-aLLa5pw_YAmQvQn0gnvdomGJWNvKR8hmKj84TUVc",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBza3nRkkOuI-UjmUIq9dI8X4xSeY-8WyqUolLuetZw8tRXqRdLghiw7M5ChAcxDYZRtpIKs33DxTQI25D1bQL3tLA-_w_-xwCTE_s9IbmXNWiGzsYk_nvXZuy34SX23ah2b0vDE1vPt3TY_YGr2MF8E5EHk8lDmqb-kALt-9v5RC3LrvX8wexEreli3zT_58DPZhmYVirsDesri68JSEoZ1D-2zzV4IqtMcp3WSFNOFp3Y4xVIKgIUlcDWumUuL-aNORIkuGMQJV4",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBguiXq6FABe6DPf9lfiEPbCCTVBrIUg58ODeYu2KhPpnAGKOjjaOs5OdvQk9tlZF7I8lbGoPtnb-6tdk5dm2-O-sfmgMnUMZN3NBkhja_aW21qoXBdxntq3LfMuSzVI0s0tTx69sAcikesOS4j_Ap-pHP9VETfmFqiTQNGIgmJpAqa0ySiAs9UTwLGitG0cdCwVMbs_ET_j89w0Du_L30a2Myop_K134ZQTVsIBMkrXUhILhx_goZM3Mh4FrVeuMP0xGtCA9M5Ao4",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBOu7gWVczr4EeMNrqtYpKe5CML7RFRzhtIEkf7XgOg7vxme3oUyn6LqrouxGmWQkJW7_EvN4GM1kFxCqLOAZnmo5sxOvOJLhNYn1P-qUw_mUPXvlEKmKdJ2wwNlbYpjGxANchh6j104-IgykehhEfKbRXWGJWLiSmBayPfldU69-YAyo5ln7Ha7Mp433J0rIGPvkhUYvxr8_g7sLN0lb9GY7eTk-FEW2eC3mhgxigSLp53lNIVypbZrOt2Mkk0EMl5bx0MiAZBi3Q",
-];
-
 function getFallbackImage(title: string) {
   let hash = 0;
   for (let i = 0; i < title.length; i++) {
     hash = title.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const index = Math.abs(hash) % MOCK_IMAGES.length;
-  return MOCK_IMAGES[index];
+
+  const palette = [
+    { base: "#f3e7d5", accent: "#b75d2b", shadow: "#2f3e46" },
+    { base: "#e4efe7", accent: "#4f7f52", shadow: "#23312a" },
+    { base: "#efe4d6", accent: "#915f39", shadow: "#392a1f" },
+    { base: "#e5edf5", accent: "#476f9b", shadow: "#22354c" },
+  ][Math.abs(hash) % 4];
+  const initials = title
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("");
+  const rotation = Math.abs(hash % 24) - 12;
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${palette.base}" />
+          <stop offset="100%" stop-color="#ffffff" />
+        </linearGradient>
+      </defs>
+      <rect width="800" height="1000" fill="url(#bg)" />
+      <circle cx="120" cy="140" r="170" fill="${palette.accent}" fill-opacity="0.18" />
+      <circle cx="710" cy="820" r="210" fill="${palette.shadow}" fill-opacity="0.16" />
+      <rect x="110" y="180" width="580" height="640" rx="56" fill="#ffffff" fill-opacity="0.72" transform="rotate(${rotation} 400 500)" />
+      <text x="400" y="550" font-family="Georgia, serif" font-size="180" font-weight="700" text-anchor="middle" fill="${palette.shadow}">
+        ${initials || "BG"}
+      </text>
+      <text x="400" y="875" font-family="system-ui, sans-serif" font-size="42" font-weight="700" letter-spacing="8" text-anchor="middle" fill="${palette.shadow}" fill-opacity="0.7">
+        BOARD GAME
+      </text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
 export function GameCard({

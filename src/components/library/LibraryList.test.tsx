@@ -1,8 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { LibraryList } from "./LibraryList";
 import type { LibraryEntry } from "../../features/library/library.types";
+import { renderWithProviders } from "../../test/testUtils";
+
+const libraryStateActions = vi.hoisted(() => ({
+  toggleLoved: vi.fn(),
+  moveToCollection: vi.fn(),
+  isPending: false,
+}));
+
+vi.mock("../../features/library/useLibraryStateActions", () => ({
+  useLibraryStateActions: () => libraryStateActions,
+}));
 
 function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
   return {
@@ -56,46 +67,51 @@ function LocationStateProbe() {
 }
 
 describe("LibraryList", () => {
-  it("renders saved items without move-to-collection controls", () => {
-    render(
-      <MemoryRouter>
-        <LibraryList entries={[createEntry({ isSaved: true })]} />
-      </MemoryRouter>,
-    );
+  beforeEach(() => {
+    libraryStateActions.toggleLoved.mockReset();
+    libraryStateActions.moveToCollection.mockReset();
+    libraryStateActions.isPending = false;
+  });
+
+  it("renders saved items with a saved badge outside of a page-specific card context", () => {
+    renderWithProviders(<LibraryList entries={[createEntry({ isSaved: true })]} />);
 
     expect(screen.getByRole("link", { name: /heat/i })).toBeInTheDocument();
     expect(screen.getByText("Saved")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /move to collection/i })).not.toBeInTheDocument();
   });
 
-  it("renders collection entries with an in-collection badge", () => {
-    render(
-      <MemoryRouter>
-        <LibraryList entries={[createEntry({ isSaved: true, isInCollection: true })]} />
-      </MemoryRouter>,
+  it("delegates the saved-page move action through the shared library state hook", async () => {
+    const user = userEvent.setup();
+    const entry = createEntry({ isSaved: true });
+
+    renderWithProviders(
+      <LibraryList entries={[entry]} cardContext="saved" getGameLinkState={() => ({ from: "/saved" })} />,
+      "/saved",
     );
 
-    expect(screen.getByText("In Collection")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /move to collection/i }));
+
+    expect(libraryStateActions.moveToCollection).toHaveBeenCalledWith(entry.game, entry);
   });
 
   it("passes route state through game links when provided", async () => {
     const user = userEvent.setup();
 
-    render(
-      <MemoryRouter initialEntries={["/saved"]}>
-        <Routes>
-          <Route
-            path="/saved"
-            element={
-              <LibraryList
-                entries={[createEntry({ isInCollection: true })]}
-                getGameLinkState={() => ({ surface: "saved" })}
-              />
-            }
-          />
-          <Route path="/game/:slug" element={<LocationStateProbe />} />
-        </Routes>
-      </MemoryRouter>,
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/saved"
+          element={
+            <LibraryList
+              entries={[createEntry({ isInCollection: true })]}
+              getGameLinkState={() => ({ surface: "saved" })}
+            />
+          }
+        />
+        <Route path="/game/:slug" element={<LocationStateProbe />} />
+      </Routes>,
+      "/saved",
     );
 
     await user.click(screen.getByRole("link", { name: /heat/i }));
@@ -103,5 +119,29 @@ describe("LibraryList", () => {
     expect(screen.getByText(/"from":"\/saved"/i)).toBeInTheDocument();
     expect(screen.getByText(/"surface":"saved"/i)).toBeInTheDocument();
     expect(screen.getByText(/"backgroundLocation"/i)).toBeInTheDocument();
+  });
+
+  it("renders local-only guest imports without a game-detail link", () => {
+    renderWithProviders(
+      <LibraryList
+        entries={[
+          createEntry({
+            id: "guest-entry",
+            accountId: "__guest__",
+            gameId: "guest-bgg:999",
+            game: {
+              ...createEntry().game,
+              id: "guest-bgg:999",
+              name: "Everdell",
+              slug: "everdell-guest-bgg-999",
+              bggId: 999,
+            },
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: /everdell/i })).not.toBeInTheDocument();
+    expect(screen.getByText("Everdell")).toBeInTheDocument();
   });
 });

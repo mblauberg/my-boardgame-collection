@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
@@ -25,7 +25,6 @@ export function CollectionPage() {
   const { isAuthenticated } = useProfile();
   const { data: securitySummary, isLoading: isSecuritySummaryLoading } = useAccountSecuritySummary();
   const location = useLocation();
-  const navigate = useNavigate();
   const { data: entries, isLoading, error } = useCollectionQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
@@ -121,20 +120,12 @@ export function CollectionPage() {
       </div>
 
       <LibraryList entries={sortedEntries} totalCount={entries?.length ?? 0} cardContext="collection" getGameLinkState={() => ({ from: "/" })} />
-      <FloatingActionButton
-        onClick={
-          isAuthenticated
-            ? () => setIsAddGameOpen(true)
-            : () => navigate("/signin", { state: getSignInRouteState(location) })
-        }
+      <FloatingActionButton onClick={() => setIsAddGameOpen(true)} />
+      <AddGameWizardOverlay
+        isOpen={isAddGameOpen}
+        defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
+        onClose={() => setIsAddGameOpen(false)}
       />
-      {isAuthenticated && (
-        <AddGameWizardOverlay
-          isOpen={isAddGameOpen}
-          defaultState={{ isSaved: false, isLoved: false, isInCollection: true }}
-          onClose={() => setIsAddGameOpen(false)}
-        />
-      )}
     </>
   );
 }

@@ -34,13 +34,13 @@ export function SignInOverlayFrame({
             </span>
             <div className="space-y-2">
               <h1 className="text-3xl font-black tracking-tight text-on-surface sm:text-4xl">
-                Sign in beautifully,
+                Sign in,
                 <br />
                 then get back to your shelf.
               </h1>
               <p className="max-w-md text-sm leading-6 text-on-surface-variant sm:text-[0.95rem]">
-                Use email, OAuth, or an autofilled passkey. Account management moves to Settings once
-                identity and linking work is wired up.
+                Use email, OAuth, or a passkey to sign in quickly. You can manage sign-in methods in
+                Settings anytime.
               </p>
             </div>
           </div>

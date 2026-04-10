@@ -1,11 +1,13 @@
 import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { LibraryEntry } from "../../features/library/library.types";
 
 const mutateAsync = vi.fn();
 const useBggSearchQuery = vi.fn();
 const useAccount = vi.fn();
+const useProfile = vi.fn();
+const useLibraryQuery = vi.fn();
+const applyStatePatch = vi.fn();
 
 vi.mock("../../features/games/useBggSearchQuery", () => ({
   useBggSearchQuery: (query: string) => useBggSearchQuery(query),
@@ -13,6 +15,21 @@ vi.mock("../../features/games/useBggSearchQuery", () => ({
 
 vi.mock("../../features/accounts/useAccount", () => ({
   useAccount: () => useAccount(),
+}));
+
+vi.mock("../../features/auth/useProfile", () => ({
+  useProfile: () => useProfile(),
+}));
+
+vi.mock("../../features/library/useLibraryQuery", () => ({
+  useLibraryQuery: () => useLibraryQuery(),
+}));
+
+vi.mock("../../features/library/useLibraryStateActions", () => ({
+  useLibraryStateActions: () => ({
+    applyStatePatch,
+    isPending: false,
+  }),
 }));
 
 vi.mock("../../features/library/useLibraryEntryMutations", () => ({
@@ -51,18 +68,53 @@ const snapshotSource = {
   updatedAt: "2026-04-09T00:00:00.000Z",
 } as const;
 
-function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizardOverlay>>) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
+function createLibraryEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
+  return {
+    id: "entry-1",
+    accountId: "account-1",
+    gameId: "game-1",
+    isSaved: false,
+    isLoved: false,
+    isInCollection: false,
+    listType: "saved",
+    sentiment: null,
+    notes: null,
+    priority: null,
+    game: {
+      id: "game-1",
+      name: "Everdell",
+      slug: "everdell",
+      bggId: 999,
+      bggUrl: "https://boardgamegeek.com/boardgame/999/everdell",
+      status: "archived",
+      buyPriority: null,
+      bggRating: 8.1,
+      bggWeight: 2.8,
+      playersMin: 1,
+      playersMax: 4,
+      playTimeMin: 40,
+      playTimeMax: 80,
+      category: null,
+      summary: "Build a woodland city.",
+      notes: null,
+      recommendationVerdict: null,
+      recommendationColour: null,
+      gapReason: null,
+      isExpansionIncluded: false,
+      imageUrl: "https://example.com/everdell.jpg",
+      publishedYear: 2018,
+      hidden: false,
+      createdAt: "",
+      updatedAt: "",
+      tags: [],
     },
-  });
+    sharedTags: [],
+    userTags: [],
+    ...overrides,
+  };
+}
 
-  function Wrapper({ children }: { children: ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  }
-
+function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizardOverlay>>) {
   return render(
     <AddGameWizardOverlay
       isOpen
@@ -71,16 +123,28 @@ function renderOverlay(props?: Partial<React.ComponentProps<typeof AddGameWizard
       onClose={vi.fn()}
       {...props}
     />,
-    { wrapper: Wrapper },
   );
 }
 
 describe("AddGameWizardOverlay", () => {
   beforeEach(() => {
     mutateAsync.mockReset();
+    applyStatePatch.mockReset();
     useAccount.mockReturnValue({
-      account: { id: "account-1" },
-      isAuthenticated: true,
+      account: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    });
+    useProfile.mockReturnValue({
+      profile: null,
+      isOwner: false,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    });
+    useLibraryQuery.mockReturnValue({
+      data: [],
       isLoading: false,
       error: null,
     });
@@ -107,42 +171,37 @@ describe("AddGameWizardOverlay", () => {
     expect(screen.getByRole("heading", { name: /find your game/i })).toBeInTheDocument();
   });
 
-  it("disables next until a search result is selected", async () => {
+  it("lets guests add a game locally", async () => {
     const user = userEvent.setup();
 
     renderOverlay();
-
-    const nextButton = screen.getByRole("button", { name: /next/i });
-    expect(nextButton).toBeDisabled();
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
-
-    expect(nextButton).toBeEnabled();
-  });
-
-  it("preserves search query and selection when moving back from details", async () => {
-    const user = userEvent.setup();
-
-    renderOverlay();
-
-    const searchInput = screen.getByRole("searchbox", { name: /search boardgamegeek/i });
-    await user.type(searchInput, "Ever");
-    await user.click(screen.getByRole("button", { name: /select everdell/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
 
-    expect(screen.getByRole("heading", { name: /game details/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add locally/i })).toBeEnabled();
 
-    await user.click(screen.getByRole("button", { name: /back/i }));
+    await user.click(screen.getByRole("button", { name: /add locally/i }));
 
-    expect(screen.getByRole("searchbox", { name: /search boardgamegeek/i })).toHaveValue("Ever");
-    expect(screen.getByRole("button", { name: /select everdell/i })).toHaveAttribute(
-      "aria-pressed",
-      "true",
+    expect(applyStatePatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "guest-bgg:999",
+        bggId: 999,
+        slug: "everdell-guest-bgg-999",
+      }),
+      null,
+      expect.objectContaining({
+        isSaved: false,
+        isLoved: false,
+        isInCollection: true,
+      }),
     );
+    expect(mutateAsync).not.toHaveBeenCalled();
   });
 
-  it("defaults the final library state from the launching page", async () => {
+  it("keeps saved and in-collection mutually exclusive in the final step", async () => {
     const user = userEvent.setup();
 
     renderOverlay({
@@ -154,31 +213,41 @@ describe("AddGameWizardOverlay", () => {
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("checkbox", { name: /in collection/i }));
 
-    expect(screen.getByRole("checkbox", { name: /saved/i })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /loved/i })).not.toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /in collection/i })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /saved/i })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /in collection/i })).toBeChecked();
   });
 
-  it("submits saved, loved, collection state, sentiment, and notes", async () => {
+  it("submits synced additions for authenticated accounts", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     mutateAsync.mockResolvedValue({ id: "entry-1" });
+    useAccount.mockReturnValue({
+      account: { id: "account-1" },
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+    useProfile.mockReturnValue({
+      profile: { id: "account-1" },
+      isOwner: false,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
 
     renderOverlay({
       onClose,
-      defaultState: { isSaved: false, isLoved: false, isInCollection: false },
+      defaultState: { isSaved: true, isLoved: false, isInCollection: false },
     });
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
-    await user.click(screen.getByRole("checkbox", { name: /saved/i }));
     await user.click(screen.getByRole("checkbox", { name: /loved/i }));
-    await user.click(screen.getByRole("radio", { name: /^like$/i }));
-    await user.type(screen.getByRole("textbox", { name: /notes/i }), "Need this for game night.");
-    await user.click(screen.getByRole("button", { name: /^add game$/i }));
+    await user.click(screen.getByRole("button", { name: /add and sync/i }));
 
     await waitFor(() =>
       expect(mutateAsync).toHaveBeenCalledWith(
@@ -187,8 +256,6 @@ describe("AddGameWizardOverlay", () => {
           isSaved: true,
           isLoved: true,
           isInCollection: false,
-          sentiment: "like",
-          notes: "Need this for game night.",
           selectedGame: expect.objectContaining({
             id: 999,
             name: "Everdell",
@@ -200,9 +267,27 @@ describe("AddGameWizardOverlay", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("stays open and shows an error when save fails", async () => {
+  it("reuses existing library entries instead of syncing a duplicate add", async () => {
     const user = userEvent.setup();
-    mutateAsync.mockRejectedValue(new Error("Save failed."));
+    const existingEntry = createLibraryEntry({ isSaved: true });
+    useAccount.mockReturnValue({
+      account: { id: "account-1" },
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+    useProfile.mockReturnValue({
+      profile: { id: "account-1" },
+      isOwner: false,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+    useLibraryQuery.mockReturnValue({
+      data: [existingEntry],
+      isLoading: false,
+      error: null,
+    });
 
     renderOverlay();
 
@@ -210,26 +295,23 @@ describe("AddGameWizardOverlay", () => {
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
-    await user.click(screen.getByRole("button", { name: /^add game$/i }));
+    await user.click(screen.getByRole("checkbox", { name: /loved/i }));
+    await user.click(screen.getByRole("button", { name: /add and sync/i }));
 
-    expect(await screen.findByText(/save failed/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /library state/i })).toBeInTheDocument();
-  });
-
-  it("calls onClose when the close button is pressed", async () => {
-    const user = userEvent.setup();
-    const onClose = vi.fn();
-
-    renderOverlay({ onClose });
-
-    await user.click(screen.getByRole("button", { name: /close add game wizard/i }));
-
-    expect(onClose).toHaveBeenCalled();
+    expect(applyStatePatch).toHaveBeenCalledWith(
+      existingEntry.game,
+      existingEntry,
+      expect.objectContaining({
+        isSaved: false,
+        isLoved: true,
+        isInCollection: true,
+      }),
+    );
+    expect(mutateAsync).not.toHaveBeenCalled();
   });
 
   it("shows local snapshot metadata when fallback results are being used", async () => {
     const user = userEvent.setup();
-
     useBggSearchQuery.mockImplementation((query: string) => ({
       data:
         query.trim().length >= 2
@@ -249,7 +331,7 @@ describe("AddGameWizardOverlay", () => {
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
 
-    expect(screen.getByText(/using local bgg snapshot/i)).toBeInTheDocument();
+    expect(await screen.findByText(/using local bgg snapshot/i)).toBeInTheDocument();
     expect(screen.getByText(/updated 9 apr 2026/i)).toBeInTheDocument();
   });
 });

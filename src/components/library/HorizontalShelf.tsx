@@ -1,21 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { GameCard } from "../ui/GameCard";
 import type { Game } from "../../types/domain";
-import { useProfile } from "../../features/auth/useProfile";
-import { useDeleteLibraryEntry, useUpsertLibraryState } from "../../features/library/useLibraryEntryMutations";
 import {
   getLibraryEntryForGame,
-  getLibraryStateSnapshot,
-  hasAnyLibraryState,
 } from "../../features/library/libraryState";
 import { useLibraryQuery } from "../../features/library/useLibraryQuery";
-import {
-  GUEST_LIBRARY_USER_ID,
-  removeGuestLibraryEntry,
-  upsertGuestLibraryEntry,
-} from "../../features/library/guestLibraryStorage";
-import { libraryKeys } from "../../features/library/libraryKeys";
+import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 
 type HorizontalShelfProps = {
@@ -26,62 +16,8 @@ type HorizontalShelfProps = {
 
 export function HorizontalShelf({ title, description, entries }: HorizontalShelfProps) {
   const location = useLocation();
-  const queryClient = useQueryClient();
-  const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
-  const upsertLibraryState = useUpsertLibraryState();
-  const deleteLibraryEntry = useDeleteLibraryEntry();
-
-  function invalidateGuestLibraryEntries() {
-    void queryClient.invalidateQueries({
-      queryKey: libraryKeys.library(GUEST_LIBRARY_USER_ID),
-    });
-  }
-
-  function handleToggleSaved(game: Game) {
-    const existingEntry = getLibraryEntryForGame(libraryEntries, game.id);
-    const currentState = getLibraryStateSnapshot(existingEntry);
-    const nextState = {
-      ...currentState,
-      isSaved: !currentState.isSaved,
-    };
-
-    if (isAuthenticated && profile?.id) {
-      if (!hasAnyLibraryState(nextState) && existingEntry) {
-        deleteLibraryEntry.mutate({ id: existingEntry.id, accountId: profile.id });
-        return;
-      }
-
-      if (!hasAnyLibraryState(nextState)) return;
-
-      upsertLibraryState.mutate({
-        accountId: profile.id,
-        gameId: game.id,
-        isSaved: nextState.isSaved,
-        isLoved: nextState.isLoved,
-        isInCollection: nextState.isInCollection,
-        sentiment: nextState.sentiment,
-        notes: nextState.notes,
-      });
-      return;
-    }
-
-    if (!hasAnyLibraryState(nextState)) {
-      removeGuestLibraryEntry(game.id);
-      invalidateGuestLibraryEntries();
-      return;
-    }
-
-    upsertGuestLibraryEntry({
-      game,
-      isSaved: nextState.isSaved,
-      isLoved: nextState.isLoved,
-      isInCollection: nextState.isInCollection,
-      sentiment: nextState.sentiment,
-      notes: nextState.notes,
-    });
-    invalidateGuestLibraryEntries();
-  }
+  const libraryStateActions = useLibraryStateActions();
 
   if (entries.length === 0) return null;
 
@@ -119,8 +55,8 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
                       label="Saved"
                       icon="bookmark"
                       isActive={entry?.isSaved ?? false}
-                      disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
-                      onClick={() => handleToggleSaved(game)}
+                      disabled={libraryStateActions.isPending}
+                      onClick={() => libraryStateActions.toggleSaved(game, entry)}
                     />
                   )}
                 </div>

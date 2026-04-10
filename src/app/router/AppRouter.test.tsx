@@ -48,6 +48,10 @@ vi.mock("../../features/library/useCollectionQuery", () => ({
   useCollectionQuery: () => ({ data: [], isLoading: false }),
 }));
 
+vi.mock("../../pages/CollectionPage", () => ({
+  CollectionPage: () => <h1>Your Collection</h1>,
+}));
+
 vi.mock("../../pages/SignInPage", () => ({
   SignInPage: () => (
     <div role="dialog" aria-modal="true" aria-label="Sign in">
@@ -117,14 +121,14 @@ describe("AppRouter", () => {
       },
     ]);
 
-    expect(screen.getByRole("heading", { name: /your collection/i })).toBeInTheDocument();
-    expect(screen.getByRole("dialog", { name: /heat/i })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /your collection/i })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: /heat/i })).toBeInTheDocument();
   });
 
   it("renders the game route without background content on direct entry", async () => {
     renderAppRouter(["/game/heat"]);
 
-    expect(screen.getByRole("dialog", { name: /heat/i })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: /heat/i })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /your collection/i })).not.toBeInTheDocument();
   });
 
@@ -145,7 +149,7 @@ describe("AppRouter", () => {
       },
     ]);
 
-    expect(screen.getByRole("heading", { name: /your collection/i })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /your collection/i })).toBeInTheDocument();
     expect(screen.getByRole("dialog", { name: /sign in/i })).toBeInTheDocument();
   });
 });

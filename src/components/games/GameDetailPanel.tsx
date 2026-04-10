@@ -1,22 +1,9 @@
 import type { Game } from "../../types/domain";
-import { useQueryClient } from "@tanstack/react-query";
-import { useProfile } from "../../features/auth/useProfile";
-import {
-  GUEST_LIBRARY_USER_ID,
-  removeGuestLibraryEntry,
-  upsertGuestLibraryEntry,
-} from "../../features/library/guestLibraryStorage";
-import { libraryKeys } from "../../features/library/libraryKeys";
 import {
   getLibraryEntryForGame,
-  getLibraryStateSnapshot,
-  hasAnyLibraryState,
 } from "../../features/library/libraryState";
 import { useLibraryQuery } from "../../features/library/useLibraryQuery";
-import {
-  useDeleteLibraryEntry,
-  useUpsertLibraryState,
-} from "../../features/library/useLibraryEntryMutations";
+import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
 import { LibraryStateActionGroup } from "../library/LibraryStateActionGroup";
 
 type GameDetailPanelProps = {
@@ -50,59 +37,20 @@ function getSnapshotRanks(game: Game) {
 
 export function GameDetailPanel({ game }: GameDetailPanelProps) {
   const snapshotRanks = getSnapshotRanks(game);
-  const queryClient = useQueryClient();
-  const { profile, isAuthenticated } = useProfile();
   const { data: libraryEntries } = useLibraryQuery();
-  const upsertLibraryState = useUpsertLibraryState();
-  const deleteLibraryEntry = useDeleteLibraryEntry();
+  const libraryStateActions = useLibraryStateActions();
   const existingEntry = getLibraryEntryForGame(libraryEntries, game.id);
-  const currentState = getLibraryStateSnapshot(existingEntry);
-
-  function invalidateGuestLibraryEntries() {
-    void queryClient.invalidateQueries({
-      queryKey: libraryKeys.library(GUEST_LIBRARY_USER_ID),
-    });
-  }
-
-  function handleStateChange(
-    nextState: Pick<typeof currentState, "isSaved" | "isLoved" | "isInCollection">,
-  ) {
-    if (isAuthenticated && profile?.id) {
-      if (!hasAnyLibraryState(nextState) && existingEntry) {
-        deleteLibraryEntry.mutate({ id: existingEntry.id, accountId: profile.id });
-        return;
+  const currentState = existingEntry
+    ? {
+        isSaved: existingEntry.isSaved,
+        isLoved: existingEntry.isLoved,
+        isInCollection: existingEntry.isInCollection,
       }
-
-      if (!hasAnyLibraryState(nextState)) return;
-
-      upsertLibraryState.mutate({
-        accountId: profile.id,
-        gameId: game.id,
-        isSaved: nextState.isSaved,
-        isLoved: nextState.isLoved,
-        isInCollection: nextState.isInCollection,
-        sentiment: currentState.sentiment,
-        notes: currentState.notes,
-      });
-      return;
-    }
-
-    if (!hasAnyLibraryState(nextState)) {
-      removeGuestLibraryEntry(game.id);
-      invalidateGuestLibraryEntries();
-      return;
-    }
-
-    upsertGuestLibraryEntry({
-      game,
-      isSaved: nextState.isSaved,
-      isLoved: nextState.isLoved,
-      isInCollection: nextState.isInCollection,
-      sentiment: currentState.sentiment,
-      notes: currentState.notes,
-    });
-    invalidateGuestLibraryEntries();
-  }
+    : {
+        isSaved: false,
+        isLoved: false,
+        isInCollection: false,
+      };
 
   return (
     <div className="space-y-6">
@@ -122,28 +70,10 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
           isSaved={currentState.isSaved}
           isLoved={currentState.isLoved}
           isInCollection={currentState.isInCollection}
-          disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
-          onToggleSaved={() =>
-            handleStateChange({
-              isSaved: !currentState.isSaved,
-              isLoved: currentState.isLoved,
-              isInCollection: currentState.isInCollection,
-            })
-          }
-          onToggleLoved={() =>
-            handleStateChange({
-              isSaved: currentState.isSaved,
-              isLoved: !currentState.isLoved,
-              isInCollection: currentState.isInCollection,
-            })
-          }
-          onToggleCollection={() =>
-            handleStateChange({
-              isSaved: currentState.isSaved,
-              isLoved: currentState.isLoved,
-              isInCollection: !currentState.isInCollection,
-            })
-          }
+          disabled={libraryStateActions.isPending}
+          onToggleSaved={() => libraryStateActions.toggleSaved(game, existingEntry)}
+          onToggleLoved={() => libraryStateActions.toggleLoved(game, existingEntry)}
+          onToggleCollection={() => libraryStateActions.toggleCollection(game, existingEntry)}
         />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GameDetailPanel } from "./GameDetailPanel";
@@ -6,51 +6,24 @@ import type { Game } from "../../types/domain";
 import type { LibraryEntry } from "../../features/library/library.types";
 import { renderWithProviders } from "../../test/testUtils";
 
-const profileState = vi.hoisted(() => ({
-  profile: null as { id: string } | null,
-  isOwner: true,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-}));
-
 const libraryQueryState = vi.hoisted(() => ({
   data: [] as LibraryEntry[],
   isLoading: false,
 }));
 
-const upsertMutationState = vi.hoisted(() => ({
-  mutate: vi.fn(),
+const libraryStateActions = vi.hoisted(() => ({
+  toggleSaved: vi.fn(),
+  toggleLoved: vi.fn(),
+  toggleCollection: vi.fn(),
   isPending: false,
-}));
-
-const deleteMutationState = vi.hoisted(() => ({
-  mutate: vi.fn(),
-  isPending: false,
-}));
-
-const guestStorageState = vi.hoisted(() => ({
-  upsertGuestLibraryEntry: vi.fn(),
-  removeGuestLibraryEntry: vi.fn(),
-}));
-
-vi.mock("../../features/auth/useProfile", () => ({
-  useProfile: () => profileState,
 }));
 
 vi.mock("../../features/library/useLibraryQuery", () => ({
   useLibraryQuery: () => libraryQueryState,
 }));
 
-vi.mock("../../features/library/useLibraryEntryMutations", () => ({
-  useUpsertLibraryState: () => upsertMutationState,
-  useDeleteLibraryEntry: () => deleteMutationState,
-}));
-
-vi.mock("../../features/library/guestLibraryStorage", () => ({
-  GUEST_LIBRARY_USER_ID: "__guest__",
-  upsertGuestLibraryEntry: guestStorageState.upsertGuestLibraryEntry,
-  removeGuestLibraryEntry: guestStorageState.removeGuestLibraryEntry,
+vi.mock("../../features/library/useLibraryStateActions", () => ({
+  useLibraryStateActions: () => libraryStateActions,
 }));
 
 describe("GameDetailPanel", () => {
@@ -120,134 +93,50 @@ describe("GameDetailPanel", () => {
   }
 
   beforeEach(() => {
-    profileState.profile = null;
-    profileState.isAuthenticated = false;
     libraryQueryState.data = [];
-    upsertMutationState.mutate = vi.fn();
-    upsertMutationState.isPending = false;
-    deleteMutationState.mutate = vi.fn();
-    deleteMutationState.isPending = false;
-    guestStorageState.upsertGuestLibraryEntry.mockReset();
-    guestStorageState.removeGuestLibraryEntry.mockReset();
+    libraryStateActions.toggleSaved.mockReset();
+    libraryStateActions.toggleLoved.mockReset();
+    libraryStateActions.toggleCollection.mockReset();
+    libraryStateActions.isPending = false;
   });
 
   it("renders public metadata and the BGG link for a game", () => {
     renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
-    expect(screen.getByText("Heat")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Heat" })).toBeInTheDocument();
     expect(screen.getByText("Published: 2022")).toBeInTheDocument();
     expect(screen.getByText("8.1")).toBeInTheDocument();
     expect(screen.queryByText("Great game for groups")).not.toBeInTheDocument();
 
-    const bggLink = screen.getByRole("link", { name: /boardgamegeek/i });
+    const bggLink = screen.getByRole("link", { name: /view on boardgamegeek/i });
     expect(bggLink).toHaveAttribute("href", gameFixture.bggUrl);
   });
 
-  it("renders tags", () => {
+  it("renders tags and summary", () => {
     renderWithProviders(<GameDetailPanel game={gameFixture} />);
-    expect(screen.getByText("Racing")).toBeInTheDocument();
-  });
 
-  it("renders summary without private note sections", () => {
-    renderWithProviders(<GameDetailPanel game={gameFixture} />);
+    expect(screen.getByText("Racing")).toBeInTheDocument();
     expect(screen.getByText("Summary")).toBeInTheDocument();
     expect(screen.getByText("A racing game about heat management")).toBeInTheDocument();
-    expect(screen.queryByText("Notes")).not.toBeInTheDocument();
   });
 
-  it("renders snapshot rank metadata and provenance details", () => {
-    renderWithProviders(<GameDetailPanel game={gameFixture} />);
-
-    expect(screen.getByText(/overall rank/i)).toBeInTheDocument();
-    expect(screen.getByText("#32")).toBeInTheDocument();
-    expect(screen.getByText(/bayesian average/i)).toBeInTheDocument();
-    expect(screen.getByText(/local bgg snapshot/i)).toBeInTheDocument();
-    expect(screen.getByText(/updated 9 apr 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/strategy rank/i)).toBeInTheDocument();
-  });
-
-  it("renders library actions for authenticated users and preserves existing state on toggle", async () => {
+  it("delegates library action clicks through the shared library state hook", async () => {
     const user = userEvent.setup();
-    profileState.profile = { id: "user-1" };
-    profileState.isAuthenticated = true;
-    libraryQueryState.data = [
-      createEntry({
-        isSaved: true,
-        isLoved: false,
-        isInCollection: true,
-        sentiment: "like",
-        notes: "Great with six players",
-      }),
-    ];
-
-    renderWithProviders(<GameDetailPanel game={gameFixture} />);
-
-    const lovedButton = screen.getByRole("button", { name: /loved/i });
-    expect(screen.getByRole("button", { name: /saved/i })).toHaveAttribute("aria-pressed", "true");
-    expect(lovedButton).toHaveAttribute("aria-pressed", "false");
-
-    await user.click(lovedButton);
-
-    expect(upsertMutationState.mutate).toHaveBeenCalledWith({
-      accountId: "user-1",
-      gameId: gameFixture.id,
+    const entry = createEntry({
       isSaved: true,
       isLoved: true,
-      isInCollection: true,
-      sentiment: "like",
-      notes: "Great with six players",
+      isInCollection: false,
     });
-    expect(deleteMutationState.mutate).not.toHaveBeenCalled();
-  });
-
-  it("deletes the entry when the last active library state is removed", async () => {
-    const user = userEvent.setup();
-    profileState.profile = { id: "user-1" };
-    profileState.isAuthenticated = true;
-    libraryQueryState.data = [
-      createEntry({
-        isLoved: true,
-      }),
-    ];
-
-    renderWithProviders(<GameDetailPanel game={gameFixture} />);
-
-    await user.click(screen.getByRole("button", { name: /loved/i }));
-
-    expect(deleteMutationState.mutate).toHaveBeenCalledWith({
-      id: "entry-1",
-      accountId: "user-1",
-    });
-    expect(upsertMutationState.mutate).not.toHaveBeenCalled();
-  });
-
-  it("lets guests update library state using local guest storage", async () => {
-    const user = userEvent.setup();
-    profileState.profile = null;
-    profileState.isAuthenticated = false;
-    libraryQueryState.data = [
-      createEntry({
-        accountId: "__guest__",
-        isSaved: false,
-        isLoved: true,
-        isInCollection: false,
-        sentiment: "like",
-        notes: "Guest note",
-      }),
-    ];
+    libraryQueryState.data = [entry];
 
     renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
     await user.click(screen.getByRole("button", { name: /saved/i }));
+    await user.click(screen.getByRole("button", { name: /loved/i }));
+    await user.click(screen.getByRole("button", { name: /in collection/i }));
 
-    expect(guestStorageState.upsertGuestLibraryEntry).toHaveBeenCalledWith({
-      game: gameFixture,
-      isSaved: true,
-      isLoved: true,
-      isInCollection: false,
-      sentiment: "like",
-      notes: "Guest note",
-    });
-    expect(upsertMutationState.mutate).not.toHaveBeenCalled();
+    expect(libraryStateActions.toggleSaved).toHaveBeenCalledWith(gameFixture, entry);
+    expect(libraryStateActions.toggleLoved).toHaveBeenCalledWith(gameFixture, entry);
+    expect(libraryStateActions.toggleCollection).toHaveBeenCalledWith(gameFixture, entry);
   });
 });

@@ -40,16 +40,16 @@ describe("AppRoutes", () => {
     );
   });
 
-  it("renders the auth callback page instead of the not-found screen", () => {
+  it("renders the auth callback page instead of the not-found screen", async () => {
     renderWithRouter("/auth/callback");
 
-    expect(screen.getByText(/completing sign in/i)).toBeInTheDocument();
+    expect(await screen.findByText(/completing sign in/i)).toBeInTheDocument();
     expect(screen.queryByText(/missing route/i)).not.toBeInTheDocument();
   });
 
-  it("renders the sign-in methods detail route", () => {
+  it("renders the sign-in methods detail route", async () => {
     renderWithRouter("/settings/sign-in-methods");
 
-    expect(screen.getByText(/sign-in methods mobile page/i)).toBeInTheDocument();
+    expect(await screen.findByText(/sign-in methods mobile page/i)).toBeInTheDocument();
   });
 });

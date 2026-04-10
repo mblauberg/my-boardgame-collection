@@ -1,3 +1,4 @@
+import { applyLibraryStatePatch } from "../../features/library/libraryState";
 import type { AddGameWizardCollectionInfo } from "./addGameWizard.types";
 
 type AddGameCollectionInfoStepProps = {
@@ -28,7 +29,8 @@ export function AddGameCollectionInfoStep({
       <div className="mb-8">
         <h2 className="text-3xl font-extrabold tracking-tight text-on-surface">Library state</h2>
         <p className="mt-2 max-w-xl text-sm leading-6 text-on-surface-variant">
-          Choose which states apply to this game and add any personal context you want to keep with it.
+          Choose which states apply to this game and add any personal context you want to keep with
+          it. Saved titles and collection titles stay mutually exclusive.
         </p>
       </div>
 
@@ -53,7 +55,14 @@ export function AddGameCollectionInfoStep({
                     name={option.key}
                     aria-label={option.label}
                     checked={checked}
-                    onChange={() => onChange({ ...value, [option.key]: !checked })}
+                    onChange={() =>
+                      onChange({
+                        ...applyLibraryStatePatch(value, {
+                          [option.key]: !checked,
+                        }),
+                        notes: value.notes,
+                      })
+                    }
                     className="sr-only"
                   />
                   <span className="text-base font-bold">{option.label}</span>

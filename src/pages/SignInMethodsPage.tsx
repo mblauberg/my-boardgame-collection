@@ -21,7 +21,7 @@ export function SignInMethodsPage() {
       <PageHeader
         eyebrow="Account security"
         title={<>Your <span className="text-primary">Sign-in Methods</span></>}
-        description="A full-screen mobile view of passkeys, linked providers, and owned emails."
+        description="Review and update your passkeys, linked providers, and email addresses."
         actions={
           <Link
             to="/settings"

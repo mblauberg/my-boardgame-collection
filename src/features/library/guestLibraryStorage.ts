@@ -1,5 +1,6 @@
 import type { Game } from "../../types/domain";
 import type { LibraryEntry, LibrarySentiment } from "./library.types";
+import { normalizeLibraryStateSnapshot } from "./libraryState";
 
 const GUEST_LIBRARY_STORAGE_KEY = "guest-library-v1";
 export const GUEST_LIBRARY_USER_ID = "__guest__";
@@ -53,17 +54,25 @@ function writeStoredGuestLibraryMap(entries: StoredGuestLibraryMap) {
 }
 
 function toLibraryEntry(gameId: string, entry: StoredGuestLibraryEntry): LibraryEntry {
+  const normalizedState = normalizeLibraryStateSnapshot({
+    isSaved: entry.isSaved,
+    isLoved: entry.isLoved,
+    isInCollection: entry.isInCollection,
+    sentiment: entry.sentiment,
+    notes: entry.notes,
+  });
+
   return {
     id: `guest-${gameId}`,
     accountId: GUEST_LIBRARY_USER_ID,
     userId: GUEST_LIBRARY_USER_ID,
     gameId,
-    isSaved: entry.isSaved,
-    isLoved: entry.isLoved,
-    isInCollection: entry.isInCollection,
-    listType: deriveListType(entry),
-    sentiment: entry.sentiment,
-    notes: entry.notes,
+    isSaved: normalizedState.isSaved,
+    isLoved: normalizedState.isLoved,
+    isInCollection: normalizedState.isInCollection,
+    listType: deriveListType(normalizedState),
+    sentiment: normalizedState.sentiment,
+    notes: normalizedState.notes,
     priority: null,
     game: entry.game,
     sharedTags: entry.game.tags,
@@ -81,13 +90,20 @@ export function readGuestLibraryEntries(): LibraryEntry[] {
 
 export function upsertGuestLibraryEntry(input: UpsertGuestLibraryEntryInput): LibraryEntry {
   const entries = readStoredGuestLibraryMap();
-  const nextEntry: StoredGuestLibraryEntry = {
-    game: input.game,
+  const normalizedState = normalizeLibraryStateSnapshot({
     isSaved: input.isSaved,
     isLoved: input.isLoved,
     isInCollection: input.isInCollection,
     sentiment: input.sentiment ?? null,
     notes: input.notes ?? null,
+  });
+  const nextEntry: StoredGuestLibraryEntry = {
+    game: input.game,
+    isSaved: normalizedState.isSaved,
+    isLoved: normalizedState.isLoved,
+    isInCollection: normalizedState.isInCollection,
+    sentiment: normalizedState.sentiment,
+    notes: normalizedState.notes,
     updatedAt: new Date().toISOString(),
   };
 

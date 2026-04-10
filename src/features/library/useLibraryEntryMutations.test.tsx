@@ -25,7 +25,7 @@ function makeWrapper() {
 }
 
 describe("useUpsertLibraryState", () => {
-  it("upserts the expected saved/loved/collection payload", async () => {
+  it("normalizes saved and collection state before upserting", async () => {
     const upsertSpy = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({
@@ -69,9 +69,10 @@ describe("useUpsertLibraryState", () => {
       expect.objectContaining({
         account_id: "account-1",
         game_id: "game-1",
-        is_saved: true,
+        is_saved: false,
         is_loved: false,
         is_in_collection: true,
+        sentiment: null,
         notes: "Race night shelf",
       }),
       expect.objectContaining({ onConflict: "account_id,game_id" }),

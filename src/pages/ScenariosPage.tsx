@@ -1,16 +1,28 @@
-import { useGamesQuery } from '../features/games/useGamesQuery';
-import { buildScenarioPresetResults } from '../features/scenarios/scenarioMappers';
-import { ScenarioAccordion } from '../components/scenarios/ScenarioAccordion';
-import { getSupabaseQueryErrorMessage } from '../lib/supabase/runtimeErrors';
+import { PageHeader } from "../components/layout/PageHeader";
+import { ScenarioAccordion } from "../components/scenarios/ScenarioAccordion";
+import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
+import { useGamesQuery } from "../features/games/useGamesQuery";
+import { buildScenarioPresetResults } from "../features/scenarios/scenarioMappers";
+import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 export function ScenariosPage() {
   const { data: games, isLoading, error } = useGamesQuery();
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <p className="text-on-surface-variant">Loading scenarios...</p>
-      </div>
+      <>
+        <PageHeader
+          eyebrow="Scenarios"
+          title={<>Collection-based <span className="text-primary">Suggestions</span></>}
+          description="Loading scenario suggestions..."
+          className="mb-3 md:mb-4"
+        />
+        <div className="editorial-grid">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <GameCardSkeleton key={index} />
+          ))}
+        </div>
+      </>
     );
   }
 
@@ -26,13 +38,13 @@ export function ScenariosPage() {
   const presets = buildScenarioPresetResults(games || []);
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary">Scenarios</h1>
-        <p className="mt-2 text-on-surface-variant">
-          Config-driven play suggestions matched to your collection
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Scenarios"
+        title={<>Collection-based <span className="text-primary">Suggestions</span></>}
+        description="Play suggestions grouped by situation, player count, and mood based on the catalog data in your collection."
+        className="mb-3 md:mb-4"
+      />
       <ScenarioAccordion presets={presets} />
     </div>
   );

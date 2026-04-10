@@ -29,12 +29,12 @@ export function buildGameTagRows(
 
 export function mapLegacyGameToLibraryEntry(
   game: SeedGame,
-  userId: string,
+  accountId: string,
   gameId: string,
 ) {
   if (game.status === "owned") {
     return {
-      user_id: userId,
+      account_id: accountId,
       game_id: gameId,
       is_saved: false,
       is_loved: false,
@@ -47,7 +47,7 @@ export function mapLegacyGameToLibraryEntry(
 
   if (game.status === "buy") {
     return {
-      user_id: userId,
+      account_id: accountId,
       game_id: gameId,
       is_saved: true,
       is_loved: false,
@@ -165,7 +165,7 @@ export async function importLegacyData() {
 
   const { error: libraryEntriesError } = await supabase
     .from("library_entries")
-    .upsert(libraryEntryRows, { onConflict: "user_id,game_id" });
+    .upsert(libraryEntryRows, { onConflict: "account_id,game_id" });
   if (libraryEntriesError) throw libraryEntriesError;
   console.log(`✓ Imported ${libraryEntryRows.length} library entries`);
 

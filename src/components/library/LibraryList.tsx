@@ -1,19 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { GameCard } from "../ui/GameCard";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import type { LibraryEntry } from "../../features/library/library.types";
 import {
   GUEST_LIBRARY_USER_ID,
-  upsertGuestLibraryEntry,
 } from "../../features/library/guestLibraryStorage";
-import { libraryKeys } from "../../features/library/libraryKeys";
-import { useProfile } from "../../features/auth/useProfile";
-import {
-  useMoveWishlistToCollection,
-  useUpsertLibraryState,
-} from "../../features/library/useLibraryEntryMutations";
+import { isGuestImportedGameId } from "../../features/library/libraryState";
+import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
 
 type LibraryListProps = {
   entries: LibraryEntry[];
@@ -39,28 +33,8 @@ export function LibraryList({
   getGameLinkState,
 }: LibraryListProps) {
   const location = useLocation();
-  const queryClient = useQueryClient();
-  const { profile, isAuthenticated } = useProfile();
-  const upsert = useUpsertLibraryState();
-  const moveToCollection = useMoveWishlistToCollection();
+  const libraryStateActions = useLibraryStateActions();
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
-
-  function handleGuestUpsert(
-    entry: LibraryEntry,
-    updates: Partial<Pick<LibraryEntry, "isSaved" | "isLoved" | "isInCollection">>,
-  ) {
-    upsertGuestLibraryEntry({
-      game: entry.game,
-      isSaved: updates.isSaved ?? entry.isSaved,
-      isLoved: updates.isLoved ?? entry.isLoved,
-      isInCollection: updates.isInCollection ?? entry.isInCollection,
-      sentiment: entry.sentiment,
-      notes: entry.notes,
-    });
-    void queryClient.invalidateQueries({
-      queryKey: libraryKeys.library(GUEST_LIBRARY_USER_ID),
-    });
-  }
 
   if (entries.length === 0) {
     return (
@@ -73,6 +47,7 @@ export function LibraryList({
   return (
     <div className="editorial-grid">
       {entries.map((entry) => {
+        const isGuestImportedGame = isGuestImportedGameId(entry.gameId);
         const rawLinkState = getGameLinkState ? getGameLinkState(entry) : null;
         const customState =
           rawLinkState && typeof rawLinkState === "object" ? rawLinkState : {};
@@ -90,21 +65,10 @@ export function LibraryList({
               label={entry.isLoved ? "Loved" : "Add to Loved"}
               icon="favorite"
               isActive={entry.isLoved}
+              disabled={libraryStateActions.isPending}
               onClick={(e) => {
                 e.preventDefault();
-                if (isAuthenticated && profile?.id) {
-                  upsert.mutate({
-                    accountId: profile.id,
-                    gameId: entry.game.id,
-                    isSaved: entry.isSaved,
-                    isLoved: !entry.isLoved,
-                    isInCollection: entry.isInCollection,
-                    sentiment: entry.sentiment,
-                    notes: entry.notes,
-                  });
-                } else {
-                  handleGuestUpsert(entry, { isLoved: !entry.isLoved });
-                }
+                libraryStateActions.toggleLoved(entry.game, entry);
               }}
             />
           );
@@ -131,17 +95,11 @@ export function LibraryList({
                 label="Move to Collection"
                 icon="shelves"
                 isActive={false}
+                disabled={libraryStateActions.isPending}
                 onClick={(e) => {
                   e.preventDefault();
-                  if (isAuthenticated && profile?.id) {
-                    moveToCollection.mutate(
-                      { id: entry.id, accountId: profile.id },
-                      { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
-                    );
-                  } else {
-                    handleGuestUpsert(entry, { isSaved: false, isInCollection: true });
-                    setMovedIds((prev) => new Set(prev).add(entry.id));
-                  }
+                  libraryStateActions.moveToCollection(entry.game, entry);
+                  setMovedIds((prev) => new Set(prev).add(entry.id));
                 }}
               />
             );
@@ -157,22 +115,30 @@ export function LibraryList({
               : undefined
           : undefined;
 
+        const card = (
+          <GameCard
+            title={entry.game.name}
+            image={entry.game.imageUrl ?? undefined}
+            description={entry.game.summary ?? undefined}
+            players={formatPlayers(entry)}
+            playTime={formatPlayTime(entry)}
+            weight={entry.game.bggWeight?.toFixed(1)}
+            rating={entry.game.bggRating ?? undefined}
+            isFavorite={entry.isLoved}
+            badge={badge}
+            topRightSlot={topRightSlot}
+          />
+        );
+
         return (
           <article key={entry.id} className="space-y-4">
-            <Link aria-label={entry.game.name} state={linkState} to={`/game/${entry.game.slug}`}>
-              <GameCard
-                title={entry.game.name}
-                image={entry.game.imageUrl ?? undefined}
-                description={entry.game.summary ?? undefined}
-                players={formatPlayers(entry)}
-                playTime={formatPlayTime(entry)}
-                weight={entry.game.bggWeight?.toFixed(1)}
-                rating={entry.game.bggRating ?? undefined}
-                isFavorite={entry.isLoved}
-                badge={badge}
-                topRightSlot={topRightSlot}
-              />
-            </Link>
+            {isGuestImportedGame ? (
+              card
+            ) : (
+              <Link aria-label={entry.game.name} state={linkState} to={`/game/${entry.game.slug}`}>
+                {card}
+              </Link>
+            )}
           </article>
         );
       })}

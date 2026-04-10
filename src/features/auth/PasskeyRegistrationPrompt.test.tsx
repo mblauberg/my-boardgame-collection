@@ -21,6 +21,10 @@ vi.mock("@simplewebauthn/browser", () => ({
   startRegistration: (...args: unknown[]) => mockStartRegistration(...args),
 }));
 
+vi.mock("@iconify/react", () => ({
+  Icon: ({ icon, ...props }: { icon: string }) => <span data-icon={icon} {...props} />,
+}));
+
 describe("PasskeyRegistrationPrompt", () => {
   beforeEach(() => {
     localStorage.clear();

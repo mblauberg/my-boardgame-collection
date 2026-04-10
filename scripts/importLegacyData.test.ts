@@ -28,7 +28,7 @@ describe('importLegacyData', () => {
       ),
     ).toEqual(
       expect.objectContaining({
-        user_id: 'user-1',
+        account_id: 'user-1',
         game_id: 'db-game-1',
         is_saved: false,
         is_loved: false,
@@ -89,7 +89,7 @@ describe('importLegacyData', () => {
       ),
     ).toEqual(
       expect.objectContaining({
-        user_id: 'user-1',
+        account_id: 'user-1',
         game_id: 'db-game-3',
         is_saved: true,
         is_loved: false,

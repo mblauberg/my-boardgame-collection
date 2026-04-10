@@ -105,7 +105,7 @@ describe("CollectionPage", () => {
       </>,
     );
 
-    expect(screen.getByText(/schema\.sql/i)).toBeInTheDocument();
+    expect(screen.getByText(/supabase db reset/i)).toBeInTheDocument();
     expect(screen.getByText(/migrate:import/i)).toBeInTheDocument();
   });
 
@@ -161,6 +161,24 @@ describe("CollectionPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("glass-surface-panel");
     expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
+  });
+
+  it("lets guests open the add-game wizard without being redirected to sign in", async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(useCollectionQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as never);
+
+    renderWithProviders(<CollectionPage />);
+
+    await user.click(screen.getByRole("button", { name: /open add game wizard/i }));
+
+    expect(
+      screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
+    ).toBeInTheDocument();
   });
 
   it("shows the passkey prompt immediately after a post-auth redirect when the account has no passkeys", () => {
