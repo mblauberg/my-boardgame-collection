@@ -1,5 +1,6 @@
 import userEvent from "@testing-library/user-event";
 import { screen, waitFor, within } from "@testing-library/react";
+import { startRegistration } from "@simplewebauthn/browser";
 import { AccountSettingsPage } from "./AccountSettingsPage";
 import { renderWithProviders } from "../test/testUtils";
 
@@ -8,6 +9,10 @@ const mutateAsync = vi.fn();
 const mockInvoke = vi.fn();
 const mockSignOut = vi.fn();
 const mockGetSession = vi.fn();
+
+vi.mock("@simplewebauthn/browser", () => ({
+  startRegistration: vi.fn(),
+}));
 
 vi.mock("../features/auth/useProfile", () => ({
   useProfile: () => useProfile(),
@@ -42,6 +47,7 @@ describe("AccountSettingsPage", () => {
     mockInvoke.mockReset();
     mockSignOut.mockReset();
     mockGetSession.mockReset();
+    vi.mocked(startRegistration).mockReset();
 
     mockGetSession.mockResolvedValue({
       data: {
@@ -59,11 +65,26 @@ describe("AccountSettingsPage", () => {
     });
 
     mockInvoke.mockImplementation(async (functionName: string) => {
-      if (functionName === "passkey-list") {
-        return { data: { passkeys: [] }, error: null };
+      if (functionName === "account-security-summary") {
+        return {
+          data: {
+            primaryEmail: "alice@example.com",
+            secondaryEmails: [],
+            identities: [{ provider: "google", email: "alice@example.com" }],
+            passkeys: [],
+          },
+          error: null,
+        };
+      }
+      if (functionName === "passkey-register-options") {
+        return { data: { challenge: "challenge-1" }, error: null };
+      }
+      if (functionName === "passkey-register-verify") {
+        return { data: { ok: true }, error: null };
       }
       return { data: null, error: null };
     });
+    vi.mocked(startRegistration).mockResolvedValue({ id: "credential-id" } as never);
 
     useProfile.mockReturnValue({
       profile: {
@@ -90,6 +111,35 @@ describe("AccountSettingsPage", () => {
     expect(await screen.findByRole("button", { name: /^manage$/i })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /set up passkey/i })).toBeInTheDocument();
     expect(screen.getAllByText(/alice@example.com/i).length).toBeGreaterThan(0);
+  });
+
+  it("loads account security summary from the new edge function", async () => {
+    renderAccountSettingsPage();
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith(
+        "account-security-summary",
+        expect.any(Object),
+      );
+    });
+  });
+
+  it("passes bearer auth when creating passkey registration options", async () => {
+    const user = userEvent.setup();
+    renderAccountSettingsPage();
+
+    await user.click(await screen.findByRole("button", { name: /set up passkey/i }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith(
+        "passkey-register-options",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Authorization: "Bearer test-access-token",
+          }),
+        }),
+      );
+    });
   });
 
   it("opens sign-in methods in a floating sheet on desktop", async () => {

@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   });
 
   const { error } = await supabase.from("passkey_challenges").insert({
-    user_id: null,
+    account_id: null,
     challenge: options.challenge,
   });
 

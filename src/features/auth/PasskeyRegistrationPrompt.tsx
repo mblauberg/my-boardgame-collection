@@ -45,9 +45,20 @@ export function PasskeyRegistrationPrompt({
   const handleCreatePasskey = async () => {
     setStatus("loading");
     const supabase = getSupabaseBrowserClient();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    if (!accessToken) {
+      setStatus("idle");
+      return;
+    }
 
     const { data: options, error: optionsError } =
-      await supabase.functions.invoke<RegistrationOptionsResponse>("passkey-register-options");
+      await supabase.functions.invoke<RegistrationOptionsResponse>("passkey-register-options", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
     if (optionsError || !options?.challenge) {
       setStatus("idle");
       return;
@@ -63,6 +74,9 @@ export function PasskeyRegistrationPrompt({
 
     const { error: verifyError } = await supabase.functions.invoke("passkey-register-verify", {
       body: { credential, challenge: options.challenge },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
     if (verifyError) {
       setStatus("idle");

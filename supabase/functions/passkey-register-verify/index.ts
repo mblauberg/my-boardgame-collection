@@ -2,18 +2,18 @@ import { verifyRegistrationResponse } from "npm:@simplewebauthn/server";
 import { isoBase64URL } from "npm:@simplewebauthn/server/helpers";
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import {
+  getAccountContextFromRequest,
   getExpectedOrigin,
   getRpIdForRequest,
   getServiceClient,
-  getUserFromRequest,
 } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
-  const userId = await getUserFromRequest(req);
-  if (!userId) {
+  const accountContext = await getAccountContextFromRequest(req);
+  if (!accountContext) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
   }
 
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     .from("passkey_challenges")
     .select("id, challenge")
     .eq("challenge", challenge)
-    .eq("user_id", userId)
+    .eq("account_id", accountContext.accountId)
     .gte("expires_at", new Date().toISOString())
     .single();
 
@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
   const transports = credential.response?.transports ?? registrationCredential.transports ?? [];
 
   const { error: insertError } = await supabase.from("passkeys").insert({
-    user_id: userId,
+    account_id: accountContext.accountId,
     credential_id: registrationCredential.id,
     public_key: isoBase64URL.fromBuffer(registrationCredential.publicKey),
     counter: registrationCredential.counter,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { syncAccountSession } from "../features/auth/accountSecurityApi";
 import { getSupabaseBrowserClient } from "../lib/supabase/client";
 
 export function AuthCallbackPage() {
@@ -22,7 +23,22 @@ export function AuthCallbackPage() {
       return url.searchParams.get("error_description") ?? hashParams.get("error_description");
     };
 
+    const runSecuritySync = async () => {
+      try {
+        await syncAccountSession();
+        return true;
+      } catch (error) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage("Unable to finish account security sync.");
+        }
+        return false;
+      }
+    };
+
     const completeSignIn = async () => {
+
       if (isEmailMergeFlow && token) {
         const { data: mergeData, error: mergeError } = await supabase.functions.invoke<{
           token_hash?: string;
@@ -48,6 +64,9 @@ export function AuthCallbackPage() {
           return;
         }
 
+        const isSynced = await runSecuritySync();
+        if (!isActive || !isSynced) return;
+
         navigate(mergeData.merged ? "/settings?merged=true" : "/settings", { replace: true });
         return;
       }
@@ -61,6 +80,9 @@ export function AuthCallbackPage() {
       }
 
       if (data.session) {
+        const isSynced = await runSecuritySync();
+        if (!isActive || !isSynced) return;
+
         navigate("/signin", { replace: true });
         return;
       }
@@ -77,7 +99,12 @@ export function AuthCallbackPage() {
           if (!isActive) return;
 
           if (event === "SIGNED_IN" && session) {
-            navigate("/signin", { replace: true });
+            void (async () => {
+              const isSynced = await runSecuritySync();
+              if (!isActive || !isSynced) return;
+
+              navigate("/signin", { replace: true });
+            })();
           }
         }).data.subscription;
 

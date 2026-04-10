@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { authKeys } from "./authKeys";
 import { useProfile } from "./useProfile";
-import { getSupabaseBrowserClient } from "../../lib/supabase/client";
+import { fetchAccountSecuritySummary } from "./accountSecurityApi";
 
 export type AccountSecurityPasskey = {
   id: string;
@@ -28,10 +28,6 @@ export type AccountSecuritySummary = {
   passkeys: AccountSecurityPasskey[];
 };
 
-type PasskeyListResponse = {
-  passkeys?: AccountSecurityPasskey[];
-};
-
 const PROVIDER_LABELS: Record<string, string> = {
   apple: "Apple",
   discord: "Discord",
@@ -44,10 +40,6 @@ function getProviderLabel(provider: string) {
   return PROVIDER_LABELS[provider] ?? provider.charAt(0).toUpperCase() + provider.slice(1);
 }
 
-function getPrimaryEmail(profileEmail: string | null, sessionEmail: string | null) {
-  return profileEmail ?? sessionEmail ?? null;
-}
-
 export function useAccountSecuritySummary() {
   const { profile, isAuthenticated } = useProfile();
 
@@ -56,16 +48,12 @@ export function useAccountSecuritySummary() {
     enabled: isAuthenticated,
     staleTime: 1000 * 60 * 5,
     queryFn: async (): Promise<AccountSecuritySummary> => {
-      const supabase = getSupabaseBrowserClient();
-      const { data: sessionData } = await supabase.auth.getSession();
-      const session = sessionData.session;
-      const user = session?.user ?? null;
-      const primaryEmail = getPrimaryEmail(profile?.email ?? null, user?.email ?? null);
-
+      const summary = await fetchAccountSecuritySummary();
+      const primaryEmail = summary.primaryEmail ?? profile?.email ?? null;
       const emailSet = new Set<string>();
       const emails: AccountSecurityEmail[] = [];
 
-      [primaryEmail, user?.email ?? null].forEach((value, index) => {
+      [primaryEmail, ...summary.secondaryEmails.map((entry) => entry.email)].forEach((value, index) => {
         if (!value || emailSet.has(value)) {
           return;
         }
@@ -78,14 +66,11 @@ export function useAccountSecuritySummary() {
         });
       });
 
-      const rawIdentities = Array.isArray((user as { identities?: unknown[] } | null)?.identities)
-        ? ((user as { identities?: Array<{ provider?: string }> }).identities ?? [])
-        : [];
       const providerSet = new Set<string>();
       const identities: AccountSecurityIdentity[] = [];
 
-      rawIdentities.forEach((identity) => {
-        if (!identity?.provider || providerSet.has(identity.provider)) {
+      summary.identities.forEach((identity) => {
+        if (!identity.provider || providerSet.has(identity.provider)) {
           return;
         }
 
@@ -96,22 +81,11 @@ export function useAccountSecuritySummary() {
         });
       });
 
-      const appProvider =
-        typeof user?.app_metadata?.provider === "string" ? user.app_metadata.provider : null;
-      if (appProvider && appProvider !== "email" && !providerSet.has(appProvider)) {
-        identities.push({
-          provider: appProvider,
-          label: getProviderLabel(appProvider),
-        });
-      }
-
-      const { data, error } = await supabase.functions.invoke<PasskeyListResponse>("passkey-list");
-
       return {
         primaryEmail,
         emails,
         identities,
-        passkeys: error ? [] : (data?.passkeys ?? []),
+        passkeys: summary.passkeys,
       };
     },
   });

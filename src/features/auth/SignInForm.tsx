@@ -7,6 +7,7 @@ import {
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/browser";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
+import { syncAccountSession } from "./accountSecurityApi";
 import { signInSchema, type SignInFormData } from "./authSchemas";
 
 type SupportedOAuthProvider = "google" | "apple" | "github" | "discord";
@@ -139,6 +140,16 @@ export function SignInForm() {
       if (sessionError && isActive) {
         setStatus("error");
         setErrorMessage("Passkey sign-in failed. Please try another method.");
+        return;
+      }
+
+      try {
+        await syncAccountSession();
+      } catch (_error) {
+        if (isActive) {
+          setStatus("error");
+          setErrorMessage("Passkey sign-in failed. Please try another method.");
+        }
       }
     };
 
