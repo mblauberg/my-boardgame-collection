@@ -76,19 +76,16 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
   return (
     <div className="space-y-6">
       {game.imageUrl && (
-        <div className="relative -mx-6 -mt-6">
-          <img src={game.imageUrl} alt={game.name} className="w-full h-64 object-cover" />
+        <div className="relative -mx-4 -mt-16 md:-mx-6 md:-mt-20 sm:-mx-8 sm:-mt-24">
+          <img src={game.imageUrl} alt={game.name} className="w-full h-80 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
         </div>
       )}
 
       <div className="space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold text-on-surface">{game.name}</h1>
-          {game.publishedYear && (
-            <p className="text-on-surface-variant mt-1">Published: {game.publishedYear}</p>
-          )}
-        </div>
+        {game.publishedYear && (
+          <p className="text-on-surface-variant">Published: {game.publishedYear}</p>
+        )}
 
         {isAuthenticated && profile?.id ? (
           <LibraryStateActionGroup
@@ -166,7 +163,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
                 ) : null}
               </div>
               {game.isExpansion ? (
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-900">
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
                   Expansion
                 </span>
               ) : null}
@@ -221,7 +218,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               <span
                 key={tag.id}
                 className="px-4 py-2 rounded-full text-sm font-medium"
-                style={{ backgroundColor: tag.colour || "#e5e7eb" }}
+                style={{ backgroundColor: tag.colour || "rgb(var(--surface-container-highest))" }}
               >
                 {tag.name}
               </span>

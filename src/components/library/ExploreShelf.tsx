@@ -60,8 +60,12 @@ export function ExploreShelf({ title, entries }: ExploreShelfProps) {
 
           return (
             <article key={game.id} className="relative">
-              {isAuthenticated && profile?.id ? (
-                <div className="absolute right-3 top-3 z-10">
+              <div className="absolute right-3 top-3 z-10">
+                {entry?.isInCollection ? (
+                  <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
+                    In Collection
+                  </span>
+                ) : isAuthenticated && profile?.id ? (
                   <LibraryStateIconButton
                     label="Saved"
                     icon="bookmark"
@@ -69,8 +73,8 @@ export function ExploreShelf({ title, entries }: ExploreShelfProps) {
                     disabled={upsertLibraryState.isPending || deleteLibraryEntry.isPending}
                     onClick={() => handleToggleSaved(game)}
                   />
-                </div>
-              ) : null}
+                ) : null}
+              </div>
 
               <Link
                 state={{ from: location.pathname, backgroundLocation: location }}
