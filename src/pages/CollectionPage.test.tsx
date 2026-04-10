@@ -22,10 +22,6 @@ vi.mock("../features/library/useLibraryFilters", () => ({
   }),
 }));
 
-vi.mock("../components/library/LibraryToolbar", () => ({
-  LibraryToolbar: () => <div>Toolbar</div>,
-}));
-
 vi.mock("../components/library/LibraryList", () => ({
   LibraryList: () => <div>Library list</div>,
 }));
