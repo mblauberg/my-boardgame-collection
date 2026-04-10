@@ -9,9 +9,12 @@ export function AuthCallbackPage() {
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
     let isActive = true;
+    const url = new URL(window.location.href);
+    const type = url.searchParams.get("type");
+    const token = url.searchParams.get("token");
+    const isEmailMergeFlow = type === "email_merge" && typeof token === "string" && token.length > 0;
 
     const readCallbackError = () => {
-      const url = new URL(window.location.href);
       const hashParams = new URLSearchParams(
         url.hash.startsWith("#") ? url.hash.slice(1) : url.hash,
       );
@@ -20,6 +23,35 @@ export function AuthCallbackPage() {
     };
 
     const completeSignIn = async () => {
+      if (isEmailMergeFlow && token) {
+        const { data: mergeData, error: mergeError } = await supabase.functions.invoke<{
+          token_hash?: string;
+          merged?: boolean;
+        }>("email-merge-verify", {
+          body: { token },
+        });
+
+        if (!isActive) return;
+        if (mergeError || !mergeData?.token_hash) {
+          setErrorMessage("The confirmation link has expired or has already been used.");
+          return;
+        }
+
+        const { error: sessionError } = await supabase.auth.verifyOtp({
+          token_hash: mergeData.token_hash,
+          type: "magiclink",
+        });
+
+        if (!isActive) return;
+        if (sessionError) {
+          setErrorMessage(sessionError.message);
+          return;
+        }
+
+        navigate(mergeData.merged ? "/settings?merged=true" : "/settings", { replace: true });
+        return;
+      }
+
       const { data, error } = await supabase.auth.getSession();
       if (!isActive) return;
 
@@ -39,21 +71,21 @@ export function AuthCallbackPage() {
       }
     };
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!isActive) return;
+    const subscription = isEmailMergeFlow
+      ? null
+      : supabase.auth.onAuthStateChange((event, session) => {
+          if (!isActive) return;
 
-      if (event === "SIGNED_IN" && session) {
-        navigate("/signin", { replace: true });
-      }
-    });
+          if (event === "SIGNED_IN" && session) {
+            navigate("/signin", { replace: true });
+          }
+        }).data.subscription;
 
     void completeSignIn();
 
     return () => {
       isActive = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [navigate]);
 

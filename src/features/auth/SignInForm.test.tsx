@@ -2,18 +2,22 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { startAuthentication } from "@simplewebauthn/browser";
 
-// Mock the Supabase client
 const mockSignIn = vi.fn();
 const mockSignOut = vi.fn();
 const mockSignInWithOAuth = vi.fn();
 const mockLinkIdentity = vi.fn();
+const mockVerifyOtp = vi.fn();
+const mockInvoke = vi.fn();
+
 const mockSupabase = {
   auth: {
     signInWithOtp: mockSignIn,
     signOut: mockSignOut,
     signInWithOAuth: mockSignInWithOAuth,
     linkIdentity: mockLinkIdentity,
+    verifyOtp: mockVerifyOtp,
     getSession: vi.fn().mockResolvedValue({
       data: { session: null },
       error: null,
@@ -22,6 +26,9 @@ const mockSupabase = {
       data: { subscription: { unsubscribe: vi.fn() } },
     })),
   },
+  functions: {
+    invoke: mockInvoke,
+  },
   from: vi.fn(),
 };
 
@@ -29,7 +36,10 @@ vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => mockSupabase,
 }));
 
-// Import after mocking
+vi.mock("@simplewebauthn/browser", () => ({
+  startAuthentication: vi.fn(),
+}));
+
 // eslint-disable-next-line import/first
 import { SignInForm } from "./SignInForm";
 
@@ -51,6 +61,10 @@ describe("SignInForm", () => {
     mockSignOut.mockClear();
     mockSignInWithOAuth.mockClear();
     mockLinkIdentity.mockClear();
+    mockVerifyOtp.mockClear();
+    mockInvoke.mockClear();
+    vi.mocked(startAuthentication).mockReset();
+
     mockSignInWithOAuth.mockImplementation(async ({ options }: { options?: { skipBrowserRedirect?: boolean } }) => {
       if (options?.skipBrowserRedirect) {
         return { data: { url: "https://oauth.example.com/preflight" }, error: null };
@@ -58,6 +72,35 @@ describe("SignInForm", () => {
 
       return { data: { url: "https://oauth.example.com/auth" }, error: null };
     });
+
+    mockInvoke.mockImplementation(async (functionName: string) => {
+      if (functionName === "passkey-auth-options") {
+        return { data: null, error: { message: "not configured" } };
+      }
+      return { data: null, error: null };
+    });
+  });
+
+  it("renders the email field before OAuth buttons", () => {
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    const email = screen.getByPlaceholderText(/email/i);
+    const googleButton = screen.getByRole("button", { name: /google/i });
+
+    expect(email.compareDocumentPosition(googleButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it("email input has autocomplete='username webauthn'", () => {
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    const email = screen.getByPlaceholderText(/email/i);
+    expect(email).toHaveAttribute("autocomplete", "username webauthn");
+  });
+
+  it("does not render a standalone passkey button", () => {
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    expect(screen.queryByRole("button", { name: /passkey/i })).not.toBeInTheDocument();
   });
 
   it("submits a magic-link request for a valid email address", async () => {
@@ -67,13 +110,33 @@ describe("SignInForm", () => {
     render(<SignInForm />, { wrapper: TestWrapper });
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
-    await user.click(screen.getByRole("button", { name: /send magic link/i }));
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
     await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalledWith({
         email: "owner@example.com",
         options: expect.any(Object),
       });
+    });
+  });
+
+  it("uses the current browser origin for magic-link redirect", async () => {
+    const user = userEvent.setup();
+    mockSignIn.mockResolvedValueOnce({ error: null });
+
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    await user.type(screen.getByLabelText(/email/i), "owner@example.com");
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
+
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.objectContaining({
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          }),
+        }),
+      );
     });
   });
 
@@ -84,8 +147,8 @@ describe("SignInForm", () => {
 
     const emailInput = screen.getByLabelText(/email/i);
     await user.type(emailInput, "invalid-email");
-    await user.tab(); // Trigger blur to validate
-    await user.click(screen.getByRole("button", { name: /send magic link/i }));
+    await user.tab();
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
     expect(await screen.findByText(/valid email address/i)).toBeInTheDocument();
     expect(mockSignIn).not.toHaveBeenCalled();
@@ -98,7 +161,7 @@ describe("SignInForm", () => {
     render(<SignInForm />, { wrapper: TestWrapper });
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
-    await user.click(screen.getByRole("button", { name: /send magic link/i }));
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
     expect(await screen.findByText(/check your email/i)).toBeInTheDocument();
   });
@@ -110,7 +173,7 @@ describe("SignInForm", () => {
     render(<SignInForm />, { wrapper: TestWrapper });
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
-    await user.click(screen.getByRole("button", { name: /send magic link/i }));
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
     expect(await screen.findByText(/network error/i)).toBeInTheDocument();
   });
@@ -185,5 +248,50 @@ describe("SignInForm", () => {
       .filter((call) => call.provider === "apple" && !call.options?.skipBrowserRedirect);
 
     expect(interactiveAppleCalls).toHaveLength(0);
+  });
+
+  it("calls startAuthentication with useBrowserAutofill on mount", async () => {
+    mockInvoke.mockImplementation(async (functionName: string) => {
+      if (functionName === "passkey-auth-options") {
+        return { data: { challenge: "challenge-123" }, error: null };
+      }
+      if (functionName === "passkey-auth-verify") {
+        return { data: { token_hash: "token-hash-123" }, error: null };
+      }
+      return { data: null, error: null };
+    });
+    vi.mocked(startAuthentication).mockResolvedValue({ id: "credential-id" } as never);
+    mockVerifyOtp.mockResolvedValue({ error: null });
+
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    await waitFor(() => {
+      expect(startAuthentication).toHaveBeenCalledWith(
+        expect.objectContaining({ useBrowserAutofill: true }),
+      );
+    });
+  });
+
+  it("aborts the conditional request when the email form is submitted", async () => {
+    const user = userEvent.setup();
+    const abortSpy = vi.spyOn(AbortController.prototype, "abort");
+    mockSignIn.mockResolvedValue({ error: null });
+    mockInvoke.mockImplementation(async (functionName: string) => {
+      if (functionName === "passkey-auth-options") {
+        return { data: { challenge: "challenge-123" }, error: null };
+      }
+      return { data: null, error: null };
+    });
+    vi.mocked(startAuthentication).mockImplementation(() => new Promise(() => {}));
+
+    render(<SignInForm />, { wrapper: TestWrapper });
+
+    await waitFor(() => {
+      expect(startAuthentication).toHaveBeenCalled();
+    });
+    await user.type(screen.getByLabelText(/email/i), "test@example.com");
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
+
+    expect(abortSpy).toHaveBeenCalled();
   });
 });

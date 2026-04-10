@@ -1,10 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
+import {
+  startAuthentication,
+  type PublicKeyCredentialRequestOptionsJSON,
+} from "@simplewebauthn/browser";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { signInSchema, type SignInFormData } from "./authSchemas";
 import { useProfile } from "./useProfile";
+import { PasskeyRegistrationPrompt } from "./PasskeyRegistrationPrompt";
 
 type SupportedOAuthProvider = "google" | "apple" | "github" | "discord";
 type OAuthProviderAvailability = "checking" | "available" | "unavailable";
@@ -24,8 +29,18 @@ const INITIAL_PROVIDER_AVAILABILITY: OAuthProviderAvailabilityMap = {
   discord: "checking",
 };
 
+type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON;
+
+type PasskeyAuthVerifyResponse = {
+  token_hash?: string;
+};
+
+type PasskeyListResponse = {
+  passkeys?: Array<{ id: string }>;
+};
+
 function getAuthRedirectUrl() {
-  return `${import.meta.env.VITE_SITE_URL ?? window.location.origin}/auth/callback`;
+  return `${window.location.origin}/auth/callback`;
 }
 
 export function SignInForm() {
@@ -37,6 +52,8 @@ export function SignInForm() {
   const [providerAvailability, setProviderAvailability] = useState<OAuthProviderAvailabilityMap>(
     INITIAL_PROVIDER_AVAILABILITY,
   );
+  const [hasPasskeys, setHasPasskeys] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const {
     register,
@@ -80,7 +97,103 @@ export function SignInForm() {
     };
   }, [supabase]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    const loadPasskeys = async () => {
+      if (!isAuthenticated) {
+        if (isActive) setHasPasskeys(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke<PasskeyListResponse>("passkey-list");
+      if (!isActive) return;
+
+      if (error) {
+        setHasPasskeys(false);
+        return;
+      }
+
+      setHasPasskeys((data?.passkeys?.length ?? 0) > 0);
+    };
+
+    void loadPasskeys();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isAuthenticated, supabase]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      return;
+    }
+
+    let isActive = true;
+
+    const runConditional = async () => {
+      const { data: options, error: optionsError } =
+        await supabase.functions.invoke<PasskeyAuthOptionsResponse>("passkey-auth-options");
+
+      if (optionsError || !options?.challenge) {
+        return;
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      let credential;
+      try {
+        credential = await startAuthentication({
+          optionsJSON: options,
+          useBrowserAutofill: true,
+        });
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+        return;
+      } finally {
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+      }
+
+      if (!isActive) {
+        return;
+      }
+
+      const { data: verifyData, error: verifyError } =
+        await supabase.functions.invoke<PasskeyAuthVerifyResponse>("passkey-auth-verify", {
+          body: { credential, challenge: options.challenge },
+        });
+      if (verifyError || !verifyData?.token_hash) {
+        return;
+      }
+
+      const { error: sessionError } = await supabase.auth.verifyOtp({
+        token_hash: verifyData.token_hash,
+        type: "magiclink",
+      });
+      if (sessionError && isActive) {
+        setStatus("error");
+        setErrorMessage("Passkey sign-in failed. Please try another method.");
+      }
+    };
+
+    void runConditional();
+
+    return () => {
+      isActive = false;
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+    };
+  }, [isAuthenticated, supabase]);
+
   const onSubmit = async (data: SignInFormData) => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+
     setStatus("loading");
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -103,6 +216,9 @@ export function SignInForm() {
 
   const handleOAuthSignIn = async (provider: SupportedOAuthProvider, label: string) => {
     if (providerAvailability[provider] !== "available") return;
+
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
 
     setStatus("loading");
     setErrorMessage(null);
@@ -208,6 +324,7 @@ export function SignInForm() {
             })}
           </div>
         </div>
+        <PasskeyRegistrationPrompt hasPasskeys={hasPasskeys} />
         {status === "success" && successMessage ? (
           <div className="rounded-xl border border-secondary/20 bg-secondary/10 p-4">
             <p className="text-center text-sm font-bold text-secondary">{successMessage}</p>
@@ -237,46 +354,46 @@ export function SignInForm() {
         </h1>
       </div>
 
-      {/* Email Form - Now at the Top */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        <div className="relative flex items-center">
+        <div className="relative">
           <input
             id="email"
             type="email"
             {...register("email")}
+            aria-label="Email"
             autoComplete="username webauthn"
-            className="block w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low pl-5 pr-24 py-4 text-base text-on-surface transition-shadow focus:border-primary focus:outline-none focus:shadow-[0_0_0_2px_rgba(138,76,0,0.1)]"
+            className="block w-full rounded-2xl border border-outline-variant/15 bg-surface-container-low px-5 py-4 pr-14 text-base text-on-surface transition-shadow focus:border-primary focus:outline-none focus:shadow-[0_0_0_2px_rgba(138,76,0,0.1)]"
             disabled={status === "loading"}
             placeholder="your@email.com"
           />
-          <div className="absolute right-14 flex items-center pr-3 pointer-events-none text-on-surface-variant/40">
+          <div
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40"
+            aria-hidden
+          >
             <Icon icon="material-symbols:passkey" className="h-6 w-6" />
           </div>
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="absolute right-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-on-primary shadow-sm transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
-            title="Continue with email"
-          >
-            <Icon icon="lucide:arrow-right" className="h-5 w-5" />
-          </button>
         </div>
+        <button
+          type="submit"
+          disabled={status === "loading"}
+          className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Continue with email
+        </button>
         {errors.email && (
           <p className="px-1 text-xs font-bold text-primary">{errors.email.message}</p>
         )}
       </form>
 
-      {/* OR Divider */}
       <div className="relative my-8">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-outline-variant/30"></div>
+          <div className="w-full border-t border-outline-variant/30" />
         </div>
         <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em]">
           <span className="bg-[#f0f0f0] px-4 text-on-surface-variant dark:bg-[#1a1a1a]">OR</span>
         </div>
       </div>
 
-      {/* OAuth Buttons Stack - Now at the Bottom */}
       <div className="space-y-3">
         {OAUTH_PROVIDERS.map(({ provider, label, icon }) => {
           const isUnavailable = providerAvailability[provider] === "unavailable";
