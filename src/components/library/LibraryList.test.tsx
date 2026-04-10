@@ -1,24 +1,13 @@
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Route, Routes, useLocation } from "react-router-dom";
-import { renderWithProviders } from "../../test/testUtils";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { LibraryList } from "./LibraryList";
 import type { LibraryEntry } from "../../features/library/library.types";
-
-vi.mock("../../features/auth/useSession", () => ({
-  useSession: () => ({ user: null }),
-}));
-
-vi.mock("../../features/library/useLibraryEntryMutations", () => ({
-  useUpsertLibraryState: () => ({ mutate: vi.fn(), isPending: false }),
-  useMoveSavedToCollection: () => ({ mutate: vi.fn(), isPending: false }),
-  useDeleteLibraryEntry: () => ({ mutate: vi.fn(), isPending: false }),
-}));
 
 function createEntry(overrides: Partial<LibraryEntry> = {}): LibraryEntry {
   return {
     id: "entry-1",
-    userId: "user-1",
+    accountId: "user-1",
     gameId: "game-1",
     isSaved: false,
     isLoved: false,
@@ -68,8 +57,10 @@ function LocationStateProbe() {
 
 describe("LibraryList", () => {
   it("renders saved items without move-to-collection controls", () => {
-    renderWithProviders(
-      <LibraryList entries={[createEntry({ isSaved: true })]} />
+    render(
+      <MemoryRouter>
+        <LibraryList entries={[createEntry({ isSaved: true })]} />
+      </MemoryRouter>,
     );
 
     expect(screen.getByRole("link", { name: /heat/i })).toBeInTheDocument();
@@ -78,8 +69,10 @@ describe("LibraryList", () => {
   });
 
   it("renders collection entries with an in-collection badge", () => {
-    renderWithProviders(
-      <LibraryList entries={[createEntry({ isSaved: true, isInCollection: true })]} />
+    render(
+      <MemoryRouter>
+        <LibraryList entries={[createEntry({ isSaved: true, isInCollection: true })]} />
+      </MemoryRouter>,
     );
 
     expect(screen.getByText("In Collection")).toBeInTheDocument();
@@ -88,20 +81,21 @@ describe("LibraryList", () => {
   it("passes route state through game links when provided", async () => {
     const user = userEvent.setup();
 
-    renderWithProviders(
-      <Routes>
-        <Route
-          path="/saved"
-          element={
-            <LibraryList
-              entries={[createEntry({ isInCollection: true })]}
-              getGameLinkState={() => ({ surface: "saved" })}
-            />
-          }
-        />
-        <Route path="/game/:slug" element={<LocationStateProbe />} />
-      </Routes>,
-      "/saved"
+    render(
+      <MemoryRouter initialEntries={["/saved"]}>
+        <Routes>
+          <Route
+            path="/saved"
+            element={
+              <LibraryList
+                entries={[createEntry({ isInCollection: true })]}
+                getGameLinkState={() => ({ surface: "saved" })}
+              />
+            }
+          />
+          <Route path="/game/:slug" element={<LocationStateProbe />} />
+        </Routes>
+      </MemoryRouter>,
     );
 
     await user.click(screen.getByRole("link", { name: /heat/i }));

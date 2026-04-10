@@ -30,7 +30,7 @@ describe("RecommendationsPage", () => {
 
     renderWithProviders(<RecommendationsPage />);
 
-    expect(screen.getByText(/loading curated shelves/i)).toBeInTheDocument();
+    expect(screen.getByText(/loading explore shelves/i)).toBeInTheDocument();
   });
 
   it("shows the Explore error state", () => {

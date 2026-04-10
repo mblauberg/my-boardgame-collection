@@ -95,7 +95,7 @@ export function AccountSettingsPage() {
     try {
       setStatus({ type: "idle", message: null });
       await mutateAsync({
-        id: profile.id,
+        accountId: profile.id,
         username: formState.username,
         is_profile_public: formState.isProfilePublic,
         is_collection_public: formState.isCollectionPublic,

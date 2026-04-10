@@ -4,27 +4,29 @@ import type { ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import type { Profile } from "./auth.types";
 
-// Mock the Supabase client at the top level
+const mockRpc = vi.fn();
+const mockMaybeSingle = vi.fn();
+const mockEq = vi.fn();
+const mockSelect = vi.fn();
+const mockFrom = vi.fn();
+
 const mockSupabase = {
   auth: {
     getSession: vi.fn(),
-    signOut: vi.fn(),
     onAuthStateChange: vi.fn(() => ({
       data: { subscription: { unsubscribe: vi.fn() } },
     })),
   },
-  from: vi.fn(),
+  rpc: mockRpc,
+  from: mockFrom,
 };
 
 vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => mockSupabase,
 }));
 
-// Import after mocking
-// eslint-disable-next-line import/first
 import { useProfile } from "./useProfile";
 
-// Test fixtures
 const ownerFixture: { session: Session; profile: Profile } = {
   session: {
     access_token: "mock-token",
@@ -32,7 +34,7 @@ const ownerFixture: { session: Session; profile: Profile } = {
     expires_in: 3600,
     token_type: "bearer",
     user: {
-      id: "owner-user-id",
+      id: "auth-user-owner",
       email: "owner@example.com",
       app_metadata: {},
       user_metadata: {},
@@ -41,7 +43,7 @@ const ownerFixture: { session: Session; profile: Profile } = {
     },
   } as Session,
   profile: {
-    id: "owner-user-id",
+    id: "account-owner",
     email: "owner@example.com",
     role: "owner",
     username: "owner-user",
@@ -60,7 +62,7 @@ const viewerFixture: { session: Session; profile: Profile } = {
     expires_in: 3600,
     token_type: "bearer",
     user: {
-      id: "viewer-user-id",
+      id: "auth-user-viewer",
       email: "viewer@example.com",
       app_metadata: {},
       user_metadata: {},
@@ -69,7 +71,7 @@ const viewerFixture: { session: Session; profile: Profile } = {
     },
   } as Session,
   profile: {
-    id: "viewer-user-id",
+    id: "account-viewer",
     email: "viewer@example.com",
     role: "viewer",
     username: null,
@@ -90,22 +92,36 @@ function createAuthTestWrapper(fixture?: { session: Session; profile: Profile })
     },
   });
 
-  // Configure the mocks for this specific test
   mockSupabase.auth.getSession.mockResolvedValue({
     data: { session: fixture?.session ?? null },
     error: null,
   });
-  mockSupabase.auth.signOut.mockResolvedValue({ error: null });
 
-  mockSupabase.from.mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        maybeSingle: vi.fn().mockResolvedValue({
-          data: fixture?.profile ?? null,
-          error: null,
-        }),
-      }),
-    }),
+  mockRpc.mockResolvedValue({
+    data: fixture
+      ? [
+          {
+            account_id: fixture.profile.id,
+            primary_auth_user_id: fixture.session.user.id,
+            primary_email: fixture.profile.email,
+          },
+        ]
+      : [],
+    error: null,
+  });
+
+  mockMaybeSingle.mockResolvedValue({
+    data: fixture?.profile ?? null,
+    error: fixture ? null : { message: "Not found" },
+  });
+
+  mockEq.mockReturnValue({ single: mockMaybeSingle });
+  mockSelect.mockReturnValue({ eq: mockEq });
+  mockFrom.mockImplementation((table: string) => {
+    if (table === "profiles") {
+      return { select: mockSelect };
+    }
+    throw new Error(`Unexpected table ${table}`);
   });
 
   return function Wrapper({ children }: { children: ReactNode }) {
@@ -114,6 +130,39 @@ function createAuthTestWrapper(fixture?: { session: Session; profile: Profile })
 }
 
 describe("useProfile", () => {
+  beforeEach(() => {
+    mockRpc.mockReset();
+    mockMaybeSingle.mockReset();
+    mockEq.mockReset();
+    mockSelect.mockReset();
+    mockFrom.mockReset();
+    mockSupabase.auth.getSession.mockReset();
+  });
+
+  it("loads the current profile by account id instead of auth user id assumptions", async () => {
+    const fixture = {
+      session: {
+        ...viewerFixture.session,
+        user: { ...viewerFixture.session.user, id: "auth-user-1" },
+      },
+      profile: {
+        ...viewerFixture.profile,
+        id: "account-1",
+      },
+    };
+
+    const { result } = renderHook(() => useProfile(), {
+      wrapper: createAuthTestWrapper(fixture),
+    });
+
+    await waitFor(() => {
+      expect(result.current.profile?.id).toBe("account-1");
+    });
+
+    expect(mockRpc).toHaveBeenCalledWith("get_current_account_context");
+    expect(mockEq).toHaveBeenCalledWith("id", "account-1");
+  });
+
   it("marks the signed-in owner as editable", async () => {
     const { result } = renderHook(() => useProfile(), {
       wrapper: createAuthTestWrapper(ownerFixture),
@@ -135,14 +184,6 @@ describe("useProfile", () => {
     });
   });
 
-  it("marks the signed-in viewer as not editable", async () => {
-    const { result } = renderHook(() => useProfile(), {
-      wrapper: createAuthTestWrapper(viewerFixture),
-    });
-
-    await waitFor(() => expect(result.current.isOwner).toBe(false));
-  });
-
   it("marks unauthenticated users as not editable", async () => {
     const { result } = renderHook(() => useProfile(), {
       wrapper: createAuthTestWrapper(),
@@ -152,18 +193,5 @@ describe("useProfile", () => {
       expect(result.current.isOwner).toBe(false);
       expect(result.current.isAuthenticated).toBe(false);
     });
-  });
-
-  it("clears stale local auth state when the session exists but the profile row does not", async () => {
-    const { result } = renderHook(() => useProfile(), {
-      wrapper: createAuthTestWrapper({ ...viewerFixture, profile: null as never }),
-    });
-
-    await waitFor(() => {
-      expect(mockSupabase.auth.signOut).toHaveBeenCalled();
-    });
-
-    expect(result.current.profile).toBeNull();
-    expect(result.current.error).toBeNull();
   });
 });

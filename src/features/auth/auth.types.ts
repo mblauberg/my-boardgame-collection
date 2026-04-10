@@ -12,17 +12,18 @@ export interface Profile {
   updated_at: string;
 }
 
-export interface SessionState {
-  session: Session | null;
-  user: User | null;
+interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
 }
 
-export interface ProfileState {
+export interface SessionState extends AuthState {
+  session: Session | null;
+  user: User | null;
+}
+
+export interface ProfileState extends AuthState {
   profile: Profile | null;
   isOwner: boolean;
-  isAuthenticated: boolean;
-  isLoading: boolean;
   error: Error | null;
 }

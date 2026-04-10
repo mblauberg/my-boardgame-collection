@@ -1,5 +1,8 @@
+import { accountKeys } from "../accounts/accountKeys";
+
 export const authKeys = {
   session: () => ["auth", "session"] as const,
-  profile: (userId?: string) => ["auth", "profile", userId] as const,
-  accountSecuritySummary: (userId?: string) => ["auth", "account-security-summary", userId] as const,
+  account: accountKeys.current,
+  profile: (accountId?: string) => ["auth", "profile", accountId] as const,
+  accountSecuritySummary: (accountId?: string) => ["auth", "account-security-summary", accountId] as const,
 };

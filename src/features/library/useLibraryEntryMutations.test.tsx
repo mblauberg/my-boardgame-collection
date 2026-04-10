@@ -31,7 +31,7 @@ describe("useUpsertLibraryState", () => {
         single: vi.fn().mockResolvedValue({
           data: {
             id: "entry-1",
-            user_id: "user-1",
+            account_id: "account-1",
             game_id: "game-1",
             is_saved: true,
             is_loved: false,
@@ -54,7 +54,7 @@ describe("useUpsertLibraryState", () => {
 
     await act(async () => {
       result.current.mutate({
-        userId: "user-1",
+        accountId: "account-1",
         gameId: "game-1",
         isSaved: true,
         isLoved: false,
@@ -67,14 +67,14 @@ describe("useUpsertLibraryState", () => {
 
     expect(upsertSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        user_id: "user-1",
+        account_id: "account-1",
         game_id: "game-1",
         is_saved: true,
         is_loved: false,
         is_in_collection: true,
         notes: "Race night shelf",
       }),
-      expect.objectContaining({ onConflict: "user_id,game_id" }),
+      expect.objectContaining({ onConflict: "account_id,game_id" }),
     );
   });
 });
@@ -84,7 +84,7 @@ describe("useSaveBggGameToLibrary", () => {
     mockRpc.mockResolvedValue({
       data: {
         id: "entry-1",
-        user_id: "user-1",
+        account_id: "account-1",
         game_id: "game-1",
         is_saved: true,
         is_loved: true,
@@ -103,7 +103,7 @@ describe("useSaveBggGameToLibrary", () => {
 
     await act(async () => {
       result.current.mutate({
-        userId: "user-1",
+        accountId: "account-1",
         selectedGame: {
           id: 123,
           name: "Heat",
@@ -129,16 +129,9 @@ describe("useSaveBggGameToLibrary", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(mockRpc).toHaveBeenCalledWith(
-      "save_bgg_game_for_user",
-      expect.not.objectContaining({
-        p_list_type: expect.anything(),
-      }),
-    );
-
-    expect(mockRpc).toHaveBeenCalledWith(
-      "save_bgg_game_for_user",
+      "save_bgg_game_for_account",
       expect.objectContaining({
-        p_user_id: "user-1",
+        p_account_id: "account-1",
         p_bgg_id: 123,
         p_name: "Heat",
         p_is_saved: true,

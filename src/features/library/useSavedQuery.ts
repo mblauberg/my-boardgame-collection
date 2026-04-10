@@ -7,7 +7,7 @@ export function useSavedQuery() {
 
   return {
     ...query,
-    queryKey: libraryKeys.saved(query.data?.[0]?.userId),
+    queryKey: libraryKeys.saved(query.data?.[0]?.accountId),
     data: selectSavedEntries(query.data ?? []),
   };
 }

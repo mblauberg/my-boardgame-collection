@@ -37,7 +37,7 @@ describe('ScenarioAccordion', () => {
     );
     expect(screen.getByText('🎲')).toBeInTheDocument();
     expect(screen.getByText('Test Preset')).toBeInTheDocument();
-    expect(screen.getByText('(1 games)')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
   });
 
   it('expands and collapses on click', async () => {

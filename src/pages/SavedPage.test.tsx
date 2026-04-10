@@ -10,6 +10,16 @@ vi.mock("../features/library/useSavedQuery", () => ({
   useSavedQuery: vi.fn(),
 }));
 
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: () => ({
+    isAuthenticated: true,
+    isOwner: false,
+    isLoading: false,
+    profile: null,
+    error: null,
+  }),
+}));
+
 vi.mock("../features/library/useLibraryFilters", () => ({
   useLibraryFilters: () => ({
     filters: {},

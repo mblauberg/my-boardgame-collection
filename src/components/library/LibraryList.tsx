@@ -1,26 +1,12 @@
-import { useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
-import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import type { LibraryEntry } from "../../features/library/library.types";
-import { GUEST_LIBRARY_USER_ID } from "../../features/library/guestLibraryStorage";
-import { useSession } from "../../features/auth/useSession";
-import {
-  useMoveSavedToCollection,
-  useUpsertLibraryState,
-  useDeleteLibraryEntry,
-} from "../../features/library/useLibraryEntryMutations";
-import {
-  getLibraryStateSnapshot,
-  hasAnyLibraryState,
-} from "../../features/library/libraryState";
 
 type LibraryListProps = {
   entries: LibraryEntry[];
-  /** When provided, distinguishes a truly empty library (totalCount === 0) from a filtered-to-zero result. */
   totalCount?: number;
+  cardContext?: string;
   getGameLinkState?: (entry: LibraryEntry) => unknown;
-  cardContext?: "collection" | "saved";
 };
 
 function formatPlayers(entry: LibraryEntry) {
@@ -35,65 +21,16 @@ function formatPlayTime(entry: LibraryEntry) {
 
 export function LibraryList({
   entries,
-  totalCount,
+  totalCount: _totalCount,
+  cardContext: _cardContext,
   getGameLinkState,
-  cardContext,
 }: LibraryListProps) {
   const location = useLocation();
-  const { user } = useSession();
-  const userId = user?.id;
-  const upsert = useUpsertLibraryState();
-  const moveToCollection = useMoveSavedToCollection();
-  const deleteLibraryEntry = useDeleteLibraryEntry();
-  const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
-
-  function handleToggleSaved(entry: LibraryEntry) {
-    const currentState = getLibraryStateSnapshot(entry);
-    const nextState = {
-      ...currentState,
-      isSaved: !currentState.isSaved,
-    };
-
-    if (!hasAnyLibraryState(nextState) && entry.id && !entry.id.startsWith("explore-")) {
-      deleteLibraryEntry.mutate({
-        ...(userId ? { userId, id: entry.id } : {}),
-        gameId: entry.game.id,
-      });
-      return;
-    }
-
-    if (!hasAnyLibraryState(nextState)) return;
-
-    upsert.mutate({
-      ...(userId ? { userId } : { game: entry.game }),
-      gameId: entry.game.id,
-      isSaved: nextState.isSaved,
-      isLoved: nextState.isLoved,
-      isInCollection: nextState.isInCollection,
-      sentiment: nextState.sentiment,
-      notes: nextState.notes,
-    });
-  }
 
   if (entries.length === 0) {
-    const isLibraryEmpty = totalCount !== undefined && totalCount === 0;
-    const contextLabel = cardContext === "saved" ? "saved games" : cardContext === "collection" ? "collection" : "library";
     return (
       <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
-        {isLibraryEmpty ? (
-          <>
-            <p className="text-base font-medium text-on-surface">Nothing here yet</p>
-            <p className="mt-1 text-sm">
-              Head to{" "}
-              <NavLink to="/explore" className="font-medium text-primary underline underline-offset-2">
-                Explore
-              </NavLink>{" "}
-              to discover games and add them to your {contextLabel}.
-            </p>
-          </>
-        ) : (
-          "No games found matching your filters."
-        )}
+        No games found matching your filters.
       </div>
     );
   }
@@ -112,85 +49,6 @@ export function LibraryList({
           backgroundLocation: location,
         };
 
-        let topRightSlot: React.ReactNode = undefined;
-        if (cardContext === "collection") {
-          topRightSlot = (
-            <LibraryStateIconButton
-              label={entry.isLoved ? "Loved" : "Add to Loved"}
-              icon="favorite"
-              isActive={entry.isLoved}
-              onClick={(e) => {
-                e.preventDefault();
-                upsert.mutate({
-                  ...(userId ? { userId } : { game: entry.game }),
-                  gameId: entry.game.id,
-                  isSaved: entry.isSaved,
-                  isLoved: !entry.isLoved,
-                  isInCollection: entry.isInCollection,
-                });
-              }}
-            />
-          );
-        } else if (cardContext === "saved") {
-          const moved = movedIds.has(entry.id);
-          topRightSlot = moved ? (
-            <span className="glass-badge flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
-              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              Moved
-            </span>
-          ) : (
-            <LibraryStateIconButton
-              label="Move to Collection"
-              icon="shelves"
-              isActive={false}
-              onClick={(e) => {
-                e.preventDefault();
-                if (userId) {
-                  moveToCollection.mutate(
-                    { id: entry.id, userId },
-                    { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
-                  );
-                  return;
-                }
-
-                upsert.mutate(
-                  {
-                    game: entry.game,
-                    gameId: entry.game.id,
-                    isSaved: false,
-                    isLoved: entry.isLoved,
-                    isInCollection: true,
-                    sentiment: entry.sentiment,
-                    notes: entry.notes,
-                  },
-                  { onSuccess: () => setMovedIds((prev) => new Set(prev).add(entry.id)) },
-                );
-              }}
-            />
-          );
-        } else if (!cardContext && !entry.isInCollection) {
-          topRightSlot = (
-            <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-              <LibraryStateIconButton
-                label="Saved"
-                icon="bookmark"
-                isActive={entry.isSaved}
-                disabled={upsert.isPending || deleteLibraryEntry.isPending}
-                onClick={() => handleToggleSaved(entry)}
-              />
-            </div>
-          );
-        }
-
-        if (cardContext === "saved" && entry.userId === GUEST_LIBRARY_USER_ID && entry.isInCollection) {
-          topRightSlot = (
-            <span className="glass-badge flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
-              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              Moved
-            </span>
-          );
-        }
-
         return (
           <article key={entry.id} className="space-y-4">
             <Link aria-label={entry.game.name} state={linkState} to={`/game/${entry.game.slug}`}>
@@ -201,10 +59,8 @@ export function LibraryList({
                 players={formatPlayers(entry)}
                 playTime={formatPlayTime(entry)}
                 weight={entry.game.bggWeight?.toFixed(1)}
-                rating={entry.game.bggRating ?? undefined}
                 isFavorite={entry.isLoved}
-                badge={cardContext ? undefined : entry.isInCollection ? "In Collection" : entry.isSaved ? "Saved" : undefined}
-                topRightSlot={topRightSlot}
+                badge={entry.isInCollection ? "In Collection" : entry.isSaved ? "Saved" : undefined}
               />
             </Link>
           </article>

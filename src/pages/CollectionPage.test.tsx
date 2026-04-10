@@ -10,6 +10,16 @@ vi.mock("../features/library/useCollectionQuery", () => ({
   useCollectionQuery: vi.fn(),
 }));
 
+vi.mock("../features/auth/useProfile", () => ({
+  useProfile: () => ({
+    isAuthenticated: true,
+    isOwner: false,
+    isLoading: false,
+    profile: null,
+    error: null,
+  }),
+}));
+
 vi.mock("../features/library/useLibraryFilters", () => ({
   useLibraryFilters: () => ({
     filters: {},
