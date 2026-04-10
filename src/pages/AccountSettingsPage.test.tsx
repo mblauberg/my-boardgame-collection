@@ -87,7 +87,7 @@ describe("AccountSettingsPage", () => {
   it("renders a quiet sign-in methods card with a premium no-passkey state", async () => {
     renderAccountSettingsPage();
 
-    expect(await screen.findByRole("button", { name: /^sign-in methods$/i })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /^manage$/i })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /set up passkey/i })).toBeInTheDocument();
     expect(screen.getAllByText(/alice@example.com/i).length).toBeGreaterThan(0);
   });
@@ -96,7 +96,7 @@ describe("AccountSettingsPage", () => {
     const user = userEvent.setup();
 
     renderAccountSettingsPage();
-    await user.click(screen.getByRole("button", { name: /^sign-in methods$/i }));
+    await user.click(screen.getByRole("button", { name: /^manage$/i }));
 
     const dialog = screen.getByRole("dialog", { name: /sign-in methods/i });
     expect(dialog).toBeInTheDocument();
