@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { syncAccountSession } from "../features/auth/accountSecurityApi";
 import { getSupabaseBrowserClient } from "../lib/supabase/client";
 
+function getPostSignInPath(needsPasskeyPrompt: boolean) {
+  return needsPasskeyPrompt ? "/?passkey_prompt=1" : "/";
+}
+
 export function AuthCallbackPage() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -25,15 +29,15 @@ export function AuthCallbackPage() {
 
     const runSecuritySync = async () => {
       try {
-        await syncAccountSession();
-        return true;
+        return await syncAccountSession();
       } catch (error) {
+        await supabase.auth.signOut();
         if (error instanceof Error) {
           setErrorMessage(error.message);
         } else {
           setErrorMessage("Unable to finish account security sync.");
         }
-        return false;
+        return null;
       }
     };
 
@@ -64,8 +68,8 @@ export function AuthCallbackPage() {
           return;
         }
 
-        const isSynced = await runSecuritySync();
-        if (!isActive || !isSynced) return;
+        const syncResult = await runSecuritySync();
+        if (!isActive || !syncResult) return;
 
         navigate(mergeData.merged ? "/settings?merged=true" : "/settings", { replace: true });
         return;
@@ -80,10 +84,10 @@ export function AuthCallbackPage() {
       }
 
       if (data.session) {
-        const isSynced = await runSecuritySync();
-        if (!isActive || !isSynced) return;
+        const syncResult = await runSecuritySync();
+        if (!isActive || !syncResult) return;
 
-        navigate("/signin", { replace: true });
+        navigate(getPostSignInPath(syncResult.needsPasskeyPrompt), { replace: true });
         return;
       }
 
@@ -100,10 +104,10 @@ export function AuthCallbackPage() {
 
           if (event === "SIGNED_IN" && session) {
             void (async () => {
-              const isSynced = await runSecuritySync();
-              if (!isActive || !isSynced) return;
+              const syncResult = await runSecuritySync();
+              if (!isActive || !syncResult) return;
 
-              navigate("/signin", { replace: true });
+              navigate(getPostSignInPath(syncResult.needsPasskeyPrompt), { replace: true });
             })();
           }
         }).data.subscription;

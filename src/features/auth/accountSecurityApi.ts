@@ -12,6 +12,10 @@ export type AccountSecuritySummaryResponse = {
   }>;
 };
 
+export type AccountSessionSyncResponse = {
+  needsPasskeyPrompt: boolean;
+};
+
 function normalizeSummary(
   payload: Partial<AccountSecuritySummaryResponse> | null | undefined,
 ): AccountSecuritySummaryResponse {
@@ -23,12 +27,19 @@ function normalizeSummary(
   };
 }
 
-export async function syncAccountSession() {
+export async function syncAccountSession(): Promise<AccountSessionSyncResponse> {
   const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.functions.invoke("account-sync-session", undefined);
+  const { data, error } = await supabase.functions.invoke<Partial<AccountSessionSyncResponse>>(
+    "account-sync-session",
+    undefined,
+  );
   if (error) {
     throw new Error(error.message);
   }
+
+  return {
+    needsPasskeyPrompt: data?.needsPasskeyPrompt === true,
+  };
 }
 
 export async function fetchAccountSecuritySummary(): Promise<AccountSecuritySummaryResponse> {

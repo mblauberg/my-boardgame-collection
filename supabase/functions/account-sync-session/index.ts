@@ -1,4 +1,8 @@
-import { syncCurrentAccountSecurity, AccountSecurityError } from "../_shared/accountSecurity.ts";
+import {
+  syncCurrentAccountSecurity,
+  AccountSecurityError,
+  getAccountSecuritySummaryForRequest,
+} from "../_shared/accountSecurity.ts";
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
@@ -7,7 +11,11 @@ Deno.serve(async (req) => {
 
   try {
     await syncCurrentAccountSecurity(req);
-    return Response.json({ ok: true }, { headers: corsHeaders });
+    const summary = await getAccountSecuritySummaryForRequest(req);
+    return Response.json(
+      { ok: true, needsPasskeyPrompt: summary.passkeys.length === 0 },
+      { headers: corsHeaders },
+    );
   } catch (error) {
     if (error instanceof AccountSecurityError) {
       return Response.json({ error: error.message }, { status: error.status, headers: corsHeaders });

@@ -17,11 +17,12 @@ describe("accountSecurityApi", () => {
   });
 
   it("invokes account-sync-session for the signed-in user", async () => {
-    mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
+    mockInvoke.mockResolvedValue({ data: { ok: true, needsPasskeyPrompt: true }, error: null });
 
-    await syncAccountSession();
+    const result = await syncAccountSession();
 
     expect(mockInvoke).toHaveBeenCalledWith("account-sync-session", undefined);
+    expect(result).toEqual({ needsPasskeyPrompt: true });
   });
 
   it("loads account-security-summary from the edge function", async () => {

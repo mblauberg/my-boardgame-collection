@@ -5,6 +5,10 @@ import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { startAuthentication } from "@simplewebauthn/browser";
 
+const { mockCancelCeremony } = vi.hoisted(() => ({
+  mockCancelCeremony: vi.fn(),
+}));
+
 const mockUseProfile = vi.fn();
 const mockSignIn = vi.fn();
 const mockSignOut = vi.fn();
@@ -40,6 +44,9 @@ vi.mock("../../lib/supabase/client", () => ({
 
 vi.mock("@simplewebauthn/browser", () => ({
   startAuthentication: vi.fn(),
+  WebAuthnAbortService: {
+    cancelCeremony: mockCancelCeremony,
+  },
 }));
 
 vi.mock("./useProfile", () => ({
@@ -63,6 +70,15 @@ function TestWrapper({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
+function renderSignInForm() {
+  return render(
+    <MemoryRouter>
+      <SignInForm />
+    </MemoryRouter>,
+    { wrapper: TestWrapper },
+  );
+}
+
 describe("SignInForm", () => {
   beforeEach(() => {
     mockUseProfile.mockReset();
@@ -72,6 +88,7 @@ describe("SignInForm", () => {
     mockLinkIdentity.mockClear();
     mockVerifyOtp.mockClear();
     mockInvoke.mockClear();
+    mockCancelCeremony.mockClear();
     vi.mocked(startAuthentication).mockReset();
 
     mockSignInWithOAuth.mockImplementation(async ({ options }: { options?: { skipBrowserRedirect?: boolean } }) => {
@@ -110,7 +127,7 @@ describe("SignInForm", () => {
   });
 
   it("renders the email field before OAuth buttons", () => {
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     const email = screen.getByPlaceholderText(/email/i);
     const googleButton = screen.getByRole("button", { name: /google/i });
@@ -119,14 +136,14 @@ describe("SignInForm", () => {
   });
 
   it("email input has autocomplete='username webauthn'", () => {
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     const email = screen.getByPlaceholderText(/email/i);
     expect(email).toHaveAttribute("autocomplete", "username webauthn");
   });
 
   it("does not render a standalone passkey button", () => {
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     expect(screen.queryByRole("button", { name: /passkey/i })).not.toBeInTheDocument();
   });
@@ -150,7 +167,7 @@ describe("SignInForm", () => {
       error: null,
     });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     expect(screen.queryByText(/link another sign-in method/i)).not.toBeInTheDocument();
   });
@@ -159,7 +176,7 @@ describe("SignInForm", () => {
     const user = userEvent.setup();
     mockSignIn.mockResolvedValueOnce({ error: null });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
@@ -176,7 +193,7 @@ describe("SignInForm", () => {
     const user = userEvent.setup();
     mockSignIn.mockResolvedValueOnce({ error: null });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
@@ -195,7 +212,7 @@ describe("SignInForm", () => {
   it("shows validation error for invalid email", async () => {
     const user = userEvent.setup();
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     const emailInput = screen.getByLabelText(/email/i);
     await user.type(emailInput, "invalid-email");
@@ -210,7 +227,7 @@ describe("SignInForm", () => {
     const user = userEvent.setup();
     mockSignIn.mockResolvedValueOnce({ error: null });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
@@ -222,7 +239,7 @@ describe("SignInForm", () => {
     const user = userEvent.setup();
     mockSignIn.mockResolvedValueOnce({ error: { message: "Network error" } });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     await user.type(screen.getByLabelText(/email/i), "owner@example.com");
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
@@ -231,7 +248,7 @@ describe("SignInForm", () => {
   });
 
   it("offers multiple OAuth sign-in options", async () => {
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue with apple/i })).toBeInTheDocument();
@@ -245,7 +262,7 @@ describe("SignInForm", () => {
   it("starts OAuth sign in when a provider button is clicked", async () => {
     const user = userEvent.setup();
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /continue with google/i })).toBeEnabled();
     });
@@ -286,7 +303,7 @@ describe("SignInForm", () => {
       return { data: { url: "https://oauth.example.com/auth" }, error: null };
     });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     const appleButton = screen.getByRole("button", { name: /continue with apple/i });
     await waitFor(() => {
@@ -315,7 +332,7 @@ describe("SignInForm", () => {
     vi.mocked(startAuthentication).mockResolvedValue({ id: "credential-id" } as never);
     mockVerifyOtp.mockResolvedValue({ error: null });
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     await waitFor(() => {
       expect(startAuthentication).toHaveBeenCalledWith(
@@ -326,7 +343,6 @@ describe("SignInForm", () => {
 
   it("aborts the conditional request when the email form is submitted", async () => {
     const user = userEvent.setup();
-    const abortSpy = vi.spyOn(AbortController.prototype, "abort");
     mockSignIn.mockResolvedValue({ error: null });
     mockInvoke.mockImplementation(async (functionName: string) => {
       if (functionName === "passkey-auth-options") {
@@ -336,7 +352,7 @@ describe("SignInForm", () => {
     });
     vi.mocked(startAuthentication).mockImplementation(() => new Promise(() => {}));
 
-    render(<SignInForm />, { wrapper: TestWrapper });
+    renderSignInForm();
 
     await waitFor(() => {
       expect(startAuthentication).toHaveBeenCalled();
@@ -344,6 +360,6 @@ describe("SignInForm", () => {
     await user.type(screen.getByLabelText(/email/i), "test@example.com");
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
-    expect(abortSpy).toHaveBeenCalled();
+    expect(mockCancelCeremony).toHaveBeenCalled();
   });
 });

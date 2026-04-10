@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 const mockNavigate = vi.fn();
 const mockGetSession = vi.fn();
 const mockInvoke = vi.fn();
+const mockSignOut = vi.fn();
 const mockOnAuthStateChange = vi.fn(() => ({
   data: { subscription: { unsubscribe: vi.fn() } },
 }));
@@ -21,6 +22,7 @@ vi.mock("../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => ({
     auth: {
       getSession: mockGetSession,
+      signOut: mockSignOut,
       onAuthStateChange: mockOnAuthStateChange,
     },
     functions: {
@@ -55,21 +57,36 @@ describe("AuthCallbackPage", () => {
     mockNavigate.mockReset();
     mockGetSession.mockReset();
     mockInvoke.mockReset();
+    mockSignOut.mockReset();
     mockOnAuthStateChange.mockClear();
   });
 
-  it("syncs account security before redirecting after sign-in", async () => {
+  it("syncs account security before redirecting to the collection after sign-in", async () => {
     mockGetSession.mockResolvedValue({
       data: { session: { access_token: "token", user: { id: "user-1" } } },
       error: null,
     });
-    mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
+    mockInvoke.mockResolvedValue({ data: { ok: true, needsPasskeyPrompt: false }, error: null });
 
     renderPage();
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("account-sync-session", undefined);
-      expect(mockNavigate).toHaveBeenCalledWith("/signin", { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
+    });
+  });
+
+  it("adds the post-login prompt flag when the synced account still needs a passkey", async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: { access_token: "token", user: { id: "user-1" } } },
+      error: null,
+    });
+    mockInvoke.mockResolvedValue({ data: { ok: true, needsPasskeyPrompt: true }, error: null });
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith("/?passkey_prompt=1", { replace: true });
     });
   });
 });

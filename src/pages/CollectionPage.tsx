@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { AddGameWizardOverlay } from "../components/library/AddGameWizardOverlay";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
@@ -11,17 +11,37 @@ import { filterLibraryEntries, sortLibraryEntries } from "../features/library/li
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
 import { useLibraryFilters } from "../features/library/useLibraryFilters";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
+import { PasskeyRegistrationPrompt } from "../features/auth/PasskeyRegistrationPrompt";
+import { useAccountSecuritySummary } from "../features/auth/useAccountSecuritySummary";
 import { useProfile } from "../features/auth/useProfile";
 import { getSignInRouteState } from "../features/auth/signInNavigation";
 
 export function CollectionPage() {
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showPostSignInPasskeyPrompt, setShowPostSignInPasskeyPrompt] = useState(
+    () => searchParams.get("passkey_prompt") === "1",
+  );
   const { isAuthenticated } = useProfile();
+  const { data: securitySummary, isLoading: isSecuritySummaryLoading } = useAccountSecuritySummary();
   const location = useLocation();
   const navigate = useNavigate();
   const { data: entries, isLoading, error } = useCollectionQuery();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
+
+  useEffect(() => {
+    if (searchParams.get("passkey_prompt") !== "1") {
+      return;
+    }
+
+    setShowPostSignInPasskeyPrompt(true);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.delete("passkey_prompt");
+      return next;
+    }, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   if (isLoading) {
     return (
@@ -78,6 +98,12 @@ export function CollectionPage() {
           >
             Sign in to sync
           </Link>
+        </div>
+      )}
+
+      {showPostSignInPasskeyPrompt && isAuthenticated && !isSecuritySummaryLoading && (
+        <div className="mb-6">
+          <PasskeyRegistrationPrompt hasPasskeys={(securitySummary?.passkeys.length ?? 0) > 0} />
         </div>
       )}
 

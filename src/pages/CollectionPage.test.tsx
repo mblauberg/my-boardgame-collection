@@ -5,6 +5,7 @@ import { CollectionPage } from "./CollectionPage";
 import { renderWithProviders } from "../test/testUtils";
 
 const mockUseProfile = vi.fn();
+const mockUseAccountSecuritySummary = vi.fn();
 
 vi.mock("../features/library/useCollectionQuery", () => ({
   useCollectionQuery: vi.fn(),
@@ -40,10 +41,18 @@ vi.mock("../components/library/AddGameWizardOverlay", () => ({
     isOpen ? <div>{`Add game wizard (${JSON.stringify(defaultState)})`}</div> : null,
 }));
 
+vi.mock("../features/auth/PasskeyRegistrationPrompt", () => ({
+  PasskeyRegistrationPrompt: () => <div>Passkey prompt</div>,
+}));
+
 import { useCollectionQuery } from "../features/library/useCollectionQuery";
 
 vi.mock("../features/auth/useProfile", () => ({
   useProfile: () => mockUseProfile(),
+}));
+
+vi.mock("../features/auth/useAccountSecuritySummary", () => ({
+  useAccountSecuritySummary: () => mockUseAccountSecuritySummary(),
 }));
 
 function LocationProbe() {
@@ -60,12 +69,22 @@ function LocationProbe() {
 describe("CollectionPage", () => {
   beforeEach(() => {
     mockUseProfile.mockReset();
+    mockUseAccountSecuritySummary.mockReset();
     mockUseProfile.mockReturnValue({
       profile: null,
       isOwner: false,
       isAuthenticated: false,
       isLoading: false,
       error: null,
+    });
+    mockUseAccountSecuritySummary.mockReturnValue({
+      data: {
+        primaryEmail: "alice@example.com",
+        emails: [{ id: "alice@example.com-0", value: "alice@example.com", isPrimary: true }],
+        identities: [],
+        passkeys: [],
+      },
+      isLoading: false,
     });
   });
 
@@ -142,5 +161,25 @@ describe("CollectionPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("glass-surface-panel");
     expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
+  });
+
+  it("shows the passkey prompt immediately after a post-auth redirect when the account has no passkeys", () => {
+    mockUseProfile.mockReturnValue({
+      profile: { id: "user-1", email: "alice@example.com" },
+      isOwner: false,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+
+    vi.mocked(useCollectionQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as never);
+
+    renderWithProviders(<CollectionPage />, "/?passkey_prompt=1");
+
+    expect(screen.getByText("Passkey prompt")).toBeInTheDocument();
   });
 });

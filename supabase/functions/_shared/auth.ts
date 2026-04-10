@@ -61,7 +61,18 @@ export type AccountContext = {
   primaryAuthUserId: string;
 };
 
-export async function resolveAccountContextForAuthUser(authUserId: string): Promise<AccountContext> {
+function normalizeEmailCandidates(candidates: string[]): string[] {
+  return [...new Set(
+    candidates
+      .map((candidate) => candidate.trim().toLowerCase())
+      .filter((candidate) => candidate.length > 0),
+  )];
+}
+
+export async function resolveAccountContextForAuthUser(
+  authUserId: string,
+  verifiedEmailCandidates: string[] = [],
+): Promise<AccountContext> {
   const supabase = getServiceClient();
 
   const { data: identityRows, error: identityError } = await supabase
@@ -75,7 +86,42 @@ export async function resolveAccountContextForAuthUser(authUserId: string): Prom
     throw new Error(identityError.message);
   }
 
-  let accountId = identityRows?.[0]?.account_id ?? authUserId;
+  const linkedAccountId = identityRows?.[0]?.account_id ?? null;
+  let accountId = linkedAccountId ?? authUserId;
+
+  const normalizedCandidates = normalizeEmailCandidates(verifiedEmailCandidates);
+  if (!linkedAccountId && normalizedCandidates.length > 0) {
+    const { data: accountEmailRows, error: accountEmailError } = await supabase
+      .from("account_emails")
+      .select("account_id")
+      .in("email_normalized", normalizedCandidates)
+      .limit(1);
+
+    if (accountEmailError) {
+      throw new Error(accountEmailError.message);
+    }
+
+    const matchedAccountId = accountEmailRows?.[0]?.account_id;
+    if (matchedAccountId) {
+      const { data: accountByEmail, error: accountByEmailError } = await supabase
+        .from("accounts")
+        .select("id,primary_auth_user_id")
+        .eq("id", matchedAccountId)
+        .maybeSingle();
+
+      if (accountByEmailError) {
+        throw new Error(accountByEmailError.message);
+      }
+
+      if (accountByEmail) {
+        return {
+          accountId: accountByEmail.id,
+          authUserId,
+          primaryAuthUserId: accountByEmail.primary_auth_user_id,
+        };
+      }
+    }
+  }
 
   const { data: accountById, error: accountByIdError } = await supabase
     .from("accounts")

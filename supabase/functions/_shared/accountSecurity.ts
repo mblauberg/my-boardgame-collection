@@ -1,5 +1,6 @@
 import type { User } from "npm:@supabase/supabase-js@2";
 import { getAuthUserFromRequest, getServiceClient, resolveAccountContextForAuthUser } from "./auth.ts";
+import { getActiveProviderState, getVerifiedEmailCandidates } from "./accountSecurityLogic.ts";
 
 type AuthIdentity = {
   identity_id?: string | null;
@@ -36,12 +37,6 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-function toBoolean(value: unknown): boolean {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "string") return value.toLowerCase() === "true";
-  return false;
-}
-
 function getAuthIdentities(user: User): AuthIdentity[] {
   const identities = (user as User & { identities?: unknown }).identities;
   if (!Array.isArray(identities)) return [];
@@ -58,6 +53,72 @@ async function callRpcOrThrow(functionName: string, params: Record<string, unkno
   const { error } = await supabase.rpc(functionName, params);
   if (error) {
     throw new AccountSecurityError(500, error.message);
+  }
+}
+
+function getProviderLabel(provider: string): string {
+  switch (provider) {
+    case "apple":
+      return "Apple";
+    case "discord":
+      return "Discord";
+    case "github":
+      return "GitHub";
+    case "google":
+      return "Google";
+    default:
+      return provider.charAt(0).toUpperCase() + provider.slice(1);
+  }
+}
+
+async function ensureAccountExists(authUser: User, accountId: string, primaryAuthUserId: string) {
+  const supabase = getServiceClient();
+
+  const { data: account, error: accountError } = await supabase
+    .from("accounts")
+    .select("id")
+    .eq("id", accountId)
+    .maybeSingle();
+
+  if (accountError) {
+    throw new AccountSecurityError(500, accountError.message);
+  }
+
+  if (!account) {
+    if (accountId !== authUser.id || primaryAuthUserId !== authUser.id) {
+      throw new AccountSecurityError(500, "Resolved account is missing");
+    }
+
+    const { error: insertAccountError } = await supabase.from("accounts").insert({
+      id: authUser.id,
+      primary_auth_user_id: authUser.id,
+    });
+
+    if (insertAccountError) {
+      throw new AccountSecurityError(500, insertAccountError.message);
+    }
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", accountId)
+    .maybeSingle();
+
+  if (profileError) {
+    throw new AccountSecurityError(500, profileError.message);
+  }
+
+  if (!profile) {
+    const { error: insertProfileError } = await supabase.from("profiles").insert({
+      id: accountId,
+      email: authUser.email ?? null,
+      role: "viewer",
+    });
+
+    if (insertProfileError) {
+      throw new AccountSecurityError(500, insertProfileError.message);
+    }
   }
 }
 
@@ -138,7 +199,28 @@ export async function syncCurrentAccountSecurity(req: Request) {
     throw new AccountSecurityError(401, "Unauthorized");
   }
 
-  const accountContext = await resolveAccountContextForAuthUser(authUser.id);
+  const verifiedEmailCandidates = getVerifiedEmailCandidates({
+    email: authUser.email,
+    email_confirmed_at: authUser.email_confirmed_at,
+    app_metadata: authUser.app_metadata as Record<string, unknown> | undefined,
+    identities: getAuthIdentities(authUser),
+  });
+  const activeProviderState = getActiveProviderState({
+    email: authUser.email,
+    email_confirmed_at: authUser.email_confirmed_at,
+    app_metadata: authUser.app_metadata as Record<string, unknown> | undefined,
+    identities: getAuthIdentities(authUser),
+  });
+
+  if (activeProviderState.shouldReject) {
+    throw new AccountSecurityError(
+      403,
+      `We couldn't verify your email address with ${getProviderLabel(activeProviderState.provider)}. Please sign in with a verified email.`,
+    );
+  }
+
+  const accountContext = await resolveAccountContextForAuthUser(authUser.id, verifiedEmailCandidates);
+  await ensureAccountExists(authUser, accountContext.accountId, accountContext.primaryAuthUserId);
   const identities = getAuthIdentities(authUser);
   const hasConfirmedPrimaryEmail = isNonEmptyString(authUser.email) && !!authUser.email_confirmed_at;
 
@@ -172,12 +254,7 @@ export async function syncCurrentAccountSecurity(req: Request) {
     const providerEmail = isNonEmptyString(identity.identity_data?.email)
       ? identity.identity_data.email.toLowerCase()
       : null;
-    const providerEmailVerified =
-      toBoolean(identity.identity_data?.email_verified) ||
-      (providerEmail !== null &&
-        isNonEmptyString(authUser.email) &&
-        authUser.email_confirmed_at !== null &&
-        providerEmail === authUser.email.toLowerCase());
+    const providerEmailVerified = verifiedEmailCandidates.includes(providerEmail ?? "");
 
     await callRpcOrThrow("sync_account_identity", {
       p_account_id: accountContext.accountId,
@@ -201,7 +278,15 @@ export async function getAccountSecuritySummaryForRequest(
     throw new AccountSecurityError(401, "Unauthorized");
   }
 
-  const accountContext = await resolveAccountContextForAuthUser(authUser.id);
+  const accountContext = await resolveAccountContextForAuthUser(
+    authUser.id,
+    getVerifiedEmailCandidates({
+      email: authUser.email,
+      email_confirmed_at: authUser.email_confirmed_at,
+      app_metadata: authUser.app_metadata as Record<string, unknown> | undefined,
+      identities: getAuthIdentities(authUser),
+    }),
+  );
   const supabase = getServiceClient();
   const { data, error } = await supabase.rpc("get_account_security_summary", {
     p_account_id: accountContext.accountId,

@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
 import {
+  WebAuthnAbortService,
   startAuthentication,
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/browser";
@@ -38,15 +40,20 @@ function getAuthRedirectUrl() {
   return `${window.location.origin}/auth/callback`;
 }
 
+function getPostSignInPath(needsPasskeyPrompt: boolean) {
+  return needsPasskeyPrompt ? "/?passkey_prompt=1" : "/";
+}
+
 export function SignInForm() {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
+  const navigate = useNavigate();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [providerAvailability, setProviderAvailability] = useState<OAuthProviderAvailabilityMap>(
     INITIAL_PROVIDER_AVAILABILITY,
   );
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const hasConditionalPasskeyFlowRef = useRef(false);
 
   const {
     register,
@@ -101,8 +108,7 @@ export function SignInForm() {
         return;
       }
 
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
+      hasConditionalPasskeyFlowRef.current = true;
 
       let credential;
       try {
@@ -116,9 +122,7 @@ export function SignInForm() {
         }
         return;
       } finally {
-        if (abortControllerRef.current === controller) {
-          abortControllerRef.current = null;
-        }
+        hasConditionalPasskeyFlowRef.current = false;
       }
 
       if (!isActive) {
@@ -144,9 +148,13 @@ export function SignInForm() {
       }
 
       try {
-        await syncAccountSession();
+        const syncResult = await syncAccountSession();
+        if (!isActive) return;
+
+        navigate(getPostSignInPath(syncResult.needsPasskeyPrompt), { replace: true });
       } catch (_error) {
         if (isActive) {
+          await supabase.auth.signOut();
           setStatus("error");
           setErrorMessage("Passkey sign-in failed. Please try another method.");
         }
@@ -157,14 +165,18 @@ export function SignInForm() {
 
     return () => {
       isActive = false;
-      abortControllerRef.current?.abort();
-      abortControllerRef.current = null;
+      if (hasConditionalPasskeyFlowRef.current) {
+        WebAuthnAbortService.cancelCeremony();
+      }
+      hasConditionalPasskeyFlowRef.current = false;
     };
-  }, [supabase]);
+  }, [navigate, supabase]);
 
   const onSubmit = async (data: SignInFormData) => {
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
+    if (hasConditionalPasskeyFlowRef.current) {
+      WebAuthnAbortService.cancelCeremony();
+      hasConditionalPasskeyFlowRef.current = false;
+    }
 
     setStatus("loading");
     setErrorMessage(null);
@@ -189,8 +201,10 @@ export function SignInForm() {
   const handleOAuthSignIn = async (provider: SupportedOAuthProvider, label: string) => {
     if (providerAvailability[provider] !== "available") return;
 
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
+    if (hasConditionalPasskeyFlowRef.current) {
+      WebAuthnAbortService.cancelCeremony();
+      hasConditionalPasskeyFlowRef.current = false;
+    }
 
     setStatus("loading");
     setErrorMessage(null);
