@@ -129,7 +129,9 @@ function relativePath(fromRoot: string): string {
 
 describe("theme style consistency policy", () => {
   it("detects hardcoded colors across modern CSS color functions case-insensitively", () => {
-    const source = "oklch(62% 0.2 20) OKLAB(0.62 0.1 0.03) Lab(50 10 20) LCH(52 40 260)";
+    const source =
+      "oklch(62% 0.2 20) OKLAB(0.62 0.1 0.03) Lab(50 10 20) LCH(52 40 260) " +
+      "hwb(220 20% 10%) COLOR(display-p3 0.4 0.2 0.7) color-mix(in srgb, red 40%, blue)";
     const matches = source.match(HARD_CODED_COLOR_PATTERN);
 
     expect(matches).toEqual([
@@ -137,6 +139,9 @@ describe("theme style consistency policy", () => {
       "OKLAB(0.62 0.1 0.03)",
       "Lab(50 10 20)",
       "LCH(52 40 260)",
+      "hwb(220 20% 10%)",
+      "COLOR(display-p3 0.4 0.2 0.7)",
+      "color-mix(in srgb, red 40%, blue)",
     ]);
   });
 

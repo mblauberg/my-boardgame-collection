@@ -5,7 +5,7 @@
 Use tokenized styling as the default in `src/**/*.{ts,tsx}` runtime files:
 
 - Prefer theme token classes such as `text-primary`, `bg-surface`, `border-outline`.
-- Avoid hardcoded colour literals (`#hex`, `rgb()`, `hsl()`) in runtime UI logic/components.
+- Avoid hardcoded colour literals/functions (`#hex`, `rgb/rgba`, `hsl/hsla`, `hwb`, `color()`, `color-mix()`, `oklch`, `oklab`, `lab`, `lch`) in runtime UI logic/components.
 - Avoid introducing new arbitrary-value utility classes unless they are reviewed and allowlisted.
 
 ## Enforced guardrails
