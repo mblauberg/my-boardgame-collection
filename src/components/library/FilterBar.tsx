@@ -107,8 +107,9 @@ export function FilterBar({
       {presets.length > 0 ? (
         <QuickFilterPresets presets={presets} onSelect={onFiltersChange} />
       ) : null}
-      <div 
-        className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
+      <div
+        data-testid="advanced-filters-container"
+        className={`grid overflow-x-clip transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
           isAdvancedOpen 
             ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0" 
             : "grid-rows-[0fr] opacity-0 scale-95 -translate-y-4 pointer-events-none"

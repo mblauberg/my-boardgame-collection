@@ -68,4 +68,19 @@ describe("FilterBar", () => {
 
     expect(onSortChange).toHaveBeenCalledWith("rank", "desc");
   });
+
+  it("clips the collapsed advanced filters container to avoid mobile viewport overflow", () => {
+    render(
+      <FilterBar
+        filters={{}}
+        sortBy="rank"
+        sortDirection="asc"
+        onFiltersChange={vi.fn()}
+        onSortChange={vi.fn()}
+        onClearFilters={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("advanced-filters-container")).toHaveClass("overflow-x-clip");
+  });
 });

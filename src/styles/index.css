@@ -148,11 +148,16 @@
 
 html {
   height: -webkit-fill-available;
+  background-color: rgb(var(--surface));
+  margin: 0;
+  padding: 0;
 }
 
 body {
   margin: 0;
+  padding: 0;
   min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   width: 100%;
   min-width: 320px;
