@@ -10,6 +10,9 @@ type SignInMethodsSheetProps = {
 
 export function SignInMethodsPanelContent({ summary }: { summary: AccountSecuritySummary }) {
   const { theme } = useTheme();
+  const sectionClassName = "glass-surface-panel rounded-2xl p-5";
+  const itemClassName =
+    "flex items-center gap-4 rounded-xl border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40";
 
   const getProviderIcon = (provider: string) => {
     switch (provider) {
@@ -28,7 +31,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 shadow-sm dark:bg-surface-container-high/45">
+      <section className={sectionClassName}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20">
@@ -59,7 +62,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
             {summary.passkeys.map((passkey) => (
               <div
                 key={passkey.id}
-                className="flex items-center gap-4 rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
+                className={itemClassName}
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface-variant">
                   <span className="material-symbols-outlined text-[20px]">
@@ -86,7 +89,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
         )}
       </section>
 
-      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 shadow-sm dark:bg-surface-container-high/45">
+      <section className={sectionClassName}>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 text-secondary dark:bg-secondary/20">
             <span className="material-symbols-outlined text-[22px]">link</span>
@@ -106,7 +109,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
             summary.identities.map((identity) => (
               <div
                 key={identity.provider}
-                className="flex items-center gap-4 rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
+                className={itemClassName}
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60">
                   <Icon icon={getProviderIcon(identity.provider)} className="h-5 w-5" />
@@ -121,14 +124,14 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
               </div>
             ))
           ) : (
-            <div className="rounded-[1.25rem] border border-outline/5 bg-surface-container-low/50 px-4 py-4 dark:bg-surface/20">
+            <div className="rounded-xl border border-outline/5 bg-surface-container-low/50 px-4 py-4 dark:bg-surface/20">
               <p className="text-sm text-on-surface-variant">No social accounts linked yet.</p>
             </div>
           )}
         </div>
       </section>
 
-      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 shadow-sm dark:bg-surface-container-high/45">
+      <section className={sectionClassName}>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary dark:bg-tertiary/20">
             <span className="material-symbols-outlined text-[22px]">mail</span>
@@ -147,7 +150,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
           {summary.emails.map((email) => (
             <div
               key={email.id}
-              className="flex items-center justify-between gap-3 rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
+              className="flex items-center justify-between gap-3 rounded-xl border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-on-surface">{email.value}</p>
@@ -183,7 +186,7 @@ export function SignInMethodsSheet({ isOpen, onClose, summary }: SignInMethodsSh
         role="dialog"
         aria-modal="true"
         aria-label="Sign-in methods"
-        className="glass-surface-panel max-h-[min(48rem,calc(100dvh-3rem))] w-full max-w-[44rem] overflow-hidden rounded-[2rem] border border-white/20 shadow-[0_32px_120px_rgba(0,0,0,0.25)] dark:border-white/10"
+        className="glass-surface-panel max-h-[min(48rem,calc(100dvh-3rem))] w-full max-w-[44rem] overflow-hidden rounded-2xl border shadow-ambient"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-outline/10 px-6 py-5">

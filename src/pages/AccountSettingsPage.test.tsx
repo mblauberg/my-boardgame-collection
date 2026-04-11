@@ -150,7 +150,7 @@ describe("AccountSettingsPage", () => {
 
     const dialog = screen.getByRole("dialog", { name: /sign-in methods/i });
     expect(dialog).toBeInTheDocument();
-    expect(within(dialog).getByText(/^linked providers$/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/^social accounts$/i)).toBeInTheDocument();
   });
 
   it("loads the profile values and saves updates through the profile mutation", async () => {

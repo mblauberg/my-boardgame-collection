@@ -3,6 +3,7 @@ import { AdvancedFilters } from "./AdvancedFilters";
 import { ExpandableSearchSection } from "./ExpandableSearchSection";
 import { QuickFilterPresets } from "./QuickFilterPresets";
 import { PillSelector } from "../ui/PillSelector";
+import { SurfacePanel } from "../ui/SurfacePanel";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
 import { useDebouncedTextInput } from "../../lib/utils/useDebouncedTextInput";
@@ -115,7 +116,7 @@ export function FilterBar({
         }`}
       >
         <div className="overflow-hidden px-8 py-10 -mx-8 -my-10">
-          <div className="glass-surface-panel mt-6 space-y-6 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+          <SurfacePanel className="mt-6 space-y-6 rounded-3xl p-8">
             <div className="space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
                 Sort By
@@ -153,7 +154,7 @@ export function FilterBar({
                 Reset all filters
               </button>
             </div>
-          </div>
+          </SurfacePanel>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   type PublicKeyCredentialCreationOptionsJSON,
 } from "@simplewebauthn/browser";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
+import { SurfacePanel } from "../../components/ui/SurfacePanel";
 
 const SUPPRESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 export const PASSKEY_PROMPT_SUPPRESSION_KEY = "passkey_prompt_suppressed_at";
@@ -88,17 +89,20 @@ export function PasskeyRegistrationPrompt({
 
   if (status === "success") {
     return (
-      <div className="rounded-[1.5rem] border border-secondary/20 bg-secondary/10 p-4 text-center text-sm font-bold text-secondary">
+      <SurfacePanel
+        spacing="compact"
+        className="rounded-2xl border-secondary/20 bg-secondary/10 p-4 text-center text-sm font-bold text-secondary"
+      >
         Passkey enabled
-      </div>
+      </SurfacePanel>
     );
   }
 
   return (
-    <div
+    <SurfacePanel
       className={`rounded-[1.5rem] border p-5 ${
         compact
-          ? "border-primary/15 bg-[linear-gradient(145deg,rgba(253,144,0,0.12),rgba(253,144,0,0.03))]"
+          ? "rounded-2xl border-primary/15 bg-primary/5"
           : "border-primary/20 bg-primary/5"
       }`}
     >
@@ -121,20 +125,20 @@ export function PasskeyRegistrationPrompt({
               type="button"
               onClick={() => void handleCreatePasskey()}
               disabled={status === "loading"}
-              className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary disabled:opacity-60"
+              className="glass-action-button-active rounded-xl px-4 py-2 text-xs font-bold text-on-primary disabled:opacity-60"
             >
               {status === "loading" ? "Setting up..." : "Set up passkey"}
             </button>
             <button
               type="button"
               onClick={handleDismiss}
-              className="rounded-xl px-4 py-2 text-xs font-bold text-on-surface-variant"
+              className="glass-action-button rounded-xl px-4 py-2 text-xs font-bold text-on-surface-variant"
             >
               Maybe later
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </SurfacePanel>
   );
 }

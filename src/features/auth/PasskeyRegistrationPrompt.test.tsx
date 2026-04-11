@@ -42,11 +42,16 @@ describe("PasskeyRegistrationPrompt", () => {
   });
 
   it("renders when user has no passkeys and is not suppressed", async () => {
-    render(<PasskeyRegistrationPrompt hasPasskeys={false} />);
+    const { container } = render(<PasskeyRegistrationPrompt hasPasskeys={false} compact />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /set up passkey/i })).toBeInTheDocument();
     });
+    expect(container.firstElementChild).toHaveClass("glass-surface-panel");
+    expect(screen.getByRole("button", { name: /set up passkey/i })).toHaveClass(
+      "glass-action-button-active",
+    );
+    expect(screen.getByRole("button", { name: /maybe later/i })).toHaveClass("glass-action-button");
   });
 
   it("does not render when user already has passkeys", () => {

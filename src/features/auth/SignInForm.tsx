@@ -208,7 +208,7 @@ export function SignInForm() {
             {...register("email")}
             aria-label="Email"
             autoComplete="username webauthn"
-            className="block w-full rounded-[1.4rem] border border-outline-variant/15 bg-surface-container-low px-5 py-4 pr-14 text-base text-on-surface transition-shadow focus:border-primary focus:outline-none focus:shadow-[0_0_0_2px_rgba(138,76,0,0.1)]"
+            className="glass-input-field block w-full rounded-2xl px-5 py-4 pr-14 text-base text-on-surface focus:outline-none"
             disabled={status === "loading"}
             placeholder="your@email.com"
           />
@@ -222,7 +222,7 @@ export function SignInForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full rounded-[1.4rem] bg-primary px-5 py-3.5 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="glass-action-button-active w-full rounded-2xl px-5 py-3.5 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Continue with email
         </button>
@@ -251,7 +251,7 @@ export function SignInForm() {
               type="button"
               onClick={() => void handleOAuthSignIn(provider, label)}
               disabled={status === "loading" || isUnavailable}
-              className={`glass-action-button flex w-full items-center justify-center gap-3 rounded-[1.4rem] px-4 py-4 text-sm font-bold transition-all disabled:cursor-not-allowed ${
+              className={`glass-action-button flex w-full items-center justify-center gap-3 rounded-2xl px-4 py-4 text-sm font-bold transition-all disabled:cursor-not-allowed ${
                 isUnavailable
                   ? "bg-surface-container-lowest/30 text-on-surface-variant/40 border border-outline-variant/10 opacity-50 grayscale shadow-none"
                   : "text-on-surface hover:scale-[1.01] active:scale-[0.99] hover:bg-surface-container-high"
@@ -272,13 +272,13 @@ export function SignInForm() {
       </div>
 
       {status === "success" && successMessage && (
-        <div className="mt-6 rounded-xl border border-secondary/20 bg-secondary/10 p-5">
+        <div className="glass-surface-panel mt-6 rounded-2xl border border-secondary/20 bg-secondary/10 p-5">
           <p className="text-center text-sm font-bold text-secondary">{successMessage}</p>
         </div>
       )}
 
       {status === "error" && errorMessage && (
-        <div className="mt-6 rounded-xl border border-error/20 bg-error/10 p-5">
+        <div className="glass-surface-panel mt-6 rounded-2xl border border-error/20 bg-error/10 p-5">
           <p className="text-center text-sm font-bold text-on-surface">{errorMessage}</p>
         </div>
       )}

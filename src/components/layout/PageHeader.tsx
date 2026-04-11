@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { SurfacePanel } from "../ui/SurfacePanel";
 
 type PageHeaderProps = {
   eyebrow: string;
@@ -16,7 +17,7 @@ type PageHeaderProps = {
 export function PageHeader({ eyebrow, title, description, backTo, actions, className }: PageHeaderProps) {
   return (
     <header className={`mb-10 md:mb-16 ${className ?? ""}`}>
-      <div className="glass-surface-panel relative overflow-hidden rounded-[2rem] p-6 pb-8 md:rounded-[3rem] md:p-12 lg:p-16">
+      <SurfacePanel className="relative overflow-hidden rounded-2xl p-6 pb-8 shadow-ambient md:p-12 lg:p-16">
         {/* Decorative Background Element */}
         <div 
           className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-[80px] dark:bg-primary/20" 
@@ -55,9 +56,8 @@ export function PageHeader({ eyebrow, title, description, backTo, actions, class
         <p className="relative z-10 mt-6 max-w-2xl text-base leading-relaxed text-on-surface-variant md:mt-8 md:text-lg lg:text-xl">
           {description}
         </p>
-      </div>
+      </SurfacePanel>
     </header>
   );
 }
-
 
