@@ -82,11 +82,14 @@ describe("GameDetailOverlay", () => {
     );
 
     const backdrop = screen.getByTestId("overlay-backdrop");
+    const panel = screen.getByTestId("overlay-panel");
     const header = screen.getByTestId("overlay-header");
     const title = screen.getByRole("heading", { name: "Heat" });
     const closeButton = screen.getByRole("button", { name: /close game details/i });
     const editButton = screen.getByRole("button", { name: /edit game/i });
 
+    expect(backdrop).toHaveAttribute("data-motion", "backdrop");
+    expect(panel).toHaveAttribute("data-motion", "panel");
     expect(backdrop.className).toContain("bg-on-surface/10");
     expect(backdrop.className).not.toContain("bg-black/50");
     expect(header.className).not.toContain("border-b");

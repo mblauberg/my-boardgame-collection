@@ -24,4 +24,10 @@ describe("TopNavBar", () => {
       "md:w-10",
     );
   });
+
+  it("renders a shared animated desktop nav indicator for the active route", () => {
+    renderWithProviders(<TopNavBar />, "/saved");
+
+    expect(screen.getByTestId("top-nav-indicator")).toBeInTheDocument();
+  });
 });

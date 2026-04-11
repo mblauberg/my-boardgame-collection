@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
@@ -14,6 +15,8 @@ import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { syncAccountSession } from "./accountSecurityApi";
 import { signInSchema, type SignInFormData } from "./authSchemas";
 import { useTheme } from "../../lib/theme";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON;
 
@@ -34,6 +37,7 @@ export function SignInForm() {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -199,8 +203,32 @@ export function SignInForm() {
   };
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+    <motion.div
+      className="space-y-6"
+      initial={prefersReducedMotion ? false : "hidden"}
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: 0.06,
+          },
+        },
+      }}
+    >
+      <motion.form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4"
+        noValidate
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         <div className="relative">
           <input
             id="email"
@@ -208,7 +236,7 @@ export function SignInForm() {
             {...register("email")}
             aria-label="Email"
             autoComplete="username webauthn"
-            className="block w-full rounded-[1.4rem] border border-outline-variant/15 bg-surface-container-low px-5 py-4 pr-14 text-base text-on-surface transition-shadow focus:border-primary focus:outline-none focus:shadow-[0_0_0_2px_rgba(138,76,0,0.1)]"
+            className="glass-input-field block w-full rounded-[1.4rem] px-5 py-4 pr-14 text-base text-on-surface focus:border-primary focus:outline-none focus:shadow-[0_0_0_2px_rgba(138,76,0,0.1)]"
             disabled={status === "loading"}
             placeholder="your@email.com"
           />
@@ -222,16 +250,26 @@ export function SignInForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full rounded-[1.4rem] bg-primary px-5 py-3.5 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="glass-action-button-active w-full rounded-[1.4rem] px-5 py-3.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
         >
           Continue with email
         </button>
         {errors.email && (
           <p className="px-1 text-xs font-bold text-primary">{errors.email.message}</p>
         )}
-      </form>
+      </motion.form>
 
-      <div className="relative my-8">
+      <motion.div
+        className="relative my-8"
+        variants={{
+          hidden: { opacity: 0, y: 10 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-outline-variant/30" />
         </div>
@@ -240,9 +278,19 @@ export function SignInForm() {
             OR
           </span>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="space-y-3">
+      <motion.div
+        className="space-y-3"
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         {oauthProviders.map(({ provider, label, icon }) => {
           const isUnavailable = provider === "apple" || !enabledOAuthProviderSet.has(provider);
           return (
@@ -269,19 +317,45 @@ export function SignInForm() {
             </button>
           );
         })}
-      </div>
+      </motion.div>
 
-      {status === "success" && successMessage && (
-        <div className="mt-6 rounded-xl border border-secondary/20 bg-secondary/10 p-5">
-          <p className="text-center text-sm font-bold text-secondary">{successMessage}</p>
-        </div>
-      )}
+      <AnimatePresence initial={false} mode="wait">
+        {status === "success" && successMessage ? (
+          <motion.div
+            key="success"
+            data-testid="auth-status-panel"
+            data-motion="auth-status"
+            className="glass-surface-panel mt-6 rounded-xl border-secondary/20 bg-secondary/10 p-5"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? undefined : { opacity: 0, y: -10 }}
+            transition={{
+              duration: motionTokens.duration.base,
+              ease: motionTokens.ease.standard,
+            }}
+          >
+            <p className="text-center text-sm font-bold text-secondary">{successMessage}</p>
+          </motion.div>
+        ) : null}
 
-      {status === "error" && errorMessage && (
-        <div className="mt-6 rounded-xl border border-error/20 bg-error/10 p-5">
-          <p className="text-center text-sm font-bold text-on-surface">{errorMessage}</p>
-        </div>
-      )}
-    </div>
+        {status === "error" && errorMessage ? (
+          <motion.div
+            key="error"
+            data-testid="auth-status-panel"
+            data-motion="auth-status"
+            className="glass-surface-panel mt-6 rounded-xl border-error/20 bg-error/10 p-5"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? undefined : { opacity: 0, y: -10 }}
+            transition={{
+              duration: motionTokens.duration.base,
+              ease: motionTokens.ease.standard,
+            }}
+          >
+            <p className="text-center text-sm font-bold text-on-surface">{errorMessage}</p>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </motion.div>
   );
 }

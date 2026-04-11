@@ -1,4 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type GameDetailOverlayProps = {
   title: string;
@@ -30,6 +33,7 @@ export function GameDetailOverlay({
 }: GameDetailOverlayProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const previousActiveElement =
@@ -77,8 +81,25 @@ export function GameDetailOverlay({
     };
   }, [onRequestClose]);
 
+  const backdropMotion = prefersReducedMotion
+    ? { initial: false, animate: { opacity: 1 }, exit: { opacity: 1 } }
+    : { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
+  const panelMotion = prefersReducedMotion
+    ? { initial: false, animate: { opacity: 1 }, exit: { opacity: 1 } }
+    : isStandalone
+      ? {
+          initial: { opacity: 0, y: 24 },
+          animate: { opacity: 1, y: 0 },
+          exit: { opacity: 0, y: 24 },
+        }
+      : {
+          initial: { opacity: 0, y: 20, scale: 0.98 },
+          animate: { opacity: 1, y: 0, scale: 1 },
+          exit: { opacity: 0, y: 20, scale: 0.98 },
+        };
+
   return (
-    <div
+    <motion.div
       className={[
         "fixed inset-0 z-50 flex items-start sm:items-center justify-center sm:px-6 sm:py-6",
         isStandalone
@@ -87,14 +108,25 @@ export function GameDetailOverlay({
       ].join(" ")}
       onClick={onRequestClose}
       data-testid="overlay-backdrop"
+      data-motion="backdrop"
+      initial={backdropMotion.initial}
+      animate={backdropMotion.animate}
+      exit={backdropMotion.exit}
+      transition={{ duration: motionTokens.duration.base, ease: motionTokens.ease.standard }}
     >
-      <div
+      <motion.div
         ref={dialogRef}
         role="dialog"
         aria-labelledby={titleId}
         aria-modal="true"
         className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-ambient sm:h-auto sm:max-h-[min(90vh,calc(100vh-2rem))] sm:max-w-xl md:max-w-4xl sm:rounded-[1.75rem]"
         onClick={(e) => e.stopPropagation()}
+        data-testid="overlay-panel"
+        data-motion="panel"
+        initial={panelMotion.initial}
+        animate={panelMotion.animate}
+        exit={panelMotion.exit}
+        transition={motionTokens.spring.soft}
       >
         <div
           className="overlay-floating-header absolute top-0 left-0 right-0 z-10 flex items-center justify-between bg-transparent px-4 py-4 md:px-6 md:py-5 sm:px-8 sm:py-6"
@@ -126,7 +158,7 @@ export function GameDetailOverlay({
         <div className="overlay-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-4 md:px-6 md:pt-20 md:pb-6 sm:px-8 sm:pt-24 sm:pb-8">
           {children}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

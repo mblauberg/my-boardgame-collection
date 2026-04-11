@@ -55,7 +55,10 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
   return (
     <div className="space-y-6">
       {game.imageUrl && (
-        <div className="relative -mx-4 -mt-16 md:-mx-6 md:-mt-20 sm:-mx-8 sm:-mt-24">
+        <div
+          className="relative -mx-4 -mt-16 md:-mx-6 md:-mt-20 sm:-mx-8 sm:-mt-24"
+          data-motion-id={`game-card-image-${game.slug}`}
+        >
           <img src={game.imageUrl} alt={game.name} className="w-full h-80 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
         </div>

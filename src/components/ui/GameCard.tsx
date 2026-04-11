@@ -11,6 +11,7 @@ export interface GameCardProps {
   isFavorite?: boolean;
   badge?: "In Collection" | "Saved";
   topRightSlot?: ReactNode;
+  motionIdBase?: string;
 }
 
 function getFallbackImage(title: string) {
@@ -67,6 +68,7 @@ export function GameCard({
   isFavorite,
   badge,
   topRightSlot,
+  motionIdBase,
 }: GameCardProps) {
   const displayImage = image ?? getFallbackImage(title);
   const displayTitle = title.replace(/_/g, " ");
@@ -74,12 +76,16 @@ export function GameCard({
   const hasDetails = Boolean(description || hasStats);
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest transition-all duration-300 hover:-translate-y-1 hover:shadow-ambient-lg dark:bg-[rgb(28_27_27)]">
+    <article
+      className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest transition-all duration-300 hover:-translate-y-1 hover:shadow-ambient-lg dark:bg-[rgb(28_27_27)]"
+      data-motion-id={motionIdBase ? `game-card-${motionIdBase}` : undefined}
+    >
       <div className="relative aspect-[4/5] overflow-hidden">
         <img
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           alt={`Cover art for ${displayTitle}`}
           src={displayImage}
+          data-motion-id={motionIdBase ? `game-card-image-${motionIdBase}` : undefined}
         />
 
         <div className="game-card-hero-overlay pointer-events-none absolute inset-0" />
@@ -104,7 +110,10 @@ export function GameCard({
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4">
-          <div className="game-card-title-glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2">
+          <div
+            className="game-card-title-glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2"
+            data-motion-id={motionIdBase ? `game-card-title-${motionIdBase}` : undefined}
+          >
             <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl dark:text-[rgb(245_238_232)]">
               {displayTitle}
             </h3>

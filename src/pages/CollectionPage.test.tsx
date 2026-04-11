@@ -156,7 +156,9 @@ describe("CollectionPage", () => {
     expect(
       screen.getByText(/"isSaved":false,"isLoved":false,"isInCollection":true/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/curated collection/i).closest("div")).toHaveClass("glass-surface-panel");
+    expect(screen.getByText(/curated collection/i).closest(".glass-surface-panel")).toHaveClass(
+      "glass-surface-panel",
+    );
     expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
   });
 

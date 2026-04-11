@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import type { Game } from "../../types/domain";
@@ -7,6 +8,8 @@ import {
 import { useLibraryQuery } from "../../features/library/useLibraryQuery";
 import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type HorizontalShelfProps = {
   title: string;
@@ -18,11 +21,21 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
   const location = useLocation();
   const { data: libraryEntries } = useLibraryQuery();
   const libraryStateActions = useLibraryStateActions();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   if (entries.length === 0) return null;
 
   return (
-    <section className="mb-12">
+    <motion.section
+      className="mb-12"
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{
+        duration: motionTokens.duration.slow,
+        ease: motionTokens.ease.standard,
+      }}
+    >
       <div className="mb-6">
         <div className="flex items-baseline gap-3 mb-2">
           <h3 className="text-2xl font-extrabold tracking-tight text-on-surface">{title}</h3>
@@ -38,13 +51,30 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
       </div>
       
       <div className="overflow-x-auto horizontal-scroll -mx-4 px-4 pb-4">
-        <div className="flex gap-6" style={{ width: 'max-content' }}>
-          {entries.map((game) => {
+        <motion.div
+          className="flex gap-6"
+          style={{ width: "max-content" }}
+          layout
+          transition={motionTokens.spring.soft}
+        >
+          {entries.map((game, index) => {
             const entry = getLibraryEntryForGame(libraryEntries, game.id);
             const isInCollection = entry?.isInCollection ?? false;
 
             return (
-              <article key={game.id} className="relative" style={{ width: '320px', flexShrink: 0 }}>
+              <motion.article
+                key={game.id}
+                className="relative"
+                style={{ width: "320px", flexShrink: 0 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{
+                  duration: motionTokens.duration.base,
+                  ease: motionTokens.ease.standard,
+                  delay: Math.min(index * 0.04, 0.2),
+                }}
+              >
                 <div className="absolute right-3 top-3 z-10">
                   {isInCollection ? (
                     <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
@@ -81,13 +111,14 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
                     }
                     weight={game.bggWeight?.toFixed(1)}
                     rating={game.bggRating ?? undefined}
+                    motionIdBase={game.slug}
                   />
                 </Link>
-              </article>
+              </motion.article>
             );
           })}
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

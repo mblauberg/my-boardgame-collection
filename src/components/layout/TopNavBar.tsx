@@ -1,7 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { desktopNavRouteDefinitions } from "../../app/router/routes";
 import { getSignInRouteState } from "../../features/auth/signInNavigation";
 import { useProfile } from "../../features/auth/useProfile";
+import { useSlidingIndicator } from "../../hooks/useSlidingIndicator";
+import { motionTokens } from "../../lib/motion";
 import { useTheme } from "../../lib/theme";
 
 export function TopNavBar() {
@@ -9,12 +12,17 @@ export function TopNavBar() {
   const navigate = useNavigate();
   const { isAuthenticated } = useProfile();
   const { theme, toggleTheme } = useTheme();
+  const activeNavIndex = desktopNavRouteDefinitions.findIndex((route) => location.pathname === route.path);
+  const { containerRef, indicatorStyle } = useSlidingIndicator({
+    activeIndex: activeNavIndex,
+    selector: "a",
+  });
 
   const getLinkClass = (path: string) => {
     const isActive = location.pathname === path;
-    const base = "font-medium font-['Manrope'] tracking-tight transition-colors duration-300 pb-1";
+    const base = "relative z-10 font-medium font-['Manrope'] tracking-tight transition-colors duration-300 pb-1";
     if (isActive) {
-      return `${base} text-primary font-extrabold border-b-2 border-primary`;
+      return `${base} text-primary font-extrabold`;
     }
     return `${base} text-on-surface hover:text-primary`;
   };
@@ -24,7 +32,18 @@ export function TopNavBar() {
       <div className="flex-1 text-lg font-black text-primary tracking-tighter md:text-2xl">
         <Link to="/">My Board Game Collection</Link>
       </div>
-      <div className="hidden md:flex items-center gap-8">
+      <div ref={containerRef} className="relative hidden md:flex items-center gap-8">
+        <motion.div
+          data-testid="top-nav-indicator"
+          aria-hidden="true"
+          className="top-nav-indicator absolute bottom-0 h-[2px] rounded-full bg-primary"
+          animate={{
+            left: indicatorStyle.left,
+            width: indicatorStyle.width,
+            opacity: indicatorStyle.width > 0 ? 1 : 0,
+          }}
+          transition={motionTokens.spring.soft}
+        />
         {desktopNavRouteDefinitions.map((route) => (
           <Link key={route.path} className={getLinkClass(route.path)} to={route.path}>
             {route.label}

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { motion } from "framer-motion";
 import { Navigate, Route, Routes, type Location } from "react-router-dom";
 import { RequireOwner } from "../../features/auth/RequireOwner";
 import {
@@ -24,7 +25,16 @@ function renderRouteElement(route: AppRouteEntry) {
 }
 
 export function RouteLoadingFallback() {
-  return <div className="py-16 text-center text-sm text-on-surface-variant">Loading...</div>;
+  return (
+    <motion.div
+      className="py-16 text-center text-sm text-on-surface-variant"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      Loading...
+    </motion.div>
+  );
 }
 
 export function AppRoutes({ location }: AppRoutesProps) {

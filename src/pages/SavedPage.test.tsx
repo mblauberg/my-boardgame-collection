@@ -81,7 +81,9 @@ describe("SavedPage", () => {
 
     expect(screen.getByRole("heading", { name: /saved/i })).toBeInTheDocument();
     expect(screen.getByText(/saved list/i)).toBeInTheDocument();
-    expect(screen.getByText("On Your Radar").closest("div")).toHaveClass("glass-surface-panel");
+    expect(screen.getByText("On Your Radar").closest(".glass-surface-panel")).toHaveClass(
+      "glass-surface-panel",
+    );
     expect(container.querySelector(".library-search-section")).toHaveClass("mb-8");
   });
 

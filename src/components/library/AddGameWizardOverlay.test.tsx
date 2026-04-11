@@ -168,6 +168,10 @@ describe("AddGameWizardOverlay", () => {
     renderOverlay();
 
     expect(screen.getByRole("dialog", { name: /add new game/i })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /add new game/i })).toHaveAttribute(
+      "data-motion",
+      "wizard-panel",
+    );
     expect(screen.getByRole("heading", { name: /find your game/i })).toBeInTheDocument();
   });
 
@@ -185,6 +189,7 @@ describe("AddGameWizardOverlay", () => {
     expect(screen.getByRole("searchbox", { name: /search boardgamegeek/i })).toHaveClass(
       "glass-input-field",
     );
+    expect(screen.getByTestId("add-game-wizard-step")).toHaveAttribute("data-motion", "wizard-step");
 
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
 
@@ -201,7 +206,9 @@ describe("AddGameWizardOverlay", () => {
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /game details/i });
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /library state/i });
 
     expect(screen.getByRole("button", { name: /add locally/i })).toBeEnabled();
 
@@ -234,7 +241,9 @@ describe("AddGameWizardOverlay", () => {
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /game details/i });
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /library state/i });
     await user.click(screen.getByRole("checkbox", { name: /in collection/i }));
 
     expect(screen.getByRole("checkbox", { name: /saved/i })).not.toBeChecked();
@@ -267,7 +276,9 @@ describe("AddGameWizardOverlay", () => {
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /game details/i });
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /library state/i });
     await user.click(screen.getByRole("checkbox", { name: /loved/i }));
     await user.click(screen.getByRole("button", { name: /add and sync/i }));
 
@@ -316,7 +327,9 @@ describe("AddGameWizardOverlay", () => {
     await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
     await user.click(screen.getByRole("button", { name: /select everdell/i }));
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /game details/i });
     await user.click(screen.getByRole("button", { name: /next/i }));
+    await screen.findByRole("heading", { name: /library state/i });
     await user.click(screen.getByRole("checkbox", { name: /loved/i }));
     await user.click(screen.getByRole("button", { name: /add and sync/i }));
 

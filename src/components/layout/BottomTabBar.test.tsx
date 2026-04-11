@@ -16,4 +16,10 @@ describe("BottomTabBar", () => {
     expect(screen.queryByRole("link", { name: /account/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /account/i })).not.toBeInTheDocument();
   });
+
+  it("renders a sliding active capsule in the mobile tab bar", () => {
+    renderWithProviders(<BottomTabBar />, "/explore");
+
+    expect(screen.getByTestId("bottom-nav-indicator")).toBeInTheDocument();
+  });
 });

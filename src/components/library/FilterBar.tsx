@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { AdvancedFilters } from "./AdvancedFilters";
 import { ExpandableSearchSection } from "./ExpandableSearchSection";
 import { QuickFilterPresets } from "./QuickFilterPresets";
@@ -6,6 +7,8 @@ import { PillSelector } from "../ui/PillSelector";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
 import { useDebouncedTextInput } from "../../lib/utils/useDebouncedTextInput";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type FilterBarProps = {
   filters: LibraryFilters;
@@ -39,6 +42,7 @@ export function FilterBar({
   searchPlaceholder = "Search...",
 }: FilterBarProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { value: localSearch, setValue: setLocalSearch } = useDebouncedTextInput({
     value: filters.searchText ?? "",
     delay: 300,
@@ -73,8 +77,8 @@ export function FilterBar({
   ]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <motion.div className="space-y-4" layout>
+      <motion.div className="flex flex-wrap items-center gap-2" layout>
         {showSearch && (
           <ExpandableSearchSection
             id="library-search"
@@ -98,64 +102,82 @@ export function FilterBar({
             tune
           </span>
           {advancedFilterCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg">
+            <motion.span
+              initial={prefersReducedMotion ? false : { scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={motionTokens.spring.soft}
+              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg"
+            >
               {advancedFilterCount}
-            </span>
+            </motion.span>
           )}
         </button>
-      </div>
+      </motion.div>
       {presets.length > 0 ? (
         <QuickFilterPresets presets={presets} onSelect={onFiltersChange} />
       ) : null}
-      <div 
-        className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
-          isAdvancedOpen 
-            ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0" 
-            : "grid-rows-[0fr] opacity-0 scale-95 -translate-y-4 pointer-events-none"
-        }`}
-      >
-        <div className="overflow-hidden px-8 py-10 -mx-8 -my-10">
-          <div className="glass-surface-panel mt-6 space-y-6 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
-                Sort By
-              </h3>
-              <div className="flex flex-wrap items-center gap-4">
-                <PillSelector
-                  className="flex-1 md:flex-none"
-                  options={SORT_OPTIONS.map((opt) => ({
-                    ...opt,
-                    icon: opt.value === sortBy ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward") : undefined,
-                  }))}
-                  activeValue={sortBy}
-                  onChange={(value) => {
-                    if (value === sortBy) {
-                      onSortChange(sortBy, sortDirection === "asc" ? "desc" : "asc");
-                    } else {
-                      onSortChange(value, sortDirection);
-                    }
-                  }}
-                />
+      <AnimatePresence initial={false}>
+        {isAdvancedOpen ? (
+          <motion.div
+            key="advanced-filters"
+            data-testid="advanced-filters-panel"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: -14, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={prefersReducedMotion ? undefined : { opacity: 0, y: -10, scale: 0.98 }}
+            transition={{
+              duration: motionTokens.duration.slow,
+              ease: motionTokens.ease.emphasized,
+            }}
+          >
+            <div className="overflow-hidden px-8 py-10 -mx-8 -my-10">
+              <div className="glass-surface-panel mt-6 space-y-6 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+                    Sort By
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <PillSelector
+                      className="flex-1 md:flex-none"
+                      options={SORT_OPTIONS.map((opt) => ({
+                        ...opt,
+                        icon:
+                          opt.value === sortBy
+                            ? sortDirection === "asc"
+                              ? "arrow_upward"
+                              : "arrow_downward"
+                            : undefined,
+                      }))}
+                      activeValue={sortBy}
+                      onChange={(value) => {
+                        if (value === sortBy) {
+                          onSortChange(sortBy, sortDirection === "asc" ? "desc" : "asc");
+                        } else {
+                          onSortChange(value, sortDirection);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="h-px bg-outline-variant/10" />
+
+                <AdvancedFilters filters={filters} onChange={onFiltersChange} />
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={onClearFilters}
+                    className="glass-action-button group flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary transition hover:text-primary"
+                  >
+                    <span className="material-symbols-outlined text-sm">restart_alt</span>
+                    Reset all filters
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="h-px bg-outline-variant/10" />
-
-            <AdvancedFilters filters={filters} onChange={onFiltersChange} />
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={onClearFilters}
-                className="glass-action-button group flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary transition hover:text-primary"
-              >
-                <span className="material-symbols-outlined text-sm">restart_alt</span>
-                Reset all filters
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </motion.div>
   );
 }

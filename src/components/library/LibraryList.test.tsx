@@ -121,6 +121,12 @@ describe("LibraryList", () => {
     expect(screen.getByText(/"backgroundLocation"/i)).toBeInTheDocument();
   });
 
+  it("assigns stable motion ids to rendered game cards", () => {
+    renderWithProviders(<LibraryList entries={[createEntry()]} />);
+
+    expect(screen.getByText("Heat").closest('[data-motion-id="game-card-heat"]')).toBeInTheDocument();
+  });
+
   it("renders local-only guest imports without a game-detail link", () => {
     renderWithProviders(
       <LibraryList
