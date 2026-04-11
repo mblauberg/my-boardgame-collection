@@ -88,6 +88,11 @@ export function SignInForm() {
     const checkProviderAvailability = async () => {
       const providerChecks = await Promise.all(
         SUPPORTED_OAUTH_PROVIDERS.map(async (provider) => {
+          // Force apple to be unavailable/coming soon for now
+          if (provider === "apple") {
+            return [provider, "unavailable"] as const;
+          }
+
           const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
@@ -306,7 +311,14 @@ export function SignInForm() {
               }`}
             >
               <Icon icon={icon} className={`h-5 w-5 ${isUnavailable ? "opacity-20" : ""}`} />
-              <span>Continue with {label}</span>
+              <div className="flex items-center gap-2">
+                <span>Continue with {label}</span>
+                {provider === "apple" && (
+                  <span className="inline-flex items-center rounded-full bg-outline-variant/15 px-2 py-0.5 text-[10px] uppercase tracking-wider opacity-70">
+                    Coming Soon
+                  </span>
+                )}
+              </div>
             </button>
           );
         })}

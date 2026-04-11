@@ -40,6 +40,44 @@ describe("AppRoutes", () => {
     );
   });
 
+  it("stores navigation and overlay metadata in the route registry", () => {
+    expect(appRouteDefinitions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/",
+          label: "Collection",
+          showInDesktopNav: true,
+          showInMobileNav: true,
+          mobileNavIcon: "shelves",
+        }),
+        expect.objectContaining({
+          path: "/saved",
+          label: "Saved",
+          showInDesktopNav: true,
+          showInMobileNav: true,
+          mobileNavIcon: "bookmark",
+        }),
+        expect.objectContaining({
+          path: "/explore",
+          label: "Explore",
+          showInDesktopNav: true,
+          showInMobileNav: true,
+          mobileNavIcon: "explore",
+        }),
+        expect.objectContaining({
+          path: "/signin",
+          label: "Sign In",
+          allowBackgroundOverlay: true,
+        }),
+        expect.objectContaining({
+          path: "/game/:slug",
+          label: "Game Detail",
+          allowBackgroundOverlay: true,
+        }),
+      ]),
+    );
+  });
+
   it("renders the auth callback page instead of the not-found screen", async () => {
     renderWithRouter("/auth/callback");
 

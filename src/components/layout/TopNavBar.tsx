@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { desktopNavRouteDefinitions } from "../../app/router/routes";
 import { getSignInRouteState } from "../../features/auth/signInNavigation";
 import { useProfile } from "../../features/auth/useProfile";
 import { useTheme } from "../../lib/theme";
@@ -24,9 +25,11 @@ export function TopNavBar() {
         <Link to="/">My Board Game Collection</Link>
       </div>
       <div className="hidden md:flex items-center gap-8">
-        <Link className={getLinkClass("/explore")} to="/explore">Explore</Link>
-        <Link className={getLinkClass("/saved")} to="/saved">Saved</Link>
-        <Link className={getLinkClass("/")} to="/">Collection</Link>
+        {desktopNavRouteDefinitions.map((route) => (
+          <Link key={route.path} className={getLinkClass(route.path)} to={route.path}>
+            {route.label}
+          </Link>
+        ))}
       </div>
       <div className="flex flex-1 items-center justify-end gap-4">
         <button

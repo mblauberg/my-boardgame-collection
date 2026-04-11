@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
 import { ExploreShelf } from "../components/library/ExploreShelf";
 import { HorizontalShelf } from "../components/library/HorizontalShelf";
@@ -138,7 +137,6 @@ export function ExplorePage() {
           />
         )}
 
-        <FloatingActionButton />
       </>
     );
   }
@@ -208,8 +206,6 @@ export function ExplorePage() {
           />
         ))}
       </div>
-
-      <FloatingActionButton />
     </>
   );
 }

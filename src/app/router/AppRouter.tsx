@@ -1,20 +1,9 @@
-import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { Suspense } from "react";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "../../components/layout/AppShell";
-import { AppRoutes } from "./routes";
+import { AppRoutes, backgroundOverlayRouteEntries, RouteLoadingFallback } from "./routes";
 import { ErrorBoundary } from "./ErrorBoundary";
 import type { Location } from "react-router-dom";
-
-const SignInPage = lazy(async () => ({
-  default: (await import("../../pages/SignInPage")).SignInPage,
-}));
-const GameDetailPage = lazy(async () => ({
-  default: (await import("../../pages/GameDetailPage")).GameDetailPage,
-}));
-
-function RouteLoadingFallback() {
-  return <div className="py-16 text-center text-sm text-on-surface-variant">Loading...</div>;
-}
 
 function AppContent() {
   const location = useLocation();
@@ -29,8 +18,9 @@ function AppContent() {
       {backgroundLocation ? (
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
-            <Route path="/signin" element={<SignInPage />} />
-            <Route path="/game/:slug" element={<GameDetailPage />} />
+            {backgroundOverlayRouteEntries.map((route) => (
+              <Route key={route.path} path={route.path} element={route.element} />
+            ))}
           </Routes>
         </Suspense>
       ) : null}
