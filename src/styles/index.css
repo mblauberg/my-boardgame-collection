@@ -160,11 +160,12 @@ html {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: transparent;
 }
 
 body {
   margin: 0;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: 0;
   min-height: 100vh;
   min-height: 100svh;
   min-height: 100dvh;
@@ -173,7 +174,6 @@ body {
   font-family: "Manrope", -apple-system, sans-serif;
   color: rgb(var(--on-surface));
   background-color: rgb(var(--surface));
-  background-position: center;
   transition:
     background-color var(--motion-duration-base) var(--motion-ease-standard),
     color var(--motion-duration-base) var(--motion-ease-standard);
