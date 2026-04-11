@@ -29,9 +29,8 @@ export function TopNavBar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex w-full items-center bg-transparent px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] md:px-8 md:py-4">
-      {/* Background layer with glass effect, border and shadow. 
-          Covers the full fixed area (inset-0) to ensure the glass effect 
-          naturally extends into the iOS status bar. */}
+      {/* Background layer covers the full fixed container (inset-0)
+          to allow Safari's native glass compositor to sample from the body background. */}
       <div className="glass-nav pointer-events-none absolute inset-0 -z-10 border-b border-outline-variant/15 bg-surface-bright/72 shadow-ambient" />
       
       <div className="flex-1 min-w-0 text-lg font-black text-primary tracking-tighter md:text-2xl">
