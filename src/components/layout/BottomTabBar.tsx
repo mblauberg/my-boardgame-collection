@@ -23,7 +23,7 @@ export function BottomTabBar() {
   });
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-safe md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center bg-transparent pb-safe md:hidden">
       <div ref={containerRef} className="bottom-nav-pill relative mx-6 mb-1 flex gap-2 rounded-full p-1.5">
         <motion.div
           data-testid="bottom-nav-indicator"

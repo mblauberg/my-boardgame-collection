@@ -8,7 +8,6 @@ export interface GameCardProps {
   playTime?: string;
   weight?: string;
   rating?: number;
-  isFavorite?: boolean;
   badge?: "In Collection" | "Saved";
   topRightSlot?: ReactNode;
   motionIdBase?: string;
@@ -65,7 +64,6 @@ export function GameCard({
   playTime,
   weight,
   rating,
-  isFavorite,
   badge,
   topRightSlot,
   motionIdBase,
@@ -117,15 +115,6 @@ export function GameCard({
             <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl dark:text-[rgb(245_238_232)]">
               {displayTitle}
             </h3>
-            {isFavorite ? (
-              <span
-                aria-label="Loved"
-                className="material-symbols-outlined flex-shrink-0 text-primary text-lg md:text-xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                favorite
-              </span>
-            ) : null}
           </div>
         </div>
       </div>
