@@ -340,7 +340,7 @@ export function AccountSettingsPage() {
             summary={summary}
           />
 
-          <SurfacePanel className="rounded-2xl border-error/10 p-6">
+          <SurfacePanel as="section" className="rounded-2xl border-error/10 p-6">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-error/70">Session</p>
             <p className="mt-3 text-sm leading-6 text-on-surface-variant">
               Signed in as <span className="font-semibold text-on-surface">{summary.primaryEmail}</span>.

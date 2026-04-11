@@ -26,4 +26,16 @@ describe("SurfacePanel", () => {
     const panel = screen.getByText("Body").closest("div");
     expect(panel).toHaveClass("p-4", "extra-class");
   });
+
+  it("renders a semantic container when `as` is provided", () => {
+    render(
+      <SurfacePanel as="section">
+        <h2>Semantic panel</h2>
+      </SurfacePanel>,
+    );
+
+    const heading = screen.getByRole("heading", { name: "Semantic panel" });
+    const panel = heading.closest("section");
+    expect(panel).toHaveClass("glass-surface-panel", "rounded-2xl");
+  });
 });
