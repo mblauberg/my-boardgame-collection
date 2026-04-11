@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { AdvancedFilters } from "./AdvancedFilters";
 import { ExpandableSearchSection } from "./ExpandableSearchSection";
 import { QuickFilterPresets } from "./QuickFilterPresets";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
 import { PillSelector } from "../ui/PillSelector";
 import { SurfacePanel } from "../ui/SurfacePanel";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
@@ -95,9 +96,7 @@ export function FilterBar({
           aria-label={`Filters${advancedFilterCount > 0 ? ` (${advancedFilterCount})` : ""}`}
           className="glass-action-button group relative flex h-14 w-14 items-center justify-center rounded-full transition hover:border-primary/35"
         >
-          <span className="material-symbols-outlined text-3xl text-on-surface transition group-hover:text-primary">
-            tune
-          </span>
+          <MaterialSymbol icon="tune" className="text-3xl text-on-surface transition group-hover:text-primary" />
           {advancedFilterCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg">
               {advancedFilterCount}
@@ -150,7 +149,7 @@ export function FilterBar({
                 onClick={onClearFilters}
                 className="glass-action-button group flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary transition hover:text-primary"
               >
-                <span className="material-symbols-outlined text-sm">restart_alt</span>
+                <MaterialSymbol icon="restart_alt" className="text-sm" />
                 Reset all filters
               </button>
             </div>

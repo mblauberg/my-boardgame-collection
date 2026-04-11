@@ -16,7 +16,7 @@ describe("MaterialSymbol", () => {
     render(<MaterialSymbol icon="star" filled aria-label="Featured" />);
 
     const symbol = screen.getByRole("img", { name: "Featured" });
-    expect(symbol).toHaveClass("[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]");
+    expect(symbol).toHaveClass("material-symbols-filled");
     expect(symbol).toHaveAttribute("role", "img");
     expect(symbol).toHaveAttribute("aria-hidden", "false");
   });

@@ -20,8 +20,6 @@ type LabeledMaterialSymbolProps = SharedMaterialSymbolProps & {
 
 type MaterialSymbolProps = DecorativeMaterialSymbolProps | LabeledMaterialSymbolProps;
 
-const filledClass = "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]";
-
 function joinClasses(...tokens: Array<string | false | null | undefined>) {
   return tokens.filter(Boolean).join(" ");
 }
@@ -42,7 +40,7 @@ export function MaterialSymbol({
       aria-hidden={ariaLabel ? false : (ariaHidden ?? true)}
       className={joinClasses(
         "material-symbols-outlined leading-none",
-        filled ? filledClass : null,
+        filled && "material-symbols-filled",
         className,
       )}
     >

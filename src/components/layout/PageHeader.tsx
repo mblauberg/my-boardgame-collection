@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
 import { SurfacePanel } from "../ui/SurfacePanel";
 
 type PageHeaderProps = {
@@ -30,7 +31,7 @@ export function PageHeader({ eyebrow, title, description, backTo, actions, class
               to={backTo.href}
               className="mb-6 flex w-fit items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant/60 transition hover:text-primary"
             >
-              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+              <MaterialSymbol icon="arrow_back" className="text-[18px]" />
               {backTo.label}
             </Link>
           )}
@@ -60,4 +61,3 @@ export function PageHeader({ eyebrow, title, description, backTo, actions, class
     </header>
   );
 }
-

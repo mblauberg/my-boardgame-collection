@@ -20,12 +20,14 @@ function getFallbackImage(title: string) {
     hash = title.charCodeAt(i) + ((hash << 5) - hash);
   }
 
+  /* eslint-disable no-restricted-syntax -- fallback SVG cover art intentionally uses fixed palette literals */
   const palette = [
     { base: "#f3e7d5", accent: "#b75d2b", shadow: "#2f3e46" },
     { base: "#e4efe7", accent: "#4f7f52", shadow: "#23312a" },
     { base: "#efe4d6", accent: "#915f39", shadow: "#392a1f" },
     { base: "#e5edf5", accent: "#476f9b", shadow: "#22354c" },
   ][Math.abs(hash) % 4];
+  /* eslint-enable no-restricted-syntax */
   const initials = title
     .split(/\s+/)
     .filter(Boolean)
@@ -33,6 +35,7 @@ function getFallbackImage(title: string) {
     .map((word) => word[0]?.toUpperCase() ?? "")
     .join("");
   const rotation = Math.abs(hash % 24) - 12;
+  /* eslint-disable no-restricted-syntax -- fallback SVG cover art intentionally uses fixed palette literals */
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
       <defs>
@@ -53,6 +56,7 @@ function getFallbackImage(title: string) {
       </text>
     </svg>
   `;
+  /* eslint-enable no-restricted-syntax */
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }

@@ -128,9 +128,7 @@ describe("LibraryList", () => {
     const movedIcon = screen.getByText("check_circle");
 
     expect(movedBadge).toHaveClass("inline-flex", "glass-badge");
-    expect(movedIcon).toHaveClass(
-      "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]",
-    );
+    expect(movedIcon).toHaveClass("material-symbols-filled");
     expect(movedIcon).not.toHaveAttribute("style");
   });
 

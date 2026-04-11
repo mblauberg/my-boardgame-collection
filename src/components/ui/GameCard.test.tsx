@@ -54,9 +54,7 @@ describe("GameCard", () => {
     render(<GameCard title="Ark Nova" rating={8.2} />);
 
     const ratingIcon = screen.getByText("star");
-    expect(ratingIcon).toHaveClass(
-      "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]",
-    );
+    expect(ratingIcon).toHaveClass("material-symbols-filled");
     expect(ratingIcon).not.toHaveAttribute("style");
   });
 

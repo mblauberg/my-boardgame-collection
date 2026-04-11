@@ -21,9 +21,7 @@ describe("BottomTabBar", () => {
     renderWithProviders(<BottomTabBar />, "/saved");
 
     const activeIcon = screen.getByText("bookmark");
-    expect(activeIcon).toHaveClass(
-      "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]",
-    );
+    expect(activeIcon).toHaveClass("material-symbols-filled");
     expect(activeIcon).not.toHaveAttribute("style");
   });
 });

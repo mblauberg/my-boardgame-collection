@@ -56,7 +56,6 @@ export default tseslint.config(
       "src/**/*.test.{ts,tsx}",
       "src/**/*.spec.{ts,tsx}",
       "src/test/**",
-      "src/components/ui/GameCard.tsx",
     ],
     rules: {
       "no-restricted-syntax": [

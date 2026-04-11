@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type PillOption<T> = {
   label: string;
@@ -24,9 +24,9 @@ export function PillSelector<T>({
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   
-  const updateIndicator = () => {
+  const updateIndicator = useCallback(() => {
     if (!containerRef.current) return;
-    
+
     const activeIndex = options.findIndex((opt) => opt.value === activeValue);
     if (activeIndex === -1) {
       setIndicatorStyle({ left: 0, width: 0 });
@@ -35,21 +35,21 @@ export function PillSelector<T>({
 
     const buttons = containerRef.current.querySelectorAll("button");
     const activeButton = buttons[activeIndex];
-    
+
     if (activeButton) {
       setIndicatorStyle({
         left: activeButton.offsetLeft,
         width: activeButton.offsetWidth,
       });
     }
-  };
+  }, [activeValue, options]);
 
   useEffect(() => {
     updateIndicator();
     // Re-run on resize to ensure indicator stays in place
     window.addEventListener("resize", updateIndicator);
     return () => window.removeEventListener("resize", updateIndicator);
-  }, [activeValue, options]);
+  }, [updateIndicator]);
 
   return (
     <div
