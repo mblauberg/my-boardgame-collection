@@ -80,7 +80,7 @@ export function GameDetailOverlay({
   return (
     <div
       className={[
-        "fixed inset-0 z-50 flex items-start md:items-center justify-center md:px-4 md:py-4 sm:px-6 sm:py-6",
+        "fixed inset-0 z-50 flex items-start sm:items-center justify-center sm:px-6 sm:py-6",
         isStandalone
           ? "bg-surface"
           : "bg-on-surface/10 backdrop-blur-md",
@@ -93,7 +93,7 @@ export function GameDetailOverlay({
         role="dialog"
         aria-labelledby={titleId}
         aria-modal="true"
-        className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-ambient md:mt-4 md:h-auto md:max-h-[calc(100vh-2rem)] md:max-w-4xl md:rounded-[1.75rem] sm:mt-8 sm:h-auto sm:max-h-[90vh]"
+        className="relative flex h-full w-full flex-col overflow-hidden bg-surface shadow-ambient sm:h-auto sm:max-h-[min(90vh,calc(100vh-2rem))] sm:max-w-xl md:max-w-4xl sm:rounded-[1.75rem]"
         onClick={(e) => e.stopPropagation()}
       >
         <div

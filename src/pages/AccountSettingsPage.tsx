@@ -168,10 +168,11 @@ export function AccountSettingsPage() {
           profile.username ? (
             <Link
               to={`/u/${profile.username}`}
-              className="rounded-full border border-outline/10 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary dark:bg-surface-container-high/60"
+              className="rounded-full border border-outline/15 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary dark:bg-surface-container-high/60"
             >
               View profile
             </Link>
+
           ) : undefined
         }
       />

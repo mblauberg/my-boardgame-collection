@@ -24,21 +24,15 @@ export function SignInMethodsPage() {
     <div className="space-y-6 md:hidden">
       <PageHeader
         eyebrow="Account security"
+        backTo={{ label: "Settings", href: "/settings" }}
         title={<>Your <span className="text-primary">Sign-in Methods</span></>}
-        description="Review and update your passkeys, linked providers, and email addresses."
-        actions={
-          <Link
-            to="/settings"
-            className="rounded-full border border-outline/10 bg-surface-container-low px-4 py-2 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary dark:bg-surface-container-high/60"
-          >
-            Back to settings
-          </Link>
-        }
+        description="Review your passkeys, social accounts, and verified email addresses."
       />
 
-      <div className="rounded-[2rem] border border-outline/10 bg-surface-container-lowest/90 p-5 shadow-ambient dark:bg-surface-container-low/80">
+
+      <div className="pb-8">
         {isLoading || !summary ? (
-          <div className="space-y-4">
+          <div className="space-y-4 rounded-[2rem] border border-outline/10 bg-surface-container-lowest/90 p-5 shadow-ambient dark:bg-surface-container-low/80">
             <div className="h-24 animate-pulse rounded-[1.5rem] bg-surface-container-high/60" />
             <div className="h-24 animate-pulse rounded-[1.5rem] bg-surface-container-high/40" />
             <div className="h-24 animate-pulse rounded-[1.5rem] bg-surface-container-high/40" />
@@ -48,5 +42,6 @@ export function SignInMethodsPage() {
         )}
       </div>
     </div>
+
   );
 }

@@ -1,3 +1,5 @@
+import { Icon } from "@iconify/react";
+import { useTheme } from "../../lib/theme";
 import type { AccountSecuritySummary } from "../../features/auth/useAccountSecuritySummary";
 
 type SignInMethodsSheetProps = {
@@ -7,20 +9,42 @@ type SignInMethodsSheetProps = {
 };
 
 export function SignInMethodsPanelContent({ summary }: { summary: AccountSecuritySummary }) {
+  const { theme } = useTheme();
+
+  const getProviderIcon = (provider: string) => {
+    switch (provider) {
+      case "google":
+        return "logos:google-icon";
+      case "apple":
+        return theme === "dark" ? "ri:apple-fill" : "logos:apple";
+      case "github":
+        return theme === "dark" ? "ri:github-fill" : "logos:github-icon";
+      case "discord":
+        return "logos:discord-icon";
+      default:
+        return "material-symbols:link";
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 dark:bg-surface-container-high/45">
+      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 shadow-sm dark:bg-surface-container-high/45">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
-              Passkeys
-            </p>
-            <h3 className="mt-2 text-xl font-black tracking-tight text-on-surface">
-              {summary.passkeys.length > 0 ? "Trusted devices" : "Passkey not set up yet"}
-            </h3>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20">
+              <span className="material-symbols-outlined text-[22px]">passkey</span>
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
+                Passkeys
+              </p>
+              <h3 className="mt-0.5 text-lg font-black tracking-tight text-on-surface">
+                {summary.passkeys.length > 0 ? "Trusted devices" : "Biometric sign-in"}
+              </h3>
+            </div>
           </div>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.18em] ${
+            className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${
               summary.passkeys.length > 0
                 ? "border border-secondary/20 bg-secondary/10 text-secondary"
                 : "border border-primary/20 bg-primary/10 text-primary"
@@ -31,68 +55,108 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
         </div>
 
         {summary.passkeys.length > 0 ? (
-          <div className="mt-4 grid gap-3">
+          <div className="mt-5 grid gap-3">
             {summary.passkeys.map((passkey) => (
               <div
                 key={passkey.id}
-                className="rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
+                className="flex items-center gap-4 rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
               >
-                <p className="text-sm font-bold text-on-surface">
-                  {passkey.device_name ?? "Trusted device"}
-                </p>
-                <p className="mt-1 text-xs leading-5 text-on-surface-variant">
-                  {passkey.last_used_at
-                    ? `Last used ${new Date(passkey.last_used_at).toLocaleDateString()}`
-                    : `Registered ${new Date(passkey.created_at).toLocaleDateString()}`}
-                </p>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[20px]">
+                    {passkey.device_name?.toLowerCase().includes("iphone") ? "smartphone" : "devices"}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-on-surface">
+                    {passkey.device_name ?? "Trusted device"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-on-surface-variant">
+                    {passkey.last_used_at
+                      ? `Last used ${new Date(passkey.last_used_at).toLocaleDateString()}`
+                      : `Registered ${new Date(passkey.created_at).toLocaleDateString()}`}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm leading-6 text-on-surface-variant">
-            No passkeys set up. Add one from your account settings to enable biometric sign-in.
+          <p className="mt-5 text-sm leading-relaxed text-on-surface-variant">
+            Enable faster, more secure sign-ins with your fingerprint, face, or screen lock.
           </p>
         )}
       </section>
 
-      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 dark:bg-surface-container-high/45">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
-          Linked providers
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
+      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 shadow-sm dark:bg-surface-container-high/45">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 text-secondary dark:bg-secondary/20">
+            <span className="material-symbols-outlined text-[22px]">link</span>
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
+              Connected
+            </p>
+            <h3 className="mt-0.5 text-lg font-black tracking-tight text-on-surface">
+              Social accounts
+            </h3>
+          </div>
+        </div>
+        
+        <div className="mt-5 flex flex-col gap-2">
           {summary.identities.length > 0 ? (
             summary.identities.map((identity) => (
-              <span
+              <div
                 key={identity.provider}
-                className="rounded-full border border-outline/10 bg-surface-container-lowest/85 px-3 py-1.5 text-xs font-bold text-on-surface dark:bg-surface/50"
+                className="flex items-center gap-4 rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
               >
-                {identity.label}
-              </span>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-high/60">
+                  <Icon icon={getProviderIcon(identity.provider)} className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-on-surface">{identity.label}</p>
+                  <p className="mt-0.5 text-xs text-on-surface-variant">Linked account</p>
+                </div>
+                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/30">
+                  verified
+                </span>
+              </div>
             ))
           ) : (
-            <span className="text-sm text-on-surface-variant">No linked providers yet.</span>
+            <div className="rounded-[1.25rem] border border-outline/5 bg-surface-container-low/50 px-4 py-4 dark:bg-surface/20">
+              <p className="text-sm text-on-surface-variant">No social accounts linked yet.</p>
+            </div>
           )}
         </div>
       </section>
 
-      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 dark:bg-surface-container-high/45">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
-          Email addresses
-        </p>
-        <div className="mt-4 space-y-3">
+      <section className="rounded-[1.5rem] border border-outline/10 bg-surface-container-low p-5 shadow-sm dark:bg-surface-container-high/45">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary dark:bg-tertiary/20">
+            <span className="material-symbols-outlined text-[22px]">mail</span>
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-on-surface-variant">
+              Identity
+            </p>
+            <h3 className="mt-0.5 text-lg font-black tracking-tight text-on-surface">
+              Email addresses
+            </h3>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-3">
           {summary.emails.map((email) => (
             <div
               key={email.id}
               className="flex items-center justify-between gap-3 rounded-[1.25rem] border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
             >
-              <div>
-                <p className="text-sm font-bold text-on-surface">{email.value}</p>
-                <p className="mt-1 text-xs leading-5 text-on-surface-variant">
-                  {email.isPrimary ? "Primary for sign-in" : "Additional owned email"}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-on-surface">{email.value}</p>
+                <p className="mt-0.5 text-xs text-on-surface-variant">
+                  {email.isPrimary ? "Primary sign-in" : "Alternate email"}
                 </p>
               </div>
               {email.isPrimary ? (
-                <span className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-primary">
+                <span className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-primary">
                   Primary
                 </span>
               ) : null}
@@ -103,6 +167,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
     </div>
   );
 }
+
 
 export function SignInMethodsSheet({ isOpen, onClose, summary }: SignInMethodsSheetProps) {
   if (!isOpen) {
