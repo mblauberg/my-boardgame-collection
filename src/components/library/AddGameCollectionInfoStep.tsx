@@ -44,10 +44,10 @@ export function AddGameCollectionInfoStep({
               return (
                 <label
                   key={option.key}
-                  className={`cursor-pointer rounded-2xl border px-4 py-4 transition ${
+                  className={`glass-selectable-card cursor-pointer rounded-2xl px-4 py-4 transition ${
                     checked
-                      ? "border-primary/30 bg-surface-container-high text-on-surface"
-                      : "border-outline/10 bg-surface-container-low text-on-surface-variant"
+                      ? "glass-selectable-card-active text-on-surface"
+                      : "text-on-surface-variant"
                   }`}
                 >
                   <input
@@ -81,10 +81,10 @@ export function AddGameCollectionInfoStep({
               return (
                 <label
                   key={option.value}
-                  className={`cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition ${
                     checked
-                      ? "border-primary/30 bg-primary text-on-primary"
-                      : "border-outline/15 bg-surface-container-low text-on-surface"
+                      ? "glass-action-button-active text-on-primary"
+                      : "glass-action-button text-on-surface"
                   }`}
                 >
                   <input
@@ -109,7 +109,7 @@ export function AddGameCollectionInfoStep({
             value={value.notes}
             onChange={(event) => onChange({ ...value, notes: event.target.value })}
             rows={5}
-            className="mt-3 w-full resize-none rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30"
+            className="glass-input-field mt-3 w-full resize-none rounded-2xl px-4 py-3 text-sm text-on-surface outline-none transition"
             placeholder="Optional notes about this game"
           />
         </label>

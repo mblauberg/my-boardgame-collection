@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { AdvancedFilters } from "./AdvancedFilters";
 import { ExpandableSearchSection } from "./ExpandableSearchSection";
+import { QuickFilterPresets } from "./QuickFilterPresets";
+import { PillSelector } from "../ui/PillSelector";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
 import { useDebouncedTextInput } from "../../lib/utils/useDebouncedTextInput";
@@ -48,21 +50,27 @@ export function FilterBar({
   const advancedFilterCount = useMemo(() => {
     let count = 0;
     if (filters.isLoved) count += 1;
-    if (filters.playersMin != null || filters.playersMax != null) count += 1;
-    if (filters.playTimeMin != null || filters.playTimeMax != null) count += 1;
-    if (filters.weightMin != null || filters.weightMax != null) count += 1;
+    if (filters.playerCount != null) count += 1;
+    if (filters.playTime != null) count += 1;
+    if (filters.weight != null) count += 1;
+    // Support legacy if counts are present but not the new ones
+    if (filters.playerCount == null && (filters.playersMin != null || filters.playersMax != null)) count += 1;
+    if (filters.playTime == null && (filters.playTimeMin != null || filters.playTimeMax != null)) count += 1;
+    if (filters.weight == null && (filters.weightMin != null || filters.weightMax != null || filters.maxWeight != null)) count += 1;
     return count;
   }, [
     filters.isLoved,
+    filters.playerCount,
+    filters.playTime,
+    filters.weight,
     filters.playersMin,
     filters.playersMax,
     filters.playTimeMin,
     filters.playTimeMax,
     filters.weightMin,
     filters.weightMax,
+    filters.maxWeight,
   ]);
-
-  const directionLabel = sortDirection === "asc" ? "ascending" : "descending";
 
   return (
     <div className="space-y-4">
@@ -84,7 +92,7 @@ export function FilterBar({
           type="button"
           onClick={() => setIsAdvancedOpen((previous) => !previous)}
           aria-label={`Filters${advancedFilterCount > 0 ? ` (${advancedFilterCount})` : ""}`}
-          className="group relative flex h-14 w-14 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm transition hover:border-primary/30 hover:bg-surface-container-high/70 hover:shadow-[0_0_15px_rgba(255,145,0,0.15)]"
+          className="glass-action-button group relative flex h-14 w-14 items-center justify-center rounded-full transition hover:border-primary/35"
         >
           <span className="material-symbols-outlined text-3xl text-on-surface transition group-hover:text-primary">
             tune
@@ -96,68 +104,58 @@ export function FilterBar({
           )}
         </button>
       </div>
+      {presets.length > 0 ? (
+        <QuickFilterPresets presets={presets} onSelect={onFiltersChange} />
+      ) : null}
+      <div 
+        className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
+          isAdvancedOpen 
+            ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0" 
+            : "grid-rows-[0fr] opacity-0 scale-95 -translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="overflow-hidden px-8 py-10 -mx-8 -my-10">
+          <div className="glass-surface-panel mt-6 space-y-6 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+                Sort By
+              </h3>
+              <div className="flex flex-wrap items-center gap-4">
+                <PillSelector
+                  className="flex-1 md:flex-none"
+                  options={SORT_OPTIONS.map((opt) => ({
+                    ...opt,
+                    icon: opt.value === sortBy ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward") : undefined,
+                  }))}
+                  activeValue={sortBy}
+                  onChange={(value) => {
+                    if (value === sortBy) {
+                      onSortChange(sortBy, sortDirection === "asc" ? "desc" : "asc");
+                    } else {
+                      onSortChange(value, sortDirection);
+                    }
+                  }}
+                />
+              </div>
+            </div>
 
-      {isAdvancedOpen && (
-        <div className="space-y-4 rounded-2xl border border-outline-variant/15 bg-surface-container-low/50 p-4 backdrop-blur-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              aria-label="Sort"
-              value={sortBy}
-              onChange={(event) => onSortChange(event.target.value as SortOption, sortDirection)}
-              className="rounded-lg border border-outline-variant/20 bg-surface-container-lowest px-3 py-1.5 text-sm text-on-surface outline-none transition focus:border-primary/50"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <div className="h-px bg-outline-variant/10" />
 
-            <button
-              type="button"
-              aria-label={`Sort direction ${directionLabel}`}
-              onClick={() => onSortChange(sortBy, sortDirection === "asc" ? "desc" : "asc")}
-              className="flex items-center gap-1 rounded-lg border border-outline-variant/20 bg-surface-container-lowest px-3 py-1.5 text-sm text-on-surface transition hover:bg-surface-container-high"
-            >
-              <span className="material-symbols-outlined text-base">
-                {sortDirection === "asc" ? "arrow_upward" : "arrow_downward"}
-              </span>
-            </button>
+            <AdvancedFilters filters={filters} onChange={onFiltersChange} />
 
-            {presets.length > 0 && (
-              <select
-                defaultValue=""
-                aria-label="Quick preset"
-                onChange={(event) => {
-                  const selected = presets.find((preset) => preset.label === event.target.value);
-                  if (selected) {
-                    onFiltersChange(selected.filters);
-                  }
-                  event.target.value = "";
-                }}
-                className="rounded-lg border border-outline-variant/20 bg-surface-container-lowest px-3 py-1.5 text-sm text-on-surface outline-none transition focus:border-primary/50"
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className="glass-action-button group flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary transition hover:text-primary"
               >
-                <option value="">Preset…</option>
-                {presets.map((preset) => (
-                  <option key={preset.label} value={preset.label}>
-                    {preset.label}
-                  </option>
-                ))}
-              </select>
-            )}
+                <span className="material-symbols-outlined text-sm">restart_alt</span>
+                Reset all filters
+              </button>
+            </div>
           </div>
-
-          <AdvancedFilters filters={filters} onChange={onFiltersChange} />
-
-          <button
-            type="button"
-            onClick={onClearFilters}
-            className="text-xs font-semibold text-primary transition hover:opacity-70"
-          >
-            Reset all
-          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }

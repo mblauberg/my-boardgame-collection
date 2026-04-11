@@ -30,7 +30,7 @@ export function AddGameDetailsStep({
             value={game.customImageUrl ?? ""}
             onChange={(event) => onChange({ customImageUrl: event.target.value || null })}
             placeholder="https://example.com/game-image.jpg"
-            className="rounded-xl border border-outline/30 bg-surface px-3 py-2 text-on-surface"
+            className="glass-input-field rounded-xl px-3 py-2 text-on-surface"
           />
         </label>
 
@@ -43,7 +43,7 @@ export function AddGameDetailsStep({
             onChange={(event) =>
               onChange({ customImageFile: event.target.files?.[0] ?? null })
             }
-            className="rounded-xl border border-outline/30 bg-surface px-3 py-2 text-on-surface file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-on-primary"
+            className="glass-input-field rounded-xl px-3 py-2 text-on-surface file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-on-primary"
           />
           {imageUploadHelpText ? (
             <span className="text-xs leading-5 text-on-surface-variant">{imageUploadHelpText}</span>

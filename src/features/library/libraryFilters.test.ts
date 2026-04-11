@@ -66,4 +66,59 @@ describe("libraryFilters", () => {
     expect(moved.isInCollection).toBe(true);
     expect(moved.isSaved).toBe(true);
   });
+
+  describe("single-value filters", () => {
+    const entries = [
+      createEntry("small", {
+        game: { ...createEntry("small").game, playersMin: 1, playersMax: 2, playTimeMin: 15, playTimeMax: 30, bggWeight: 1.2 }
+      } as any),
+      createEntry("medium", {
+        game: { ...createEntry("medium").game, playersMin: 2, playersMax: 5, playTimeMin: 60, playTimeMax: 120, bggWeight: 3.0 }
+      } as any),
+      createEntry("large", {
+        game: { ...createEntry("large").game, playersMin: 5, playersMax: 10, playTimeMin: 180, playTimeMax: 300, bggWeight: 4.5 }
+      } as any),
+    ];
+
+    it("filters by playerCount", () => {
+      // 1 player should only find "small"
+      expect(filterLibraryEntries(entries, { playerCount: 1 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { playerCount: 1 })[0].id).toBe("small");
+
+      // 5 players should find "medium" and "large"
+      expect(filterLibraryEntries(entries, { playerCount: 5 })).toHaveLength(2);
+
+      // 8 players should only find "large"
+      expect(filterLibraryEntries(entries, { playerCount: 8 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { playerCount: 8 })[0].id).toBe("large");
+    });
+
+    it("filters by playTime", () => {
+      // 20 mins should find "small"
+      expect(filterLibraryEntries(entries, { playTime: 20 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { playTime: 20 })[0].id).toBe("small");
+
+      // 90 mins should find "medium"
+      expect(filterLibraryEntries(entries, { playTime: 90 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { playTime: 90 })[0].id).toBe("medium");
+
+      // 180 mins (3h+) should find "large"
+      expect(filterLibraryEntries(entries, { playTime: 180 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { playTime: 180 })[0].id).toBe("large");
+    });
+
+    it("filters by weight with +-0.5 tolerance", () => {
+      // Filter for weight 3.0 should find games in range [2.5, 3.5]
+      expect(filterLibraryEntries(entries, { weight: 3.0 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { weight: 3.0 })[0].id).toBe("medium");
+
+      // Filter for weight 1.5 should find games in range [1.0, 2.0]
+      expect(filterLibraryEntries(entries, { weight: 1.5 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { weight: 1.5 })[0].id).toBe("small");
+
+      // Filter for weight 4.2 should find "large" (4.5 is in [3.7, 4.7])
+      expect(filterLibraryEntries(entries, { weight: 4.2 })).toHaveLength(1);
+      expect(filterLibraryEntries(entries, { weight: 4.2 })[0].id).toBe("large");
+    });
+  });
 });

@@ -26,15 +26,16 @@ export function DiscoverSection({ title, emoji, description, shelves }: Discover
   return (
     <section ref={ref} className="mb-12">
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full text-left bg-surface-container-low rounded-2xl p-8 transition-all duration-300 hover:bg-surface-container-highest"
+        className="glass-surface-panel w-full rounded-2xl p-8 text-left transition-all duration-300 hover:-translate-y-0.5"
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-3xl">{emoji}</span>
               <h2 className="text-3xl font-extrabold tracking-tight text-on-surface">{title}</h2>
-              <span className="px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider">
+              <span className="glass-action-button rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
                 {totalGames}
               </span>
             </div>

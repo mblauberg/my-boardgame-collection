@@ -2,6 +2,10 @@ export type GameFilters = {
   search?: string;
   tagSlugs?: string[];
   isLoved?: boolean;
+  playerCount?: number;
+  playTime?: number;
+  weight?: number;
+  // Deprecated range filters
   playersMin?: number;
   playersMax?: number;
   playTimeMin?: number;

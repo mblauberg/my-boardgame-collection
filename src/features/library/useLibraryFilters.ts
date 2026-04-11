@@ -10,15 +10,16 @@ export function useLibraryFilters() {
     searchText: searchParams.get("search") || undefined,
     sharedTagSlugs: searchParams.get("sharedTags")?.split(",").filter(Boolean) || undefined,
     userTagSlugs: searchParams.get("userTags")?.split(",").filter(Boolean) || undefined,
-    playerCount: searchParams.get("players") ? Number(searchParams.get("players")) : undefined,
+    playerCount: searchParams.get("playerCount") ? Number(searchParams.get("playerCount")) : undefined,
     playTime: searchParams.get("playTime") ? Number(searchParams.get("playTime")) : undefined,
-    maxWeight: searchParams.get("maxWeight") ? Number(searchParams.get("maxWeight")) : undefined,
+    weight: searchParams.get("weight") ? Number(searchParams.get("weight")) : undefined,
     playersMin: searchParams.get("playersMin") ? Number(searchParams.get("playersMin")) : undefined,
     playersMax: searchParams.get("playersMax") ? Number(searchParams.get("playersMax")) : undefined,
     playTimeMin: searchParams.get("playTimeMin") ? Number(searchParams.get("playTimeMin")) : undefined,
     playTimeMax: searchParams.get("playTimeMax") ? Number(searchParams.get("playTimeMax")) : undefined,
     weightMin: searchParams.get("weightMin") ? Number(searchParams.get("weightMin")) : undefined,
     weightMax: searchParams.get("weightMax") ? Number(searchParams.get("weightMax")) : undefined,
+    maxWeight: searchParams.get("maxWeight") ? Number(searchParams.get("maxWeight")) : undefined,
     isLoved: searchParams.get("loved") === "true" ? true : undefined,
   };
 

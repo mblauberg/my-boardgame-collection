@@ -50,15 +50,17 @@ export function AddGameSearchStep({
 
       <label className="mb-6 block">
         <span className="sr-only">Search BoardGameGeek</span>
-        <div className="flex items-center gap-3 rounded-2xl border border-outline/15 bg-surface-container-low px-4 py-3">
-          <span className="material-symbols-outlined text-on-surface-variant">search</span>
+        <div className="relative">
+          <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
+            search
+          </span>
           <input
             type="search"
             aria-label="Search BoardGameGeek"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder="Type a game title"
-            className="w-full border-none bg-transparent text-sm text-on-surface outline-none placeholder:text-outline"
+            className="glass-input-field w-full rounded-2xl py-3 pl-11 pr-4 text-sm text-on-surface outline-none"
           />
         </div>
       </label>
@@ -71,13 +73,13 @@ export function AddGameSearchStep({
         ) : null}
 
         {isLoading ? (
-          <div className="rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">
+          <div className="glass-surface-panel rounded-2xl px-4 py-4 text-sm text-on-surface-variant">
             Searching BoardGameGeek...
           </div>
         ) : null}
 
         {showEmpty ? (
-          <div className="rounded-2xl border border-outline/10 bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">
+          <div className="glass-surface-panel rounded-2xl px-4 py-4 text-sm text-on-surface-variant">
             No matches yet. Try a different spelling or a shorter title.
           </div>
         ) : null}
@@ -92,10 +94,10 @@ export function AddGameSearchStep({
               aria-label={`Select ${game.name}`}
               aria-pressed={isSelected}
               onClick={() => onSelect(game)}
-              className={`flex items-center gap-4 rounded-2xl border px-4 py-3 text-left transition ${
+              className={`glass-selectable-card flex items-center gap-4 rounded-2xl px-4 py-3 text-left transition ${
                 isSelected
-                  ? "border-primary/30 bg-surface-container-high shadow-sm"
-                  : "border-transparent bg-surface-container-low hover:border-outline/15"
+                  ? "glass-selectable-card-active text-on-surface"
+                  : "text-on-surface hover:border-outline/20"
               }`}
             >
               <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-surface-container">

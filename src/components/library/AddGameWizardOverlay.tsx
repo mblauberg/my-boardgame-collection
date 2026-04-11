@@ -295,9 +295,9 @@ export function AddGameWizardOverlay({
         role="dialog"
         aria-modal="true"
         aria-label="Add new game"
-        className="flex max-h-[min(46rem,90vh)] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest shadow-[0_32px_80px_rgba(46,47,45,0.18)] lg:flex-row"
+        className="glass-surface-panel flex max-h-[min(46rem,90vh)] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] shadow-[0_32px_80px_rgba(46,47,45,0.18)] lg:flex-row"
       >
-        <aside className="bg-surface-container-low px-6 py-8 lg:w-64">
+        <aside className="border-b border-outline/10 bg-surface-container-low/70 px-6 py-8 lg:w-64 lg:border-b-0 lg:border-r">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
             Step {String(step).padStart(2, "0")} of 03
           </p>
@@ -339,7 +339,7 @@ export function AddGameWizardOverlay({
               type="button"
               aria-label="Close add game wizard"
               onClick={handleClose}
-              className="rounded-full p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface"
+              className="glass-action-button rounded-full p-2 text-on-surface-variant transition hover:text-on-surface"
             >
               <span className="material-symbols-outlined">close</span>
             </button>
@@ -387,7 +387,7 @@ export function AddGameWizardOverlay({
             <button
               type="button"
               onClick={() => (step === 1 ? handleClose() : setStep((current) => current - 1))}
-              className="rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface"
+              className="glass-action-button rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-on-surface"
             >
               {step === 1 ? "Cancel" : "Back"}
             </button>
@@ -397,7 +397,7 @@ export function AddGameWizardOverlay({
                 type="button"
                 onClick={() => setStep((current) => current + 1)}
                 disabled={nextDisabled}
-                className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-6 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50"
+                className="glass-action-button-active rounded-full px-6 py-3 text-sm font-bold text-on-primary transition disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>
@@ -406,7 +406,7 @@ export function AddGameWizardOverlay({
                 type="button"
                 onClick={handleSubmit}
                 disabled={nextDisabled}
-                className="rounded-2xl bg-gradient-to-r from-primary to-primary-container px-6 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition disabled:cursor-not-allowed disabled:opacity-50"
+                className="glass-action-button-active rounded-full px-6 py-3 text-sm font-bold text-on-primary transition disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? "Adding..." : isAuthenticated ? "Add and sync" : "Add locally"}
               </button>

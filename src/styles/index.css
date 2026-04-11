@@ -406,9 +406,12 @@ body {
     rgb(var(--surface-container-lowest) / 0.74),
     rgb(var(--surface-container-low) / 0.52)
   );
+  border: 1px solid rgb(var(--surface-container-highest) / 0.52);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 8px 24px rgb(var(--on-surface) / 0.1);
+  box-shadow:
+    0 8px 24px rgb(var(--on-surface) / 0.1),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.75);
 }
 
 .dark .game-card-title-glass {
@@ -417,6 +420,10 @@ body {
     rgb(var(--surface-container-low) / 0.9),
     rgb(var(--surface-container-high) / 0.78)
   );
+  border-color: rgb(var(--surface-bright) / 0.24);
+  box-shadow:
+    0 10px 24px rgb(0 0 0 / 0.45),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.14);
 }
 
 .glass-rating-badge {
@@ -533,6 +540,126 @@ body {
   box-shadow:
     0 8px 18px rgb(var(--primary) / 0.35),
     inset 0 1px 0 rgb(var(--surface-bright) / 0.15);
+}
+
+.glass-input-field {
+  background: linear-gradient(
+    140deg,
+    rgb(var(--surface-container-lowest) / 0.82),
+    rgb(var(--surface-container-low) / 0.52)
+  );
+  border: 1px solid rgb(var(--surface-container-highest) / 0.5);
+  box-shadow:
+    0 8px 18px rgb(var(--on-surface) / 0.08),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-input-field::placeholder {
+  color: rgb(var(--outline) / 0.85);
+}
+
+.glass-input-field:focus,
+.glass-input-field:focus-visible {
+  border-color: rgb(var(--primary) / 0.45);
+  box-shadow:
+    0 0 0 1px rgb(var(--primary) / 0.2),
+    0 12px 24px rgb(var(--primary) / 0.16),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.72);
+}
+
+.dark .glass-input-field {
+  background: linear-gradient(
+    140deg,
+    rgb(var(--surface-container-high) / 0.8),
+    rgb(var(--surface-container-low) / 0.56)
+  );
+  border-color: rgb(var(--surface-bright) / 0.28);
+  box-shadow:
+    0 10px 22px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.18);
+}
+
+.dark .glass-input-field::placeholder {
+  color: rgb(var(--outline) / 0.65);
+}
+
+.dark .glass-input-field:focus,
+.dark .glass-input-field:focus-visible {
+  border-color: rgb(var(--primary) / 0.55);
+  box-shadow:
+    0 0 0 1px rgb(var(--primary) / 0.3),
+    0 12px 24px rgb(var(--primary) / 0.2),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.2);
+}
+
+.glass-selectable-card {
+  background: linear-gradient(
+    140deg,
+    rgb(var(--surface-container-lowest) / 0.8),
+    rgb(var(--surface-container-low) / 0.48)
+  );
+  border: 1px solid rgb(var(--surface-container-highest) / 0.44);
+  box-shadow:
+    0 8px 18px rgb(var(--on-surface) / 0.08),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-selectable-card:hover {
+  background: linear-gradient(
+    140deg,
+    rgb(var(--surface-container-lowest) / 0.95),
+    rgb(var(--surface-container-low) / 0.65)
+  );
+  border-color: rgb(var(--surface-container-highest) / 0.58);
+}
+
+.glass-selectable-card-active {
+  background: linear-gradient(
+    125deg,
+    rgb(var(--primary-container) / 0.55),
+    rgb(var(--primary) / 0.38)
+  );
+  border-color: rgb(var(--primary) / 0.5);
+  box-shadow:
+    0 10px 22px rgb(var(--primary) / 0.2),
+    inset 0 1px 0 rgb(var(--surface-container-lowest) / 0.38);
+}
+
+.dark .glass-selectable-card {
+  background: linear-gradient(
+    140deg,
+    rgb(var(--surface-container-high) / 0.8),
+    rgb(var(--surface-container-low) / 0.56)
+  );
+  border-color: rgb(var(--surface-bright) / 0.22);
+  box-shadow:
+    0 10px 22px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.14);
+}
+
+.dark .glass-selectable-card:hover {
+  background: linear-gradient(
+    140deg,
+    rgb(var(--surface-container-high) / 0.92),
+    rgb(var(--surface-container-low) / 0.7)
+  );
+  border-color: rgb(var(--surface-bright) / 0.3);
+}
+
+.dark .glass-selectable-card-active {
+  background: linear-gradient(
+    125deg,
+    rgb(var(--primary-container) / 0.72),
+    rgb(var(--primary) / 0.5)
+  );
+  border-color: rgb(var(--primary) / 0.6);
+  box-shadow:
+    0 10px 24px rgb(var(--primary) / 0.3),
+    inset 0 1px 0 rgb(var(--surface-bright) / 0.18);
 }
 
 a {

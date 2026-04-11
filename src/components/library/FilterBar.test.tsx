@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { FilterBar } from "./FilterBar";
 
 describe("FilterBar", () => {
+  const filterToggleName = /^filters(?: \(\d+\))?$/i;
+
   it("renders a compact control row with sort and filter actions", () => {
     const { container } = render(
       <FilterBar
@@ -16,8 +18,9 @@ describe("FilterBar", () => {
     );
 
     expect(container.firstElementChild).not.toHaveClass("glass-surface-panel");
-    expect(screen.getByRole("searchbox", { name: /search games/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /filters/i })).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: /search games/i })).toHaveClass("glass-input-field");
+    expect(screen.getByRole("button", { name: /open search/i })).toHaveClass("glass-action-button");
+    expect(screen.getByRole("button", { name: filterToggleName })).toHaveClass("glass-action-button");
     expect(screen.queryByRole("combobox", { name: /sort/i })).not.toBeInTheDocument();
   });
 
@@ -35,14 +38,14 @@ describe("FilterBar", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /filters \(2\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: filterToggleName })).toBeInTheDocument();
     expect(screen.queryByLabelText(/player count/i)).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /filters \(2\)/i }));
+    await user.click(screen.getByRole("button", { name: filterToggleName }));
 
-    expect(screen.getByRole("combobox", { name: /sort/i })).toBeInTheDocument();
-    expect(screen.getAllByLabelText(/player count/i)).toHaveLength(2);
-    expect(screen.getByRole("button", { name: /loved/i })).toBeInTheDocument();
+    expect(screen.getByText(/sort by/i)).toBeInTheDocument();
+    expect(screen.getByText(/player count/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /loved games/i })).toBeInTheDocument();
   });
 
   it("toggles sort direction from one compact button", async () => {
@@ -60,8 +63,8 @@ describe("FilterBar", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: /filters/i }));
-    await user.click(screen.getByRole("button", { name: /sort direction ascending/i }));
+    await user.click(screen.getByRole("button", { name: filterToggleName }));
+    await user.click(screen.getByRole("button", { name: /rank/i }));
 
     expect(onSortChange).toHaveBeenCalledWith("rank", "desc");
   });

@@ -7,16 +7,18 @@ export type LibraryFilters = {
   searchText?: string;
   sharedTagSlugs?: string[];
   userTagSlugs?: string[];
-  playerCount?: number | null;
-  playTime?: number | null;
-  maxWeight?: number | null;
+  playerCount?: number;
+  playTime?: number;
+  weight?: number;
+  isLoved?: boolean;
+  // Keep legacy for backward compatibility if needed, but we'll focus on the above
   playersMin?: number;
   playersMax?: number;
   playTimeMin?: number;
   playTimeMax?: number;
   weightMin?: number;
   weightMax?: number;
-  isLoved?: boolean;
+  maxWeight?: number | null;
 };
 
 export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFilters) {
@@ -48,12 +50,17 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
 
     if (filters.playerCount != null) {
       const { playersMin, playersMax } = entry.game;
-      if (
-        playersMin != null &&
-        playersMax != null &&
-        (filters.playerCount < playersMin || filters.playerCount > playersMax)
-      ) {
-        return false;
+      // Handle "8+" mapping to 8: check if game supports at least 8
+      if (filters.playerCount === 8) {
+        if (playersMax != null && playersMax < 8) return false;
+      } else {
+        if (
+          playersMin != null &&
+          playersMax != null &&
+          (filters.playerCount < playersMin || filters.playerCount > playersMax)
+        ) {
+          return false;
+        }
       }
     }
 
@@ -65,12 +72,17 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
 
     if (filters.playTime != null) {
       const { playTimeMin, playTimeMax } = entry.game;
-      if (
-        playTimeMin != null &&
-        playTimeMax != null &&
-        (filters.playTime < playTimeMin || filters.playTime > playTimeMax)
-      ) {
-        return false;
+      // Handle "3h+" mapping to 180: check if game supports at least 180 mins
+      if (filters.playTime === 180) {
+        if (playTimeMax != null && playTimeMax < 180) return false;
+      } else {
+        if (
+          playTimeMin != null &&
+          playTimeMax != null &&
+          (filters.playTime < playTimeMin || filters.playTime > playTimeMax)
+        ) {
+          return false;
+        }
       }
     }
 
@@ -78,6 +90,15 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
       const { playTimeMin, playTimeMax } = entry.game;
       if (playTimeMin != null && filters.playTimeMax != null && playTimeMin > filters.playTimeMax) return false;
       if (playTimeMax != null && filters.playTimeMin != null && playTimeMax < filters.playTimeMin) return false;
+    }
+
+    if (filters.weight != null) {
+      const weight = entry.game.bggWeight;
+      if (weight != null) {
+        if (weight < filters.weight - 0.5 || weight > filters.weight + 0.5) return false;
+      } else {
+        return false; // No weight data
+      }
     }
 
     if (filters.maxWeight != null && entry.game.bggWeight != null && entry.game.bggWeight > filters.maxWeight) {

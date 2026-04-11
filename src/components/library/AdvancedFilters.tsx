@@ -1,3 +1,4 @@
+import { PillSelector, type PillOption } from "../ui/PillSelector";
 import type { GameFilters } from "../../features/shared/filters";
 
 type AdvancedFiltersProps = {
@@ -5,100 +6,118 @@ type AdvancedFiltersProps = {
   onChange: (filters: Partial<GameFilters>) => void;
 };
 
+const PLAYER_OPTIONS: PillOption<number | undefined>[] = [
+  { label: "ANY", value: undefined },
+  { label: "1", value: 1 },
+  { label: "2", value: 2 },
+  { label: "3", value: 3 },
+  { label: "4", value: 4 },
+  { label: "5", value: 5 },
+  { label: "6", value: 6 },
+  { label: "7", value: 7 },
+  { label: "8+", value: 8 },
+];
+
+const TIME_OPTIONS: PillOption<number | undefined>[] = [
+  { label: "ANY", value: undefined },
+  { label: "15m", value: 15 },
+  { label: "30m", value: 30 },
+  { label: "45m", value: 45 },
+  { label: "1h", value: 60 },
+  { label: "1h 15", value: 75 },
+  { label: "1h 30", value: 90 },
+  { label: "1h 45", value: 105 },
+  { label: "2h", value: 120 },
+  { label: "2h 15", value: 135 },
+  { label: "2h 30", value: 150 },
+  { label: "2h 45", value: 165 },
+  { label: "3h+", value: 180 },
+];
+
+const WEIGHT_OPTIONS: PillOption<number | undefined>[] = [
+  { label: "ANY", value: undefined },
+  { label: "1", value: 1 },
+  { label: "2", value: 2 },
+  { label: "3", value: 3 },
+  { label: "4", value: 4 },
+  { label: "5", value: 5 },
+];
+
 export function AdvancedFilters({ filters, onChange }: AdvancedFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        onClick={() => onChange({ isLoved: !filters.isLoved ? true : undefined })}
-        aria-pressed={filters.isLoved ?? false}
-        className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition ${
-          filters.isLoved
-            ? "border-primary/30 bg-primary/10 text-primary"
-            : "border-outline-variant/15 bg-surface-container-lowest text-on-surface hover:border-primary/20"
-        }`}
-      >
-        <span className={`material-symbols-outlined text-base ${filters.isLoved ? "filled" : ""}`}>
-          favorite
-        </span>
-        <span>Loved</span>
-      </button>
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div className="space-y-6">
+        {/* Loved Filter */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-xl text-on-surface-variant/70">favorite</span>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+              Favorites
+            </h4>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange({ isLoved: !filters.isLoved ? true : undefined })}
+            aria-pressed={filters.isLoved ?? false}
+            className={`flex min-h-[44px] w-full items-center justify-center gap-3 rounded-full transition-all duration-300 font-medium text-sm ${
+              filters.isLoved
+                ? "glass-action-button-active text-on-primary shadow-[0_0_20px_rgba(255,145,0,0.3)]"
+                : "glass-action-button text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            <span className={`material-symbols-outlined text-lg ${filters.isLoved ? "filled" : ""}`}>
+              favorite
+            </span>
+            <span>Loved Games</span>
+          </button>
+        </div>
 
-      <div className="flex items-center gap-1.5 rounded-lg border border-outline-variant/15 bg-surface-container-lowest px-2.5 py-1.5">
-        <span className="material-symbols-outlined text-base text-on-surface-variant">group</span>
-        <input
-          type="number"
-          min="1"
-          max="20"
-          value={filters.playersMin ?? ""}
-          onChange={(e) => onChange({ playersMin: e.target.value ? Number(e.target.value) : undefined })}
-          placeholder="Min"
-          aria-label="Player count min"
-          className="w-14 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-on-surface outline-none focus:bg-surface-container-high"
-        />
-        <span className="text-xs text-on-surface-variant">–</span>
-        <input
-          type="number"
-          min="1"
-          max="20"
-          value={filters.playersMax ?? ""}
-          onChange={(e) => onChange({ playersMax: e.target.value ? Number(e.target.value) : undefined })}
-          placeholder="Max"
-          aria-label="Player count max"
-          className="w-14 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-on-surface outline-none focus:bg-surface-container-high"
-        />
+        {/* Player Count */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-xl text-on-surface-variant/70">group</span>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+              Player Count
+            </h4>
+          </div>
+          <PillSelector
+            options={PLAYER_OPTIONS}
+            activeValue={filters.playerCount}
+            onChange={(val) => onChange({ playerCount: val })}
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-1.5 rounded-lg border border-outline-variant/15 bg-surface-container-lowest px-2.5 py-1.5">
-        <span className="material-symbols-outlined text-base text-on-surface-variant">schedule</span>
-        <input
-          type="number"
-          min="0"
-          step="15"
-          value={filters.playTimeMin ?? ""}
-          onChange={(e) => onChange({ playTimeMin: e.target.value ? Number(e.target.value) : undefined })}
-          placeholder="Min"
-          aria-label="Play time min"
-          className="w-14 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-on-surface outline-none focus:bg-surface-container-high"
-        />
-        <span className="text-xs text-on-surface-variant">–</span>
-        <input
-          type="number"
-          min="0"
-          step="15"
-          value={filters.playTimeMax ?? ""}
-          onChange={(e) => onChange({ playTimeMax: e.target.value ? Number(e.target.value) : undefined })}
-          placeholder="Max"
-          aria-label="Play time max"
-          className="w-14 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-on-surface outline-none focus:bg-surface-container-high"
-        />
-      </div>
+      <div className="space-y-6">
+        {/* Approx Weight */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-xl text-on-surface-variant/70">fitness_center</span>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+              Complexity (Weight)
+            </h4>
+          </div>
+          <PillSelector
+            options={WEIGHT_OPTIONS}
+            activeValue={filters.weight}
+            onChange={(val) => onChange({ weight: val })}
+          />
+        </div>
 
-      <div className="flex items-center gap-1.5 rounded-lg border border-outline-variant/15 bg-surface-container-lowest px-2.5 py-1.5">
-        <span className="material-symbols-outlined text-base text-on-surface-variant">weight</span>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          step="0.1"
-          value={filters.weightMin ?? ""}
-          onChange={(e) => onChange({ weightMin: e.target.value ? Number(e.target.value) : undefined })}
-          placeholder="Min"
-          aria-label="Weight min"
-          className="w-14 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-on-surface outline-none focus:bg-surface-container-high"
-        />
-        <span className="text-xs text-on-surface-variant">–</span>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          step="0.1"
-          value={filters.weightMax ?? ""}
-          onChange={(e) => onChange({ weightMax: e.target.value ? Number(e.target.value) : undefined })}
-          placeholder="Max"
-          aria-label="Weight max"
-          className="w-14 rounded border-0 bg-transparent px-1 py-0.5 text-sm text-on-surface outline-none focus:bg-surface-container-high"
-        />
+        {/* Play Time */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-xl text-on-surface-variant/70">schedule</span>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/50">
+              Approx Play Time
+            </h4>
+          </div>
+          <PillSelector
+            options={TIME_OPTIONS}
+            activeValue={filters.playTime}
+            onChange={(val) => onChange({ playTime: val })}
+          />
+        </div>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export function QuickFilterPresets({ presets, onSelect }: QuickFilterPresetsProp
           key={preset.label}
           type="button"
           onClick={() => onSelect(preset.filters)}
-          className="rounded-full bg-secondary-container px-4 py-1.5 text-sm font-semibold text-on-secondary-container transition-transform hover:scale-105 dark:bg-secondary-container dark:text-on-secondary-container"
+          className="glass-action-button rounded-full px-4 py-1.5 text-sm font-semibold text-on-surface transition-transform hover:scale-105"
         >
           {preset.label}
         </button>

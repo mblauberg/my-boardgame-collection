@@ -88,6 +88,7 @@ describe('DiscoverSection', () => {
 
     expect(screen.getByText('Test Section')).toBeInTheDocument();
     expect(screen.getByText('🎮')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /test section/i })).toHaveClass('glass-surface-panel');
     expect(screen.queryByText('Shelf 1')).not.toBeInTheDocument();
   });
 

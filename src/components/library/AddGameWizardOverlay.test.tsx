@@ -171,6 +171,28 @@ describe("AddGameWizardOverlay", () => {
     expect(screen.getByRole("heading", { name: /find your game/i })).toBeInTheDocument();
   });
 
+  it("uses shared glass control styles for wizard controls and result cards", async () => {
+    const user = userEvent.setup();
+    renderOverlay();
+
+    expect(screen.getByRole("button", { name: /close add game wizard/i })).toHaveClass(
+      "glass-action-button",
+    );
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveClass("glass-action-button");
+    expect(screen.getByRole("button", { name: /next/i })).toHaveClass(
+      "glass-action-button-active",
+    );
+    expect(screen.getByRole("searchbox", { name: /search boardgamegeek/i })).toHaveClass(
+      "glass-input-field",
+    );
+
+    await user.type(screen.getByRole("searchbox", { name: /search boardgamegeek/i }), "Ever");
+
+    expect(await screen.findByRole("button", { name: /select everdell/i })).toHaveClass(
+      "glass-selectable-card",
+    );
+  });
+
   it("lets guests add a game locally", async () => {
     const user = userEvent.setup();
 

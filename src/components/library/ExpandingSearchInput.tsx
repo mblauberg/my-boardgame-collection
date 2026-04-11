@@ -59,7 +59,7 @@ export function ExpandingSearchInput({
           onChange={(event) => onChange(event.target.value)}
           onBlur={() => !value && setIsExpanded(false)}
           placeholder={placeholder}
-          className="w-full rounded-full border border-outline-variant/20 bg-surface-container-low/70 py-3 pl-10 pr-4 text-base text-on-surface backdrop-blur-sm outline-none transition focus:border-primary-container focus:shadow-[0_0_10px_rgba(255,145,0,0.2)]"
+          className="glass-input-field w-full rounded-full py-3 pl-10 pr-4 text-base text-on-surface outline-none transition"
         />
       </div>
 
@@ -67,7 +67,7 @@ export function ExpandingSearchInput({
         type="button"
         onClick={() => setIsExpanded(true)}
         aria-label={expandButtonLabel}
-        className={`group flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm transition hover:border-primary/30 hover:bg-surface-container-high/70 hover:shadow-[0_0_15px_rgba(255,145,0,0.15)] ${
+        className={`glass-action-button group flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition hover:border-primary/35 ${
           isExpanded ? "pointer-events-none absolute right-0 opacity-0" : "opacity-100"
         }`}
       >

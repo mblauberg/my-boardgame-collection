@@ -37,9 +37,9 @@ export function TopNavBar() {
           onClick={toggleTheme}
           aria-label="Toggle dark mode"
           aria-pressed={theme === "dark"}
-          className="glass-action-button inline-flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors hover:text-on-surface"
+          className="glass-action-button inline-flex h-14 w-14 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:text-on-surface md:h-10 md:w-10"
         >
-          <span className="material-symbols-outlined text-on-surface">
+          <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">
             {theme === "dark" ? "light_mode" : "dark_mode"}
           </span>
         </button>
@@ -47,18 +47,18 @@ export function TopNavBar() {
           <Link
             to="/settings"
             aria-label="Open account settings"
-            className="glass-action-button flex scale-95 items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80"
+            className="glass-action-button flex h-14 w-14 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80 md:h-10 md:w-10"
           >
-            <span className="material-symbols-outlined text-on-surface">account_circle</span>
+            <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">account_circle</span>
           </Link>
         ) : (
           <button
             type="button"
             aria-label="Open account"
             onClick={() => navigate("/signin", { state: getSignInRouteState(location) })}
-            className="glass-action-button flex scale-95 items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80"
+            className="glass-action-button flex h-14 w-14 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80 md:h-10 md:w-10"
           >
-            <span className="material-symbols-outlined text-on-surface">account_circle</span>
+            <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">account_circle</span>
           </button>
         )}
       </div>

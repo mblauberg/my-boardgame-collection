@@ -30,12 +30,15 @@ describe("ExpandingSearchInput", () => {
       <TestHarness />,
     );
 
-    expect(screen.getByRole("button", { name: /open search/i })).toBeInTheDocument();
+    const openSearchButton = screen.getByRole("button", { name: /open search/i });
+    expect(openSearchButton).toBeInTheDocument();
+    expect(openSearchButton).toHaveClass("glass-action-button");
 
     await user.click(screen.getByRole("button", { name: /open search/i }));
 
     const input = screen.getByRole("searchbox", { name: /search all games/i });
     expect(input).toHaveFocus();
+    expect(input).toHaveClass("glass-input-field");
 
     await user.type(input, "Heat");
     expect(onChange).toHaveBeenLastCalledWith("Heat");
