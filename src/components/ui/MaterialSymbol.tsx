@@ -38,6 +38,7 @@ export function MaterialSymbol({
     <span
       {...props}
       aria-label={ariaLabel}
+      role={ariaLabel ? "img" : undefined}
       aria-hidden={ariaLabel ? false : (ariaHidden ?? true)}
       className={joinClasses(
         "material-symbols-outlined leading-none",

@@ -9,13 +9,15 @@ describe("MaterialSymbol", () => {
     expect(symbol).toHaveClass("material-symbols-outlined");
     expect(symbol).toHaveTextContent("close");
     expect(symbol).toHaveAttribute("aria-hidden", "true");
+    expect(symbol).not.toHaveAttribute("role");
   });
 
   it("supports labeled icons and filled style when requested", () => {
     render(<MaterialSymbol icon="star" filled aria-label="Featured" />);
 
-    const symbol = screen.getByLabelText("Featured");
+    const symbol = screen.getByRole("img", { name: "Featured" });
     expect(symbol).toHaveClass("[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]");
+    expect(symbol).toHaveAttribute("role", "img");
     expect(symbol).toHaveAttribute("aria-hidden", "false");
   });
 });
