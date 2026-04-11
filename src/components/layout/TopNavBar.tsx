@@ -29,7 +29,7 @@ export function TopNavBar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex w-full items-center bg-transparent px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] md:px-8 md:py-4">
-      <div className="glass-nav pointer-events-none absolute inset-0 -z-10 border-b border-outline-variant/15 bg-surface-bright/72 shadow-ambient will-change-transform translate-z-0" />
+      <div className="glass-nav pointer-events-none absolute inset-0 -z-10 border-b border-outline-variant/15 bg-surface-bright/72 shadow-ambient" />
       
       <div className="flex-1 min-w-0 text-lg font-black text-primary tracking-tighter md:text-2xl">
         <Link to="/" className="block truncate">My Boardgame Collection</Link>
