@@ -20,7 +20,9 @@ export function TopNavBar() {
   };
 
   return (
-    <nav className="glass-nav fixed top-0 left-0 right-0 z-50 flex w-full items-center border-b border-outline-variant/15 bg-surface-bright/72 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] shadow-ambient md:px-8 md:py-4">
+    <nav className="glass-nav fixed top-0 left-0 right-0 z-50 flex w-full items-center bg-transparent px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] md:px-8 md:py-4">
+      {/* Background on absolute child so iOS 26 reads backdrop-filter on the nav itself (pure glass for status bar) */}
+      <div className="pointer-events-none absolute inset-0 -z-10 border-b border-outline-variant/15 bg-surface-bright/72 shadow-ambient" />
       
       <div className="flex-1 min-w-0 text-lg font-black text-primary tracking-tighter md:text-2xl">
         <Link to="/" className="block truncate">My Boardgame Collection</Link>

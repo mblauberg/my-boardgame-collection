@@ -13,7 +13,7 @@ export function BottomTabBar() {
   const location = useLocation();
 
   return (
-    <nav className="glass-nav fixed inset-x-0 bottom-0 z-50 flex justify-center border-t border-outline-variant/15 bg-surface-bright/72 pb-safe pt-2 md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center bg-transparent pb-safe md:hidden">
       <div className="bottom-nav-pill mx-6 mb-1 flex gap-2 rounded-full p-1.5">
         {mobileNavRouteDefinitions.map((route) => {
           const isActive = isActivePath(location.pathname, route.path);

@@ -19,6 +19,16 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.add(theme);
   document.body.classList.remove("light", "dark");
   document.body.classList.add(theme);
+
+  // Keep theme-color in sync with the app theme (not just system preference).
+  // Semi-transparent values trigger native glass blur on iOS 15-25; iOS 26 ignores this.
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.setAttribute(
+      "content",
+      theme === "dark" ? "rgba(19,19,19,0.8)" : "rgba(247,246,243,0.72)"
+    );
+  }
 }
 
 function getStoredTheme(): Theme {
