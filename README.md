@@ -27,6 +27,22 @@ Supabase migrations are the schema source of truth.
 - `supabase/migrations/` contains the canonical schema history
 - `src/types/database.ts` contains generated TypeScript database types
 
+Migration history was rebaselined into a single migration:
+
+- `supabase/migrations/20260410160430_rebaseline_schema.sql`
+
+If your local or linked project still has pre-rebaseline versions in `schema_migrations`,
+mark them as reverted before your next push:
+
+```bash
+supabase migration repair \
+  20260409000000 20260409143000 20260409161000 20260409210000 20260409220000 \
+  20260410000000 20260410000001 20260410000002 20260410000003 20260410144055 \
+  --status reverted --local
+```
+
+Use `--linked` instead of `--local` for a hosted project.
+
 Current architecture is identity-aware and account-first:
 
 - `accounts` is the stable app owner entity
