@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
 import { MaterialSymbol } from "../ui/MaterialSymbol";
@@ -10,6 +11,8 @@ import {
 } from "../../features/library/guestLibraryStorage";
 import { isGuestImportedGameId } from "../../features/library/libraryState";
 import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type LibraryListProps = {
   entries: LibraryEntry[];
@@ -37,6 +40,7 @@ export function LibraryList({
   const location = useLocation();
   const libraryStateActions = useLibraryStateActions();
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
+  const prefersReducedMotion = usePrefersReducedMotion();
   const hasOwnedLibraryContext = cardContext === "collection" || cardContext === "saved";
   const isOwnedLibraryCompletelyEmpty = hasOwnedLibraryContext && (totalCount ?? entries.length) === 0;
 
@@ -64,15 +68,23 @@ export function LibraryList({
     }
 
     return (
-      <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
+      <motion.div
+        className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         No games found matching your filters.
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="editorial-grid">
-      {entries.map((entry) => {
+    <motion.div className="editorial-grid" layout transition={motionTokens.spring.soft}>
+      {entries.map((entry, index) => {
         const isGuestImportedGame = isGuestImportedGameId(entry.gameId);
         const rawLinkState = getGameLinkState ? getGameLinkState(entry) : null;
         const customState =
@@ -147,11 +159,26 @@ export function LibraryList({
             rating={entry.game.bggRating ?? undefined}
             badge={badge}
             topRightSlot={topRightSlot}
+            motionIdBase={entry.game.slug}
           />
         );
 
         return (
-          <article key={entry.id} className="space-y-4">
+          <motion.article
+            key={entry.id}
+            className="space-y-4"
+            layout
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={
+              prefersReducedMotion
+                ? motionTokens.spring.soft
+                : {
+                    ...motionTokens.spring.soft,
+                    delay: Math.min(index * 0.03, 0.18),
+                  }
+            }
+          >
             {isGuestImportedGame ? (
               card
             ) : (
@@ -159,9 +186,9 @@ export function LibraryList({
                 {card}
               </Link>
             )}
-          </article>
+          </motion.article>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

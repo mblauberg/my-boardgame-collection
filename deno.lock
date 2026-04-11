@@ -24,6 +24,7 @@
     "npm:eslint-plugin-import@^2.32.0": "2.32.0_eslint@9.39.4",
     "npm:eslint-plugin-react-hooks@^7.0.1": "7.0.1_eslint@9.39.4_zod@4.3.6",
     "npm:eslint@^9.39.4": "9.39.4",
+    "npm:framer-motion@^12.38.0": "12.38.0_react@19.2.5_react-dom@19.2.5__react@19.2.5",
     "npm:globals@^17.4.0": "17.4.0",
     "npm:jsdom@^29.0.2": "29.0.2_css-tree@3.2.1",
     "npm:postcss@^8.5.9": "8.5.9",
@@ -1751,6 +1752,16 @@
     "fraction.js@5.3.4": {
       "integrity": "sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ=="
     },
+    "framer-motion@12.38.0_react@19.2.5_react-dom@19.2.5__react@19.2.5": {
+      "integrity": "sha512-rFYkY/pigbcswl1XQSb7q424kSTQ8q6eAC+YUsSKooHQYuLdzdHjrt6uxUC+PRAO++q5IS7+TamgIw1AphxR+g==",
+      "dependencies": [
+        "motion-dom",
+        "motion-utils",
+        "react",
+        "react-dom",
+        "tslib@2.8.1"
+      ]
+    },
     "fsevents@2.3.3": {
       "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="
     },
@@ -2273,6 +2284,15 @@
     },
     "minimist@1.2.8": {
       "integrity": "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA=="
+    },
+    "motion-dom@12.38.0": {
+      "integrity": "sha512-pdkHLD8QYRp8VfiNLb8xIBJis1byQ9gPT3Jnh2jqfFtAsWUA3dEepDlsWe/xMpO8McV+VdpKVcp+E+TGJEtOoA==",
+      "dependencies": [
+        "motion-utils"
+      ]
+    },
+    "motion-utils@12.36.0": {
+      "integrity": "sha512-eHWisygbiwVvf6PZ1vhaHCLamvkSbPIeAYxWUuL3a2PD/TROgE7FvfHWTIH4vMl798QLfMw15nRqIaRDXTlYRg=="
     },
     "ms@2.1.3": {
       "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="
@@ -3247,6 +3267,7 @@
         "npm:eslint-plugin-import@^2.32.0",
         "npm:eslint-plugin-react-hooks@^7.0.1",
         "npm:eslint@^9.39.4",
+        "npm:framer-motion@^12.38.0",
         "npm:globals@^17.4.0",
         "npm:jsdom@^29.0.2",
         "npm:postcss@^8.5.9",

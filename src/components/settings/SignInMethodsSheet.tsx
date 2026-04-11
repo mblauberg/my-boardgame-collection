@@ -1,6 +1,9 @@
 import { Icon } from "@iconify/react";
+import { motion } from "framer-motion";
 import { useTheme } from "../../lib/theme";
 import type { AccountSecuritySummary } from "../../features/auth/useAccountSecuritySummary";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type SignInMethodsSheetProps = {
   isOpen: boolean;
@@ -10,7 +13,8 @@ type SignInMethodsSheetProps = {
 
 export function SignInMethodsPanelContent({ summary }: { summary: AccountSecuritySummary }) {
   const { theme } = useTheme();
-  const sectionClassName = "glass-surface-panel rounded-2xl p-5";
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const sectionClassName = "glass-surface-panel rounded-2xl p-5 shadow-sm";
   const itemClassName =
     "flex items-center gap-4 rounded-xl border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40";
 
@@ -30,8 +34,30 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
   };
 
   return (
-    <div className="space-y-6">
-      <section className={sectionClassName}>
+    <motion.div
+      className="space-y-6"
+      initial={prefersReducedMotion ? false : "hidden"}
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: 0.06,
+          },
+        },
+      }}
+    >
+      <motion.section
+        className={sectionClassName}
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-primary/20">
@@ -87,9 +113,19 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
             Enable faster, more secure sign-ins with your fingerprint, face, or screen lock.
           </p>
         )}
-      </section>
+      </motion.section>
 
-      <section className={sectionClassName}>
+      <motion.section
+        className={sectionClassName}
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 text-secondary dark:bg-secondary/20">
             <span className="material-symbols-outlined text-[22px]">link</span>
@@ -129,9 +165,19 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
             </div>
           )}
         </div>
-      </section>
+      </motion.section>
 
-      <section className={sectionClassName}>
+      <motion.section
+        className={sectionClassName}
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary dark:bg-tertiary/20">
             <span className="material-symbols-outlined text-[22px]">mail</span>
@@ -166,27 +212,46 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
             </div>
           ))}
         </div>
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 }
 
 
 export function SignInMethodsSheet({ isOpen, onClose, summary }: SignInMethodsSheetProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   if (!isOpen) {
     return null;
   }
 
   return (
-    <div
+    <motion.div
+      data-testid="sign-in-methods-backdrop"
+      data-motion="security-backdrop"
       className="fixed inset-0 z-[90] hidden items-center justify-center bg-on-surface/20 p-6 backdrop-blur-xl md:flex"
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={prefersReducedMotion ? undefined : { opacity: 0 }}
+      transition={{
+        duration: motionTokens.duration.base,
+        ease: motionTokens.ease.standard,
+      }}
       onClick={onClose}
     >
-      <section
+      <motion.section
         role="dialog"
         aria-modal="true"
         aria-label="Sign-in methods"
+        data-motion="security-panel"
         className="glass-surface-panel max-h-[min(48rem,calc(100dvh-3rem))] w-full max-w-[44rem] overflow-hidden rounded-2xl border shadow-ambient"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={prefersReducedMotion ? undefined : { opacity: 0, y: 12, scale: 0.99 }}
+        transition={{
+          duration: motionTokens.duration.slow,
+          ease: motionTokens.ease.emphasized,
+        }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-outline/10 px-6 py-5">
@@ -202,7 +267,7 @@ export function SignInMethodsSheet({ isOpen, onClose, summary }: SignInMethodsSh
             type="button"
             onClick={onClose}
             aria-label="Close sign-in methods"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-outline/10 bg-surface-container-low text-on-surface-variant transition hover:text-on-surface dark:bg-surface-container-high/60"
+            className="glass-action-button flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant transition hover:text-on-surface"
           >
             <span className="material-symbols-outlined text-[22px]">close</span>
           </button>
@@ -211,7 +276,7 @@ export function SignInMethodsSheet({ isOpen, onClose, summary }: SignInMethodsSh
         <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto px-6 py-6">
           <SignInMethodsPanelContent summary={summary} />
         </div>
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 }

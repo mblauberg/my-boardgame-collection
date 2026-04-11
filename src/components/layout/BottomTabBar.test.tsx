@@ -22,6 +22,11 @@ describe("BottomTabBar", () => {
 
     const activeIcon = screen.getByText("bookmark");
     expect(activeIcon).toHaveClass("material-symbols-filled");
-    expect(activeIcon).not.toHaveAttribute("style");
+  });
+
+  it("renders a sliding active capsule in the mobile tab bar", () => {
+    renderWithProviders(<BottomTabBar />, "/explore");
+
+    expect(screen.getByTestId("bottom-nav-indicator")).toBeInTheDocument();
   });
 });

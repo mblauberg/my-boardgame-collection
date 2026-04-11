@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { AdvancedFilters } from "./AdvancedFilters";
 import { ExpandableSearchSection } from "./ExpandableSearchSection";
 import { QuickFilterPresets } from "./QuickFilterPresets";
@@ -8,6 +9,8 @@ import { SurfacePanel } from "../ui/SurfacePanel";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
 import { useDebouncedTextInput } from "../../lib/utils/useDebouncedTextInput";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type FilterBarProps = {
   filters: LibraryFilters;
@@ -41,6 +44,7 @@ export function FilterBar({
   searchPlaceholder = "Search...",
 }: FilterBarProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { value: localSearch, setValue: setLocalSearch } = useDebouncedTextInput({
     value: filters.searchText ?? "",
     delay: 300,
@@ -75,8 +79,8 @@ export function FilterBar({
   ]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <motion.div className="space-y-4" layout>
+      <motion.div className="flex flex-wrap items-center gap-2" layout>
         {showSearch && (
           <ExpandableSearchSection
             id="library-search"
@@ -98,21 +102,41 @@ export function FilterBar({
         >
           <MaterialSymbol icon="tune" className="text-3xl text-on-surface transition group-hover:text-primary" />
           {advancedFilterCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg">
+            <motion.span
+              initial={prefersReducedMotion ? false : { scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={motionTokens.spring.soft}
+              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg"
+            >
               {advancedFilterCount}
-            </span>
+            </motion.span>
           )}
         </button>
-      </div>
+      </motion.div>
       {presets.length > 0 ? (
         <QuickFilterPresets presets={presets} onSelect={onFiltersChange} />
       ) : null}
-      <div 
-        className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
-          isAdvancedOpen 
-            ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0" 
+      <motion.div
+        data-testid="advanced-filters-container"
+        className={`grid overflow-x-clip transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
+          isAdvancedOpen
+            ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0"
             : "grid-rows-[0fr] opacity-0 scale-95 -translate-y-4 pointer-events-none"
         }`}
+        initial={false}
+        animate={
+          prefersReducedMotion
+            ? { opacity: isAdvancedOpen ? 1 : 0 }
+            : {
+                opacity: isAdvancedOpen ? 1 : 0,
+                y: isAdvancedOpen ? 0 : -10,
+                scale: isAdvancedOpen ? 1 : 0.98,
+              }
+        }
+        transition={{
+          duration: motionTokens.duration.slow,
+          ease: motionTokens.ease.emphasized,
+        }}
       >
         <div className="overflow-hidden px-8 py-10 -mx-8 -my-10">
           <SurfacePanel className="mt-6 space-y-6 rounded-3xl p-8">
@@ -125,7 +149,12 @@ export function FilterBar({
                   className="flex-1 md:flex-none"
                   options={SORT_OPTIONS.map((opt) => ({
                     ...opt,
-                    icon: opt.value === sortBy ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward") : undefined,
+                    icon:
+                      opt.value === sortBy
+                        ? sortDirection === "asc"
+                          ? "arrow_upward"
+                          : "arrow_downward"
+                        : undefined,
                   }))}
                   activeValue={sortBy}
                   onChange={(value) => {
@@ -155,7 +184,7 @@ export function FilterBar({
             </div>
           </SurfacePanel>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

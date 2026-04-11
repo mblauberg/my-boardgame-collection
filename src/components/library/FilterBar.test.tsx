@@ -64,8 +64,24 @@ describe("FilterBar", () => {
     );
 
     await user.click(screen.getByRole("button", { name: filterToggleName }));
+    expect(screen.getAllByTestId("pill-selector-indicator").length).toBeGreaterThan(0);
     await user.click(screen.getByRole("button", { name: /rank/i }));
 
     expect(onSortChange).toHaveBeenCalledWith("rank", "desc");
+  });
+
+  it("clips the collapsed advanced filters container to avoid mobile viewport overflow", () => {
+    render(
+      <FilterBar
+        filters={{}}
+        sortBy="rank"
+        sortDirection="asc"
+        onFiltersChange={vi.fn()}
+        onSortChange={vi.fn()}
+        onClearFilters={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("advanced-filters-container")).toHaveClass("overflow-x-clip");
   });
 });

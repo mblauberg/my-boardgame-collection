@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 export type ExpandingSearchInputProps = {
   id: string;
@@ -21,6 +24,7 @@ export function ExpandingSearchInput({
 }: ExpandingSearchInputProps) {
   const [isExpanded, setIsExpanded] = useState(value.length > 0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     if (isExpanded && inputRef.current) {
@@ -36,10 +40,21 @@ export function ExpandingSearchInput({
 
   return (
     <div className={containerClassName}>
-      <div
+      <motion.div
+        data-motion="search-field"
         className={`transition-all duration-300 ease-in-out ${
           isExpanded ? "w-full opacity-100" : "w-14 pointer-events-none opacity-0"
         }`}
+        initial={false}
+        animate={
+          prefersReducedMotion
+            ? { opacity: isExpanded ? 1 : 0 }
+            : { opacity: isExpanded ? 1 : 0, scale: isExpanded ? 1 : 0.98 }
+        }
+        transition={{
+          duration: motionTokens.duration.fast,
+          ease: motionTokens.ease.standard,
+        }}
       >
         <span
           aria-hidden="true"
@@ -61,20 +76,30 @@ export function ExpandingSearchInput({
           placeholder={placeholder}
           className="glass-input-field w-full rounded-full py-3 pl-10 pr-4 text-base text-on-surface outline-none transition"
         />
-      </div>
+      </motion.div>
 
-      <button
+      <motion.button
         type="button"
         onClick={() => setIsExpanded(true)}
         aria-label={expandButtonLabel}
         className={`glass-action-button group flex h-14 w-14 shrink-0 items-center justify-center rounded-full transition hover:border-primary/35 ${
           isExpanded ? "pointer-events-none absolute right-0 opacity-0" : "opacity-100"
         }`}
+        initial={false}
+        animate={
+          prefersReducedMotion
+            ? { opacity: isExpanded ? 0 : 1 }
+            : { opacity: isExpanded ? 0 : 1, scale: isExpanded ? 0.92 : 1 }
+        }
+        transition={{
+          duration: motionTokens.duration.fast,
+          ease: motionTokens.ease.standard,
+        }}
       >
         <span className="material-symbols-outlined text-3xl text-on-surface transition group-hover:text-primary">
           search
         </span>
-      </button>
+      </motion.button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { PageHeader } from "../components/layout/PageHeader";
 import { ExpandableSearchSection } from "../components/library/ExpandableSearchSection";
 import { ExploreShelf } from "../components/library/ExploreShelf";
@@ -14,12 +15,15 @@ import { useLibraryQuery } from "../features/library/useLibraryQuery";
 import { getLibraryEntryForGame } from "../features/library/libraryState";
 import { useDebouncedTextInput } from "../lib/utils/useDebouncedTextInput";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../lib/motion";
 
 const HERO_SHELF_IDS = ["trending", "new-releases", "top-rated", "quick-wins"] as const;
 const DISCOVER_SECTION_IDS = ["by-player-count", "by-mechanic", "hidden-gems", "gateway-to-strategy"] as const;
 const EXPLORE_SHELF_IDS = [...HERO_SHELF_IDS, ...DISCOVER_SECTION_IDS] as const;
 
 export function ExplorePage() {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { query, setQuery } = useExploreSearchContext();
   const { value: localQuery, setValue: setLocalQuery } = useDebouncedTextInput({
     value: query,
@@ -84,7 +88,15 @@ export function ExplorePage() {
 
   if (isSearchActive) {
     return (
-      <>
+      <motion.div
+        data-motion="explore-mode"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.standard,
+        }}
+      >
         <PageHeader
           className="mb-3 md:mb-4"
           eyebrow={isSearching ? "Searching..." : "Search Results"}
@@ -123,8 +135,7 @@ export function ExplorePage() {
             getGameLinkState={() => ({ from: "/explore" })}
           />
         )}
-
-      </>
+      </motion.div>
     );
   }
 
@@ -137,7 +148,15 @@ export function ExplorePage() {
   ) ?? [];
 
   return (
-    <>
+    <motion.div
+      data-motion="explore-mode"
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: motionTokens.duration.base,
+        ease: motionTokens.ease.standard,
+      }}
+    >
       <PageHeader
         className="mb-3 md:mb-4"
         eyebrow="Discovery"
@@ -155,28 +174,49 @@ export function ExplorePage() {
         sectionClassName="explore-search-section mb-8"
       />
 
-      <div className="mb-20">
-        {heroShelves.map((shelf) =>
-          shelf.id === "new-releases" ? (
-            <HorizontalShelf
-              key={shelf.id}
-              title={shelf.title}
-              description={shelf.description}
-              entries={shelf.entries}
-            />
-          ) : (
-            shelf.entries.length > 0 && (
-              <ExploreShelf
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key="explore-discovery"
+          className="mb-20"
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={prefersReducedMotion ? undefined : { opacity: 0 }}
+          transition={{
+            duration: motionTokens.duration.base,
+            ease: motionTokens.ease.standard,
+          }}
+        >
+          {heroShelves.map((shelf) =>
+            shelf.id === "new-releases" ? (
+              <HorizontalShelf
                 key={shelf.id}
                 title={shelf.title}
+                description={shelf.description}
                 entries={shelf.entries}
               />
+            ) : (
+              shelf.entries.length > 0 && (
+                <ExploreShelf
+                  key={shelf.id}
+                  title={shelf.title}
+                  entries={shelf.entries}
+                />
+              )
             )
-          )
-        )}
-      </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-      <div className="mb-16">
+      <motion.div
+        className="mb-16"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: motionTokens.duration.slow,
+          ease: motionTokens.ease.standard,
+          delay: prefersReducedMotion ? 0 : 0.08,
+        }}
+      >
         <div className="mb-8">
           <h2 className="mb-3 text-4xl font-extrabold tracking-tight text-on-surface">
             Discover More
@@ -200,7 +240,7 @@ export function ExplorePage() {
             }))}
           />
         ))}
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 }

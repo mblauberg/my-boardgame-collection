@@ -36,6 +36,27 @@ Object.defineProperty(global, "localStorage", {
   writable: true,
 });
 
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  configurable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => true,
+  }),
+});
+
+Object.defineProperty(window, "scrollTo", {
+  writable: true,
+  configurable: true,
+  value: vi.fn(),
+});
+
 // Clean up theme state between tests
 afterEach(() => {
   localStorage.clear();

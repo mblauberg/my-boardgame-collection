@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ScenarioAccordion } from './ScenarioAccordion';
 import userEvent from '@testing-library/user-event';
@@ -38,6 +38,7 @@ describe('ScenarioAccordion', () => {
     expect(screen.getByText('🎲')).toBeInTheDocument();
     expect(screen.getByText('Test Preset')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Test Preset/i }).parentElement).toHaveClass('glass-surface-panel');
   });
 
   it('expands and collapses on click', async () => {
@@ -55,7 +56,9 @@ describe('ScenarioAccordion', () => {
     expect(screen.getByText('Game A')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Test Preset/i }));
-    expect(screen.queryByText('Section 1')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Section 1')).not.toBeInTheDocument();
+    });
   });
 
   it('shows empty state when no games match', async () => {

@@ -220,6 +220,7 @@ describe("SignInForm", () => {
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
     expect(await screen.findByText(/check your email/i)).toBeInTheDocument();
+    expect(screen.getByTestId("auth-status-panel")).toHaveClass("glass-surface-panel");
   });
 
   it("shows error message when sign-in fails", async () => {
@@ -232,6 +233,7 @@ describe("SignInForm", () => {
     await user.click(screen.getByRole("button", { name: /continue with email/i }));
 
     expect(await screen.findByText(/network error/i)).toBeInTheDocument();
+    expect(screen.getByTestId("auth-status-panel")).toHaveAttribute("data-motion", "auth-status");
   });
 
   it("offers multiple OAuth sign-in options", async () => {
