@@ -28,15 +28,39 @@ function formatPlayTime(entry: LibraryEntry) {
 
 export function LibraryList({
   entries,
-  totalCount: _totalCount,
+  totalCount,
   cardContext,
   getGameLinkState,
 }: LibraryListProps) {
   const location = useLocation();
   const libraryStateActions = useLibraryStateActions();
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
+  const hasOwnedLibraryContext = cardContext === "collection" || cardContext === "saved";
+  const isOwnedLibraryCompletelyEmpty = hasOwnedLibraryContext && (totalCount ?? entries.length) === 0;
 
   if (entries.length === 0) {
+    if (isOwnedLibraryCompletelyEmpty) {
+      const emptyMessage =
+        cardContext === "collection" ? "Your collection is empty." : "Your saved games list is empty.";
+      const exploreMessage =
+        cardContext === "collection"
+          ? "to start building your collection."
+          : "to start saving games.";
+
+      return (
+        <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
+          <p className="font-medium text-on-surface">{emptyMessage}</p>
+          <p className="mt-2">
+            Visit the{" "}
+            <Link className="font-semibold text-primary hover:underline" to="/explore">
+              Explore page
+            </Link>{" "}
+            {exploreMessage}
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-[1.5rem] bg-surface-container-low px-6 py-12 text-center text-on-surface-variant">
         No games found matching your filters.
@@ -124,7 +148,6 @@ export function LibraryList({
             playTime={formatPlayTime(entry)}
             weight={entry.game.bggWeight?.toFixed(1)}
             rating={entry.game.bggRating ?? undefined}
-            isFavorite={entry.isLoved}
             badge={badge}
             topRightSlot={topRightSlot}
           />

@@ -20,7 +20,7 @@ export function TopNavBar() {
   };
 
   return (
-    <nav className="glass-nav fixed top-0 z-50 flex w-full max-w-full items-center border-b border-outline-variant/15 bg-surface-bright/72 px-4 py-3 shadow-ambient md:px-8 md:py-4">
+    <nav className="glass-nav fixed top-0 z-50 flex w-full max-w-full items-center border-b border-outline-variant/15 bg-surface-bright/72 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] shadow-ambient md:px-8 md:py-4">
       <div className="flex-1 text-lg font-black text-primary tracking-tighter md:text-2xl">
         <Link to="/">My Board Game Collection</Link>
       </div>

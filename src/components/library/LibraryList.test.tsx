@@ -73,6 +73,27 @@ describe("LibraryList", () => {
     libraryStateActions.isPending = false;
   });
 
+  it.each([
+    ["collection", "Your collection is empty."],
+    ["saved", "Your saved games list is empty."],
+  ] as const)(
+    "shows an explore-first empty state when the %s library has no games",
+    (cardContext, expectedMessage) => {
+      renderWithProviders(<LibraryList entries={[]} totalCount={0} cardContext={cardContext} />);
+
+      expect(screen.getByText(expectedMessage)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /explore page/i })).toHaveAttribute("href", "/explore");
+      expect(screen.queryByText(/no games found matching your filters/i)).not.toBeInTheDocument();
+    },
+  );
+
+  it("keeps the filter-specific empty state when filters hide existing games", () => {
+    renderWithProviders(<LibraryList entries={[]} totalCount={3} cardContext="collection" />);
+
+    expect(screen.getByText(/no games found matching your filters/i)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /explore page/i })).not.toBeInTheDocument();
+  });
+
   it("renders saved items with a saved badge outside of a page-specific card context", () => {
     renderWithProviders(<LibraryList entries={[createEntry({ isSaved: true })]} />);
 
