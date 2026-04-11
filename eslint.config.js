@@ -44,6 +44,40 @@ export default tseslint.config(
     },
   },
   {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: [
+      "src/**/*.test.{ts,tsx}",
+      "src/**/*.spec.{ts,tsx}",
+      "src/test/**",
+      "src/components/ui/GameCard.tsx",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "Literal[value=/#[0-9a-fA-F]{3,8}\\b|\\b(?:rgb|rgba|hsl|hsla)\\((?!\\s*var\\(--)/]",
+          message: "Use theme tokens and CSS variables instead of hardcoded color values in runtime UI code.",
+        },
+        {
+          selector: "TemplateElement[value.raw=/#[0-9a-fA-F]{3,8}\\b|\\b(?:rgb|rgba|hsl|hsla)\\((?!\\s*var\\(--)/]",
+          message: "Use theme tokens and CSS variables instead of hardcoded color values in runtime UI code.",
+        },
+        {
+          selector:
+            "Literal[value=/\\b(?:bg|text|border|from|to|via|ring|fill|stroke|shadow)-\\[(?:#|var\\(--|(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch)\\()/]",
+          message:
+            "Avoid ad-hoc arbitrary color utilities. Prefer token classes (e.g. text-primary, bg-surface).",
+        },
+        {
+          selector:
+            "TemplateElement[value.raw=/\\b(?:bg|text|border|from|to|via|ring|fill|stroke|shadow)-\\[(?:#|var\\(--|(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch)\\()/]",
+          message:
+            "Avoid ad-hoc arbitrary color utilities. Prefer token classes (e.g. text-primary, bg-surface).",
+        },
+      ],
+    },
+  },
+  {
     files: ["supabase/functions/**/*.{ts,tsx}"],
     languageOptions: {
       globals: {

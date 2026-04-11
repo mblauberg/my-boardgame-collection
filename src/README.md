@@ -83,6 +83,16 @@ The design is named **"Obsidian Gallery"** and uses a Material Design 3 colour r
 
 Do **not** use hardcoded hex/rgb values for brand colours — always use Tailwind token utilities (`text-primary`, `bg-surface`, etc.).
 
+Theme guardrails are enforceable:
+
+- `src/test/themeConsistency.test.ts` scans runtime `src/**/*.{ts,tsx}` (excluding tests) and fails on:
+  - hardcoded hex/rgb/hsl colours that are not allowlisted
+  - arbitrary-value utility classes that are not in the approved allowlist
+- `eslint.config.js` blocks new runtime hardcoded colours and ad-hoc arbitrary **color** utilities.
+- Existing legacy exceptions are allowlisted explicitly (for example `src/components/ui/GameCard.tsx` fallback artwork palette).
+
+When adding a legitimate exception, update the allowlist intentionally in the policy test (and ESLint override if needed), with a short justification in your PR.
+
 ---
 
 ## Pages and routes
