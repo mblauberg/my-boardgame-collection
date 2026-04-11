@@ -4,25 +4,37 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 type MatchMediaListener = (event: MediaQueryListEvent) => void;
 
-function installMatchMediaMock(initialMatches: boolean) {
-  let matches = initialMatches;
-  const listeners = new Set<MatchMediaListener>();
+const REDUCE_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const NO_PREFERENCE_QUERY = "(prefers-reduced-motion: no-preference)";
+
+type MatchMediaState = {
+  reduce: boolean;
+  noPreference: boolean;
+};
+
+function installMatchMediaMock(initialState: MatchMediaState) {
+  let state = initialState;
+  const listenersByQuery = new Map<string, Set<MatchMediaListener>>();
 
   const matchMediaMock = vi.fn().mockImplementation((query: string) => ({
-    matches,
+    matches: query === REDUCE_MOTION_QUERY ? state.reduce : query === NO_PREFERENCE_QUERY ? state.noPreference : false,
     media: query,
     onchange: null,
     addEventListener: (_event: string, listener: MatchMediaListener) => {
+      const listeners = listenersByQuery.get(query) ?? new Set<MatchMediaListener>();
       listeners.add(listener);
+      listenersByQuery.set(query, listeners);
     },
     removeEventListener: (_event: string, listener: MatchMediaListener) => {
-      listeners.delete(listener);
+      listenersByQuery.get(query)?.delete(listener);
     },
     addListener: (listener: MatchMediaListener) => {
+      const listeners = listenersByQuery.get(query) ?? new Set<MatchMediaListener>();
       listeners.add(listener);
+      listenersByQuery.set(query, listeners);
     },
     removeListener: (listener: MatchMediaListener) => {
-      listeners.delete(listener);
+      listenersByQuery.get(query)?.delete(listener);
     },
     dispatchEvent: () => true,
   }));
@@ -34,10 +46,17 @@ function installMatchMediaMock(initialMatches: boolean) {
   });
 
   return {
-    setMatches(nextMatches: boolean) {
-      matches = nextMatches;
-      const event = { matches: nextMatches } as MediaQueryListEvent;
-      listeners.forEach((listener) => listener(event));
+    setMatches(nextState: MatchMediaState) {
+      state = nextState;
+      listenersByQuery.forEach((listeners, query) => {
+        const matches = query === REDUCE_MOTION_QUERY
+          ? state.reduce
+          : query === NO_PREFERENCE_QUERY
+            ? state.noPreference
+            : false;
+        const event = { matches } as MediaQueryListEvent;
+        listeners.forEach((listener) => listener(event));
+      });
     },
   };
 }
@@ -48,25 +67,33 @@ describe("usePrefersReducedMotion", () => {
   });
 
   beforeEach(() => {
-    installMatchMediaMock(false);
+    installMatchMediaMock({ reduce: false, noPreference: true });
   });
 
   it("returns true when prefers-reduced-motion matches", () => {
-    installMatchMediaMock(true);
+    installMatchMediaMock({ reduce: true, noPreference: false });
 
     const { result } = renderHook(() => usePrefersReducedMotion());
 
     expect(result.current).toBe(true);
   });
 
+  it("returns false when no-preference also matches", () => {
+    installMatchMediaMock({ reduce: true, noPreference: true });
+
+    const { result } = renderHook(() => usePrefersReducedMotion());
+
+    expect(result.current).toBe(false);
+  });
+
   it("updates when the media query match changes", () => {
-    const matchMediaController = installMatchMediaMock(false);
+    const matchMediaController = installMatchMediaMock({ reduce: false, noPreference: true });
     const { result } = renderHook(() => usePrefersReducedMotion());
 
     expect(result.current).toBe(false);
 
     act(() => {
-      matchMediaController.setMatches(true);
+      matchMediaController.setMatches({ reduce: true, noPreference: false });
     });
 
     expect(result.current).toBe(true);
