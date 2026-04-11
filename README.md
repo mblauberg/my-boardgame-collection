@@ -1,218 +1,152 @@
-# Board Game Collection
+# My Boardgame Collection
 
-Board Game Collection is a Vite + React + Supabase app for managing a shared board-game catalog and account-owned libraries (collection + saved).
+A personal board-game tracker built with **Vite + React 19 + Supabase**. Manage a shared game catalogue, track your personal collection and saved games, discover what to play next, and share your library publicly.
 
-## What is implemented
+**Live:** <https://my-boardgame-collection.vercel.app>
 
-- Account-based data model (`account_id`) for profile, library, tags, and account security data
-- Auth flow with email magic links, OAuth (Apple/Google/Discord/GitHub), and passkeys
-- Account security sync after sign-in (linked identities, owned emails, passkeys)
-- Email merge flow that can merge account data into an existing account email
-- Guest library mode (local storage) with automatic sync after sign-in
-- Public profile + optional public collection/saved pages
-- Owner-only admin area for catalog and metadata maintenance
-- Explore and scenarios views driven from catalog + library data
+---
 
-## Stack
+## Features
 
-- **Frontend:** Vite, React 19, TypeScript, React Router, TanStack Query
-- **Backend:** Supabase Postgres/Auth/Storage/Edge Functions
-- **Testing:** Vitest + Testing Library
-- **Deployment:** Vercel
+- 🎲 **Shared catalogue** — browse the full game library with BGG metadata (ratings, weight, player count, categories)
+- 📚 **Personal library** — track owned games (Collection) and games on your radar (Saved) with sentiment, notes, and tags
+- 🔍 **Explore & Scenarios** — filter and discover what to play; get curated recommendations and cuts based on your library
+- 🔐 **Flexible auth** — email magic links, OAuth (Google, Discord, GitHub), and passkeys (WebAuthn)
+- 👤 **Guest mode** — use the app without signing in; library syncs to your account on first sign-in
+- 🌐 **Public profiles** — optionally share your collection and/or saved list at `/u/<username>`
+- 🌗 **Dark mode** — persistent light/dark theme toggle
+- 🛠 **Owner admin** — catalogue management and BGG metadata refresh for the site owner
 
-## Data model and source of truth
+---
 
-Supabase migrations are the schema source of truth.
+## Tech stack
 
-- `supabase/migrations/` contains the canonical schema history
-- `src/types/database.ts` contains generated TypeScript database types
+| Layer | Technology |
+|---|---|
+| Frontend | Vite 8, React 19, TypeScript, React Router 7, TanStack Query 5 |
+| Styling | Tailwind CSS 3 + Material Design 3 CSS token system |
+| Backend | Supabase (Postgres, Auth, Storage, Edge Functions) |
+| Auth extras | SimpleWebAuthn (passkeys) |
+| API proxy | Vercel serverless functions |
+| Testing | Vitest + Testing Library |
+| Deployment | Vercel |
 
-Migration history was rebaselined into a single migration:
+---
 
-- `supabase/migrations/20260410160430_rebaseline_schema.sql`
+## Getting started
 
-If your local or linked project still has pre-rebaseline versions in `schema_migrations`,
-mark them as reverted before your next push:
+### Prerequisites
+
+- Node.js 20+
+- npm
+- [Supabase CLI](https://supabase.com/docs/guides/cli) (for local backend)
+
+### 1. Clone and install
 
 ```bash
-supabase migration repair \
-  20260409000000 20260409143000 20260409161000 20260409210000 20260409220000 \
-  20260410000000 20260410000001 20260410000002 20260410000003 20260410144055 \
-  --status reverted --local
+git clone https://github.com/<your-username>/my-boardgame-collection.git
+cd my-boardgame-collection
+npm install
 ```
 
-Use `--linked` instead of `--local` for a hosted project.
-
-Current architecture is identity-aware and account-first:
-
-- `accounts` is the stable app owner entity
-- `account_identities` maps auth identities/providers to accounts
-- `account_emails` stores primary and secondary verified emails per account
-- `library_entries` stores per-account library state
-
-## Environment
-
-Copy `.env.example` to `.env.local`:
+### 2. Configure environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-Required app/runtime variables:
+Fill in the required values:
 
 ```dotenv
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_SITE_URL=http://localhost:5173
 SITE_URL=http://localhost:5173
-BGG_APPLICATION_TOKEN=...
+BGG_APPLICATION_TOKEN=your-bgg-token
 ```
 
-Optional local admin/import variable:
+`VITE_AUTH_ENABLED_OAUTH_PROVIDERS` defaults to `google,discord,github` if omitted. Set OAuth provider credentials for local auth testing (see `.env.example`).
 
-```dotenv
-SUPABASE_SERVICE_ROLE_KEY=...
-```
+### 3. Start the backend
 
-Optional local Supabase Auth provider variables currently used in this repo:
+**Option A — Hosted Supabase:** point `.env.local` to your project and run `npm run dev`.
 
-```dotenv
-SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=
-SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=
-SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID=
-SUPABASE_AUTH_EXTERNAL_APPLE_SECRET=
-SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID=
-SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET=
-SUPABASE_AUTH_EXTERNAL_GITHUB_CLIENT_ID=
-SUPABASE_AUTH_EXTERNAL_GITHUB_SECRET=
-```
-
-Notes:
-
-- `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are required by the browser app
-- `VITE_SITE_URL` and `SITE_URL` should match your local origin
-- `BGG_APPLICATION_TOKEN` is required for `/api/bgg-search`
-
-## Local development
-
-Prerequisites:
-
-- Node.js 20+
-- npm
-- Supabase CLI
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-### Option 1: Hosted Supabase
-
-Point `.env.local` to your hosted project, apply this repo's migrations there, then run:
-
-```bash
-npm run dev
-```
-
-### Option 2: Local Supabase CLI stack
+**Option B — Local Supabase CLI:**
 
 ```bash
 supabase start
-supabase db reset
+supabase db reset   # applies the schema migration
 npm run dev
 ```
 
-If auth/provider settings change in `supabase/config.toml`, restart and reset the local stack.
+### 4. Promote yourself to owner (optional)
 
-## Owner setup
-
-After signing in once, promote your account in `public.profiles`:
+After signing in, run this in the Supabase SQL editor or `psql`:
 
 ```sql
-update public.profiles
-set role = 'owner'
-where email = 'you@example.com';
+update public.profiles set role = 'owner' where email = 'you@example.com';
 ```
 
-## Auth and account security services
+This unlocks the `/admin` page and the BGG metadata refresh API.
 
-### Supabase Edge Functions (`supabase/functions/`)
+---
 
-- `account-sync-session`: sync account security state after sign-in
-- `account-security-summary`: return primary/secondary emails, identities, passkeys
-- `passkey-auth-options`, `passkey-auth-verify`: conditional passkey sign-in
-- `passkey-register-options`, `passkey-register-verify`: passkey registration
-- `passkey-list`, `passkey-delete`: passkey management
-- `email-merge-request`, `email-merge-verify`: email/account merge flow
+## Available scripts
 
-### Vercel API routes (`api/`)
-
-- `GET /api/bgg-search?query=...`: proxies BoardGameGeek search
-- `POST /api/bgg-refresh`: owner-authenticated metadata refresh for a game
-
-## Import and migration scripts
-
-There is no automatic seed file. Legacy import is script-driven:
-
-```bash
-npm run migrate:generate
-npm run migrate:import
-```
-
-BGG CSV import path:
-
-```bash
-npm run migrate:import-bgg
-npm run migrate:backfill-shared-tags
-```
-
-These scripts target the account-based schema (`account_id`).
-
-The legacy migration pipeline is intentionally retained. `board-game-collection.jsx`,
-`scripts/legacy/*`, `scripts/generateSeedData.ts`, `scripts/importLegacyData.ts`, and
-`scripts/output/seed-data.json` are still part of the active import and backfill workflow.
-
-## Scripts
-
-| Script | Purpose |
-| --- | --- |
-| `npm run dev` | Start Vite dev server |
-| `npm run build` | Type-check and production build |
-| `npm run preview` | Preview production build |
-| `npm run typecheck` | TypeScript check only |
-| `npm run test` | Vitest watch mode |
-| `npm run test:run` | Vitest one-shot run |
-| `npm run migrate:generate` | Generate legacy seed payload |
-| `npm run migrate:import` | Import legacy payload |
-| `npm run migrate:import-bgg` | Import games from BGG CSV |
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start Vite dev server with local API shim |
+| `npm run build` | Type-check + production build |
+| `npm run typecheck` | Type-check all surfaces (app, scripts, edge functions) |
+| `npm run test` | Vitest in watch mode |
+| `npm run test:run` | Vitest one-shot |
+| `npm run migrate:import-bgg` | Import games from BGG CSV export |
 | `npm run migrate:backfill-shared-tags` | Backfill shared tags |
 
-## Repository layout
+---
+
+## Project structure
 
 ```text
 .
-├── api/                  Vercel API routes
-├── data/                 Local data assets and notes
-├── docs/                 Design/spec/planning docs
-├── scripts/              Import and maintenance scripts
-├── src/                  React application code
+├── api/             Vercel serverless API routes (BGG search + refresh proxy)
+├── docs/            Design specs, planning docs, auth flow doc
+├── scripts/         Data import and maintenance scripts
+├── src/             React application (see src/README.md)
 ├── supabase/
-│   ├── config.toml       Local Supabase CLI config
-│   ├── functions/        Edge Functions
-│   └── migrations/       Database schema history
-├── ui_design/            UI references and mockups
-├── board-game-collection.jsx  Legacy source retained for migration tooling
-└── vercel.json           Build and rewrite config
+│   ├── config.toml  Local Supabase CLI config
+│   ├── functions/   Deno Edge Functions (auth, passkeys, email merge)
+│   └── migrations/  Database schema — single rebaseline migration
+└── ui_design/       Design reference docs and mockups
 ```
 
-## Notes on non-app assets
+For a detailed breakdown of the source tree, see [`src/README.md`](src/README.md).  
+For backend schema and Edge Function details, see [`supabase/README.md`](supabase/README.md).
 
-- `data/boardgames_ranks.csv` is not required to run the app (historical analysis/seeding data)
-- `docs/plans/` and `docs/superpowers/` contain design and implementation planning artifacts
+---
+
+## Schema notes
+
+The schema was rebaselined into a single migration (`supabase/migrations/20260410160430_rebaseline_schema.sql`). If you have pre-rebaseline migrations in your local or linked project, mark them as reverted:
+
+```bash
+supabase migration repair \
+  20260409000000 20260409143000 20260409161000 20260409210000 20260409220000 \
+  20260410000000 20260410000001 20260410000002 20260410000003 20260410144055 \
+  --status reverted --local   # use --linked for hosted
+```
+
+---
 
 ## Deployment
 
-Production is deployed on Vercel: <https://my-boardgame-collection.vercel.app>
+Production runs on Vercel. `vercel.json` configures:
+- `/api/*` → serverless functions
+- `/*` → `index.html` (SPA client-side routing)
 
-`vercel.json` rewrites all non-`/api/*` routes to `index.html` for SPA routing.
+TypeScript types for the database are generated via:
+
+```bash
+supabase gen types typescript --local > src/types/database.ts
+```
+
