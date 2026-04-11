@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach, beforeEach } from "vitest";
+import { afterEach } from "vitest";
 
 // Mock IntersectionObserver for tests - immediately trigger intersection
 global.IntersectionObserver = class IntersectionObserver {
@@ -42,4 +42,3 @@ afterEach(() => {
   document.documentElement.className = "";
   document.body.className = "";
 });
-

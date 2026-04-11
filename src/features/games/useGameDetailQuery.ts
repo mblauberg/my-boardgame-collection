@@ -12,16 +12,19 @@ type GameTagJoin = {
 };
 
 export function useGameDetailQuery(slug: string) {
+  const normalizedSlug = slug.trim();
+
   return useQuery({
-    queryKey: gamesKeys.detail(slug),
+    queryKey: gamesKeys.detail(normalizedSlug),
     retry: shouldRetrySupabaseQuery,
+    enabled: normalizedSlug.length > 0,
     queryFn: async () => {
       const supabase = getSupabaseBrowserClient();
 
       const { data: game, error: gameError } = await supabase
         .from("games")
         .select("*")
-        .eq("slug", slug)
+        .eq("slug", normalizedSlug)
         .eq("hidden", false)
         .single();
 

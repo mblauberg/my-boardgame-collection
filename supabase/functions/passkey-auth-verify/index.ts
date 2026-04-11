@@ -1,15 +1,19 @@
 import { verifyAuthenticationResponse } from "npm:@simplewebauthn/server";
 import { isoBase64URL } from "npm:@simplewebauthn/server/helpers";
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+import { getCorsHeaders, handleCors, requireMethod } from "../_shared/cors.ts";
 import { getExpectedOrigin, getRpIdForRequest, getServiceClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
+  const methodResponse = requireMethod(req, ["POST"]);
+  if (methodResponse) return methodResponse;
+
+  const headers = getCorsHeaders(req);
   const { credential, challenge } = await req.json();
   if (!credential?.id || !challenge) {
-    return Response.json({ error: "Missing credential or challenge" }, { status: 400, headers: corsHeaders });
+    return Response.json({ error: "Missing credential or challenge" }, { status: 400, headers });
   }
 
   const supabase = getServiceClient();
@@ -23,7 +27,7 @@ Deno.serve(async (req) => {
     .single();
 
   if (challengeError || !challengeRow) {
-    return Response.json({ error: "Invalid or expired challenge" }, { status: 401, headers: corsHeaders });
+    return Response.json({ error: "Invalid or expired challenge" }, { status: 401, headers });
   }
 
   const { data: passkey, error: passkeyError } = await supabase
@@ -33,7 +37,7 @@ Deno.serve(async (req) => {
     .single();
 
   if (passkeyError || !passkey) {
-    return Response.json({ error: "Passkey not found" }, { status: 401, headers: corsHeaders });
+    return Response.json({ error: "Passkey not found" }, { status: 401, headers });
   }
 
   let verification;
@@ -51,11 +55,11 @@ Deno.serve(async (req) => {
       },
     });
   } catch (_error) {
-    return Response.json({ error: "Verification failed" }, { status: 401, headers: corsHeaders });
+    return Response.json({ error: "Verification failed" }, { status: 401, headers });
   }
 
   if (!verification.verified) {
-    return Response.json({ error: "Verification failed" }, { status: 401, headers: corsHeaders });
+    return Response.json({ error: "Verification failed" }, { status: 401, headers });
   }
 
   const { error: updateError } = await supabase
@@ -67,7 +71,7 @@ Deno.serve(async (req) => {
     .eq("credential_id", credential.id);
 
   if (updateError) {
-    return Response.json({ error: "Failed to update passkey usage" }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: "Failed to update passkey usage" }, { status: 500, headers });
   }
 
   await supabase.from("passkey_challenges").delete().eq("id", challengeRow.id);
@@ -78,7 +82,7 @@ Deno.serve(async (req) => {
     .eq("id", passkey.account_id)
     .single();
   if (accountError || !account) {
-    return Response.json({ error: "Account not found" }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: "Account not found" }, { status: 500, headers });
   }
 
   const { data: userData, error: userError } = await supabase.auth.admin.getUserById(
@@ -86,7 +90,7 @@ Deno.serve(async (req) => {
   );
   const email = userData.user?.email;
   if (userError || !email) {
-    return Response.json({ error: "User not found" }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: "User not found" }, { status: 500, headers });
   }
 
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
@@ -95,8 +99,8 @@ Deno.serve(async (req) => {
   });
 
   if (linkError || !linkData.properties?.hashed_token) {
-    return Response.json({ error: "Session generation failed" }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: "Session generation failed" }, { status: 500, headers });
   }
 
-  return Response.json({ token_hash: linkData.properties.hashed_token }, { headers: corsHeaders });
+  return Response.json({ token_hash: linkData.properties.hashed_token }, { headers });
 });

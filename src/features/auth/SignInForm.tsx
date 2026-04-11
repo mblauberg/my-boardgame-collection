@@ -11,17 +11,11 @@ import {
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { syncAccountSession } from "./accountSecurityApi";
 import { signInSchema, type SignInFormData } from "./authSchemas";
+import { useTheme } from "../../lib/theme";
 
 type SupportedOAuthProvider = "google" | "apple" | "github" | "discord";
 type OAuthProviderAvailability = "checking" | "available" | "unavailable";
 type OAuthProviderAvailabilityMap = Record<SupportedOAuthProvider, OAuthProviderAvailability>;
-
-const OAUTH_PROVIDERS: Array<{ provider: SupportedOAuthProvider; label: string; icon: string }> = [
-  { provider: "apple", label: "Apple", icon: "logos:apple" },
-  { provider: "google", label: "Google", icon: "logos:google-icon" },
-  { provider: "discord", label: "Discord", icon: "logos:discord-icon" },
-  { provider: "github", label: "GitHub", icon: "logos:github-icon" },
-];
 
 const INITIAL_PROVIDER_AVAILABILITY: OAuthProviderAvailabilityMap = {
   google: "checking",
@@ -29,6 +23,13 @@ const INITIAL_PROVIDER_AVAILABILITY: OAuthProviderAvailabilityMap = {
   github: "checking",
   discord: "checking",
 };
+
+const SUPPORTED_OAUTH_PROVIDERS: SupportedOAuthProvider[] = [
+  "apple",
+  "google",
+  "discord",
+  "github",
+];
 
 type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON;
 
@@ -47,6 +48,7 @@ function getPostSignInPath(needsPasskeyPrompt: boolean) {
 export function SignInForm() {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -54,6 +56,23 @@ export function SignInForm() {
     INITIAL_PROVIDER_AVAILABILITY,
   );
   const hasConditionalPasskeyFlowRef = useRef(false);
+
+  const oauthProviders = useMemo(() => {
+    return [
+      {
+        provider: "apple" as const,
+        label: "Apple",
+        icon: theme === "dark" ? "ri:apple-fill" : "logos:apple",
+      },
+      { provider: "google" as const, label: "Google", icon: "logos:google-icon" },
+      { provider: "discord" as const, label: "Discord", icon: "logos:discord-icon" },
+      {
+        provider: "github" as const,
+        label: "GitHub",
+        icon: theme === "dark" ? "ri:github-fill" : "logos:github-icon",
+      },
+    ];
+  }, [theme]);
 
   const {
     register,
@@ -68,7 +87,7 @@ export function SignInForm() {
 
     const checkProviderAvailability = async () => {
       const providerChecks = await Promise.all(
-        OAUTH_PROVIDERS.map(async ({ provider }) => {
+        SUPPORTED_OAUTH_PROVIDERS.map(async (provider) => {
           const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
@@ -272,7 +291,7 @@ export function SignInForm() {
       </div>
 
       <div className="space-y-3">
-        {OAUTH_PROVIDERS.map(({ provider, label, icon }) => {
+        {oauthProviders.map(({ provider, label, icon }) => {
           const isUnavailable = providerAvailability[provider] === "unavailable";
           return (
             <button

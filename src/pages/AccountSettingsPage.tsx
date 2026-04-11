@@ -67,13 +67,7 @@ export function AccountSettingsPage() {
 
   useEffect(() => {
     setFormState(getFormState(profile));
-  }, [
-    profile?.id,
-    profile?.username,
-    profile?.is_profile_public,
-    profile?.is_collection_public,
-    profile?.is_saved_public,
-  ]);
+  }, [profile]);
 
   useEffect(() => {
     if (!wasMerged) return;

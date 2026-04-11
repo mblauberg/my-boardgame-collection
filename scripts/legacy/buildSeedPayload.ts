@@ -1,5 +1,4 @@
 import type { NormalizedGame } from './normalizeGames.js';
-import { slugify } from '../../src/lib/utils/slugify.js';
 
 export type SeedPayload = {
   games: Array<NormalizedGame & { id: string }>;

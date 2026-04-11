@@ -1,5 +1,5 @@
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/auth.ts";
+import { createEmailMergeVerifyHandler } from "./handler.ts";
 
 async function hashToken(raw: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
@@ -8,9 +8,7 @@ async function hashToken(raw: string): Promise<string> {
     .join("");
 }
 
-async function resolveAccountIdForAuthUser(
-  authUserId: string,
-): Promise<string> {
+async function resolveAccountIdForAuthUser(authUserId: string): Promise<string> {
   const supabase = getServiceClient();
   const { data, error } = await supabase
     .from("account_identities")
@@ -41,127 +39,139 @@ async function getPrimaryAuthUserIdForAccount(accountId: string): Promise<string
   return data?.primary_auth_user_id ?? accountId;
 }
 
-Deno.serve(async (req) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+const handler = createEmailMergeVerifyHandler({
+  hashToken,
+  async getMergeToken(tokenHash) {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from("email_merge_tokens")
+      .select("id, from_account_id, to_email")
+      .eq("token_hash", tokenHash)
+      .is("used_at", null)
+      .gte("expires_at", new Date().toISOString())
+      .maybeSingle();
 
-  const { token } = await req.json();
-  if (!token || typeof token !== "string") {
-    return Response.json({ error: "Token required" }, { status: 400, headers: corsHeaders });
-  }
-
-  const supabase = getServiceClient();
-  const tokenHash = await hashToken(token);
-
-  const { data: mergeToken, error: tokenError } = await supabase
-    .from("email_merge_tokens")
-    .select("id, from_account_id, to_email")
-    .eq("token_hash", tokenHash)
-    .is("used_at", null)
-    .gte("expires_at", new Date().toISOString())
-    .single();
-
-  if (tokenError || !mergeToken) {
-    return Response.json({ error: "Invalid or expired token" }, { status: 401, headers: corsHeaders });
-  }
-
-  await supabase
-    .from("email_merge_tokens")
-    .update({ used_at: new Date().toISOString() })
-    .eq("id", mergeToken.id);
-
-  const { from_account_id: fromAccountId, to_email: toEmail } = mergeToken;
-  const fromPrimaryAuthUserId = await getPrimaryAuthUserIdForAccount(fromAccountId);
-
-  const { data: usersPage, error: listError } = await supabase.auth.admin.listUsers({
-    page: 1,
-    perPage: 1000,
-  });
-  if (listError) {
-    return Response.json({ error: "Failed to check target email" }, { status: 500, headers: corsHeaders });
-  }
-
-  const targetUser = usersPage.users.find(
-    (user) => user.email?.toLowerCase() === toEmail.toLowerCase() && user.id !== fromPrimaryAuthUserId,
-  );
-
-  let merged = false;
-  let survivingUserEmail = toEmail;
-
-  if (!targetUser) {
-    const { error: updateError } = await supabase.auth.admin.updateUserById(fromPrimaryAuthUserId, {
-      email: toEmail,
-    });
-    if (updateError) {
-      return Response.json({ error: "Failed to update email" }, { status: 500, headers: corsHeaders });
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const { error: syncEmailError } = await supabase.rpc("sync_account_email", {
-      p_account_id: fromAccountId,
-      p_email: toEmail,
+    if (!data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      fromAccountId: data.from_account_id,
+      toEmail: data.to_email,
+    };
+  },
+  async markMergeTokenUsed(id) {
+    const supabase = getServiceClient();
+    const { error } = await supabase
+      .from("email_merge_tokens")
+      .update({ used_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+  getPrimaryAuthUserIdForAccount,
+  async listUsers({ page, perPage }) {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      users: data.users.map((user) => ({
+        id: user.id,
+        email: user.email ?? null,
+      })),
+      nextPage: data.nextPage,
+    };
+  },
+  async updateUserEmail(authUserId, email) {
+    const supabase = getServiceClient();
+    const { error } = await supabase.auth.admin.updateUserById(authUserId, { email });
+
+    if (error) {
+      throw error;
+    }
+  },
+  async syncAccountEmail(accountId, email, verifiedAt) {
+    const supabase = getServiceClient();
+    const { error } = await supabase.rpc("sync_account_email", {
+      p_account_id: accountId,
+      p_email: email,
       p_is_primary: true,
-      p_verified_at: new Date().toISOString(),
+      p_verified_at: verifiedAt,
     });
-    if (syncEmailError) {
-      return Response.json({ error: "Failed to sync account email" }, { status: 500, headers: corsHeaders });
-    }
-  } else {
-    const targetAccountId = await resolveAccountIdForAuthUser(targetUser.id);
 
-    const { error: mergeError } = await supabase.rpc("merge_user_data", {
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+  resolveAccountIdForAuthUser,
+  async mergeAccountData(fromAccountId, toAccountId) {
+    const supabase = getServiceClient();
+    const { error } = await supabase.rpc("merge_user_data", {
       p_from_user_id: fromAccountId,
-      p_to_user_id: targetAccountId,
+      p_to_user_id: toAccountId,
     });
-    if (mergeError) {
-      return Response.json({ error: "Failed to merge user data" }, { status: 500, headers: corsHeaders });
-    }
 
-    const { error: movePasskeysError } = await supabase
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+  async movePasskeys(fromAccountId, toAccountId) {
+    const supabase = getServiceClient();
+    const { error } = await supabase
       .from("passkeys")
-      .update({ account_id: targetAccountId })
+      .update({ account_id: toAccountId })
       .eq("account_id", fromAccountId);
-    if (movePasskeysError) {
-      return Response.json({ error: "Failed to move passkeys" }, { status: 500, headers: corsHeaders });
-    }
 
-    const { error: moveIdentitiesError } = await supabase
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+  async moveAccountIdentities(fromAccountId, toAccountId) {
+    const supabase = getServiceClient();
+    const { error } = await supabase
       .from("account_identities")
-      .update({ account_id: targetAccountId })
+      .update({ account_id: toAccountId })
       .eq("account_id", fromAccountId);
-    if (moveIdentitiesError) {
-      return Response.json({ error: "Failed to move account identities" }, { status: 500, headers: corsHeaders });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+  async deleteAuthUser(authUserId) {
+    const supabase = getServiceClient();
+    const { error } = await supabase.auth.admin.deleteUser(authUserId);
+
+    if (error) {
+      throw error;
+    }
+  },
+  async generateMagicLink(email) {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+    });
+
+    if (error || !data.properties?.hashed_token) {
+      throw error ?? new Error("Missing hashed token");
     }
 
-    const targetPrimaryAuthUserId = await getPrimaryAuthUserIdForAccount(targetAccountId);
-    if (fromPrimaryAuthUserId !== targetPrimaryAuthUserId) {
-      const { error: deleteError } = await supabase.auth.admin.deleteUser(fromPrimaryAuthUserId);
-      if (deleteError) {
-        return Response.json({ error: "Failed to finalize merge" }, { status: 500, headers: corsHeaders });
-      }
-    }
-
-    const { data: survivingUserData, error: survivingUserError } = await supabase.auth.admin.getUserById(
-      targetPrimaryAuthUserId,
-    );
-    if (survivingUserError) {
-      return Response.json({ error: "Failed to resolve surviving account" }, { status: 500, headers: corsHeaders });
-    }
-
-    survivingUserEmail = survivingUserData.user?.email ?? targetUser.email ?? toEmail;
-    merged = true;
-  }
-
-  const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-    type: "magiclink",
-    email: survivingUserEmail,
-  });
-
-  if (linkError || !linkData.properties?.hashed_token) {
-    return Response.json({ error: "Session generation failed" }, { status: 500, headers: corsHeaders });
-  }
-
-  return Response.json(
-    { token_hash: linkData.properties.hashed_token, merged },
-    { headers: corsHeaders },
-  );
+    return { tokenHash: data.properties.hashed_token };
+  },
+  now() {
+    return new Date().toISOString();
+  },
 });
+
+Deno.serve(handler);

@@ -10,7 +10,7 @@ export interface GameCardProps {
   rating?: number;
   isFavorite?: boolean;
   badge?: "In Collection" | "Saved";
-  topRightSlot?: React.ReactNode;
+  topRightSlot?: ReactNode;
 }
 
 function getFallbackImage(title: string) {

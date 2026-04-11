@@ -31,7 +31,6 @@ vi.mock("../lib/supabase/client", () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { AuthCallbackPage } from "./AuthCallbackPage";
 
 function renderPage() {

@@ -1,5 +1,5 @@
 import { generateRegistrationOptions } from "npm:@simplewebauthn/server";
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+import { getCorsHeaders, handleCors, requireMethod } from "../_shared/cors.ts";
 import {
   getAccountContextFromRequest,
   getAuthUserFromRequest,
@@ -11,10 +11,14 @@ Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
+  const methodResponse = requireMethod(req, ["POST"]);
+  if (methodResponse) return methodResponse;
+
   const authUser = await getAuthUserFromRequest(req);
   const accountContext = await getAccountContextFromRequest(req);
+  const headers = getCorsHeaders(req);
   if (!authUser || !accountContext) {
-    return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
+    return Response.json({ error: "Unauthorized" }, { status: 401, headers });
   }
 
   const supabase = getServiceClient();
@@ -24,11 +28,12 @@ Deno.serve(async (req) => {
     .eq("account_id", accountContext.accountId);
 
   const userEmail = authUser.email ?? accountContext.primaryAuthUserId;
+  const userId = Uint8Array.from(new TextEncoder().encode(accountContext.accountId));
 
   const options = await generateRegistrationOptions({
     rpName: "My Boardgame Collection",
     rpID: getRpIdForRequest(req),
-    userID: new TextEncoder().encode(accountContext.accountId),
+    userID: userId,
     userName: userEmail,
     userDisplayName: userEmail,
     attestationType: "none",
@@ -48,8 +53,8 @@ Deno.serve(async (req) => {
   });
 
   if (insertError) {
-    return Response.json({ error: "Failed to store challenge" }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: "Failed to store challenge" }, { status: 500, headers });
   }
 
-  return Response.json(options, { headers: corsHeaders });
+  return Response.json(options, { headers });
 });

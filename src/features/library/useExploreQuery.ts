@@ -26,12 +26,36 @@ type ExploreShelfData = {
   entries: ReturnType<typeof mapGameRecord>[];
 };
 
+type TagSlugsByGameId = Map<string, Set<string>>;
+
 export function resolveExplorePresets(presetIds?: readonly string[]) {
   const visiblePresetIds = presetIds?.length ? new Set(presetIds) : null;
 
   return scenarioPresets.filter(
     (preset) => preset.id !== "for-you" && (!visiblePresetIds || visiblePresetIds.has(preset.id)),
   );
+}
+
+function getRuleTagSlugs(rule: Rule) {
+  return [...new Set([...(rule.anyTags ?? []), ...(rule.allTags ?? []), ...(rule.excludeTags ?? [])])];
+}
+
+function hasRuleTagFilters(rule: Rule) {
+  return getRuleTagSlugs(rule).length > 0;
+}
+
+export function resolveMatchingGameIdsForRule(
+  rule: Pick<Rule, "anyTags" | "allTags" | "excludeTags">,
+  tagSlugsByGameId: TagSlugsByGameId,
+) {
+  return [...tagSlugsByGameId.entries()]
+    .filter(([, tagSet]) => {
+      if (rule.anyTags?.length && !rule.anyTags.some((tag) => tagSet.has(tag))) return false;
+      if (rule.allTags?.length && !rule.allTags.every((tag) => tagSet.has(tag))) return false;
+      if (rule.excludeTags?.length && rule.excludeTags.some((tag) => tagSet.has(tag))) return false;
+      return true;
+    })
+    .map(([gameId]) => gameId);
 }
 
 function applyRuleFilters(
@@ -111,8 +135,8 @@ function applyRuleSort(
   }
 }
 
-async function fetchGameIdsMatchingTags(rule: Rule) {
-  const tagSlugs = [...new Set([...(rule.anyTags ?? []), ...(rule.allTags ?? []), ...(rule.excludeTags ?? [])])];
+async function fetchTagSlugsByGameId(rules: Rule[]) {
+  const tagSlugs = [...new Set(rules.flatMap(getRuleTagSlugs))];
   if (tagSlugs.length === 0) return null;
 
   const supabase = getSupabaseBrowserClient();
@@ -122,7 +146,7 @@ async function fetchGameIdsMatchingTags(rule: Rule) {
     .in("slug", tagSlugs);
 
   if (tagsError) throw tagsError;
-  if (!tags || tags.length === 0) return [];
+  if (!tags || tags.length === 0) return new Map<string, Set<string>>();
 
   const tagSlugById = new Map(tags.map((tag) => [tag.id, tag.slug]));
   const { data: gameTags, error: gameTagsError } = await supabase
@@ -132,7 +156,7 @@ async function fetchGameIdsMatchingTags(rule: Rule) {
 
   if (gameTagsError) throw gameTagsError;
 
-  const tagSlugsByGameId = new Map<string, Set<string>>();
+  const tagSlugsByGameId: TagSlugsByGameId = new Map();
   for (const join of gameTags ?? []) {
     const tagSlug = tagSlugById.get(join.tag_id);
     if (!tagSlug) continue;
@@ -141,18 +165,14 @@ async function fetchGameIdsMatchingTags(rule: Rule) {
     tagSlugsByGameId.set(join.game_id, current);
   }
 
-  return [...tagSlugsByGameId.entries()]
-    .filter(([, tagSet]) => {
-      if (rule.anyTags?.length && !rule.anyTags.some((tag) => tagSet.has(tag))) return false;
-      if (rule.allTags?.length && !rule.allTags.every((tag) => tagSet.has(tag))) return false;
-      if (rule.excludeTags?.length && rule.excludeTags.some((tag) => tagSet.has(tag))) return false;
-      return true;
-    })
-    .map(([gameId]) => gameId);
+  return tagSlugsByGameId;
 }
 
-async function fetchRowsForRule(rule: Rule) {
-  const matchingGameIds = await fetchGameIdsMatchingTags(rule);
+async function fetchRowsForRule(rule: Rule, tagSlugsByGameId: TagSlugsByGameId | null) {
+  const matchingGameIds =
+    tagSlugsByGameId && hasRuleTagFilters(rule)
+      ? resolveMatchingGameIdsForRule(rule, tagSlugsByGameId)
+      : null;
   if (matchingGameIds && matchingGameIds.length === 0) return [];
 
   const supabase = getSupabaseBrowserClient();
@@ -199,13 +219,16 @@ async function fetchTagsByGameId(gameIds: string[]) {
 
 export async function fetchExploreData(presetIds?: readonly string[]) {
   const presets = resolveExplorePresets(presetIds);
+  const tagSlugsByGameId = await fetchTagSlugsByGameId(
+    presets.flatMap((preset) => preset.sections.map((section) => section.rule)),
+  );
   const shelfRows = await Promise.all(
     presets.map(async (preset) => ({
       preset,
       sections: await Promise.all(
         preset.sections.map(async (section) => ({
           section,
-          rows: await fetchRowsForRule(section.rule),
+          rows: await fetchRowsForRule(section.rule, tagSlugsByGameId),
         })),
       ),
     })),

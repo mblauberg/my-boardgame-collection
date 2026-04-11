@@ -28,12 +28,11 @@ export function GameDetailPage() {
   const backTo = typeof state?.from === "string" ? state.from : "/";
   const backLabel = getBackLabel(backTo);
   const isModal = !!state?.backgroundLocation;
+  const { data: game, isLoading, error } = useGameDetailQuery(slug ?? "");
 
   if (!slug) {
     return <div className="p-8 text-center">Invalid game</div>;
   }
-
-  const { data: game, isLoading, error } = useGameDetailQuery(slug);
 
   const handleClose = () => {
     if (isModal) {

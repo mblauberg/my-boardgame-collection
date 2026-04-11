@@ -153,6 +153,10 @@ npm run migrate:backfill-shared-tags
 
 These scripts target the account-based schema (`account_id`).
 
+The legacy migration pipeline is intentionally retained. `board-game-collection.jsx`,
+`scripts/legacy/*`, `scripts/generateSeedData.ts`, `scripts/importLegacyData.ts`, and
+`scripts/output/seed-data.json` are still part of the active import and backfill workflow.
+
 ## Scripts
 
 | Script | Purpose |
@@ -182,7 +186,7 @@ These scripts target the account-based schema (`account_id`).
 │   ├── functions/        Edge Functions
 │   └── migrations/       Database schema history
 ├── ui_design/            UI references and mockups
-├── board-game-collection.jsx  Legacy prototype artifact
+├── board-game-collection.jsx  Legacy source retained for migration tooling
 └── vercel.json           Build and rewrite config
 ```
 

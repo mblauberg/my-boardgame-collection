@@ -152,7 +152,7 @@ export function useUpdateGame() {
       if (error) throw error;
       return data as GameRow;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: gamesKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gamesKeys.details() });
       queryClient.invalidateQueries({ queryKey: libraryKeys.all });
@@ -301,7 +301,7 @@ export function useUpdateGameTags() {
 
       if (insertError) throw insertError;
     },
-    onSuccess: (_data, { gameId }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: gamesKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gamesKeys.details() });
     },

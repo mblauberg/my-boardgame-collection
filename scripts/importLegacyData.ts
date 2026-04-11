@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { pathToFileURL } from "url";
+import type { Database } from "../src/types/database";
 import type { SeedPayload } from "./legacy/buildSeedPayload.js";
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
@@ -66,10 +67,10 @@ function getSupabaseAdminClient() {
     throw new Error("Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
   }
 
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 }
 
-async function resolvePrimaryProfileId(supabase: ReturnType<typeof createClient>) {
+async function resolvePrimaryProfileId(supabase: SupabaseClient<Database>) {
   const { data: ownerProfiles, error: ownerError } = await supabase
     .from("profiles")
     .select("id")

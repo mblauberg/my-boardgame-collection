@@ -1,9 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ReactNode } from "react";
-import { MemoryRouter } from "react-router-dom";
 import { startAuthentication } from "@simplewebauthn/browser";
+import { renderWithProviders } from "../../test/testUtils";
 
 const { mockCancelCeremony } = vi.hoisted(() => ({
   mockCancelCeremony: vi.fn(),
@@ -53,30 +51,11 @@ vi.mock("./useProfile", () => ({
   useProfile: () => mockUseProfile(),
 }));
 
-// eslint-disable-next-line import/first
 import { SignInForm } from "./SignInForm";
-// eslint-disable-next-line import/first
 import { SignInPage } from "../../pages/SignInPage";
 
-function TestWrapper({ children }: { children: ReactNode }) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-}
-
 function renderSignInForm() {
-  return render(
-    <MemoryRouter>
-      <SignInForm />
-    </MemoryRouter>,
-    { wrapper: TestWrapper },
-  );
+  return renderWithProviders(<SignInForm />);
 }
 
 describe("SignInForm", () => {
@@ -116,12 +95,7 @@ describe("SignInForm", () => {
   });
 
   it("renders sign-in inside a dialog-style overlay shell", () => {
-    render(
-      <MemoryRouter>
-        <SignInPage />
-      </MemoryRouter>,
-      { wrapper: TestWrapper },
-    );
+    renderWithProviders(<SignInPage />);
 
     expect(screen.getByRole("dialog", { name: /sign in/i })).toBeInTheDocument();
   });

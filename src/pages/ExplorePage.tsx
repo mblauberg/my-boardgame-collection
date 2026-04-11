@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { FloatingActionButton } from "../components/layout/FloatingActionButton";
 import { PageHeader } from "../components/layout/PageHeader";
 import { ExploreShelf } from "../components/library/ExploreShelf";
@@ -6,6 +6,8 @@ import { HorizontalShelf } from "../components/library/HorizontalShelf";
 import { DiscoverSection } from "../components/library/DiscoverSection";
 import { LibraryList } from "../components/library/LibraryList";
 import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
+import { ErrorStatePanel } from "../components/ui/ErrorStatePanel";
+import { ExpandingSearchInput } from "../components/library/ExpandingSearchInput";
 import { useExploreQuery } from "../features/library/useExploreQuery";
 import { useExploreSearch } from "../features/library/useExploreSearch";
 import { useExploreSearchContext } from "../features/library/ExploreSearchContext";
@@ -24,62 +26,16 @@ type ExploreSearchBarProps = {
 };
 
 function ExploreSearchBar({ value, onChange }: ExploreSearchBarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isExpanded && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isExpanded]);
-
-  useEffect(() => {
-    if (value) setIsExpanded(true);
-  }, [value]);
-
   return (
     <div className="explore-search-section mb-8">
-      <div className="relative flex items-center justify-end">
-        <div
-          className={`transition-all duration-300 ease-in-out ${
-            isExpanded ? "w-full opacity-100" : "w-14 opacity-0 pointer-events-none"
-          }`}
-        >
-          <span
-            aria-hidden="true"
-            className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-lg text-on-surface-variant"
-          >
-            search
-          </span>
-          <label htmlFor="explore-search" className="sr-only">
-            Search game catalog
-          </label>
-          <input
-            ref={inputRef}
-            id="explore-search"
-            aria-label="Search game catalog"
-            type="search"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            onBlur={() => !value && setIsExpanded(false)}
-            placeholder="Search all games..."
-            className="w-full rounded-full border border-outline-variant/20 bg-surface-container-low/70 py-3 pl-10 pr-4 text-base text-on-surface backdrop-blur-sm outline-none transition focus:border-primary-container focus:shadow-[0_0_10px_rgba(255,145,0,0.2)]"
-          />
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsExpanded(true)}
-          aria-label="Open search"
-          className={`group flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm transition hover:border-primary/30 hover:bg-surface-container-high/70 hover:shadow-[0_0_15px_rgba(255,145,0,0.15)] ${
-            isExpanded ? "opacity-0 pointer-events-none absolute right-0" : "opacity-100"
-          }`}
-        >
-          <span className="material-symbols-outlined text-3xl text-on-surface transition group-hover:text-primary">
-            search
-          </span>
-        </button>
-      </div>
+      <ExpandingSearchInput
+        id="explore-search"
+        value={value}
+        onChange={onChange}
+        placeholder="Search all games..."
+        inputLabel="Search game catalog"
+        expandButtonLabel="Open search"
+      />
     </div>
   );
 }
@@ -125,12 +81,10 @@ export function ExplorePage() {
 
   if (error || searchError) {
     return (
-      <div className="rounded-3xl border border-red-200 bg-red-50/80 p-8 text-center text-red-900">
-        <p className="text-lg font-semibold">Explore unavailable</p>
-        <p className="mt-2 text-sm leading-6">
-          {getSupabaseQueryErrorMessage(error ?? searchError, "explore")}
-        </p>
-      </div>
+      <ErrorStatePanel
+        title="Explore unavailable"
+        description={getSupabaseQueryErrorMessage(error ?? searchError, "explore")}
+      />
     );
   }
 

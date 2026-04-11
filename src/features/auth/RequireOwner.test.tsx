@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import type { Profile } from "./auth.types";
 import { ExploreSearchProvider } from "../library/ExploreSearchContext";
@@ -22,8 +21,6 @@ vi.mock("../../lib/supabase/client", () => ({
   getSupabaseBrowserClient: () => mockSupabase,
 }));
 
-// Import after mocking
-// eslint-disable-next-line import/first
 import { RequireOwner } from "./RequireOwner";
 
 const viewerFixture: { session: Session; profile: Profile } = {

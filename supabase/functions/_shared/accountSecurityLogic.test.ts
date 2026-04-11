@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getActiveProviderState,
   getVerifiedEmailCandidates,
-} from "./accountSecurityLogic";
+} from "./accountSecurityLogic.ts";
 
 describe("accountSecurityLogic", () => {
   it("marks the active oauth provider as rejected when its email is not verified", () => {

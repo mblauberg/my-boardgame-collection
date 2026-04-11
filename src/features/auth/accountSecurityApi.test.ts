@@ -8,7 +8,6 @@ vi.mock("../../lib/supabase/client", () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { fetchAccountSecuritySummary, syncAccountSession } from "./accountSecurityApi";
 
 describe("accountSecurityApi", () => {

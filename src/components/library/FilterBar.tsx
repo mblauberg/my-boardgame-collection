@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AdvancedFilters } from "./AdvancedFilters";
+import { ExpandingSearchInput } from "./ExpandingSearchInput";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
 
@@ -91,47 +92,15 @@ export function FilterBar({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         {showSearch && (
-          <div className="relative flex min-w-[240px] flex-1 items-center justify-end">
-            <div
-              className={`transition-all duration-300 ease-in-out ${
-                isSearchExpanded ? "w-full opacity-100" : "w-14 opacity-0 pointer-events-none"
-              }`}
-            >
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-lg text-on-surface-variant"
-              >
-                search
-              </span>
-              <label htmlFor="library-search" className="sr-only">
-                Search games
-              </label>
-              <input
-                ref={searchInputRef}
-                id="library-search"
-                aria-label="Search games"
-                type="search"
-                value={localSearch}
-                onChange={(event) => setLocalSearch(event.target.value)}
-                onBlur={() => !localSearch && setIsSearchExpanded(false)}
-                placeholder={searchPlaceholder}
-                className="w-full rounded-full border border-outline-variant/20 bg-surface-container-low/70 py-3 pl-10 pr-4 text-base text-on-surface backdrop-blur-sm outline-none transition focus:border-primary-container focus:shadow-[0_0_10px_rgba(255,145,0,0.2)]"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsSearchExpanded(true)}
-              aria-label="Open search"
-              className={`group flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-low/70 backdrop-blur-sm transition hover:border-primary/30 hover:bg-surface-container-high/70 hover:shadow-[0_0_15px_rgba(255,145,0,0.15)] ${
-                isSearchExpanded ? "opacity-0 pointer-events-none absolute right-0" : "opacity-100"
-              }`}
-            >
-              <span className="material-symbols-outlined text-3xl text-on-surface transition group-hover:text-primary">
-                search
-              </span>
-            </button>
-          </div>
+          <ExpandingSearchInput
+            id="library-search"
+            value={localSearch}
+            onChange={setLocalSearch}
+            placeholder={searchPlaceholder}
+            inputLabel="Search games"
+            expandButtonLabel="Open search"
+            containerClassName="relative flex min-w-[240px] flex-1 items-center justify-end"
+          />
         )}
 
         <button

@@ -124,13 +124,15 @@ function getSupabaseAdminClient() {
 async function fetchSharedCatalogRows() {
   const supabase = getSupabaseAdminClient();
 
-  return fetchAllRows<Required<Pick<SharedTagSourceRow, "id">> & SharedTagSourceRow>((from, to) =>
-    supabase
+  return fetchAllRows<Required<Pick<SharedTagSourceRow, "id">> & SharedTagSourceRow>(async (from, to) => {
+    const { data, error } = await supabase
       .from("games")
       .select("id, slug, name, bgg_id, category, players_min, players_max, play_time_min, play_time_max, bgg_weight, summary")
       .order("slug")
-      .range(from, to),
-  );
+      .range(from, to);
+
+    return { data, error };
+  });
 }
 
 export async function backfillSharedTags() {
@@ -219,14 +221,16 @@ export async function backfillSharedTags() {
     );
   if (tagsError) throw tagsError;
 
-  const dbTags = await fetchAllRows<{ id: string; slug: string }>((from, to) =>
-    supabase
+  const dbTags = await fetchAllRows<{ id: string; slug: string }>(async (from, to) => {
+    const { data, error } = await supabase
       .from("tags")
       .select("id, slug")
       .in("slug", payload.tags.map((tag) => tag.slug))
       .order("slug")
-      .range(from, to),
-  );
+      .range(from, to);
+
+    return { data, error };
+  });
 
   const tagIdBySlug = new Map(dbTags.map((tag) => [tag.slug, tag.id]));
   const joinRows = payload.gameTags.flatMap((gameTag) => {
