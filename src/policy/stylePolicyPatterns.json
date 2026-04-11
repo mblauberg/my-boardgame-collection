@@ -1,0 +1,8 @@
+{
+  "hardcodedColorPatternSource": "#[0-9a-fA-F]{3,8}\\b|\\b(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch)\\((?!\\s*var\\(--)[^)]*\\)",
+  "hardcodedColorPatternFlags": "gi",
+  "arbitraryUtilityPatternSource": "\\b[a-z][a-z0-9-]*-\\[[^\\]]+\\]",
+  "arbitraryUtilityPatternFlags": "g",
+  "restrictedArbitraryColorUtilityPatternSource": "\\b(?:bg|text|border|from|to|via|ring|fill|stroke|shadow)-\\[(?:#|var\\(--|(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch)\\()",
+  "restrictedArbitraryColorUtilityPatternFlags": "i"
+}

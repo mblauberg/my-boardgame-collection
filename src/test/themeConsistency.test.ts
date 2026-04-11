@@ -1,12 +1,19 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
+import stylePolicyPatterns from "../policy/stylePolicyPatterns.json";
 
 const SRC_DIR = join(process.cwd(), "src");
 const RUNTIME_EXTENSIONS = new Set([".ts", ".tsx"]);
 const TEST_FILE_PATTERN = /(?:\.test|\.spec)\.[jt]sx?$/;
-const HARD_CODED_COLOR_PATTERN = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\((?!\s*var\(--)[^)]*\)/g;
-const ARBITRARY_UTILITY_PATTERN = /\b[a-z][a-z0-9-]*-\[[^\]]+\]/g;
+const HARD_CODED_COLOR_PATTERN = new RegExp(
+  stylePolicyPatterns.hardcodedColorPatternSource,
+  stylePolicyPatterns.hardcodedColorPatternFlags,
+);
+const ARBITRARY_UTILITY_PATTERN = new RegExp(
+  stylePolicyPatterns.arbitraryUtilityPatternSource,
+  stylePolicyPatterns.arbitraryUtilityPatternFlags,
+);
 const ALLOWED_HARDCODED_COLORS_BY_FILE: Record<string, Set<string>> = {
   "src/components/ui/GameCard.tsx": new Set([
     "#f3e7d5",
@@ -121,6 +128,18 @@ function relativePath(fromRoot: string): string {
 }
 
 describe("theme style consistency policy", () => {
+  it("detects hardcoded colors across modern CSS color functions case-insensitively", () => {
+    const source = "oklch(62% 0.2 20) OKLAB(0.62 0.1 0.03) Lab(50 10 20) LCH(52 40 260)";
+    const matches = source.match(HARD_CODED_COLOR_PATTERN);
+
+    expect(matches).toEqual([
+      "oklch(62% 0.2 20)",
+      "OKLAB(0.62 0.1 0.03)",
+      "Lab(50 10 20)",
+      "LCH(52 40 260)",
+    ]);
+  });
+
   it("blocks hardcoded colors and arbitrary-value utility drift in runtime code", async () => {
     const runtimeFiles = await listRuntimeSourceFiles(SRC_DIR);
     const violations: string[] = [];

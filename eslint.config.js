@@ -3,6 +3,13 @@ import globals from "globals";
 import importPlugin from "eslint-plugin-import";
 import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
+import stylePolicyPatterns from "./src/policy/stylePolicyPatterns.json" with { type: "json" };
+
+const hardcodedColorFlagsForSelector = stylePolicyPatterns.hardcodedColorPatternFlags.replaceAll("g", "");
+const hardcodedColorSelectorPattern = `/${stylePolicyPatterns.hardcodedColorPatternSource}/${hardcodedColorFlagsForSelector}`;
+const restrictedArbitraryColorUtilitySelectorPattern =
+  `/${stylePolicyPatterns.restrictedArbitraryColorUtilityPatternSource}/` +
+  stylePolicyPatterns.restrictedArbitraryColorUtilityPatternFlags;
 
 export default tseslint.config(
   {
@@ -55,22 +62,20 @@ export default tseslint.config(
       "no-restricted-syntax": [
         "error",
         {
-          selector: "Literal[value=/#[0-9a-fA-F]{3,8}\\b|\\b(?:rgb|rgba|hsl|hsla)\\((?!\\s*var\\(--)/]",
+          selector: `Literal[value=${hardcodedColorSelectorPattern}]`,
           message: "Use theme tokens and CSS variables instead of hardcoded color values in runtime UI code.",
         },
         {
-          selector: "TemplateElement[value.raw=/#[0-9a-fA-F]{3,8}\\b|\\b(?:rgb|rgba|hsl|hsla)\\((?!\\s*var\\(--)/]",
+          selector: `TemplateElement[value.raw=${hardcodedColorSelectorPattern}]`,
           message: "Use theme tokens and CSS variables instead of hardcoded color values in runtime UI code.",
         },
         {
-          selector:
-            "Literal[value=/\\b(?:bg|text|border|from|to|via|ring|fill|stroke|shadow)-\\[(?:#|var\\(--|(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch)\\()/]",
+          selector: `Literal[value=${restrictedArbitraryColorUtilitySelectorPattern}]`,
           message:
             "Avoid ad-hoc arbitrary color utilities. Prefer token classes (e.g. text-primary, bg-surface).",
         },
         {
-          selector:
-            "TemplateElement[value.raw=/\\b(?:bg|text|border|from|to|via|ring|fill|stroke|shadow)-\\[(?:#|var\\(--|(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch)\\()/]",
+          selector: `TemplateElement[value.raw=${restrictedArbitraryColorUtilitySelectorPattern}]`,
           message:
             "Avoid ad-hoc arbitrary color utilities. Prefer token classes (e.g. text-primary, bg-surface).",
         },
