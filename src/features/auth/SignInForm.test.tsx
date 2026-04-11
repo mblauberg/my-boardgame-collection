@@ -117,6 +117,18 @@ describe("SignInForm", () => {
     expect(email).toHaveAttribute("autocomplete", "username webauthn");
   });
 
+  it("uses shared glass token classes for key controls", () => {
+    renderSignInForm();
+
+    expect(screen.getByLabelText(/email/i)).toHaveClass("glass-input-field");
+    expect(screen.getByRole("button", { name: /continue with email/i })).toHaveClass(
+      "glass-action-button-active",
+    );
+    expect(screen.getByRole("button", { name: /continue with google/i })).toHaveClass(
+      "glass-action-button",
+    );
+  });
+
   it("does not render a standalone passkey button", () => {
     renderSignInForm();
 

@@ -1,4 +1,10 @@
 import type { Config } from "tailwindcss";
+import {
+  semanticBorderRadiusTokens,
+  semanticBoxShadowTokens,
+  semanticFontSizeTokens,
+  semanticSpacingTokens,
+} from "./src/lib/themeTokens";
 
 function withOpacity(varName: string) {
   return `rgb(var(${varName}) / <alpha-value>)`;
@@ -76,24 +82,10 @@ export default {
         // Legacy aliases that must stay for backwards compat
         "on-primary-fixed-variant": withOpacity("--primary-dim"),
       },
-      boxShadow: {
-        // Light mode uses on-surface, dark mode can use surface-tint if we want via classes,
-        // but since we want it to adapt automatically:
-        // Actually, Tailwind doesn't allow CSS var opacity easily in inline shadow color, but having a custom
-        // shadow that references a dedicated var works. Wait, we can just use `shadow-ambient`.
-        // Let's define it using the `on-surface` by default, but we'll override the color via `shadow-surface-tint/8` in dark mode where needed if we just use tailwind shadow colors.
-        // Actually tailwind lets us do `shadow-ambient` and it uses the configured color if no color utility is applied.
-        "ambient": "0 12px 40px var(--ambient-shadow-color, rgb(var(--on-surface) / 0.06))",
-        "ambient-lg": "0 16px 48px var(--ambient-shadow-color, rgb(var(--on-surface) / 0.08))"
-      },
-      borderRadius: {
-        "DEFAULT": "0.25rem",
-        "lg": "0.5rem",
-        "xl": "0.75rem",
-        "2xl": "1rem",
-        "3xl": "1.5rem",
-        "full": "9999px"
-      },
+      fontSize: semanticFontSizeTokens,
+      spacing: semanticSpacingTokens,
+      borderRadius: semanticBorderRadiusTokens,
+      boxShadow: semanticBoxShadowTokens,
       fontFamily: {
         "headline": ["Manrope", "sans-serif"],
         "body": ["Manrope", "sans-serif"],
@@ -103,4 +95,3 @@ export default {
   },
   plugins: [],
 } satisfies Config;
-

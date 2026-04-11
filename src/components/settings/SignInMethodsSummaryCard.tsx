@@ -33,7 +33,7 @@ export function SignInMethodsSummaryCard({
   };
 
   return (
-    <section className="rounded-[2rem] border border-outline/10 bg-surface-container-lowest/90 p-6 shadow-ambient dark:bg-surface-container-low/80">
+    <section className="glass-surface-panel rounded-2xl border p-6 shadow-ambient">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant">
@@ -47,17 +47,17 @@ export function SignInMethodsSummaryCard({
         <button
           type="button"
           onClick={onOpen}
-          className="shrink-0 rounded-full border border-outline/15 bg-surface-container-low px-5 py-2.5 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary dark:bg-surface-container-high/70"
+          className="glass-action-button shrink-0 rounded-full px-5 py-2.5 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary"
         >
           Manage
         </button>
       </div>
 
       {isLoading ? (
-        <div className="mt-5 space-y-3">
-          <div className="h-12 animate-pulse rounded-[1.25rem] bg-surface-container-high/60" />
-          <div className="h-12 animate-pulse rounded-[1.25rem] bg-surface-container-high/40" />
-          <div className="h-12 animate-pulse rounded-[1.25rem] bg-surface-container-high/30" />
+          <div className="mt-5 space-y-3">
+          <div className="h-12 animate-pulse rounded-xl bg-surface-container-high/60" />
+          <div className="h-12 animate-pulse rounded-xl bg-surface-container-high/40" />
+          <div className="h-12 animate-pulse rounded-xl bg-surface-container-high/30" />
         </div>
       ) : (
         <>
@@ -115,10 +115,10 @@ export function SignInMethodsSummaryCard({
                 {summary.identities.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {summary.identities.map((identity) => (
-                      <div
-                        key={identity.provider}
-                        className="flex items-center gap-2 rounded-full border border-outline/10 bg-surface-container-lowest/85 py-1 pl-1.5 pr-3 text-[11px] font-bold text-on-surface dark:bg-surface/50"
-                      >
+                        <div
+                          key={identity.provider}
+                          className="glass-action-button flex items-center gap-2 rounded-full py-1 pl-1.5 pr-3 text-[11px] font-bold text-on-surface"
+                        >
                         <Icon icon={getProviderIcon(identity.provider)} className="h-3.5 w-3.5" />
                         <span>{identity.label}</span>
                       </div>
@@ -141,4 +141,3 @@ export function SignInMethodsSummaryCard({
     </section>
   );
 }
-

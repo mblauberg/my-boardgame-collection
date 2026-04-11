@@ -5,6 +5,7 @@ import { SignInMethodsSheet } from "../components/settings/SignInMethodsSheet";
 import { SignInMethodsSummaryCard } from "../components/settings/SignInMethodsSummaryCard";
 import { ErrorStatePanel } from "../components/ui/ErrorStatePanel";
 import { StateMessagePanel } from "../components/ui/StateMessagePanel";
+import { SurfacePanel } from "../components/ui/SurfacePanel";
 import { useAccountSecuritySummary } from "../features/auth/useAccountSecuritySummary";
 import { useProfile } from "../features/auth/useProfile";
 import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
@@ -168,7 +169,7 @@ export function AccountSettingsPage() {
           profile.username ? (
             <Link
               to={`/u/${profile.username}`}
-              className="rounded-full border border-outline/15 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary dark:bg-surface-container-high/60"
+              className="glass-action-button rounded-full px-5 py-3 text-sm font-bold text-on-surface transition hover:border-primary/20 hover:text-primary"
             >
               View profile
             </Link>
@@ -189,7 +190,7 @@ export function AccountSettingsPage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
         <form
-          className="space-y-6 rounded-[2rem] border border-outline/10 bg-surface-container-lowest/90 p-6 shadow-ambient dark:bg-surface-container-low/80"
+          className="glass-surface-panel space-y-6 rounded-2xl border p-6 shadow-ambient"
           onSubmit={(event) => {
             event.preventDefault();
             void handleSave();
@@ -216,7 +217,7 @@ export function AccountSettingsPage() {
                 }))
               }
               placeholder="Choose a public username"
-              className="mt-3 w-full rounded-[1.4rem] border border-outline/15 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary/30 focus:bg-surface-container-high dark:bg-surface-container-high/60"
+              className="glass-input-field mt-3 w-full rounded-2xl px-4 py-3 text-sm text-on-surface outline-none transition"
             />
           </label>
 
@@ -325,7 +326,7 @@ export function AccountSettingsPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-full bg-gradient-to-br from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="glass-action-button-active rounded-full px-5 py-3 text-sm font-bold text-on-primary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? "Saving..." : "Save settings"}
             </button>
@@ -339,7 +340,7 @@ export function AccountSettingsPage() {
             summary={summary}
           />
 
-          <section className="rounded-[2rem] border border-error/10 bg-surface-container-lowest/90 p-6 shadow-ambient dark:bg-surface-container-low/80">
+          <SurfacePanel as="section" className="rounded-2xl border-error/10 p-6">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-error/70">Session</p>
             <p className="mt-3 text-sm leading-6 text-on-surface-variant">
               Signed in as <span className="font-semibold text-on-surface">{summary.primaryEmail}</span>.
@@ -349,12 +350,12 @@ export function AccountSettingsPage() {
               type="button"
               onClick={() => void handleSignOut()}
               disabled={isSigningOut}
-              className="mt-5 flex items-center gap-2 rounded-full border border-error/20 bg-error/10 px-5 py-3 text-sm font-bold text-error transition-all hover:bg-error/20 disabled:cursor-not-allowed disabled:opacity-60"
+              className="glass-action-button mt-5 flex items-center gap-2 rounded-full border-error/20 bg-error/10 px-5 py-3 text-sm font-bold text-error transition-all hover:bg-error/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span className="material-symbols-outlined text-[18px]">logout</span>
               {isSigningOut ? "Signing out..." : "Sign out"}
             </button>
-          </section>
+          </SurfacePanel>
         </div>
       </div>
 

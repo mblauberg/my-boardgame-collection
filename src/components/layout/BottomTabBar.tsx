@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { mobileNavRouteDefinitions } from "../../app/router/routes";
 import { useSlidingIndicator } from "../../hooks/useSlidingIndicator";
 import { motionTokens } from "../../lib/motion";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
 
 function isActivePath(currentPath: string, routePath: string) {
   if (routePath === "/") {
@@ -50,14 +51,11 @@ export function BottomTabBar() {
                   : "text-on-surface-variant hover:bg-surface-variant/50"
               }`}
             >
-              <span
-                className={`material-symbols-outlined text-2xl transition-transform duration-300 ${
-                  isActive ? "scale-110" : ""
-                }`}
-                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {route.mobileNavIcon}
-              </span>
+              <MaterialSymbol
+                icon={route.mobileNavIcon ?? ""}
+                filled={isActive}
+                className={`text-2xl transition-transform duration-300 ${isActive ? "scale-110" : ""}`}
+              />
               <span className="text-[0.625rem]">{route.label}</span>
             </Link>
           );

@@ -7,9 +7,10 @@ import {
 } from "../../features/library/libraryState";
 import { useLibraryQuery } from "../../features/library/useLibraryQuery";
 import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
-import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { motionTokens } from "../../lib/motion";
+import { LibraryStateIconButton } from "./LibraryStateIconButton";
+import { StatusBadge } from "../ui/StatusBadge";
 
 type HorizontalShelfProps = {
   title: string;
@@ -77,9 +78,9 @@ export function HorizontalShelf({ title, description, entries }: HorizontalShelf
               >
                 <div className="absolute right-3 top-3 z-10">
                   {isInCollection ? (
-                    <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
+                    <StatusBadge size="compact" className="md:px-3 md:py-1.5 md:text-xs">
                       In Collection
-                    </span>
+                    </StatusBadge>
                   ) : (
                     <LibraryStateIconButton
                       label="Saved"

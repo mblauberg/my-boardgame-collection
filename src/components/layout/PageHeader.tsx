@@ -1,8 +1,9 @@
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { motionTokens } from "../../lib/motion";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
 
 type PageHeaderProps = {
   eyebrow: string;
@@ -33,7 +34,7 @@ export function PageHeader({ eyebrow, title, description, backTo, actions, class
         },
       }}
     >
-      <div className="glass-surface-panel relative overflow-hidden rounded-[2rem] p-6 pb-8 md:rounded-[3rem] md:p-12 lg:p-16">
+      <div className="glass-surface-panel relative overflow-hidden rounded-2xl p-6 pb-8 shadow-ambient md:p-12 lg:p-16">
         {/* Decorative Background Element */}
         <div 
           className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-[80px] dark:bg-primary/20" 
@@ -46,7 +47,7 @@ export function PageHeader({ eyebrow, title, description, backTo, actions, class
               to={backTo.href}
               className="mb-6 flex w-fit items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant/60 transition hover:text-primary"
             >
-              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+              <MaterialSymbol icon="arrow_back" className="text-[18px]" />
               {backTo.label}
             </Link>
           )}
@@ -116,4 +117,3 @@ export function PageHeader({ eyebrow, title, description, backTo, actions, class
     </motion.header>
   );
 }
-

@@ -311,7 +311,7 @@ export function AddGameWizardOverlay({
         aria-modal="true"
         aria-label="Add new game"
         data-motion="wizard-panel"
-        className="glass-surface-panel flex max-h-[min(46rem,90vh)] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] shadow-[0_32px_80px_rgba(46,47,45,0.18)] lg:flex-row"
+        className="glass-surface-panel flex max-h-[min(46rem,90vh)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border shadow-ambient lg:flex-row"
         initial={
           prefersReducedMotion ? false : { opacity: 0, y: 24, scale: 0.985 }
         }

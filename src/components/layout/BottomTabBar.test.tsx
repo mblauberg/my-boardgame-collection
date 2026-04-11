@@ -17,6 +17,13 @@ describe("BottomTabBar", () => {
     expect(screen.queryByRole("button", { name: /account/i })).not.toBeInTheDocument();
   });
 
+  it("renders the active route icon with filled material symbol classes", () => {
+    renderWithProviders(<BottomTabBar />, "/saved");
+
+    const activeIcon = screen.getByText("bookmark");
+    expect(activeIcon).toHaveClass("material-symbols-filled");
+  });
+
   it("renders a sliding active capsule in the mobile tab bar", () => {
     renderWithProviders(<BottomTabBar />, "/explore");
 

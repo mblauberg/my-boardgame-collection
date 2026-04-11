@@ -81,7 +81,17 @@ The design is named **"Obsidian Gallery"** and uses a Material Design 3 colour r
 - Primary: amber/orange. Secondary: teal. Tertiary: yellow. Font: **Manrope**.
 - Dark mode applied by class (`darkMode: "class"`) — set on `<html>` and `<body>` by `ThemeProvider`
 
-Do **not** use hardcoded hex/rgb values for brand colours — always use Tailwind token utilities (`text-primary`, `bg-surface`, etc.).
+Do **not** use hardcoded color literals/functions for brand colours (`#hex`, `rgb/rgba`, `hsl/hsla`, `hwb`, `color()`, `color-mix()`, `oklch`, `oklab`, `lab`, `lch`) — always use Tailwind token utilities (`text-primary`, `bg-surface`, etc.).
+
+Theme guardrails are enforceable:
+
+- `src/test/themeConsistency.test.ts` scans runtime `src/**/*.{ts,tsx}` (excluding tests) and fails on:
+  - hardcoded colour literals/functions (`#hex`, `rgb/rgba`, `hsl/hsla`, `hwb`, `color()`, `color-mix()`, `oklch`, `oklab`, `lab`, `lch`) that are not allowlisted
+  - arbitrary-value utility classes that are not in the approved allowlist
+- `eslint.config.js` blocks new runtime hardcoded colours and ad-hoc arbitrary **color** utilities.
+- Existing legacy exceptions are allowlisted explicitly (for example `src/components/ui/GameCard.tsx` fallback artwork palette).
+
+When adding a legitimate exception, update the allowlist intentionally in the policy test (and ESLint override if needed), with a short justification in your PR.
 
 ---
 

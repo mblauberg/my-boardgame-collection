@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { GameCard } from "../ui/GameCard";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
+import { StatusBadge } from "../ui/StatusBadge";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
 import type { LibraryEntry } from "../../features/library/library.types";
 import {
@@ -115,15 +117,10 @@ export function LibraryList({
 
           if (moved || isGuestAlreadyMoved) {
             topRightSlot = (
-              <span className="glass-badge flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
-                <span
-                  className="material-symbols-outlined text-sm"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  check_circle
-                </span>
+              <StatusBadge size="compact" className="md:px-3 md:py-1.5 md:text-xs">
+                <MaterialSymbol icon="check_circle" filled className="text-sm" />
                 Moved
-              </span>
+              </StatusBadge>
             );
           } else {
             topRightSlot = (

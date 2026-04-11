@@ -61,7 +61,7 @@ export function AdvancedFilters({ filters, onChange }: AdvancedFiltersProps) {
             aria-pressed={filters.isLoved ?? false}
             className={`flex min-h-[44px] w-full items-center justify-center gap-3 rounded-full transition-all duration-300 font-medium text-sm ${
               filters.isLoved
-                ? "glass-action-button-active text-on-primary shadow-[0_0_20px_rgba(255,145,0,0.3)]"
+                ? "glass-action-button-active text-on-primary"
                 : "glass-action-button text-on-surface-variant hover:text-on-surface"
             }`}
           >

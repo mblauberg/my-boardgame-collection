@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { SignInOverlayFrame } from "../components/auth/SignInOverlayFrame";
+import { SurfacePanel } from "../components/ui/SurfacePanel";
 import { SignInForm } from "../features/auth/SignInForm";
 
 export function SignInPage() {
@@ -19,9 +20,9 @@ export function SignInPage() {
 
   return (
     <SignInOverlayFrame isStandalone={!isModal} onRequestClose={handleClose}>
-      <div className="glass-surface-panel rounded-[1.75rem] p-4 sm:p-5">
+      <SurfacePanel spacing="compact" className="rounded-2xl sm:p-5">
         <SignInForm />
-      </div>
+      </SurfacePanel>
     </SignInOverlayFrame>
   );
 }

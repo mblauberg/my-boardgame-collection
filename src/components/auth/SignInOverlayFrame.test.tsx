@@ -15,10 +15,9 @@ describe("SignInOverlayFrame", () => {
       "data-motion",
       "auth-backdrop",
     );
-    expect(screen.getByRole("dialog", { name: /sign in/i })).toHaveAttribute(
-      "data-motion",
-      "auth-panel",
-    );
+    const dialog = screen.getByRole("dialog", { name: /sign in/i });
+    expect(dialog).toHaveAttribute("data-motion", "auth-panel");
+    expect(dialog).toHaveClass("glass-surface-panel", "rounded-2xl", "shadow-ambient");
   });
 
   it("closes when the backdrop is clicked", async () => {
