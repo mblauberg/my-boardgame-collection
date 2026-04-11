@@ -15,6 +15,8 @@ const ARBITRARY_UTILITY_PATTERN = new RegExp(
   stylePolicyPatterns.arbitraryUtilityPatternFlags,
 );
 const ALLOWED_HARDCODED_COLORS_BY_FILE: Record<string, Set<string>> = {
+  // These rgba values are meta[theme-color] values for iOS browser chrome — not CSS styling.
+  "src/lib/theme.tsx": new Set(["rgba(19,19,19,0.8)", "rgba(247,246,243,0.72)"]),
   "src/components/ui/GameCard.tsx": new Set([
     "#f3e7d5",
     "#b75d2b",
@@ -58,7 +60,7 @@ const ALLOWED_ARBITRARY_UTILITIES_BY_FILE: Record<string, Set<string>> = {
     "tracking-[0.25em]",
     "tracking-[0.2em]",
   ]),
-  "src/components/layout/TopNavBar.tsx": new Set(["font-['Manrope']", "pt-[calc(0.75rem+env(safe-area-inset-top,0px))]"]),
+  "src/components/layout/TopNavBar.tsx": new Set(["font-['Manrope']", "h-[2px]", "pt-[calc(0.75rem+env(safe-area-inset-top,0px))]"]),
   "src/components/library/AddGameSearchStep.tsx": new Set([
     "min-h-[16rem]",
     "text-[11px]",
