@@ -7,6 +7,7 @@ import {
 import { useLibraryQuery } from "../../features/library/useLibraryQuery";
 import { useLibraryStateActions } from "../../features/library/useLibraryStateActions";
 import { LibraryStateIconButton } from "./LibraryStateIconButton";
+import { StatusBadge } from "../ui/StatusBadge";
 
 type ExploreShelfProps = {
   title: string;
@@ -29,9 +30,9 @@ export function ExploreShelf({ title, entries }: ExploreShelfProps) {
             <article key={game.id} className="relative">
               <div className="absolute right-3 top-3 z-10">
                 {entry?.isInCollection ? (
-                  <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
+                  <StatusBadge size="compact" className="md:px-3 md:py-1.5 md:text-xs">
                     In Collection
-                  </span>
+                  </StatusBadge>
                 ) : (
                   <LibraryStateIconButton
                     label="Saved"

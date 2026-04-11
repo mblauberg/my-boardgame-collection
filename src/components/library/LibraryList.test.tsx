@@ -116,6 +116,24 @@ describe("LibraryList", () => {
     expect(libraryStateActions.moveToCollection).toHaveBeenCalledWith(entry.game, entry);
   });
 
+  it("renders moved badges with shared icon and badge primitives", async () => {
+    const user = userEvent.setup();
+    const entry = createEntry({ isSaved: true });
+
+    renderWithProviders(<LibraryList entries={[entry]} cardContext="saved" />, "/saved");
+
+    await user.click(screen.getByRole("button", { name: /move to collection/i }));
+
+    const movedBadge = screen.getByText("Moved");
+    const movedIcon = screen.getByText("check_circle");
+
+    expect(movedBadge).toHaveClass("inline-flex", "glass-badge");
+    expect(movedIcon).toHaveClass(
+      "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]",
+    );
+    expect(movedIcon).not.toHaveAttribute("style");
+  });
+
   it("passes route state through game links when provided", async () => {
     const user = userEvent.setup();
 

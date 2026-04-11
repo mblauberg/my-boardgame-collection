@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { mobileNavRouteDefinitions } from "../../app/router/routes";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
 
 function isActivePath(currentPath: string, routePath: string) {
   if (routePath === "/") {
@@ -27,12 +28,7 @@ export function BottomTabBar() {
                   : "text-on-surface-variant hover:bg-surface-variant/50"
               }`}
             >
-              <span
-                className="material-symbols-outlined text-2xl"
-                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {route.mobileNavIcon}
-              </span>
+              <MaterialSymbol icon={route.mobileNavIcon ?? ""} filled={isActive} className="text-2xl" />
               <span className="text-[0.625rem]">{route.label}</span>
             </Link>
           );

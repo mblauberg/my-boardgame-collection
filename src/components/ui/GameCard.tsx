@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { MaterialSymbol } from "./MaterialSymbol";
+import { StatusBadge } from "./StatusBadge";
 
 export interface GameCardProps {
   title: string;
@@ -72,7 +74,7 @@ export function GameCard({
   const hasDetails = Boolean(description || hasStats);
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest transition-all duration-300 hover:-translate-y-1 hover:shadow-ambient-lg dark:bg-[rgb(28_27_27)]">
+    <article className="group relative overflow-hidden rounded-2xl bg-surface-container-lowest transition-all duration-300 hover:-translate-y-1 hover:shadow-ambient-lg">
       <div className="relative aspect-[4/5] overflow-hidden">
         <img
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
@@ -85,9 +87,7 @@ export function GameCard({
         <div className="absolute left-3 right-3 top-3 flex items-start justify-between md:left-4 md:right-4 md:top-4">
           {rating && rating > 0 ? (
             <div className="glass-rating-badge flex items-center gap-1 rounded-full px-2 py-1 md:gap-1.5 md:px-3 md:py-1.5">
-              <span className="material-symbols-outlined text-sm text-tertiary-fixed md:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
-                star
-              </span>
+              <MaterialSymbol icon="star" filled className="text-sm text-tertiary-fixed md:text-base" />
               <span className="text-xs font-bold text-on-surface md:text-sm">{rating.toFixed(1)}</span>
             </div>
           ) : (
@@ -95,15 +95,15 @@ export function GameCard({
           )}
           
           {topRightSlot ?? (badge && (
-            <span className="glass-badge rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-on-primary-fixed md:px-3 md:py-1.5 md:text-xs">
+            <StatusBadge size="compact" className="md:px-3 md:py-1.5 md:text-xs">
               {badge}
-            </span>
+            </StatusBadge>
           ))}
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4">
           <div className="game-card-title-glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2">
-            <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl dark:text-[rgb(245_238_232)]">
+            <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-on-surface md:text-xl">
               {displayTitle}
             </h3>
           </div>
@@ -122,21 +122,21 @@ export function GameCard({
             <div className="flex flex-wrap gap-3 pt-1 md:gap-4 md:pt-2">
               {players && (
                 <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
-                  <span className="material-symbols-outlined text-base md:text-lg">group</span>
+                  <MaterialSymbol icon="group" className="text-base md:text-lg" />
                   <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{players}</span>
                 </div>
               )}
               {playTime && (
                 <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
-                  <span className="material-symbols-outlined text-base md:text-lg">schedule</span>
+                  <MaterialSymbol icon="schedule" className="text-base md:text-lg" />
                   <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{playTime}</span>
                 </div>
               )}
               {weight && (
                  <div className="flex items-center gap-1 text-on-surface-variant md:gap-1.5">
-                  <span className="material-symbols-outlined text-base md:text-lg">fitness_center</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{weight}/5</span>
-                </div>
+                   <MaterialSymbol icon="fitness_center" className="text-base md:text-lg" />
+                   <span className="text-[10px] font-bold uppercase tracking-wider md:text-xs">{weight}/5</span>
+                 </div>
               )}
             </div>
           ) : null}

@@ -36,10 +36,34 @@ describe("GameCard", () => {
     expect(container.querySelector(".game-card-hero-overlay")).toBeInTheDocument();
   });
 
-  it("applies an explicit high-contrast dark-mode title color", () => {
+  it("keeps the compact title typography while removing hardcoded dark-mode rgb text", () => {
     render(<GameCard title="Ark Nova" />);
     const title = screen.getByRole("heading", { name: "Ark Nova" });
-    expect(title).toHaveClass("dark:text-[rgb(245_238_232)]", "md:text-xl");
+    expect(title).not.toHaveClass("dark:text-[rgb(245_238_232)]");
+    expect(title).toHaveClass("md:text-xl");
+  });
+
+  it("uses tokenized surface classes instead of hardcoded dark-mode rgb values", () => {
+    const { container } = render(<GameCard title="Ark Nova" />);
+    const card = container.querySelector("article");
+
+    expect(card).not.toHaveClass("dark:bg-[rgb(28_27_27)]");
+  });
+
+  it("renders rating icon using filled material-symbol class instead of inline fill styles", () => {
+    render(<GameCard title="Ark Nova" rating={8.2} />);
+
+    const ratingIcon = screen.getByText("star");
+    expect(ratingIcon).toHaveClass(
+      "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]",
+    );
+    expect(ratingIcon).not.toHaveAttribute("style");
+  });
+
+  it("renders badge labels with shared status badge styling", () => {
+    render(<GameCard title="Ark Nova" badge="Saved" />);
+
+    expect(screen.getByText("Saved")).toHaveClass("inline-flex", "glass-badge");
   });
 
   it("renders a compact details block when metadata is present", () => {

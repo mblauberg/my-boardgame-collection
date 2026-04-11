@@ -82,7 +82,7 @@ describe("HorizontalShelf", () => {
 
     renderWithProviders(<HorizontalShelf title="Quick picks" entries={[gameFixture]} />);
 
-    expect(screen.getByText("In Collection")).toBeInTheDocument();
+    expect(screen.getByText("In Collection")).toHaveClass("inline-flex", "glass-badge");
     expect(screen.queryByRole("button", { name: /saved/i })).not.toBeInTheDocument();
   });
 

@@ -1,3 +1,5 @@
+import { MaterialSymbol } from "../ui/MaterialSymbol";
+
 type LibraryStateIconButtonProps = {
   label: string;
   icon: string;
@@ -36,13 +38,7 @@ export function LibraryStateIconButton({
       onClick={onClick}
       className={`inline-flex items-center justify-center rounded-full font-semibold transition-colors ${sizeClass} ${glassClass} ${hoverClass}`}
     >
-      <span
-        aria-hidden="true"
-        className="material-symbols-outlined text-[1.15rem]"
-        style={{ fontVariationSettings: isActive ? "'FILL' 1" : undefined }}
-      >
-        {icon}
-      </span>
+      <MaterialSymbol icon={icon} filled={isActive} className="text-[1.15rem]" />
       {showLabel ? <span>{label}</span> : <span className="sr-only">{label}</span>}
     </button>
   );

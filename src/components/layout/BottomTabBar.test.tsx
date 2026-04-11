@@ -16,4 +16,14 @@ describe("BottomTabBar", () => {
     expect(screen.queryByRole("link", { name: /account/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /account/i })).not.toBeInTheDocument();
   });
+
+  it("renders the active route icon with filled material symbol classes", () => {
+    renderWithProviders(<BottomTabBar />, "/saved");
+
+    const activeIcon = screen.getByText("bookmark");
+    expect(activeIcon).toHaveClass(
+      "[font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]",
+    );
+    expect(activeIcon).not.toHaveAttribute("style");
+  });
 });
