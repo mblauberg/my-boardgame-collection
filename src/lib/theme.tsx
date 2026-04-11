@@ -36,7 +36,11 @@ function getStoredTheme(): Theme {
     return "light";
   }
 
-  return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === "dark" || stored === "light") return stored;
+
+  // No stored preference — default to system dark/light mode so iOS chrome matches the site
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function ThemeProvider({ children }: PropsWithChildren) {
