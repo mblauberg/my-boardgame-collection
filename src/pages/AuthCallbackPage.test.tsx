@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 
@@ -58,6 +58,7 @@ describe("AuthCallbackPage", () => {
     mockInvoke.mockReset();
     mockSignOut.mockReset();
     mockOnAuthStateChange.mockClear();
+    window.history.replaceState({}, "", "/auth/callback");
   });
 
   it("syncs account security before redirecting to the collection after sign-in", async () => {
@@ -87,5 +88,37 @@ describe("AuthCallbackPage", () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("/?passkey_prompt=1", { replace: true });
     });
+  });
+
+  it("surfaces backend email-merge errors instead of collapsing them into an expired-link message", async () => {
+    window.history.replaceState({}, "", "/auth/callback?type=email_merge&token=raw-token");
+    mockInvoke.mockResolvedValue({
+      data: null,
+      error: {
+        message: "Edge Function returned a non-2xx status code",
+        context: new Response(
+          JSON.stringify({
+            error:
+              "Accounts merged, but sign-in could not be completed automatically. Please sign in again.",
+            merged: true,
+            requires_manual_sign_in: true,
+          }),
+          {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        ),
+      },
+    });
+
+    renderPage();
+
+    expect(
+      await screen.findByText(
+        /accounts merged, but sign-in could not be completed automatically\. please sign in again\./i,
+      ),
+    ).toBeInTheDocument();
   });
 });

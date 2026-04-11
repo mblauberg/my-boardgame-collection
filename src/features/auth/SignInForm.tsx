@@ -8,28 +8,12 @@ import {
   startAuthentication,
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/browser";
+import { readPublicEnv } from "../../lib/env";
+import { type SupportedOAuthProvider } from "../../lib/auth/oauthProviders";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { syncAccountSession } from "./accountSecurityApi";
 import { signInSchema, type SignInFormData } from "./authSchemas";
 import { useTheme } from "../../lib/theme";
-
-type SupportedOAuthProvider = "google" | "apple" | "github" | "discord";
-type OAuthProviderAvailability = "checking" | "available" | "unavailable";
-type OAuthProviderAvailabilityMap = Record<SupportedOAuthProvider, OAuthProviderAvailability>;
-
-const INITIAL_PROVIDER_AVAILABILITY: OAuthProviderAvailabilityMap = {
-  google: "checking",
-  apple: "checking",
-  github: "checking",
-  discord: "checking",
-};
-
-const SUPPORTED_OAUTH_PROVIDERS: SupportedOAuthProvider[] = [
-  "apple",
-  "google",
-  "discord",
-  "github",
-];
 
 type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON;
 
@@ -46,16 +30,18 @@ function getPostSignInPath(needsPasskeyPrompt: boolean) {
 }
 
 export function SignInForm() {
+  const { enabledOAuthProviders } = useMemo(() => readPublicEnv(), []);
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [providerAvailability, setProviderAvailability] = useState<OAuthProviderAvailabilityMap>(
-    INITIAL_PROVIDER_AVAILABILITY,
-  );
   const hasConditionalPasskeyFlowRef = useRef(false);
+  const enabledOAuthProviderSet = useMemo(
+    () => new Set<SupportedOAuthProvider>(enabledOAuthProviders),
+    [enabledOAuthProviders],
+  );
 
   const oauthProviders = useMemo(() => {
     return [
@@ -81,45 +67,6 @@ export function SignInForm() {
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
   });
-
-  useEffect(() => {
-    let isActive = true;
-
-    const checkProviderAvailability = async () => {
-      const providerChecks = await Promise.all(
-        SUPPORTED_OAUTH_PROVIDERS.map(async (provider) => {
-          // Force apple to be unavailable/coming soon for now
-          if (provider === "apple") {
-            return [provider, "unavailable"] as const;
-          }
-
-          const { error } = await supabase.auth.signInWithOAuth({
-            provider,
-            options: {
-              redirectTo: getAuthRedirectUrl(),
-              skipBrowserRedirect: true,
-            },
-          });
-
-          return [provider, error ? "unavailable" : "available"] as const;
-        }),
-      );
-
-      if (!isActive) return;
-
-      const nextAvailability = { ...INITIAL_PROVIDER_AVAILABILITY };
-      providerChecks.forEach(([provider, availability]) => {
-        nextAvailability[provider] = availability;
-      });
-      setProviderAvailability(nextAvailability);
-    };
-
-    void checkProviderAvailability();
-
-    return () => {
-      isActive = false;
-    };
-  }, [supabase]);
 
   useEffect(() => {
     let isActive = true;
@@ -223,7 +170,7 @@ export function SignInForm() {
   };
 
   const handleOAuthSignIn = async (provider: SupportedOAuthProvider, label: string) => {
-    if (providerAvailability[provider] !== "available") return;
+    if (provider === "apple" || !enabledOAuthProviderSet.has(provider)) return;
 
     if (hasConditionalPasskeyFlowRef.current) {
       WebAuthnAbortService.cancelCeremony();
@@ -297,7 +244,7 @@ export function SignInForm() {
 
       <div className="space-y-3">
         {oauthProviders.map(({ provider, label, icon }) => {
-          const isUnavailable = providerAvailability[provider] === "unavailable";
+          const isUnavailable = provider === "apple" || !enabledOAuthProviderSet.has(provider);
           return (
             <button
               key={provider}

@@ -72,14 +72,14 @@ describe("createEmailMergeVerifyHandler", () => {
     expect(await response.json()).toEqual({ token_hash: "session-token", merged: true });
     expect(listUsers).toHaveBeenNthCalledWith(1, { page: 1, perPage: 1000 });
     expect(listUsers).toHaveBeenNthCalledWith(2, { page: 2, perPage: 1000 });
-    expect(generateMagicLink).toHaveBeenCalledWith("merged@example.com");
     expect(mergeAccountData).toHaveBeenCalledWith("account-1", "account-2");
     expect(movePasskeys).toHaveBeenCalledWith("account-1", "account-2");
     expect(moveAccountIdentities).toHaveBeenCalledWith("account-1", "account-2");
     expect(deleteAuthUser).toHaveBeenCalledWith("source-user");
     expect(markMergeTokenUsed).toHaveBeenCalledWith("merge-token-row");
-    expect(generateMagicLink.mock.invocationCallOrder[0]).toBeLessThan(mergeAccountData.mock.invocationCallOrder[0]);
+    expect(generateMagicLink).toHaveBeenCalledWith("merged@example.com");
     expect(mergeAccountData.mock.invocationCallOrder[0]).toBeLessThan(markMergeTokenUsed.mock.invocationCallOrder[0]);
+    expect(markMergeTokenUsed.mock.invocationCallOrder[0]).toBeLessThan(generateMagicLink.mock.invocationCallOrder[0]);
   });
 
   it("keeps the token reusable when merge work fails before completion", async () => {
@@ -135,5 +135,125 @@ describe("createEmailMergeVerifyHandler", () => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: "Failed to merge account" });
     expect(markMergeTokenUsed).not.toHaveBeenCalled();
+  });
+
+  it("returns a manual sign-in error after the merge completes but session generation fails", async () => {
+    vi.stubGlobal("Deno", {
+      env: {
+        get(name: string) {
+          if (name === "SITE_URL") return "https://app.example.com";
+          return undefined;
+        },
+      },
+    });
+
+    const markMergeTokenUsed = vi.fn().mockResolvedValue(undefined);
+    const mergeAccountData = vi.fn().mockResolvedValue(undefined);
+    const movePasskeys = vi.fn().mockResolvedValue(undefined);
+    const moveAccountIdentities = vi.fn().mockResolvedValue(undefined);
+
+    const handler = createEmailMergeVerifyHandler({
+      hashToken: vi.fn().mockResolvedValue("hashed-token"),
+      getMergeToken: vi.fn().mockResolvedValue({
+        id: "merge-token-row",
+        fromAccountId: "account-1",
+        toEmail: "merged@example.com",
+      }),
+      markMergeTokenUsed,
+      getPrimaryAuthUserIdForAccount: vi
+        .fn()
+        .mockResolvedValueOnce("source-user")
+        .mockResolvedValueOnce("target-user"),
+      listUsers: vi.fn().mockResolvedValue({
+        users: [{ id: "target-user", email: "merged@example.com" }],
+        nextPage: null,
+      }),
+      updateUserEmail: vi.fn(),
+      syncAccountEmail: vi.fn(),
+      resolveAccountIdForAuthUser: vi.fn().mockResolvedValue("account-2"),
+      mergeAccountData,
+      movePasskeys,
+      moveAccountIdentities,
+      deleteAuthUser: vi.fn(),
+      generateMagicLink: vi.fn().mockRejectedValue(new Error("session unavailable")),
+      now: () => "2026-04-11T00:00:00.000Z",
+    });
+
+    const response = await handler(
+      new Request("https://project.supabase.co/functions/v1/email-merge-verify", {
+        method: "POST",
+        headers: {
+          Origin: "https://app.example.com",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: "raw-token" }),
+      }),
+    );
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({
+      error: "Accounts merged, but sign-in could not be completed automatically. Please sign in again.",
+      merged: true,
+      requires_manual_sign_in: true,
+    });
+    expect(mergeAccountData).toHaveBeenCalledWith("account-1", "account-2");
+    expect(movePasskeys).toHaveBeenCalledWith("account-1", "account-2");
+    expect(moveAccountIdentities).toHaveBeenCalledWith("account-1", "account-2");
+    expect(markMergeTokenUsed).toHaveBeenCalledWith("merge-token-row");
+  });
+
+  it("does not fail the merge when source auth user cleanup fails after completion", async () => {
+    vi.stubGlobal("Deno", {
+      env: {
+        get(name: string) {
+          if (name === "SITE_URL") return "https://app.example.com";
+          return undefined;
+        },
+      },
+    });
+
+    const deleteAuthUser = vi.fn().mockRejectedValue(new Error("delete failed"));
+
+    const handler = createEmailMergeVerifyHandler({
+      hashToken: vi.fn().mockResolvedValue("hashed-token"),
+      getMergeToken: vi.fn().mockResolvedValue({
+        id: "merge-token-row",
+        fromAccountId: "account-1",
+        toEmail: "merged@example.com",
+      }),
+      markMergeTokenUsed: vi.fn().mockResolvedValue(undefined),
+      getPrimaryAuthUserIdForAccount: vi
+        .fn()
+        .mockResolvedValueOnce("source-user")
+        .mockResolvedValueOnce("target-user"),
+      listUsers: vi.fn().mockResolvedValue({
+        users: [{ id: "target-user", email: "merged@example.com" }],
+        nextPage: null,
+      }),
+      updateUserEmail: vi.fn(),
+      syncAccountEmail: vi.fn(),
+      resolveAccountIdForAuthUser: vi.fn().mockResolvedValue("account-2"),
+      mergeAccountData: vi.fn().mockResolvedValue(undefined),
+      movePasskeys: vi.fn().mockResolvedValue(undefined),
+      moveAccountIdentities: vi.fn().mockResolvedValue(undefined),
+      deleteAuthUser,
+      generateMagicLink: vi.fn().mockResolvedValue({ tokenHash: "session-token" }),
+      now: () => "2026-04-11T00:00:00.000Z",
+    });
+
+    const response = await handler(
+      new Request("https://project.supabase.co/functions/v1/email-merge-verify", {
+        method: "POST",
+        headers: {
+          Origin: "https://app.example.com",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: "raw-token" }),
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ token_hash: "session-token", merged: true });
+    expect(deleteAuthUser).toHaveBeenCalledWith("source-user");
   });
 });

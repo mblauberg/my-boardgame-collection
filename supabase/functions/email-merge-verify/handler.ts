@@ -36,6 +36,18 @@ function json(req: Request, body: unknown, init?: ResponseInit): Response {
   });
 }
 
+function manualSignInError(req: Request, message: string, merged: boolean): Response {
+  return json(
+    req,
+    {
+      error: message,
+      merged,
+      requires_manual_sign_in: true,
+    },
+    { status: 500 },
+  );
+}
+
 async function findTargetAuthUserByEmail(
   email: string,
   excludingUserId: string,
@@ -109,17 +121,21 @@ export function createEmailMergeVerifyHandler(deps: EmailMergeVerifyDeps) {
 
       let link;
       try {
-        link = await deps.generateMagicLink(toEmail);
-      } catch (error) {
-        console.error("Failed to generate merge session", error);
-        return json(req, { error: "Session generation failed" }, { status: 500 });
-      }
-
-      try {
         await deps.markMergeTokenUsed(mergeToken.id);
       } catch (error) {
         console.error("Failed to finalize email merge", error);
         return json(req, { error: "Failed to finalize merge" }, { status: 500 });
+      }
+
+      try {
+        link = await deps.generateMagicLink(toEmail);
+      } catch (error) {
+        console.error("Failed to generate merge session", error);
+        return manualSignInError(
+          req,
+          "Email updated, but sign-in could not be completed automatically. Please sign in again.",
+          false,
+        );
       }
 
       return json(req, { token_hash: link.tokenHash, merged: false });
@@ -133,23 +149,10 @@ export function createEmailMergeVerifyHandler(deps: EmailMergeVerifyDeps) {
       return json(req, { error: "Failed to resolve target account" }, { status: 500 });
     }
 
-    let link;
-    try {
-      link = await deps.generateMagicLink(targetUser.email ?? toEmail);
-    } catch (error) {
-      console.error("Failed to generate merge session", error);
-      return json(req, { error: "Session generation failed" }, { status: 500 });
-    }
-
     try {
       await deps.mergeAccountData(fromAccountId, targetAccountId);
       await deps.movePasskeys(fromAccountId, targetAccountId);
       await deps.moveAccountIdentities(fromAccountId, targetAccountId);
-
-      const targetPrimaryAuthUserId = await deps.getPrimaryAuthUserIdForAccount(targetAccountId);
-      if (fromPrimaryAuthUserId !== targetPrimaryAuthUserId) {
-        await deps.deleteAuthUser(fromPrimaryAuthUserId);
-      }
     } catch (error) {
       console.error("Failed to merge account data", error);
       return json(req, { error: "Failed to merge account" }, { status: 500 });
@@ -160,6 +163,27 @@ export function createEmailMergeVerifyHandler(deps: EmailMergeVerifyDeps) {
     } catch (error) {
       console.error("Failed to finalize email merge", error);
       return json(req, { error: "Failed to finalize merge" }, { status: 500 });
+    }
+
+    let link;
+    try {
+      link = await deps.generateMagicLink(targetUser.email ?? toEmail);
+    } catch (error) {
+      console.error("Failed to generate merge session", error);
+      return manualSignInError(
+        req,
+        "Accounts merged, but sign-in could not be completed automatically. Please sign in again.",
+        true,
+      );
+    }
+
+    try {
+      const targetPrimaryAuthUserId = await deps.getPrimaryAuthUserIdForAccount(targetAccountId);
+      if (fromPrimaryAuthUserId !== targetPrimaryAuthUserId) {
+        await deps.deleteAuthUser(fromPrimaryAuthUserId);
+      }
+    } catch (error) {
+      console.error("Failed to clean up merged source auth user", error);
     }
 
     return json(req, { token_hash: link.tokenHash, merged: true });

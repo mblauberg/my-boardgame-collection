@@ -7,10 +7,6 @@ import { renderWithProviders } from "../test/testUtils";
 const mockUseProfile = vi.fn();
 const mockUseAccountSecuritySummary = vi.fn();
 
-vi.mock("../features/library/useCollectionQuery", () => ({
-  useCollectionQuery: vi.fn(),
-}));
-
 vi.mock("../features/library/useLibraryFilters", () => ({
   useLibraryFilters: () => ({
     filters: {},
@@ -41,7 +37,11 @@ vi.mock("../features/auth/PasskeyRegistrationPrompt", () => ({
   PasskeyRegistrationPrompt: () => <div>Passkey prompt</div>,
 }));
 
-import { useCollectionQuery } from "../features/library/useCollectionQuery";
+vi.mock("../features/library/useOwnedLibrarySurfaceQuery", () => ({
+  useOwnedLibrarySurfaceQuery: vi.fn(),
+}));
+
+import { useOwnedLibrarySurfaceQuery } from "../features/library/useOwnedLibrarySurfaceQuery";
 
 vi.mock("../features/auth/useProfile", () => ({
   useProfile: () => mockUseProfile(),
@@ -66,6 +66,7 @@ describe("CollectionPage", () => {
   beforeEach(() => {
     mockUseProfile.mockReset();
     mockUseAccountSecuritySummary.mockReset();
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReset();
     mockUseProfile.mockReturnValue({
       profile: null,
       isOwner: false,
@@ -85,7 +86,7 @@ describe("CollectionPage", () => {
   });
 
   it("shows setup guidance when Supabase is missing the public tables", () => {
-    vi.mocked(useCollectionQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: {
@@ -108,7 +109,7 @@ describe("CollectionPage", () => {
   it("routes guest sign-in prompts through sign-in overlay state", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(useCollectionQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -138,7 +139,7 @@ describe("CollectionPage", () => {
       error: null,
     });
 
-    vi.mocked(useCollectionQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -162,7 +163,7 @@ describe("CollectionPage", () => {
   it("lets guests open the add-game wizard without being redirected to sign in", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(useCollectionQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -186,7 +187,7 @@ describe("CollectionPage", () => {
       error: null,
     });
 
-    vi.mocked(useCollectionQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,

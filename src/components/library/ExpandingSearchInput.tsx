@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-type ExpandingSearchInputProps = {
+export type ExpandingSearchInputProps = {
   id: string;
   value: string;
   onChange: (value: string) => void;

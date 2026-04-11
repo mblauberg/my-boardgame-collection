@@ -629,7 +629,54 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      games_catalog: {
+        Row: {
+          abstracts_rank: number | null
+          bgg_bayesaverage: number | null
+          bgg_data_source: string | null
+          bgg_data_updated_at: string | null
+          bgg_id: number | null
+          bgg_rank: number | null
+          bgg_rating: number | null
+          bgg_snapshot_payload: Json | null
+          bgg_url: string | null
+          bgg_usersrated: number | null
+          bgg_weight: number | null
+          buy_priority: number | null
+          category: string | null
+          cgs_rank: number | null
+          childrensgames_rank: number | null
+          created_at: string
+          familygames_rank: number | null
+          gap_reason: string | null
+          hidden: boolean
+          id: string
+          image_url: string | null
+          is_expansion: boolean | null
+          is_expansion_included: boolean
+          name: string
+          notes: string | null
+          partygames_rank: number | null
+          play_time_max: number | null
+          play_time_min: number | null
+          players_max: number | null
+          players_min: number | null
+          published_year: number | null
+          recommendation_colour: string | null
+          recommendation_verdict: string | null
+          search_vector: unknown
+          slug: string
+          status: string
+          strategygames_rank: number | null
+          summary: string | null
+          tag_slugs: string[] | null
+          tags: Json | null
+          thematic_rank: number | null
+          updated_at: string
+          wargames_rank: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       current_account_id: { Args: never; Returns: string }

@@ -44,10 +44,6 @@ vi.mock("../../features/library/useLibraryQuery", () => ({
   useLibraryQuery: () => ({ data: [], isLoading: false }),
 }));
 
-vi.mock("../../features/library/useCollectionQuery", () => ({
-  useCollectionQuery: () => ({ data: [], isLoading: false }),
-}));
-
 vi.mock("../../pages/CollectionPage", () => ({
   CollectionPage: () => <h1>Your Collection</h1>,
 }));

@@ -1,5 +1,6 @@
 import { PageHeader } from "../components/layout/PageHeader";
 import { ScenarioAccordion } from "../components/scenarios/ScenarioAccordion";
+import { ErrorStatePanel } from "../components/ui/ErrorStatePanel";
 import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
 import { useGamesQuery } from "../features/games/useGamesQuery";
 import { buildScenarioPresetResults } from "../features/scenarios/scenarioMappers";
@@ -28,10 +29,10 @@ export function ScenariosPage() {
 
   if (error) {
     return (
-      <div className="rounded-3xl border border-error/20 bg-error/10 p-8 text-center text-on-surface">
-        <p className="text-lg font-semibold">Scenarios unavailable</p>
-        <p className="mt-2 text-sm leading-6">{getSupabaseQueryErrorMessage(error, "scenarios page")}</p>
-      </div>
+      <ErrorStatePanel
+        title="Scenarios unavailable"
+        description={getSupabaseQueryErrorMessage(error, "scenarios page")}
+      />
     );
   }
 

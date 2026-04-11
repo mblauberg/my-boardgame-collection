@@ -59,6 +59,10 @@ function renderSignInForm() {
 }
 
 describe("SignInForm", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
     mockUseProfile.mockReset();
     mockSignIn.mockClear();
@@ -69,12 +73,9 @@ describe("SignInForm", () => {
     mockInvoke.mockClear();
     mockCancelCeremony.mockClear();
     vi.mocked(startAuthentication).mockReset();
+    vi.stubEnv("VITE_AUTH_ENABLED_OAUTH_PROVIDERS", "google,discord,github");
 
-    mockSignInWithOAuth.mockImplementation(async ({ options }: { options?: { skipBrowserRedirect?: boolean } }) => {
-      if (options?.skipBrowserRedirect) {
-        return { data: { url: "https://oauth.example.com/preflight" }, error: null };
-      }
-
+    mockSignInWithOAuth.mockImplementation(async () => {
       return { data: { url: "https://oauth.example.com/auth" }, error: null };
     });
 
@@ -227,29 +228,27 @@ describe("SignInForm", () => {
     expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue with apple/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue with github/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue with google/i })).toBeEnabled();
+  });
+
+  it("does not probe OAuth providers on mount", async () => {
+    renderSignInForm();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /continue with google/i })).toBeEnabled();
+      expect(mockInvoke).toHaveBeenCalledWith("passkey-auth-options");
     });
+
+    expect(mockSignInWithOAuth).not.toHaveBeenCalled();
   });
 
   it("starts OAuth sign in when a provider button is clicked", async () => {
     const user = userEvent.setup();
 
     renderSignInForm();
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /continue with google/i })).toBeEnabled();
-    });
-
     await user.click(screen.getByRole("button", { name: /continue with google/i }));
 
     await waitFor(() => {
-      const calls = mockSignInWithOAuth.mock.calls.map(([arg]) => arg);
-      const interactiveGoogleCall = calls.find(
-        (call) => call.provider === "google" && !call.options?.skipBrowserRedirect,
-      );
-
-      expect(interactiveGoogleCall).toEqual(
+      expect(mockSignInWithOAuth).toHaveBeenCalledWith(
         expect.objectContaining({
           provider: "google",
           options: expect.objectContaining({
@@ -260,37 +259,18 @@ describe("SignInForm", () => {
     });
   });
 
-  it("greys out unavailable OAuth providers and keeps them unclickable", async () => {
+  it("disables OAuth providers omitted from the public auth env", async () => {
     const user = userEvent.setup();
-    mockSignInWithOAuth.mockImplementation(async ({ provider, options }) => {
-      if (options?.skipBrowserRedirect) {
-        if (provider === "apple") {
-          return {
-            data: { url: null },
-            error: { message: "Unsupported provider: missing OAuth secret" },
-          };
-        }
-
-        return { data: { url: "https://oauth.example.com/preflight" }, error: null };
-      }
-
-      return { data: { url: "https://oauth.example.com/auth" }, error: null };
-    });
+    vi.stubEnv("VITE_AUTH_ENABLED_OAUTH_PROVIDERS", "google,github");
 
     renderSignInForm();
 
-    const appleButton = screen.getByRole("button", { name: /continue with apple/i });
-    await waitFor(() => {
-      expect(appleButton).toBeDisabled();
-    });
+    const discordButton = screen.getByRole("button", { name: /continue with discord/i });
+    expect(discordButton).toBeDisabled();
 
-    await user.click(appleButton);
+    await user.click(discordButton);
 
-    const interactiveAppleCalls = mockSignInWithOAuth.mock.calls
-      .map(([arg]) => arg)
-      .filter((call) => call.provider === "apple" && !call.options?.skipBrowserRedirect);
-
-    expect(interactiveAppleCalls).toHaveLength(0);
+    expect(mockSignInWithOAuth).not.toHaveBeenCalled();
   });
 
   it("calls startAuthentication with useBrowserAutofill on mount", async () => {

@@ -1,61 +1,56 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { PageHeader } from "../components/layout/PageHeader";
+import { ExpandableSearchSection } from "../components/library/ExpandableSearchSection";
 import { ExploreShelf } from "../components/library/ExploreShelf";
 import { HorizontalShelf } from "../components/library/HorizontalShelf";
 import { DiscoverSection } from "../components/library/DiscoverSection";
 import { LibraryList } from "../components/library/LibraryList";
 import { GameCardSkeleton } from "../components/ui/GameCardSkeleton";
 import { ErrorStatePanel } from "../components/ui/ErrorStatePanel";
-import { ExpandingSearchInput } from "../components/library/ExpandingSearchInput";
 import { useExploreQuery } from "../features/library/useExploreQuery";
 import { useExploreSearch } from "../features/library/useExploreSearch";
 import { useExploreSearchContext } from "../features/library/ExploreSearchContext";
 import { useLibraryQuery } from "../features/library/useLibraryQuery";
 import { getLibraryEntryForGame } from "../features/library/libraryState";
-import { useDebounce } from "../lib/utils/useDebounce";
+import { useDebouncedTextInput } from "../lib/utils/useDebouncedTextInput";
 import { getSupabaseQueryErrorMessage } from "../lib/supabase/runtimeErrors";
 
 const HERO_SHELF_IDS = ["trending", "new-releases", "top-rated", "quick-wins"] as const;
 const DISCOVER_SECTION_IDS = ["by-player-count", "by-mechanic", "hidden-gems", "gateway-to-strategy"] as const;
 const EXPLORE_SHELF_IDS = [...HERO_SHELF_IDS, ...DISCOVER_SECTION_IDS] as const;
 
-type ExploreSearchBarProps = {
-  value: string;
-  onChange: (value: string) => void;
-};
-
-function ExploreSearchBar({ value, onChange }: ExploreSearchBarProps) {
-  return (
-    <div className="explore-search-section mb-8">
-      <ExpandingSearchInput
-        id="explore-search"
-        value={value}
-        onChange={onChange}
-        placeholder="Search all games..."
-        inputLabel="Search game catalog"
-        expandButtonLabel="Open search"
-      />
-    </div>
-  );
-}
-
 export function ExplorePage() {
   const { query, setQuery } = useExploreSearchContext();
-  const [localQuery, setLocalQuery] = useState(query);
-  const debouncedQuery = useDebounce(localQuery, 300);
+  const { value: localQuery, setValue: setLocalQuery } = useDebouncedTextInput({
+    value: query,
+    delay: 300,
+    onDebouncedChange: setQuery,
+  });
   const { data, isLoading, error } = useExploreQuery(EXPLORE_SHELF_IDS);
-  const { data: searchResults, isLoading: isSearching, error: searchError } = useExploreSearch(debouncedQuery);
+  const { data: searchResults, isLoading: isSearching, error: searchError } = useExploreSearch(query);
   const { data: libraryEntries } = useLibraryQuery();
-
-  useEffect(() => {
-    setQuery(debouncedQuery);
-  }, [debouncedQuery, setQuery]);
-
-  useEffect(() => {
-    setLocalQuery(query);
-  }, [query]);
-
-  const isSearchActive = debouncedQuery.trim().length > 0;
+  const isSearchActive = query.trim().length > 0;
+  const mappedSearchResults = useMemo(
+    () =>
+      (searchResults ?? []).map((game) => {
+        const entry = getLibraryEntryForGame(libraryEntries, game.id);
+        return {
+          id: entry?.id ?? `explore-${game.id}`,
+          accountId: entry?.accountId,
+          gameId: game.id,
+          game,
+          isSaved: entry?.isSaved ?? false,
+          isLoved: entry?.isLoved ?? false,
+          isInCollection: entry?.isInCollection ?? false,
+          sentiment: entry?.sentiment ?? null,
+          notes: entry?.notes ?? null,
+          priority: entry?.priority ?? null,
+          sharedTags: game.tags,
+          userTags: entry?.userTags ?? [],
+        };
+      }),
+    [libraryEntries, searchResults],
+  );
 
   if (isLoading) {
     return (
@@ -103,10 +98,18 @@ export function ExplorePage() {
               </>
             )
           }
-          description={`Showing results for "${debouncedQuery}"`}
+          description={`Showing results for "${query}"`}
         />
 
-        <ExploreSearchBar value={localQuery} onChange={setLocalQuery} />
+        <ExpandableSearchSection
+          id="explore-search"
+          value={localQuery}
+          onChange={setLocalQuery}
+          placeholder="Search all games..."
+          inputLabel="Search game catalog"
+          expandButtonLabel="Open search"
+          sectionClassName="explore-search-section mb-8"
+        />
 
         {isSearching ? (
           <div className="editorial-grid">
@@ -116,23 +119,7 @@ export function ExplorePage() {
           </div>
         ) : (
           <LibraryList
-            entries={(searchResults ?? []).map((game) => {
-              const entry = getLibraryEntryForGame(libraryEntries, game.id);
-              return {
-                id: entry?.id ?? `explore-${game.id}`,
-                accountId: entry?.accountId,
-                gameId: game.id,
-                game,
-                isSaved: entry?.isSaved ?? false,
-                isLoved: entry?.isLoved ?? false,
-                isInCollection: entry?.isInCollection ?? false,
-                sentiment: entry?.sentiment ?? null,
-                notes: entry?.notes ?? null,
-                priority: entry?.priority ?? null,
-                sharedTags: game.tags,
-                userTags: entry?.userTags ?? [],
-              };
-            })}
+            entries={mappedSearchResults}
             getGameLinkState={() => ({ from: "/explore" })}
           />
         )}
@@ -155,10 +142,18 @@ export function ExplorePage() {
         className="mb-3 md:mb-4"
         eyebrow="Discovery"
         title={<>Find Your Next<br className="hidden md:block" /> <span className="text-primary">Big Thing</span></>}
-        description="Curated shelves organized by mood, occasion, and player count. Discover the perfect game for any moment."
+        description="Curated shelves organised for you. Discover the perfect game for any moment."
       />
 
-      <ExploreSearchBar value={localQuery} onChange={setLocalQuery} />
+      <ExpandableSearchSection
+        id="explore-search"
+        value={localQuery}
+        onChange={setLocalQuery}
+        placeholder="Search all games..."
+        inputLabel="Search game catalog"
+        expandButtonLabel="Open search"
+        sectionClassName="explore-search-section mb-8"
+      />
 
       <div className="mb-20">
         {heroShelves.map((shelf) =>

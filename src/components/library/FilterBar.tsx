@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { AdvancedFilters } from "./AdvancedFilters";
-import { ExpandingSearchInput } from "./ExpandingSearchInput";
+import { ExpandableSearchSection } from "./ExpandableSearchSection";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
+import { useDebouncedTextInput } from "../../lib/utils/useDebouncedTextInput";
 
 type FilterBarProps = {
   filters: LibraryFilters;
@@ -35,39 +36,14 @@ export function FilterBar({
   showSearch = true,
   searchPlaceholder = "Search...",
 }: FilterBarProps) {
-  const [localSearch, setLocalSearch] = useState(filters.searchText ?? "");
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const isTypingRef = useRef(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isSearchExpanded && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isSearchExpanded]);
-
-  useEffect(() => {
-    if (localSearch) {
-      setIsSearchExpanded(true);
-    }
-  }, [localSearch]);
-
-  useEffect(() => {
-    isTypingRef.current = true;
-    const timer = setTimeout(() => {
-      onFiltersChange({ searchText: localSearch });
-      isTypingRef.current = false;
-    }, 300);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localSearch]);
-
-  useEffect(() => {
-    if (!isTypingRef.current && filters.searchText !== localSearch) {
-      setLocalSearch(filters.searchText ?? "");
-    }
-  }, [filters.searchText, localSearch]);
+  const { value: localSearch, setValue: setLocalSearch } = useDebouncedTextInput({
+    value: filters.searchText ?? "",
+    delay: 300,
+    onDebouncedChange(searchText) {
+      onFiltersChange({ searchText });
+    },
+  });
 
   const advancedFilterCount = useMemo(() => {
     let count = 0;
@@ -92,14 +68,15 @@ export function FilterBar({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         {showSearch && (
-          <ExpandingSearchInput
+          <ExpandableSearchSection
             id="library-search"
             value={localSearch}
             onChange={setLocalSearch}
             placeholder={searchPlaceholder}
             inputLabel="Search games"
             expandButtonLabel="Open search"
-            containerClassName="relative flex min-w-[240px] flex-1 items-center justify-end"
+            sectionClassName="min-w-[240px] flex-1"
+            containerClassName="relative flex items-center justify-end"
           />
         )}
 

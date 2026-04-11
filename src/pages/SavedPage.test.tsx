@@ -6,10 +6,6 @@ import { renderWithProviders } from "../test/testUtils";
 
 const mockUseProfile = vi.fn();
 
-vi.mock("../features/library/useSavedQuery", () => ({
-  useSavedQuery: vi.fn(),
-}));
-
 vi.mock("../features/library/useLibraryFilters", () => ({
   useLibraryFilters: () => ({
     filters: {},
@@ -36,7 +32,11 @@ vi.mock("../components/library/AddGameWizardOverlay", () => ({
     isOpen ? <div>{`Add game wizard (${JSON.stringify(defaultState)})`}</div> : null,
 }));
 
-import { useSavedQuery } from "../features/library/useSavedQuery";
+vi.mock("../features/library/useOwnedLibrarySurfaceQuery", () => ({
+  useOwnedLibrarySurfaceQuery: vi.fn(),
+}));
+
+import { useOwnedLibrarySurfaceQuery } from "../features/library/useOwnedLibrarySurfaceQuery";
 
 vi.mock("../features/auth/useProfile", () => ({
   useProfile: () => mockUseProfile(),
@@ -56,6 +56,7 @@ function LocationProbe() {
 describe("SavedPage", () => {
   beforeEach(() => {
     mockUseProfile.mockReset();
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReset();
     mockUseProfile.mockReturnValue({
       profile: null,
       isOwner: false,
@@ -66,7 +67,7 @@ describe("SavedPage", () => {
   });
 
   it("renders the saved heading and list", () => {
-    vi.mocked(useSavedQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -87,7 +88,7 @@ describe("SavedPage", () => {
   it("routes guest sign-in prompts through sign-in overlay state", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(useSavedQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -117,7 +118,7 @@ describe("SavedPage", () => {
       error: null,
     });
 
-    vi.mocked(useSavedQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -139,7 +140,7 @@ describe("SavedPage", () => {
   it("lets guests open the add-game wizard without being redirected to sign in", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(useSavedQuery).mockReturnValue({
+    vi.mocked(useOwnedLibrarySurfaceQuery).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,

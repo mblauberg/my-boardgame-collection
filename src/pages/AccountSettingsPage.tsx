@@ -3,6 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/layout/PageHeader";
 import { SignInMethodsSheet } from "../components/settings/SignInMethodsSheet";
 import { SignInMethodsSummaryCard } from "../components/settings/SignInMethodsSummaryCard";
+import { ErrorStatePanel } from "../components/ui/ErrorStatePanel";
+import { StateMessagePanel } from "../components/ui/StateMessagePanel";
 import { useAccountSecuritySummary } from "../features/auth/useAccountSecuritySummary";
 import { useProfile } from "../features/auth/useProfile";
 import { useUpdateProfileMutation } from "../features/profiles/useUpdateProfileMutation";
@@ -128,20 +130,21 @@ export function AccountSettingsPage() {
 
   if (error) {
     return (
-      <div className="rounded-3xl border border-error/20 bg-error/10 p-8 text-center text-on-surface">
-        <p className="text-lg font-semibold">Account settings unavailable</p>
-        <p className="mt-2 text-sm leading-6">
-          {error.message || "There was a problem loading your profile."}
-        </p>
-      </div>
+      <ErrorStatePanel
+        title="Account settings unavailable"
+        description={error.message || "There was a problem loading your profile."}
+      />
     );
   }
 
   if (!isAuthenticated || !profile) {
     return (
-      <div className="rounded-3xl border border-outline/10 bg-surface-container-lowest p-8 text-center">
-        <p className="text-lg font-semibold text-on-surface">Sign in to manage your account.</p>
-      </div>
+      <StateMessagePanel
+        tone="neutral"
+        description="Sign in to manage your account."
+        align="center"
+        className="shadow-ambient"
+      />
     );
   }
 
@@ -174,9 +177,13 @@ export function AccountSettingsPage() {
       />
 
       {wasMerged ? (
-        <div className="mb-6 rounded-[1.5rem] border border-secondary/20 bg-secondary/10 px-5 py-4 text-sm font-bold text-secondary">
-          Accounts merged successfully. You are now signed in with your combined account.
-        </div>
+        <StateMessagePanel
+          tone="success"
+          title="Accounts merged successfully."
+          description="You are now signed in with your combined account."
+          size="compact"
+          className="mb-6"
+        />
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
@@ -303,15 +310,11 @@ export function AccountSettingsPage() {
           </p>
 
           {status.message ? (
-            <div
-              className={`rounded-[1.5rem] px-4 py-3 text-sm font-medium ${
-                status.type === "error"
-                  ? "border border-error/20 bg-error/10 text-on-surface"
-                  : "border border-secondary/20 bg-secondary/10 text-secondary"
-              }`}
-            >
-              {status.message}
-            </div>
+            <StateMessagePanel
+              tone={status.type === "error" ? "error" : "success"}
+              description={status.message}
+              size="compact"
+            />
           ) : null}
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-outline/10 pt-6">

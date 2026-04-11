@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { PageHeader } from "../components/layout/PageHeader";
 import { SignInMethodsPanelContent } from "../components/settings/SignInMethodsSheet";
+import { StateMessagePanel } from "../components/ui/StateMessagePanel";
 import { useAccountSecuritySummary } from "../features/auth/useAccountSecuritySummary";
 import { useProfile } from "../features/auth/useProfile";
 
@@ -10,9 +11,12 @@ export function SignInMethodsPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-[2rem] border border-outline/10 bg-surface-container-lowest/90 p-8 text-center shadow-ambient dark:bg-surface-container-low/80">
-        <p className="text-lg font-bold text-on-surface">Sign in to view your account security.</p>
-      </div>
+      <StateMessagePanel
+        tone="neutral"
+        description="Sign in to view your account security."
+        align="center"
+        className="shadow-ambient"
+      />
     );
   }
 

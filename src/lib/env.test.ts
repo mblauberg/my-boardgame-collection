@@ -10,10 +10,12 @@ describe("readPublicEnv", () => {
       readPublicEnv({
         VITE_SUPABASE_URL: "https://example.supabase.co",
         VITE_SUPABASE_ANON_KEY: "anon-key",
+        VITE_AUTH_ENABLED_OAUTH_PROVIDERS: "google, github,discord",
       }),
     ).toEqual({
       supabaseUrl: "https://example.supabase.co",
       supabaseAnonKey: "anon-key",
+      enabledOAuthProviders: ["google", "github", "discord"],
     });
   });
 
@@ -21,6 +23,16 @@ describe("readPublicEnv", () => {
     expect(() => readPublicEnv({ VITE_SUPABASE_URL: "https://example.supabase.co" })).toThrow(
       /VITE_SUPABASE_ANON_KEY/,
     );
+  });
+
+  it("throws a useful error when an unsupported OAuth provider is configured", () => {
+    expect(() =>
+      readPublicEnv({
+        VITE_SUPABASE_URL: "https://example.supabase.co",
+        VITE_SUPABASE_ANON_KEY: "anon-key",
+        VITE_AUTH_ENABLED_OAUTH_PROVIDERS: "google,notion",
+      }),
+    ).toThrow(/VITE_AUTH_ENABLED_OAUTH_PROVIDERS/);
   });
 });
 

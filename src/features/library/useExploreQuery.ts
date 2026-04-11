@@ -58,83 +58,6 @@ export function resolveMatchingGameIdsForRule(
     .map(([gameId]) => gameId);
 }
 
-function applyRuleFilters(
-  query: ReturnType<ReturnType<typeof getSupabaseBrowserClient>["from"]>,
-  rule: Rule,
-) {
-  let next = query.eq("hidden", false);
-
-  if (rule.minYear != null) next = next.gte("published_year", rule.minYear);
-  if (rule.maxYear != null) next = next.lte("published_year", rule.maxYear);
-  if (rule.minRatingsCount != null) next = next.gte("bgg_usersrated", rule.minRatingsCount);
-  if (rule.minRating != null) next = next.gte("bgg_rating", rule.minRating);
-  if (rule.minWeight != null) next = next.gte("bgg_weight", rule.minWeight);
-  if (rule.maxWeight != null) next = next.lte("bgg_weight", rule.maxWeight);
-  if (rule.minPlayers != null) next = next.gte("players_max", rule.minPlayers);
-  if (rule.maxPlayers != null) next = next.lte("players_min", rule.maxPlayers);
-  if (rule.minTime != null) next = next.gte("play_time_max", rule.minTime);
-  if (rule.maxTime != null) next = next.lte("play_time_min", rule.maxTime);
-
-  return next;
-}
-
-function applyRuleSort(
-  query: ReturnType<ReturnType<typeof getSupabaseBrowserClient>["from"]>,
-  sortBy: Rule["sortBy"],
-) {
-  switch (sortBy) {
-    case "rank_asc":
-      return query
-        .order("bgg_rank", { ascending: true, nullsFirst: false })
-        .order("bgg_usersrated", { ascending: false })
-        .order("name", { ascending: true });
-    case "ratings_count_desc":
-      return query
-        .order("bgg_usersrated", { ascending: false })
-        .order("bgg_rating", { ascending: false, nullsFirst: false })
-        .order("bgg_rank", { ascending: true, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "year_desc":
-      return query
-        .order("published_year", { ascending: false, nullsFirst: false })
-        .order("bgg_rank", { ascending: true, nullsFirst: false })
-        .order("bgg_usersrated", { ascending: false })
-        .order("bgg_rating", { ascending: false, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "weight_asc":
-      return query
-        .order("bgg_weight", { ascending: true, nullsFirst: false })
-        .order("bgg_rating", { ascending: false, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "weight_desc":
-      return query
-        .order("bgg_weight", { ascending: false, nullsFirst: false })
-        .order("bgg_rating", { ascending: false, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "time_asc":
-      return query
-        .order("play_time_min", { ascending: true, nullsFirst: false })
-        .order("bgg_rating", { ascending: false, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "name_asc":
-      return query.order("name", { ascending: true });
-    case "rating_asc":
-      return query
-        .order("bgg_rating", { ascending: true, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "priority_asc":
-      return query
-        .order("buy_priority", { ascending: true, nullsFirst: false })
-        .order("name", { ascending: true });
-    case "rating_desc":
-    default:
-      return query
-        .order("bgg_rating", { ascending: false, nullsFirst: false })
-        .order("bgg_usersrated", { ascending: false })
-        .order("name", { ascending: true });
-  }
-}
-
 async function fetchTagSlugsByGameId(rules: Rule[]) {
   const tagSlugs = [...new Set(rules.flatMap(getRuleTagSlugs))];
   if (tagSlugs.length === 0) return null;
@@ -176,14 +99,84 @@ async function fetchRowsForRule(rule: Rule, tagSlugsByGameId: TagSlugsByGameId |
   if (matchingGameIds && matchingGameIds.length === 0) return [];
 
   const supabase = getSupabaseBrowserClient();
-  let query = supabase.from("games").select("*");
-  query = applyRuleFilters(query, rule);
+  let query = supabase.from("games").select("*").eq("hidden", false);
+
+  if (rule.minYear != null) query = query.gte("published_year", rule.minYear);
+  if (rule.maxYear != null) query = query.lte("published_year", rule.maxYear);
+  if (rule.minRatingsCount != null) query = query.gte("bgg_usersrated", rule.minRatingsCount);
+  if (rule.minRating != null) query = query.gte("bgg_rating", rule.minRating);
+  if (rule.minWeight != null) query = query.gte("bgg_weight", rule.minWeight);
+  if (rule.maxWeight != null) query = query.lte("bgg_weight", rule.maxWeight);
+  if (rule.minPlayers != null) query = query.gte("players_max", rule.minPlayers);
+  if (rule.maxPlayers != null) query = query.lte("players_min", rule.maxPlayers);
+  if (rule.minTime != null) query = query.gte("play_time_max", rule.minTime);
+  if (rule.maxTime != null) query = query.lte("play_time_min", rule.maxTime);
 
   if (matchingGameIds) {
     query = query.in("id", matchingGameIds);
   }
 
-  query = applyRuleSort(query, rule.sortBy);
+  switch (rule.sortBy) {
+    case "rank_asc":
+      query = query
+        .order("bgg_rank", { ascending: true, nullsFirst: false })
+        .order("bgg_usersrated", { ascending: false })
+        .order("name", { ascending: true });
+      break;
+    case "ratings_count_desc":
+      query = query
+        .order("bgg_usersrated", { ascending: false })
+        .order("bgg_rating", { ascending: false, nullsFirst: false })
+        .order("bgg_rank", { ascending: true, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "year_desc":
+      query = query
+        .order("published_year", { ascending: false, nullsFirst: false })
+        .order("bgg_rank", { ascending: true, nullsFirst: false })
+        .order("bgg_usersrated", { ascending: false })
+        .order("bgg_rating", { ascending: false, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "weight_asc":
+      query = query
+        .order("bgg_weight", { ascending: true, nullsFirst: false })
+        .order("bgg_rating", { ascending: false, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "weight_desc":
+      query = query
+        .order("bgg_weight", { ascending: false, nullsFirst: false })
+        .order("bgg_rating", { ascending: false, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "time_asc":
+      query = query
+        .order("play_time_min", { ascending: true, nullsFirst: false })
+        .order("bgg_rating", { ascending: false, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "name_asc":
+      query = query.order("name", { ascending: true });
+      break;
+    case "rating_asc":
+      query = query
+        .order("bgg_rating", { ascending: true, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "priority_asc":
+      query = query
+        .order("buy_priority", { ascending: true, nullsFirst: false })
+        .order("name", { ascending: true });
+      break;
+    case "rating_desc":
+    default:
+      query = query
+        .order("bgg_rating", { ascending: false, nullsFirst: false })
+        .order("bgg_usersrated", { ascending: false })
+        .order("name", { ascending: true });
+      break;
+  }
 
   if (rule.limit != null) {
     query = query.limit(rule.limit);

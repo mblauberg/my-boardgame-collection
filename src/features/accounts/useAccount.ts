@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { shouldRetrySupabaseQuery } from "../../lib/supabase/runtimeErrors";
+import { syncAccountSession } from "../auth/accountSecurityApi";
 import { useSession } from "../auth/useSession";
 import { accountKeys } from "./accountKeys";
 import type { AccountContext, AccountState } from "./account.types";
@@ -17,6 +18,14 @@ function mapCurrentAccountContext(row: CurrentAccountContextRow): AccountContext
   };
 }
 
+async function fetchCurrentAccountContext(
+  supabase: ReturnType<typeof getSupabaseBrowserClient>,
+) {
+  const { data, error } = await supabase.rpc("get_current_account_context");
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+
 export function useAccount(): AccountState {
   const { user, isAuthenticated, isLoading: sessionLoading } = useSession();
 
@@ -31,13 +40,16 @@ export function useAccount(): AccountState {
       if (!user?.id) return null;
 
       const supabase = getSupabaseBrowserClient();
-      const { data, error } = await supabase.rpc("get_current_account_context");
+      const firstRow = await fetchCurrentAccountContext(supabase);
+      if (firstRow) {
+        return mapCurrentAccountContext(firstRow);
+      }
 
-      if (error) throw error;
-      const row = data?.[0];
-      if (!row) return null;
+      await syncAccountSession();
+      const retryRow = await fetchCurrentAccountContext(supabase);
+      if (!retryRow) return null;
 
-      return mapCurrentAccountContext(row);
+      return mapCurrentAccountContext(retryRow);
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5,

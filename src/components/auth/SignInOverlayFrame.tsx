@@ -34,9 +34,7 @@ export function SignInOverlayFrame({
             </span>
             <div className="space-y-2">
               <h1 className="text-3xl font-black tracking-tight text-on-surface sm:text-4xl">
-                Sign in,
-                <br />
-                then get back to your shelf.
+                Sign in
               </h1>
               <p className="max-w-md text-sm leading-6 text-on-surface-variant sm:text-[0.95rem]">
                 Use email, OAuth, or a passkey to sign in quickly. You can manage sign-in methods in

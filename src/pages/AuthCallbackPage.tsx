@@ -1,10 +1,44 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { StateMessagePanel } from "../components/ui/StateMessagePanel";
 import { syncAccountSession } from "../features/auth/accountSecurityApi";
 import { getSupabaseBrowserClient } from "../lib/supabase/client";
 
 function getPostSignInPath(needsPasskeyPrompt: boolean) {
   return needsPasskeyPrompt ? "/?passkey_prompt=1" : "/";
+}
+
+async function readFunctionErrorMessage(error: unknown): Promise<string | null> {
+  const maybeContext =
+    typeof error === "object" && error !== null && "context" in error
+      ? (error as { context?: unknown }).context
+      : null;
+
+  if (maybeContext instanceof Response) {
+    try {
+      const payload = (await maybeContext.clone().json()) as { error?: unknown };
+      if (typeof payload.error === "string" && payload.error.trim().length > 0) {
+        return payload.error;
+      }
+    } catch (_error) {
+      // Ignore non-JSON error bodies and fall back below.
+    }
+
+    try {
+      const text = await maybeContext.clone().text();
+      if (text.trim().length > 0) {
+        return text;
+      }
+    } catch (_error) {
+      // Ignore unreadable error bodies and fall back below.
+    }
+  }
+
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return null;
 }
 
 export function AuthCallbackPage() {
@@ -42,18 +76,22 @@ export function AuthCallbackPage() {
     };
 
     const completeSignIn = async () => {
-
       if (isEmailMergeFlow && token) {
         const { data: mergeData, error: mergeError } = await supabase.functions.invoke<{
           token_hash?: string;
           merged?: boolean;
+          error?: string;
         }>("email-merge-verify", {
           body: { token },
         });
 
         if (!isActive) return;
         if (mergeError || !mergeData?.token_hash) {
-          setErrorMessage("The confirmation link has expired or has already been used.");
+          const mergeErrorMessage =
+            (mergeError ? await readFunctionErrorMessage(mergeError) : null) ??
+            mergeData?.error ??
+            "The confirmation link has expired or has already been used.";
+          setErrorMessage(mergeErrorMessage);
           return;
         }
 
@@ -129,15 +167,17 @@ export function AuthCallbackPage() {
         </p>
 
         {errorMessage ? (
-          <div className="mt-4 rounded-2xl border border-error/20 bg-error/10 p-4">
-            <p className="text-sm text-on-surface">{errorMessage}</p>
-            <Link
-              to="/signin"
-              className="mt-3 inline-flex text-sm font-semibold text-primary underline"
-            >
-              Return to sign in
-            </Link>
-          </div>
+          <StateMessagePanel
+            tone="error"
+            description={errorMessage}
+            size="compact"
+            className="mt-4"
+            actions={
+              <Link to="/signin" className="inline-flex text-sm font-semibold text-primary underline">
+                Return to sign in
+              </Link>
+            }
+          />
         ) : (
           <p className="mt-4 text-sm text-on-surface-variant">
             If nothing changes, wait a few seconds and try your preferred sign-in option again.
