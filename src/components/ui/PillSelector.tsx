@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useSlidingIndicator } from "../../hooks/useSlidingIndicator";
 
 export type PillOption<T> = {
   label: string;
@@ -21,35 +21,11 @@ export function PillSelector<T>({
   className = "",
   indicatorClassName = "bg-primary",
 }: PillSelectorProps<T>) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-  
-  const updateIndicator = () => {
-    if (!containerRef.current) return;
-    
-    const activeIndex = options.findIndex((opt) => opt.value === activeValue);
-    if (activeIndex === -1) {
-      setIndicatorStyle({ left: 0, width: 0 });
-      return;
-    }
-
-    const buttons = containerRef.current.querySelectorAll("button");
-    const activeButton = buttons[activeIndex];
-    
-    if (activeButton) {
-      setIndicatorStyle({
-        left: activeButton.offsetLeft,
-        width: activeButton.offsetWidth,
-      });
-    }
-  };
-
-  useEffect(() => {
-    updateIndicator();
-    // Re-run on resize to ensure indicator stays in place
-    window.addEventListener("resize", updateIndicator);
-    return () => window.removeEventListener("resize", updateIndicator);
-  }, [activeValue, options]);
+  const activeIndex = options.findIndex((opt) => opt.value === activeValue);
+  const { containerRef, indicatorStyle } = useSlidingIndicator({
+    activeIndex,
+    selector: "button",
+  });
 
   return (
     <div
@@ -58,6 +34,7 @@ export function PillSelector<T>({
     >
       {/* Animated Indicator */}
       <div
+        data-testid="pill-selector-indicator"
         className={`absolute top-1 bottom-1 rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] glass-action-button-active ${indicatorClassName}`}
         style={{
           left: `${indicatorStyle.left}px`,

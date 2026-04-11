@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { useAccount } from "../../features/accounts/useAccount";
 import { useProfile } from "../../features/auth/useProfile";
@@ -21,6 +22,8 @@ import type {
   AddGameWizardDefaultState,
   AddGameWizardSelectedGame,
 } from "./addGameWizard.types";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type AddGameWizardOverlayProps = {
   isOpen: boolean;
@@ -163,6 +166,7 @@ export function AddGameWizardOverlay({
     getInitialState(defaultListType, defaultState),
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const search = useBggSearchQuery(query);
   const results = Array.isArray(search.data?.results)
@@ -290,12 +294,35 @@ export function AddGameWizardOverlay({
     (step === 3 && (!hasAnyLibraryState(collectionInfo) || isPending));
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-on-surface/20 px-4 py-6 backdrop-blur-sm">
-      <div
+    <motion.div
+      data-testid="add-game-wizard-backdrop"
+      data-motion="wizard-backdrop"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-on-surface/20 px-4 py-6 backdrop-blur-sm"
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={prefersReducedMotion ? undefined : { opacity: 0 }}
+      transition={{
+        duration: motionTokens.duration.base,
+        ease: motionTokens.ease.standard,
+      }}
+    >
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-label="Add new game"
+        data-motion="wizard-panel"
         className="glass-surface-panel flex max-h-[min(46rem,90vh)] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] shadow-[0_32px_80px_rgba(46,47,45,0.18)] lg:flex-row"
+        initial={
+          prefersReducedMotion ? false : { opacity: 0, y: 24, scale: 0.985 }
+        }
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={
+          prefersReducedMotion ? undefined : { opacity: 0, y: 16, scale: 0.99 }
+        }
+        transition={{
+          duration: motionTokens.duration.slow,
+          ease: motionTokens.ease.emphasized,
+        }}
       >
         <aside className="border-b border-outline/10 bg-surface-container-low/70 px-6 py-8 lg:w-64 lg:border-b-0 lg:border-r">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
@@ -310,24 +337,37 @@ export function AddGameWizardOverlay({
               const complete = stepNumber < step;
 
               return (
-                <li key={label} className="flex items-center gap-3">
-                  <span
+                <motion.li key={label} className="flex items-center gap-3" layout>
+                  <motion.span
                     className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                       active || complete
                         ? "bg-primary text-on-primary"
                         : "bg-surface-container-high text-on-surface-variant"
                     }`}
+                    animate={
+                      prefersReducedMotion
+                        ? undefined
+                        : active || complete
+                          ? { scale: 1.04 }
+                          : { scale: 1 }
+                    }
+                    transition={motionTokens.spring.soft}
                   >
                     {stepNumber}
-                  </span>
-                  <span
+                  </motion.span>
+                  <motion.span
                     className={`text-sm ${
                       active ? "font-bold text-on-surface" : "text-on-surface-variant"
                     }`}
+                    animate={{ opacity: active || complete ? 1 : 0.72 }}
+                    transition={{
+                      duration: motionTokens.duration.fast,
+                      ease: motionTokens.ease.standard,
+                    }}
                   >
                     {label}
-                  </span>
-                </li>
+                  </motion.span>
+                </motion.li>
               );
             })}
           </ol>
@@ -345,37 +385,57 @@ export function AddGameWizardOverlay({
             </button>
           </div>
 
-          {step === 1 ? (
-            <AddGameSearchStep
-              query={query}
-              onQueryChange={handleQueryChange}
-              results={results}
-              source={search.data?.source ?? null}
-              selectedGameId={selectedGame?.id ?? null}
-              isLoading={search.isLoading}
-              errorMessage={search.error instanceof Error ? search.error.message : null}
-              onSelect={(game) => setSelectedGame(game)}
-            />
-          ) : null}
-
-          {step === 2 && selectedGame ? (
-            <AddGameDetailsStep
-              game={selectedGame}
-              canUploadImageFiles={canUploadImageFiles}
-              imageUploadHelpText={imageUploadHelpText}
-              onChange={(updates) =>
-                setSelectedGame((prev) => (prev ? { ...prev, ...updates } : null))
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={`wizard-step-${step}`}
+              data-testid="add-game-wizard-step"
+              data-motion="wizard-step"
+              className="flex-1"
+              initial={
+                prefersReducedMotion ? false : { opacity: 0, x: step === 1 ? 0 : 24 }
               }
-            />
-          ) : null}
+              animate={{ opacity: 1, x: 0 }}
+              exit={
+                prefersReducedMotion ? undefined : { opacity: 0, x: -18 }
+              }
+              transition={{
+                duration: motionTokens.duration.base,
+                ease: motionTokens.ease.standard,
+              }}
+            >
+              {step === 1 ? (
+                <AddGameSearchStep
+                  query={query}
+                  onQueryChange={handleQueryChange}
+                  results={results}
+                  source={search.data?.source ?? null}
+                  selectedGameId={selectedGame?.id ?? null}
+                  isLoading={search.isLoading}
+                  errorMessage={search.error instanceof Error ? search.error.message : null}
+                  onSelect={(game) => setSelectedGame(game)}
+                />
+              ) : null}
 
-          {step === 3 ? (
-            <AddGameCollectionInfoStep
-              value={collectionInfo}
-              onChange={setCollectionInfo}
-              submitError={submitError}
-            />
-          ) : null}
+              {step === 2 && selectedGame ? (
+                <AddGameDetailsStep
+                  game={selectedGame}
+                  canUploadImageFiles={canUploadImageFiles}
+                  imageUploadHelpText={imageUploadHelpText}
+                  onChange={(updates) =>
+                    setSelectedGame((prev) => (prev ? { ...prev, ...updates } : null))
+                  }
+                />
+              ) : null}
+
+              {step === 3 ? (
+                <AddGameCollectionInfoStep
+                  value={collectionInfo}
+                  onChange={setCollectionInfo}
+                  submitError={submitError}
+                />
+              ) : null}
+            </motion.div>
+          </AnimatePresence>
 
           <div
             className={`mt-8 flex items-center justify-between gap-3 border-t border-outline/10 pt-6 pb-8 ${
@@ -413,7 +473,7 @@ export function AddGameWizardOverlay({
             )}
           </div>
         </section>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

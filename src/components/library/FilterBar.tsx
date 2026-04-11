@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { AdvancedFilters } from "./AdvancedFilters";
 import { ExpandableSearchSection } from "./ExpandableSearchSection";
 import { QuickFilterPresets } from "./QuickFilterPresets";
@@ -6,6 +7,8 @@ import { PillSelector } from "../ui/PillSelector";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
 import type { SortDirection, SortOption } from "../../features/shared/filters";
 import { useDebouncedTextInput } from "../../lib/utils/useDebouncedTextInput";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type FilterBarProps = {
   filters: LibraryFilters;
@@ -39,6 +42,7 @@ export function FilterBar({
   searchPlaceholder = "Search...",
 }: FilterBarProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { value: localSearch, setValue: setLocalSearch } = useDebouncedTextInput({
     value: filters.searchText ?? "",
     delay: 300,
@@ -73,8 +77,8 @@ export function FilterBar({
   ]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <motion.div className="space-y-4" layout>
+      <motion.div className="flex flex-wrap items-center gap-2" layout>
         {showSearch && (
           <ExpandableSearchSection
             id="library-search"
@@ -98,22 +102,41 @@ export function FilterBar({
             tune
           </span>
           {advancedFilterCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg">
+            <motion.span
+              initial={prefersReducedMotion ? false : { scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={motionTokens.spring.soft}
+              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-lg"
+            >
               {advancedFilterCount}
-            </span>
+            </motion.span>
           )}
         </button>
-      </div>
+      </motion.div>
       {presets.length > 0 ? (
         <QuickFilterPresets presets={presets} onSelect={onFiltersChange} />
       ) : null}
-      <div
+      <motion.div
         data-testid="advanced-filters-container"
         className={`grid overflow-x-clip transition-[grid-template-rows,opacity,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-top-right ${
-          isAdvancedOpen 
-            ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0" 
+          isAdvancedOpen
+            ? "grid-rows-[1fr] opacity-100 scale-100 translate-y-0"
             : "grid-rows-[0fr] opacity-0 scale-95 -translate-y-4 pointer-events-none"
         }`}
+        initial={false}
+        animate={
+          prefersReducedMotion
+            ? { opacity: isAdvancedOpen ? 1 : 0 }
+            : {
+                opacity: isAdvancedOpen ? 1 : 0,
+                y: isAdvancedOpen ? 0 : -10,
+                scale: isAdvancedOpen ? 1 : 0.98,
+              }
+        }
+        transition={{
+          duration: motionTokens.duration.slow,
+          ease: motionTokens.ease.emphasized,
+        }}
       >
         <div className="overflow-hidden px-8 py-10 -mx-8 -my-10">
           <div className="glass-surface-panel mt-6 space-y-6 rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
@@ -126,7 +149,12 @@ export function FilterBar({
                   className="flex-1 md:flex-none"
                   options={SORT_OPTIONS.map((opt) => ({
                     ...opt,
-                    icon: opt.value === sortBy ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward") : undefined,
+                    icon:
+                      opt.value === sortBy
+                        ? sortDirection === "asc"
+                          ? "arrow_upward"
+                          : "arrow_downward"
+                        : undefined,
                   }))}
                   activeValue={sortBy}
                   onChange={(value) => {
@@ -156,7 +184,7 @@ export function FilterBar({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

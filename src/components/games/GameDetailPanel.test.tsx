@@ -104,6 +104,7 @@ describe("GameDetailPanel", () => {
     renderWithProviders(<GameDetailPanel game={gameFixture} />);
 
     expect(screen.getByRole("img", { name: "Heat" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Heat" }).closest('[data-motion-id="game-card-image-heat"]')).toBeInTheDocument();
     expect(screen.getByText("Published: 2022")).toBeInTheDocument();
     expect(screen.getByText("8.1")).toBeInTheDocument();
     expect(screen.queryByText("Great game for groups")).not.toBeInTheDocument();

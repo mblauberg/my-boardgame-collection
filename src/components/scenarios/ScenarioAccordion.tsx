@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import { ScenarioSection } from './ScenarioSection';
-import { ScenarioEmptyState } from './ScenarioEmptyState';
-import type { ScenarioGame } from '../../config/scenarioPresets';
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ScenarioSection } from "./ScenarioSection";
+import { ScenarioEmptyState } from "./ScenarioEmptyState";
+import type { ScenarioGame } from "../../config/scenarioPresets";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type ScenarioPresetResult = {
   id: string;
@@ -22,6 +25,7 @@ type ScenarioAccordionProps = {
 
 export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
   const [openPresets, setOpenPresets] = useState<Set<string>>(new Set());
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const togglePreset = (id: string) => {
     setOpenPresets((prev) => {
@@ -36,13 +40,36 @@ export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <motion.div
+      className="space-y-4"
+      initial={prefersReducedMotion ? false : "hidden"}
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: 0.05,
+          },
+        },
+      }}
+    >
       {presets.map((preset) => {
         const isOpen = openPresets.has(preset.id);
         const totalGames = preset.sections.reduce((sum, s) => sum + s.games.length, 0);
 
         return (
-          <div key={preset.id} className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-ambient">
+          <motion.div
+            key={preset.id}
+            className="glass-surface-panel overflow-hidden rounded-2xl shadow-ambient"
+            variants={{
+              hidden: { opacity: 0, y: 12 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{
+              duration: motionTokens.duration.base,
+              ease: motionTokens.ease.standard,
+            }}
+          >
             <button
               type="button"
               onClick={() => togglePreset(preset.id)}
@@ -56,28 +83,48 @@ export function ScenarioAccordion({ presets }: ScenarioAccordionProps) {
                 </div>
                 <p className="mt-1 text-sm text-on-surface-variant">{preset.description}</p>
               </div>
-              <span className="material-symbols-outlined ml-4 text-primary transition-transform" style={isOpen ? { transform: 'rotate(90deg)' } : undefined}>chevron_right</span>
+              <motion.span
+                className="material-symbols-outlined ml-4 text-primary"
+                animate={{ rotate: isOpen ? 90 : 0 }}
+                transition={{
+                  duration: motionTokens.duration.fast,
+                  ease: motionTokens.ease.standard,
+                }}
+              >
+                chevron_right
+              </motion.span>
             </button>
 
-            {isOpen && (
-              <div className="border-t border-primary/15 p-4">
-                {totalGames === 0 ? (
-                  <ScenarioEmptyState presetLabel={preset.label} />
-                ) : (
-                  preset.sections.map((section) => (
-                    <ScenarioSection
-                      key={section.id}
-                      label={section.label}
-                      description={section.description}
-                      games={section.games}
-                    />
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+            <AnimatePresence initial={false}>
+              {isOpen ? (
+                <motion.div
+                  className="border-t border-primary/15 p-4"
+                  initial={prefersReducedMotion ? false : { height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={prefersReducedMotion ? undefined : { height: 0, opacity: 0 }}
+                  transition={{
+                    duration: motionTokens.duration.base,
+                    ease: motionTokens.ease.standard,
+                  }}
+                >
+                  {totalGames === 0 ? (
+                    <ScenarioEmptyState presetLabel={preset.label} />
+                  ) : (
+                    preset.sections.map((section) => (
+                      <ScenarioSection
+                        key={section.id}
+                        label={section.label}
+                        description={section.description}
+                        games={section.games}
+                      />
+                    ))
+                  )}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

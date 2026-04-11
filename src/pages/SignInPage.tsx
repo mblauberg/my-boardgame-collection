@@ -19,7 +19,7 @@ export function SignInPage() {
 
   return (
     <SignInOverlayFrame isStandalone={!isModal} onRequestClose={handleClose}>
-      <div className="rounded-[1.75rem] border border-outline/10 bg-surface-container-lowest/65 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:bg-surface-container-low/55 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-5">
+      <div className="glass-surface-panel rounded-[1.75rem] p-4 sm:p-5">
         <SignInForm />
       </div>
     </SignInOverlayFrame>

@@ -64,6 +64,7 @@ describe("FilterBar", () => {
     );
 
     await user.click(screen.getByRole("button", { name: filterToggleName }));
+    expect(screen.getAllByTestId("pill-selector-indicator").length).toBeGreaterThan(0);
     await user.click(screen.getByRole("button", { name: /rank/i }));
 
     expect(onSortChange).toHaveBeenCalledWith("rank", "desc");

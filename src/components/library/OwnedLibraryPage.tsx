@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { AddGameWizardOverlay } from "./AddGameWizardOverlay";
 import { FilterBar } from "./FilterBar";
@@ -14,6 +15,8 @@ import { useProfile } from "../../features/auth/useProfile";
 import { getSupabaseQueryErrorMessage } from "../../lib/supabase/runtimeErrors";
 import type { LibraryEntry } from "../../features/library/library.types";
 import type { LibraryFilters } from "../../features/library/libraryFilters";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { motionTokens } from "../../lib/motion";
 
 type OwnedLibraryPageProps = {
   data: LibraryEntry[] | undefined;
@@ -86,6 +89,7 @@ export function OwnedLibraryPage({
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const { isAuthenticated } = useProfile();
   const location = useLocation();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { filters, sortBy, sortDirection, updateFilters, updateSort, clearFilters } =
     useLibraryFilters();
 
@@ -121,7 +125,15 @@ export function OwnedLibraryPage({
       />
 
       {!isAuthenticated && (
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-on-surface">
+        <motion.div
+          className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-on-surface"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: motionTokens.duration.base,
+            ease: motionTokens.ease.standard,
+          }}
+        >
           <span>{guestMessage}</span>
           <Link
             to="/signin"
@@ -130,12 +142,12 @@ export function OwnedLibraryPage({
           >
             Sign in to sync
           </Link>
-        </div>
+        </motion.div>
       )}
 
       {extraContent}
 
-      <div className="library-search-section mb-8">
+      <motion.div className="library-search-section mb-8" layout transition={motionTokens.spring.soft}>
         <FilterBar
           filters={filters}
           sortBy={sortBy}
@@ -146,7 +158,7 @@ export function OwnedLibraryPage({
           presets={presets}
           searchPlaceholder={searchPlaceholder}
         />
-      </div>
+      </motion.div>
 
       <LibraryList
         entries={sortedEntries}
