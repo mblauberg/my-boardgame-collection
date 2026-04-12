@@ -1,13 +1,14 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { SignInOverlayFrame } from "../components/auth/SignInOverlayFrame";
-import { SurfacePanel } from "../components/ui/SurfacePanel";
 import { SignInForm } from "../features/auth/SignInForm";
+import { getReturnToFromState } from "../features/auth/signInNavigation";
 
 export function SignInPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as { backgroundLocation?: unknown } | null;
   const isModal = !!state?.backgroundLocation;
+  const returnTo = getReturnToFromState(location.state);
 
   const handleClose = () => {
     if (isModal) {
@@ -15,14 +16,12 @@ export function SignInPage() {
       return;
     }
 
-    navigate("/");
+    navigate(returnTo);
   };
 
   return (
     <SignInOverlayFrame isStandalone={!isModal} onRequestClose={handleClose}>
-      <SurfacePanel spacing="compact" className="rounded-2xl sm:p-5">
-        <SignInForm />
-      </SurfacePanel>
+      <SignInForm />
     </SignInOverlayFrame>
   );
 }

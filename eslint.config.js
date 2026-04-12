@@ -13,7 +13,13 @@ const restrictedArbitraryColorUtilitySelectorPattern =
 
 export default tseslint.config(
   {
-    ignores: ["coverage/**", "dist/**", "node_modules/**", "scripts/output/**"],
+    ignores: [
+      "coverage/**",
+      "dist/**",
+      "node_modules/**",
+      ".worktrees/**",
+      "scripts/output/**",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

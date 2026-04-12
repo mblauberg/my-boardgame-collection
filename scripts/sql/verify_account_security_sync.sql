@@ -92,5 +92,53 @@ begin
   ) then
     raise exception 'idx_account_identities_provider_subject missing';
   end if;
+
+  if has_function_privilege('anon', 'public.get_account_security_summary(uuid)', 'EXECUTE') then
+    raise exception 'anon should not execute get_account_security_summary(uuid)';
+  end if;
+
+  if has_function_privilege('authenticated', 'public.get_account_security_summary(uuid)', 'EXECUTE') then
+    raise exception 'authenticated should not execute get_account_security_summary(uuid)';
+  end if;
+
+  if has_function_privilege('anon', 'public.merge_user_data(uuid, uuid)', 'EXECUTE') then
+    raise exception 'anon should not execute merge_user_data(uuid, uuid)';
+  end if;
+
+  if has_function_privilege('authenticated', 'public.merge_user_data(uuid, uuid)', 'EXECUTE') then
+    raise exception 'authenticated should not execute merge_user_data(uuid, uuid)';
+  end if;
+
+  if has_function_privilege(
+    'anon',
+    'public.sync_account_email(uuid, text, boolean, timestamp with time zone)',
+    'EXECUTE'
+  ) then
+    raise exception 'anon should not execute sync_account_email(...)';
+  end if;
+
+  if has_function_privilege(
+    'authenticated',
+    'public.sync_account_email(uuid, text, boolean, timestamp with time zone)',
+    'EXECUTE'
+  ) then
+    raise exception 'authenticated should not execute sync_account_email(...)';
+  end if;
+
+  if has_function_privilege(
+    'anon',
+    'public.sync_account_identity(uuid, uuid, text, text, text, text, boolean)',
+    'EXECUTE'
+  ) then
+    raise exception 'anon should not execute sync_account_identity(...)';
+  end if;
+
+  if has_function_privilege(
+    'authenticated',
+    'public.sync_account_identity(uuid, uuid, text, text, text, text, boolean)',
+    'EXECUTE'
+  ) then
+    raise exception 'authenticated should not execute sync_account_identity(...)';
+  end if;
 end
 $$;

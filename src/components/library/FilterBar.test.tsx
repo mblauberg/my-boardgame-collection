@@ -29,7 +29,7 @@ describe("FilterBar", () => {
 
     render(
       <FilterBar
-        filters={{ isLoved: true, playersMin: 2, playersMax: 4 }}
+        filters={{ isLoved: true, playerCount: 4 }}
         sortBy="rank"
         sortDirection="asc"
         onFiltersChange={vi.fn()}
@@ -46,6 +46,21 @@ describe("FilterBar", () => {
     expect(screen.getByText(/sort by/i)).toBeInTheDocument();
     expect(screen.getByText(/player count/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /loved games/i })).toBeInTheDocument();
+  });
+
+  it("does not count deprecated min/max compatibility fields", () => {
+    render(
+      <FilterBar
+        filters={{ playersMin: 2, playersMax: 4 } as unknown as Parameters<typeof FilterBar>[0]["filters"]}
+        sortBy="rank"
+        sortDirection="asc"
+        onFiltersChange={vi.fn()}
+        onSortChange={vi.fn()}
+        onClearFilters={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /^filters$/i })).toBeInTheDocument();
   });
 
   it("toggles sort direction from one compact button", async () => {

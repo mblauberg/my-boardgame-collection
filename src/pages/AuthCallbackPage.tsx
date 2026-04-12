@@ -2,11 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { StateMessagePanel } from "../components/ui/StateMessagePanel";
 import { syncAccountSession } from "../features/auth/accountSecurityApi";
+import { getPostSignInPath } from "../features/auth/signInNavigation";
 import { getSupabaseBrowserClient } from "../lib/supabase/client";
-
-function getPostSignInPath(needsPasskeyPrompt: boolean) {
-  return needsPasskeyPrompt ? "/?passkey_prompt=1" : "/";
-}
 
 async function readFunctionErrorMessage(error: unknown): Promise<string | null> {
   const maybeContext =
@@ -49,6 +46,7 @@ export function AuthCallbackPage() {
     const supabase = getSupabaseBrowserClient();
     let isActive = true;
     const url = new URL(window.location.href);
+    const returnTo = url.searchParams.get("next") ?? "/";
     const type = url.searchParams.get("type");
     const token = url.searchParams.get("token");
     const isEmailMergeFlow = type === "email_merge" && typeof token === "string" && token.length > 0;
@@ -125,7 +123,7 @@ export function AuthCallbackPage() {
         const syncResult = await runSecuritySync();
         if (!isActive || !syncResult) return;
 
-        navigate(getPostSignInPath(syncResult.needsPasskeyPrompt), { replace: true });
+        navigate(getPostSignInPath(syncResult.needsPasskeyPrompt, returnTo), { replace: true });
         return;
       }
 
@@ -145,7 +143,7 @@ export function AuthCallbackPage() {
               const syncResult = await runSecuritySync();
               if (!isActive || !syncResult) return;
 
-              navigate(getPostSignInPath(syncResult.needsPasskeyPrompt), { replace: true });
+              navigate(getPostSignInPath(syncResult.needsPasskeyPrompt, returnTo), { replace: true });
             })();
           }
         }).data.subscription;

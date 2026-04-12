@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   WebAuthnAbortService,
   startAuthentication,
@@ -14,6 +14,11 @@ import { type SupportedOAuthProvider } from "../../lib/auth/oauthProviders";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { syncAccountSession } from "./accountSecurityApi";
 import { signInSchema, type SignInFormData } from "./authSchemas";
+import {
+  buildAuthRedirectUrl,
+  getPostSignInPath,
+  getReturnToFromState,
+} from "./signInNavigation";
 import { useTheme } from "../../lib/theme";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { motionTokens } from "../../lib/motion";
@@ -24,18 +29,11 @@ type PasskeyAuthVerifyResponse = {
   token_hash?: string;
 };
 
-function getAuthRedirectUrl() {
-  return `${window.location.origin}/auth/callback`;
-}
-
-function getPostSignInPath(needsPasskeyPrompt: boolean) {
-  return needsPasskeyPrompt ? "/?passkey_prompt=1" : "/";
-}
-
 export function SignInForm() {
   const { enabledOAuthProviders } = useMemo(() => readPublicEnv(), []);
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const navigate = useNavigate();
+  const location = useLocation();
   const { theme } = useTheme();
   const prefersReducedMotion = usePrefersReducedMotion();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -46,6 +44,8 @@ export function SignInForm() {
     () => new Set<SupportedOAuthProvider>(enabledOAuthProviders),
     [enabledOAuthProviders],
   );
+  const returnTo = useMemo(() => getReturnToFromState(location.state), [location.state]);
+  const authRedirectUrl = useMemo(() => buildAuthRedirectUrl(returnTo), [returnTo]);
 
   const oauthProviders = useMemo(() => {
     return [
@@ -126,7 +126,7 @@ export function SignInForm() {
         const syncResult = await syncAccountSession();
         if (!isActive) return;
 
-        navigate(getPostSignInPath(syncResult.needsPasskeyPrompt), { replace: true });
+        navigate(getPostSignInPath(syncResult.needsPasskeyPrompt, returnTo), { replace: true });
       } catch (_error) {
         if (isActive) {
           await supabase.auth.signOut();
@@ -145,7 +145,7 @@ export function SignInForm() {
       }
       hasConditionalPasskeyFlowRef.current = false;
     };
-  }, [navigate, supabase]);
+  }, [navigate, returnTo, supabase]);
 
   const onSubmit = async (data: SignInFormData) => {
     if (hasConditionalPasskeyFlowRef.current) {
@@ -160,7 +160,7 @@ export function SignInForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email: data.email,
       options: {
-        emailRedirectTo: getAuthRedirectUrl(),
+        emailRedirectTo: authRedirectUrl,
       },
     });
 
@@ -188,7 +188,7 @@ export function SignInForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: getAuthRedirectUrl(),
+        redirectTo: authRedirectUrl,
       },
     });
 

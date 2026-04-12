@@ -4,6 +4,10 @@ import { readFileSync } from "fs";
 import { pathToFileURL } from "url";
 import type { Database } from "../src/types/database";
 import type { SeedPayload } from "./legacy/buildSeedPayload.js";
+import {
+  assertLegacyPipelineOptIn,
+  LEGACY_SEED_PATH,
+} from "./legacy/legacyPipeline.js";
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -87,15 +91,17 @@ async function resolvePrimaryProfileId(supabase: SupabaseClient<Database>) {
 
   if (profileError) throw profileError;
   if (!profiles?.[0]?.id) {
-    throw new Error("No profiles found. Sign in once before running migrate:import.");
+    throw new Error("No profiles found. Sign in once before running legacy:migrate:import.");
   }
 
   return profiles[0].id;
 }
 
 export async function importLegacyData() {
+  assertLegacyPipelineOptIn("legacy:migrate:import");
+
   const supabase = getSupabaseAdminClient();
-  const payload: SeedPayload = JSON.parse(readFileSync("scripts/output/seed-data.json", "utf-8"));
+  const payload: SeedPayload = JSON.parse(readFileSync(LEGACY_SEED_PATH, "utf-8"));
 
   console.log("Importing tags...");
   const tagRows = payload.tags.map((tag) => ({

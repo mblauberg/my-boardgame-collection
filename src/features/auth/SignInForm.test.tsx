@@ -1,6 +1,10 @@
-import { screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import { startAuthentication } from "@simplewebauthn/browser";
+import { MemoryRouter } from "react-router-dom";
+import { ExploreSearchProvider } from "../library/ExploreSearchContext";
+import { ThemeProvider } from "../../lib/theme";
 import { renderWithProviders } from "../../test/testUtils";
 
 const { mockCancelCeremony } = vi.hoisted(() => ({
@@ -56,6 +60,28 @@ import { SignInPage } from "../../pages/SignInPage";
 
 function renderSignInForm() {
   return renderWithProviders(<SignInForm />);
+}
+
+function renderSignInFormWithState(state: unknown) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ExploreSearchProvider>
+          <MemoryRouter initialEntries={[{ pathname: "/signin", state }]}>
+            <SignInForm />
+          </MemoryRouter>
+        </ExploreSearchProvider>
+      </QueryClientProvider>
+    </ThemeProvider>,
+  );
 }
 
 describe("SignInForm", () => {
@@ -190,6 +216,26 @@ describe("SignInForm", () => {
         expect.objectContaining({
           options: expect.objectContaining({
             emailRedirectTo: `${window.location.origin}/auth/callback`,
+          }),
+        }),
+      );
+    });
+  });
+
+  it("preserves the requested return path in the auth callback URL", async () => {
+    const user = userEvent.setup();
+    mockSignIn.mockResolvedValueOnce({ error: null });
+
+    renderSignInFormWithState({ returnTo: "/admin" });
+
+    await user.type(screen.getByLabelText(/email/i), "owner@example.com");
+    await user.click(screen.getByRole("button", { name: /continue with email/i }));
+
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.objectContaining({
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=%2Fadmin`,
           }),
         }),
       );

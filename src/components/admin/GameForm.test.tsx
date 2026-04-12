@@ -79,8 +79,10 @@ describe("GameForm", () => {
       wrapper: makeWrapper(),
     });
 
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/name/i)).toHaveClass("glass-input-field");
     expect(screen.getByLabelText(/status/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveClass("glass-action-button");
+    expect(screen.getByRole("button", { name: /save/i })).toHaveClass("glass-action-button-active");
   });
 
   it("shows a validation error when name is empty on submit", async () => {
@@ -103,6 +105,12 @@ describe("GameForm", () => {
     });
 
     expect(screen.getByDisplayValue("Heat")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /refresh bgg metadata/i })).toHaveClass(
+      "glass-action-button",
+    );
+    expect(screen.getByRole("button", { name: /save/i })).toHaveClass(
+      "glass-action-button-active",
+    );
   });
 
   it("calls onSubmit with form values when the form is valid", async () => {

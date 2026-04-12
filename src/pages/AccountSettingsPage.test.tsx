@@ -190,6 +190,17 @@ describe("AccountSettingsPage", () => {
     );
   });
 
+  it("uses shared selectable card surfaces for visibility toggles", () => {
+    renderAccountSettingsPage();
+
+    expect(screen.getByRole("checkbox", { name: /public profile/i }).closest("label")).toHaveClass(
+      "glass-selectable-card",
+    );
+    expect(screen.getByRole("checkbox", { name: /public profile/i }).closest("label")).toHaveClass(
+      "glass-selectable-card-active",
+    );
+  });
+
   it("removes placeholder settings sections from the old account page", () => {
     renderAccountSettingsPage();
 

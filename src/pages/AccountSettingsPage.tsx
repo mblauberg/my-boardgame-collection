@@ -157,6 +157,9 @@ export function AccountSettingsPage() {
     identities: [],
     passkeys: [],
   };
+  const visibilityCardBase =
+    "glass-selectable-card flex cursor-pointer flex-col gap-3 rounded-2xl p-4 transition-all duration-200";
+  const visibilityCardActive = "glass-selectable-card-active";
 
   return (
     <>
@@ -222,11 +225,11 @@ export function AccountSettingsPage() {
           </label>
 
           <div className="grid gap-3 md:grid-cols-3">
-            <label className={`flex cursor-pointer flex-col gap-3 rounded-[1.5rem] border p-4 transition-all duration-200 ${
-              formState.isProfilePublic
-                ? "border-primary/25 bg-primary/5 dark:bg-primary/10"
-                : "border-outline/10 bg-surface-container-low hover:border-outline/25 dark:bg-surface-container-high/45"
-            }`}>
+            <label
+              className={`${visibilityCardBase} ${
+                formState.isProfilePublic ? visibilityCardActive : ""
+              }`}
+            >
               <input
                 type="checkbox"
                 aria-label="Public profile"
@@ -250,11 +253,11 @@ export function AccountSettingsPage() {
               </span>
             </label>
 
-            <label className={`flex cursor-pointer flex-col gap-3 rounded-[1.5rem] border p-4 transition-all duration-200 ${
-              formState.isCollectionPublic
-                ? "border-primary/25 bg-primary/5 dark:bg-primary/10"
-                : "border-outline/10 bg-surface-container-low hover:border-outline/25 dark:bg-surface-container-high/45"
-            }`}>
+            <label
+              className={`${visibilityCardBase} ${
+                formState.isCollectionPublic ? visibilityCardActive : ""
+              }`}
+            >
               <input
                 type="checkbox"
                 aria-label="Public collection"
@@ -278,11 +281,11 @@ export function AccountSettingsPage() {
               </span>
             </label>
 
-            <label className={`flex cursor-pointer flex-col gap-3 rounded-[1.5rem] border p-4 transition-all duration-200 ${
-              formState.isSavedPublic
-                ? "border-primary/25 bg-primary/5 dark:bg-primary/10"
-                : "border-outline/10 bg-surface-container-low hover:border-outline/25 dark:bg-surface-container-high/45"
-            }`}>
+            <label
+              className={`${visibilityCardBase} ${
+                formState.isSavedPublic ? visibilityCardActive : ""
+              }`}
+            >
               <input
                 type="checkbox"
                 aria-label="Public saved"

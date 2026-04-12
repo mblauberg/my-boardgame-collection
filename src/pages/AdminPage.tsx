@@ -5,6 +5,7 @@ import { AdminGamesTable } from "../components/admin/AdminGamesTable";
 import { GameForm } from "../components/admin/GameForm";
 import type { Game } from "../types/domain";
 import type { GameFormValues } from "../features/games/gameFormSchema";
+import { SurfacePanel } from "../components/ui/SurfacePanel";
 
 type Panel = { mode: "create" } | { mode: "edit"; game: Game };
 
@@ -40,7 +41,7 @@ export function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
+      <SurfacePanel as="section" className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-on-surface">Admin Dashboard</h2>
           <p className="mt-1 text-on-surface-variant">Manage games, tags, and visibility.</p>
@@ -48,14 +49,14 @@ export function AdminPage() {
         <button
           type="button"
           onClick={handleCreate}
-          className="rounded-full bg-gradient-to-br from-primary to-primary-container px-4 py-2 text-sm font-medium text-on-primary transition hover:brightness-95"
+          className="glass-action-button-active rounded-full px-4 py-2 text-sm font-medium text-on-primary transition disabled:cursor-not-allowed disabled:opacity-60"
         >
           Add Game
         </button>
-      </div>
+      </SurfacePanel>
 
       {panel && (
-        <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
+        <SurfacePanel as="section">
           <h3 className="mb-4 text-lg font-semibold text-on-surface">
             {panel.mode === "edit" ? `Edit: ${panel.game.name}` : "Add Game"}
           </h3>
@@ -65,17 +66,17 @@ export function AdminPage() {
             onCancel={handleClosePanel}
             isSubmitting={isSubmitting}
           />
-        </div>
+        </SurfacePanel>
       )}
 
-      <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 shadow-ambient">
+      <SurfacePanel as="section">
         <h3 className="mb-4 text-lg font-semibold text-on-surface">Games</h3>
         {isLoading ? (
           <p className="text-on-surface-variant">Loading…</p>
         ) : (
           <AdminGamesTable games={games} onEdit={handleEdit} />
         )}
-      </div>
+      </SurfacePanel>
     </div>
   );
 }

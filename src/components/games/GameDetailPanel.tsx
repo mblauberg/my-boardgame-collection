@@ -11,12 +11,21 @@ type GameDetailPanelProps = {
 };
 
 function formatSourceDate(value: string) {
+  const timestamp = Date.parse(value);
+  if (Number.isNaN(timestamp)) {
+    return null;
+  }
+
   return new Intl.DateTimeFormat("en-AU", {
     day: "numeric",
     month: "short",
     year: "numeric",
     timeZone: "UTC",
-  }).format(new Date(value));
+  }).format(new Date(timestamp));
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 function getSnapshotRanks(game: Game) {
@@ -37,6 +46,11 @@ function getSnapshotRanks(game: Game) {
 
 export function GameDetailPanel({ game }: GameDetailPanelProps) {
   const snapshotRanks = getSnapshotRanks(game);
+  const snapshotUpdatedAt =
+    typeof game.bggDataUpdatedAt === "string" ? formatSourceDate(game.bggDataUpdatedAt) : null;
+  const hasOverallRank = isFiniteNumber(game.bggRank);
+  const hasBayesAverage = isFiniteNumber(game.bggBayesAverage);
+  const hasUsersRated = isFiniteNumber(game.bggUsersRated);
   const { data: libraryEntries } = useLibraryQuery();
   const libraryStateActions = useLibraryStateActions();
   const existingEntry = getLibraryEntryForGame(libraryEntries, game.id);
@@ -65,7 +79,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
       )}
 
       <div className="space-y-6">
-        {game.publishedYear && (
+        {isFiniteNumber(game.publishedYear) && (
           <p className="text-on-surface-variant">Published: {game.publishedYear}</p>
         )}
 
@@ -80,7 +94,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
         />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {game.playersMin && game.playersMax && (
+          {isFiniteNumber(game.playersMin) && isFiniteNumber(game.playersMax) && (
             <div className="rounded-2xl bg-surface-container-low p-4">
               <span className="text-xs text-on-surface-variant uppercase tracking-wider">Players</span>
               <p className="text-xl font-semibold text-on-surface mt-1">
@@ -88,7 +102,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               </p>
             </div>
           )}
-          {game.playTimeMin && game.playTimeMax && (
+          {isFiniteNumber(game.playTimeMin) && isFiniteNumber(game.playTimeMax) && (
             <div className="rounded-2xl bg-surface-container-low p-4">
               <span className="text-xs text-on-surface-variant uppercase tracking-wider">Play Time</span>
               <p className="text-xl font-semibold text-on-surface mt-1">
@@ -96,13 +110,13 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               </p>
             </div>
           )}
-          {game.bggRating && (
+          {isFiniteNumber(game.bggRating) && (
             <div className="rounded-2xl bg-surface-container-highest p-4">
               <span className="text-xs text-on-surface-variant uppercase tracking-wider">BGG Rating</span>
               <p className="text-xl font-semibold text-on-surface mt-1">{game.bggRating.toFixed(1)}</p>
             </div>
           )}
-          {game.bggWeight && (
+          {isFiniteNumber(game.bggWeight) && (
             <div className="rounded-2xl bg-surface-container-highest p-4">
               <span className="text-xs text-on-surface-variant uppercase tracking-wider">Weight</span>
               <p className="text-xl font-semibold text-on-surface mt-1">{game.bggWeight.toFixed(1)}</p>
@@ -110,7 +124,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
           )}
         </div>
 
-        {game.bggRank || game.bggBayesAverage || game.bggUsersRated || snapshotRanks.length > 0 ? (
+        {hasOverallRank || hasBayesAverage || hasUsersRated || snapshotRanks.length > 0 ? (
           <div className="rounded-3xl bg-surface-container-low p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -120,7 +134,7 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
                 {game.bggDataSource === "bgg_csv" ? (
                   <p className="mt-2 text-sm text-on-surface-variant">
                     Local BGG snapshot
-                    {game.bggDataUpdatedAt ? ` • Updated ${formatSourceDate(game.bggDataUpdatedAt)}` : ""}
+                    {snapshotUpdatedAt ? ` • Updated ${snapshotUpdatedAt}` : ""}
                   </p>
                 ) : null}
               </div>
@@ -132,19 +146,19 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              {typeof game.bggRank === "number" ? (
+              {hasOverallRank ? (
                 <div>
                   <span className="text-sm text-on-surface-variant">Overall rank</span>
                   <p className="text-xl font-semibold text-on-surface">#{game.bggRank}</p>
                 </div>
               ) : null}
-              {typeof game.bggBayesAverage === "number" ? (
+              {hasBayesAverage ? (
                 <div>
                   <span className="text-sm text-on-surface-variant">Bayesian average</span>
                   <p className="text-xl font-semibold text-on-surface">{game.bggBayesAverage.toFixed(2)}</p>
                 </div>
               ) : null}
-              {typeof game.bggUsersRated === "number" ? (
+              {hasUsersRated ? (
                 <div>
                   <span className="text-sm text-on-surface-variant">Users rated</span>
                   <p className="text-xl font-semibold text-on-surface">{game.bggUsersRated.toLocaleString("en-AU")}</p>

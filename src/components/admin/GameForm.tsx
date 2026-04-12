@@ -7,6 +7,7 @@ import { useProfile } from "../../features/auth/useProfile";
 import { useBggRefreshMutation } from "../../features/games/useBggRefreshMutation";
 import { GameFormFields } from "./GameFormFields";
 import type { Game } from "../../types/domain";
+import { SurfacePanel } from "../ui/SurfacePanel";
 
 type Props = {
   game?: Game;
@@ -89,7 +90,7 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
       <GameFormFields register={register} errors={errors} />
 
       {isOwner && game?.bggId ? (
-        <div className="rounded-md border border-outline-variant/15 bg-surface-container-low p-4">
+        <SurfacePanel as="section" spacing="compact">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-on-surface">BoardGameGeek metadata</p>
@@ -102,7 +103,7 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
               type="button"
               onClick={handleBggRefresh}
               disabled={bggRefresh.isPending}
-              className="rounded-md border border-outline-variant/15 bg-surface-container-lowest px-4 py-2 text-sm font-medium text-on-surface transition hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-60"
+              className="glass-action-button rounded-full px-4 py-2 text-sm font-medium text-on-surface transition disabled:cursor-not-allowed disabled:opacity-60"
             >
               {bggRefresh.isPending ? "Refreshing BGG…" : "Refresh BGG metadata"}
             </button>
@@ -110,21 +111,21 @@ export function GameForm({ game, onSubmit, onCancel, isSubmitting = false }: Pro
           {refreshError ? (
             <p className="mt-3 text-sm text-error">{refreshError}</p>
           ) : null}
-        </div>
+        </SurfacePanel>
       ) : null}
 
       <div className="flex justify-end gap-3">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-outline-variant/15 bg-surface-container-lowest px-4 py-2 text-sm font-medium text-on-surface transition hover:bg-surface-container-low"
+          className="glass-action-button rounded-full px-4 py-2 text-sm font-medium text-on-surface-variant transition"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-gradient-to-br from-primary to-primary-container px-4 py-2 text-sm font-medium text-on-primary transition hover:brightness-95 disabled:opacity-50"
+          className="glass-action-button-active rounded-full px-4 py-2 text-sm font-medium text-on-primary transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? "Saving…" : "Save"}
         </button>

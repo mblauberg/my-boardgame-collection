@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Game } from "../../types/domain";
+import { SurfacePanel } from "../ui/SurfacePanel";
 
 type Props = {
   games: Game[];
@@ -20,10 +21,10 @@ export function AdminGamesTable({ games, onEdit }: Props) {
         placeholder="Search games…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+        className="glass-input-field w-full rounded-2xl px-3 py-2 text-sm text-on-surface outline-none transition"
       />
 
-      <div className="hidden sm:block overflow-x-auto rounded-lg border border-outline-variant">
+      <SurfacePanel as="div" spacing="compact" className="hidden overflow-x-auto sm:block">
         <table className="min-w-full divide-y divide-outline-variant/10 text-sm">
           <thead className="bg-surface-container-low">
             <tr>
@@ -49,7 +50,7 @@ export function AdminGamesTable({ games, onEdit }: Props) {
                   <button
                     type="button"
                     onClick={() => onEdit(game)}
-                    className="text-sm font-medium text-primary hover:text-primary-container"
+                    className="glass-action-button rounded-full px-4 py-2 text-sm font-medium text-on-surface transition hover:text-primary"
                   >
                     Edit
                   </button>
@@ -65,12 +66,12 @@ export function AdminGamesTable({ games, onEdit }: Props) {
             )}
           </tbody>
         </table>
-      </div>
+      </SurfacePanel>
 
       {/* Mobile card list */}
       <div className="sm:hidden space-y-2">
         {filtered.map((game) => (
-          <div key={game.id} className="flex items-center justify-between rounded-xl bg-surface-container-low p-4">
+          <div key={game.id} className="glass-selectable-card flex items-center justify-between rounded-2xl p-4">
             <div className="min-w-0">
               <p className="font-semibold text-on-surface truncate">{game.name}</p>
               <div className="flex items-center gap-2 mt-0.5">
@@ -85,7 +86,7 @@ export function AdminGamesTable({ games, onEdit }: Props) {
             <button
               type="button"
               onClick={() => onEdit(game)}
-              className="ml-4 shrink-0 text-sm font-medium text-primary hover:text-primary-container"
+              className="glass-action-button ml-4 shrink-0 rounded-full px-4 py-2 text-sm font-medium text-on-surface transition hover:text-primary"
             >
               Edit
             </button>

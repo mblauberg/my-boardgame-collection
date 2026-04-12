@@ -7,6 +7,11 @@ type Props = {
 };
 
 export function GameFormFields({ register, errors }: Props) {
+  const fieldClassName =
+    "glass-input-field mt-1 block w-full rounded-xl px-3 py-2 text-sm text-on-surface outline-none transition";
+  const checkboxClassName =
+    "h-4 w-4 rounded border-outline bg-surface text-primary focus:ring-primary/30";
+
   return (
     <div className="space-y-4">
       <div>
@@ -17,7 +22,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="name"
           type="text"
           {...register("name")}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         />
         {errors.name && (
           <p className="mt-1 text-xs text-error">{errors.name.message}</p>
@@ -31,7 +36,7 @@ export function GameFormFields({ register, errors }: Props) {
         <select
           id="status"
           {...register("status")}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         >
           <option value="owned">owned</option>
           <option value="buy">buy</option>
@@ -49,7 +54,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="category"
           type="text"
           {...register("category")}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         />
       </div>
 
@@ -58,23 +63,23 @@ export function GameFormFields({ register, errors }: Props) {
           <label htmlFor="playersMin" className="block text-sm font-medium text-on-surface">
             Players (min)
           </label>
-          <input
-            id="playersMin"
-            type="number"
-            {...register("playersMin", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
-          />
+            <input
+              id="playersMin"
+              type="number"
+              {...register("playersMin", { valueAsNumber: true })}
+              className={fieldClassName}
+            />
         </div>
         <div>
           <label htmlFor="playersMax" className="block text-sm font-medium text-on-surface">
             Players (max)
           </label>
-          <input
-            id="playersMax"
-            type="number"
-            {...register("playersMax", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
-          />
+            <input
+              id="playersMax"
+              type="number"
+              {...register("playersMax", { valueAsNumber: true })}
+              className={fieldClassName}
+            />
         </div>
       </div>
 
@@ -83,23 +88,23 @@ export function GameFormFields({ register, errors }: Props) {
           <label htmlFor="playTimeMin" className="block text-sm font-medium text-on-surface">
             Play time (min)
           </label>
-          <input
-            id="playTimeMin"
-            type="number"
-            {...register("playTimeMin", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
-          />
+            <input
+              id="playTimeMin"
+              type="number"
+              {...register("playTimeMin", { valueAsNumber: true })}
+              className={fieldClassName}
+            />
         </div>
         <div>
           <label htmlFor="playTimeMax" className="block text-sm font-medium text-on-surface">
             Play time (max)
           </label>
-          <input
-            id="playTimeMax"
-            type="number"
-            {...register("playTimeMax", { valueAsNumber: true })}
-            className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
-          />
+            <input
+              id="playTimeMax"
+              type="number"
+              {...register("playTimeMax", { valueAsNumber: true })}
+              className={fieldClassName}
+            />
         </div>
       </div>
 
@@ -111,7 +116,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="summary"
           rows={3}
           {...register("summary")}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         />
       </div>
 
@@ -123,7 +128,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="notes"
           rows={3}
           {...register("notes")}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         />
       </div>
 
@@ -135,7 +140,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="imageUrl"
           type="text"
           {...register("imageUrl")}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         />
       </div>
 
@@ -147,7 +152,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="publishedYear"
           type="number"
           {...register("publishedYear", { valueAsNumber: true })}
-          className="mt-1 block w-full rounded-md border border-outline-variant/15 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+          className={fieldClassName}
         />
       </div>
 
@@ -156,7 +161,7 @@ export function GameFormFields({ register, errors }: Props) {
           id="hidden"
           type="checkbox"
           {...register("hidden")}
-          className="h-4 w-4 rounded border-outline-variant"
+          className={checkboxClassName}
         />
         <label htmlFor="hidden" className="text-sm font-medium text-on-surface">
           Hidden from public view

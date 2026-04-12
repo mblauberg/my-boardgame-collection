@@ -121,4 +121,21 @@ describe("libraryFilters", () => {
       expect(filterLibraryEntries(entries, { weight: 4.2 })[0].id).toBe("large");
     });
   });
+
+  it("ignores deprecated min/max range compatibility fields", () => {
+    const entries = [
+      createEntry("small", {
+        game: { ...createEntry("small").game, playersMin: 1, playersMax: 2 },
+      } as any),
+      createEntry("party", {
+        game: { ...createEntry("party").game, playersMin: 5, playersMax: 8 },
+      } as any),
+    ];
+
+    const legacyRangeFilters = { playersMin: 5, playersMax: 8 } as unknown as Parameters<
+      typeof filterLibraryEntries
+    >[1];
+
+    expect(filterLibraryEntries(entries, legacyRangeFilters)).toHaveLength(2);
+  });
 });

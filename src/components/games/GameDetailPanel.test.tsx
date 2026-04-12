@@ -121,6 +121,18 @@ describe("GameDetailPanel", () => {
     expect(screen.getByText("A racing game about heat management")).toBeInTheDocument();
   });
 
+  it("skips the snapshot updated label when the backend timestamp is invalid", () => {
+    const malformedGame = {
+      ...gameFixture,
+      bggDataUpdatedAt: "not-a-date",
+    } as Game;
+
+    renderWithProviders(<GameDetailPanel game={malformedGame} />);
+
+    expect(screen.getByText(/local bgg snapshot/i)).toBeInTheDocument();
+    expect(screen.queryByText(/updated/i)).not.toBeInTheDocument();
+  });
+
   it("delegates library action clicks through the shared library state hook", async () => {
     const user = userEvent.setup();
     const entry = createEntry({

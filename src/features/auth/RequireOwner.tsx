@@ -1,9 +1,11 @@
 import type { PropsWithChildren } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { getSignInRouteState } from "./signInNavigation";
 import { useProfile } from "./useProfile";
 
 export function RequireOwner({ children }: PropsWithChildren) {
   const { isOwner, isLoading, isAuthenticated } = useProfile();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -14,7 +16,7 @@ export function RequireOwner({ children }: PropsWithChildren) {
   }
 
   if (!isAuthenticated || !isOwner) {
-    return <Navigate to="/signin" replace />;
+    return <Navigate to="/signin" replace state={getSignInRouteState(location)} />;
   }
 
   return <>{children}</>;

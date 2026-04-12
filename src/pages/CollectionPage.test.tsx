@@ -103,7 +103,7 @@ describe("CollectionPage", () => {
     );
 
     expect(screen.getByText(/supabase db reset/i)).toBeInTheDocument();
-    expect(screen.getByText(/migrate:import/i)).toBeInTheDocument();
+    expect(screen.getByText(/legacy:migrate:import/i)).toBeInTheDocument();
   });
 
   it("routes guest sign-in prompts through sign-in overlay state", async () => {

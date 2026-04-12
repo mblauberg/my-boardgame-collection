@@ -5,6 +5,7 @@ import { readFileSync } from "fs";
 import { pathToFileURL } from "url";
 import { fetchAllRows } from "../src/lib/supabase/fetchAllRows";
 import type { SeedPayload } from "./legacy/buildSeedPayload.js";
+import { LEGACY_SEED_PATH } from "./legacy/legacyPipeline.js";
 
 config({ path: ".env.local" });
 
@@ -137,7 +138,7 @@ async function fetchSharedCatalogRows() {
 
 export async function backfillSharedTags() {
   const supabase = getSupabaseAdminClient();
-  const payload: SeedPayload = JSON.parse(readFileSync("scripts/output/seed-data.json", "utf-8"));
+  const payload: SeedPayload = JSON.parse(readFileSync(LEGACY_SEED_PATH, "utf-8"));
   const catalogRows = await fetchSharedCatalogRows();
   const rowsBySlug = new Map(
     catalogRows

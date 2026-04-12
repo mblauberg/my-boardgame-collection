@@ -1,4 +1,4 @@
-import { type PropsWithChildren } from "react";
+import { useEffect, type PropsWithChildren } from "react";
 import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { motionTokens } from "../../lib/motion";
@@ -14,6 +14,17 @@ export function SignInOverlayFrame({
   onRequestClose,
 }: SignInOverlayFrameProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onRequestClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onRequestClose]);
 
   return (
     <motion.div
@@ -39,7 +50,7 @@ export function SignInOverlayFrame({
         aria-modal="true"
         aria-label="Sign in"
         data-motion="auth-panel"
-        className="glass-surface-panel relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-2xl border px-5 pb-6 pt-5 shadow-ambient sm:max-h-[min(52rem,calc(100dvh-3rem))] sm:max-w-[34rem] sm:px-8 sm:pb-8 sm:pt-7"
+        className="glass-surface-panel relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-2xl border pt-5 shadow-ambient sm:max-h-[min(52rem,calc(100dvh-3rem))] sm:max-w-[34rem] sm:pt-7"
         initial={
           prefersReducedMotion
             ? false
@@ -66,7 +77,7 @@ export function SignInOverlayFrame({
         onClick={(event) => event.stopPropagation()}
       >
         <motion.div
-          className="mb-6 flex items-start justify-between gap-4"
+        className="mb-6 flex items-start justify-between gap-4 px-5 sm:px-8"
           initial={prefersReducedMotion ? false : "hidden"}
           animate="visible"
           variants={{
@@ -133,7 +144,7 @@ export function SignInOverlayFrame({
         </motion.div>
 
         <motion.div
-          className="overflow-y-auto pr-1"
+          className="overflow-y-auto px-5 pb-8 pt-2 pr-4 sm:px-8 sm:pb-12 sm:pt-3 sm:pr-7"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{

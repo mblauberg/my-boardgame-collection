@@ -117,7 +117,6 @@ const ALLOWED_ARBITRARY_UTILITIES_BY_FILE: Record<string, Set<string>> = {
   "src/features/auth/SignInForm.tsx": new Set(["scale-[0.99]", "scale-[1.01]", "text-[10px]", "tracking-[0.2em]"]),
   "src/pages/AccountSettingsPage.tsx": new Set([
     "grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]",
-    "rounded-[1.5rem]",
     "text-[18px]",
     "text-[20px]",
     "tracking-[0.18em]",

@@ -39,6 +39,9 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
     game.playTimeMin == null ||
     game.playTimeMax == null;
 
+  const fieldClassName =
+    "glass-input-field mt-3 w-full rounded-2xl px-4 py-3 text-sm text-on-surface outline-none transition";
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {game.imageUrl == null && (
@@ -50,7 +53,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="imageUrl"
             type="url"
             {...register("imageUrl")}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="https://..."
           />
         </div>
@@ -65,7 +68,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="summary"
             {...register("summary")}
             rows={4}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="Add a brief description..."
           />
         </div>
@@ -79,7 +82,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="publishedYear"
             type="number"
             {...register("publishedYear")}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="e.g. 2022"
           />
         </div>
@@ -93,7 +96,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="playersMin"
             type="number"
             {...register("playersMin")}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="e.g. 2"
           />
         </div>
@@ -107,7 +110,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="playersMax"
             type="number"
             {...register("playersMax")}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="e.g. 5"
           />
         </div>
@@ -121,7 +124,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="playTimeMin"
             type="number"
             {...register("playTimeMin")}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="e.g. 45"
           />
         </div>
@@ -135,7 +138,7 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
             id="playTimeMax"
             type="number"
             {...register("playTimeMax")}
-            className="w-full rounded-lg bg-surface-container-highest px-4 py-2 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className={fieldClassName}
             placeholder="e.g. 90"
           />
         </div>
@@ -148,14 +151,14 @@ export function GameQuickEditForm({ game, onSubmit, onCancel, isSubmitting }: Pr
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors"
+          className="glass-action-button rounded-full px-4 py-2 text-on-surface-variant transition"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting || !hasEditableField}
-          className="px-4 py-2 rounded-lg bg-gradient-to-br from-primary-container to-primary text-on-primary-fixed font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="glass-action-button-active rounded-full px-4 py-2 font-medium text-on-primary transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? "Saving..." : "Save"}
         </button>

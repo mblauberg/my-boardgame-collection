@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 type UseSlidingIndicatorOptions = {
   activeIndex: number;
@@ -22,7 +22,7 @@ export function useSlidingIndicator({
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState<IndicatorStyle>(DEFAULT_STYLE);
 
-  const refreshIndicator = () => {
+  const refreshIndicator = useCallback(() => {
     if (!containerRef.current || activeIndex < 0) {
       setIndicatorStyle(DEFAULT_STYLE);
       return;
@@ -40,16 +40,16 @@ export function useSlidingIndicator({
       left: activeItem.offsetLeft,
       width: activeItem.offsetWidth,
     });
-  };
+  }, [activeIndex, selector]);
 
   useLayoutEffect(() => {
     refreshIndicator();
-  }, [activeIndex, selector]);
+  }, [refreshIndicator]);
 
   useEffect(() => {
     window.addEventListener("resize", refreshIndicator);
     return () => window.removeEventListener("resize", refreshIndicator);
-  }, [activeIndex, selector]);
+  }, [refreshIndicator]);
 
   return {
     containerRef,

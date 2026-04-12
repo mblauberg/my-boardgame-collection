@@ -14,8 +14,8 @@
     "typecheck:edge": "deno check supabase/functions/**/*.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "migrate:generate": "tsx scripts/generateSeedData.ts",
-    "migrate:import": "tsx scripts/importLegacyData.ts",
+    "legacy:migrate:generate": "ALLOW_LEGACY_IMPORT_PIPELINE=1 tsx scripts/generateSeedData.ts",
+    "legacy:migrate:import": "ALLOW_LEGACY_IMPORT_PIPELINE=1 tsx scripts/importLegacyData.ts",
     "migrate:import-bgg": "tsx scripts/importBggCsv.ts",
     "migrate:backfill-shared-tags": "tsx scripts/backfillSharedTags.ts"
   },

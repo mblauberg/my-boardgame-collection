@@ -59,24 +59,8 @@ export function FilterBar({
     if (filters.playerCount != null) count += 1;
     if (filters.playTime != null) count += 1;
     if (filters.weight != null) count += 1;
-    // Support legacy if counts are present but not the new ones
-    if (filters.playerCount == null && (filters.playersMin != null || filters.playersMax != null)) count += 1;
-    if (filters.playTime == null && (filters.playTimeMin != null || filters.playTimeMax != null)) count += 1;
-    if (filters.weight == null && (filters.weightMin != null || filters.weightMax != null || filters.maxWeight != null)) count += 1;
     return count;
-  }, [
-    filters.isLoved,
-    filters.playerCount,
-    filters.playTime,
-    filters.weight,
-    filters.playersMin,
-    filters.playersMax,
-    filters.playTimeMin,
-    filters.playTimeMax,
-    filters.weightMin,
-    filters.weightMax,
-    filters.maxWeight,
-  ]);
+  }, [filters.isLoved, filters.playerCount, filters.playTime, filters.weight]);
 
   return (
     <motion.div className="space-y-4" layout>

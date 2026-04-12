@@ -51,7 +51,7 @@ export function getSupabaseQueryErrorMessage(error: unknown, resourceLabel: stri
   }
 
   if (isSchemaCacheMiss(error)) {
-    return `The configured Supabase project is missing the tables for this ${resourceLabel}. Run the Supabase migrations with supabase db reset or deploy the migrations to your hosted project, then optionally import legacy data with npm run migrate:generate and npm run migrate:import after setting SUPABASE_SERVICE_ROLE_KEY.`;
+    return `The configured Supabase project is missing the tables for this ${resourceLabel}. Run the Supabase migrations with supabase db reset or deploy the migrations to your hosted project, then optionally import legacy data with npm run legacy:migrate:generate and npm run legacy:migrate:import after setting SUPABASE_SERVICE_ROLE_KEY.`;
   }
 
   return `Unable to load the ${resourceLabel}. Check your Supabase configuration and try again.`;

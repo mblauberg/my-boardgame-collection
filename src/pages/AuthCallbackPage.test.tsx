@@ -62,6 +62,7 @@ describe("AuthCallbackPage", () => {
   });
 
   it("syncs account security before redirecting to the collection after sign-in", async () => {
+    window.history.replaceState({}, "", "/auth/callback?next=%2Fadmin");
     mockGetSession.mockResolvedValue({
       data: { session: { access_token: "token", user: { id: "user-1" } } },
       error: null,
@@ -72,11 +73,12 @@ describe("AuthCallbackPage", () => {
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("account-sync-session", undefined);
-      expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith("/admin", { replace: true });
     });
   });
 
   it("adds the post-login prompt flag when the synced account still needs a passkey", async () => {
+    window.history.replaceState({}, "", "/auth/callback?next=%2Fadmin");
     mockGetSession.mockResolvedValue({
       data: { session: { access_token: "token", user: { id: "user-1" } } },
       error: null,
@@ -86,7 +88,7 @@ describe("AuthCallbackPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/?passkey_prompt=1", { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith("/admin?passkey_prompt=1", { replace: true });
     });
   });
 

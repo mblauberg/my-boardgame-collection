@@ -56,15 +56,15 @@ export function QuickFilterPresets({ presets, onSelect }: QuickFilterPresetsProp
 
 // Preset definitions for different contexts
 export const COLLECTION_PRESETS: Preset[] = [
-  { label: "Quick Wins", filters: { playTimeMax: 30 } },
-  { label: "Party Games", filters: { playersMin: 5 } },
-  { label: "Solo", filters: { playersMin: 1, playersMax: 1 } },
-  { label: "Heavy Strategy", filters: { weightMin: 3.5 } },
+  { label: "Around 30m", filters: { playTime: 30 } },
+  { label: "Plays at 5", filters: { playerCount: 5 } },
+  { label: "Solo", filters: { playerCount: 1 } },
+  { label: "Weight ~4", filters: { weight: 4 } },
 ];
 
 export const SAVED_PRESETS: Preset[] = [
-  { label: "Quick Wins", filters: { playTimeMax: 30 } },
-  { label: "Party Games", filters: { playersMin: 5 } },
-  { label: "Solo", filters: { playersMin: 1, playersMax: 1 } },
-  { label: "Light Games", filters: { weightMax: 2 } },
+  { label: "Around 30m", filters: { playTime: 30 } },
+  { label: "Plays at 5", filters: { playerCount: 5 } },
+  { label: "Solo", filters: { playerCount: 1 } },
+  { label: "Weight ~2", filters: { weight: 2 } },
 ];

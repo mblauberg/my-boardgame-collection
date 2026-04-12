@@ -5,13 +5,6 @@ export type GameFilters = {
   playerCount?: number;
   playTime?: number;
   weight?: number;
-  // Deprecated range filters
-  playersMin?: number;
-  playersMax?: number;
-  playTimeMin?: number;
-  playTimeMax?: number;
-  weightMin?: number;
-  weightMax?: number;
 };
 
 export type SortOption = "rank" | "rating" | "weight" | "year" | "name";

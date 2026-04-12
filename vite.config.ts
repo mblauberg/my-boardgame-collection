@@ -1,9 +1,22 @@
 import { Buffer } from "node:buffer";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { loadEnv, type Plugin } from "vite";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import handleBggRefresh from "./api/bgg-refresh";
 import handleBggSearch from "./api/bgg-search";
+
+const reactEntry = fileURLToPath(new URL("./node_modules/react/index.js", import.meta.url));
+const reactJsxRuntimeEntry = fileURLToPath(
+  new URL("./node_modules/react/jsx-runtime.js", import.meta.url),
+);
+const reactJsxDevRuntimeEntry = fileURLToPath(
+  new URL("./node_modules/react/jsx-dev-runtime.js", import.meta.url),
+);
+const reactDomEntry = fileURLToPath(new URL("./node_modules/react-dom/index.js", import.meta.url));
+const reactDomClientEntry = fileURLToPath(
+  new URL("./node_modules/react-dom/client.js", import.meta.url),
+);
 
 async function readRequestBody(request: import("node:http").IncomingMessage) {
   const chunks: Buffer[] = [];
@@ -80,11 +93,27 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), devApiPlugin()],
+    resolve: {
+      alias: [
+        { find: /^react\/jsx-dev-runtime$/, replacement: reactJsxDevRuntimeEntry },
+        { find: /^react\/jsx-runtime$/, replacement: reactJsxRuntimeEntry },
+        { find: /^react-dom\/client$/, replacement: reactDomClientEntry },
+        { find: /^react-dom$/, replacement: reactDomEntry },
+        { find: /^react$/, replacement: reactEntry },
+      ],
+      dedupe: ["react", "react-dom"],
+    },
+    server: {
+      watch: {
+        ignored: ["**/.worktrees/**"],
+      },
+    },
     test: {
       globals: true,
       environment: "jsdom",
       setupFiles: "./src/test/setup.ts",
       css: true,
+      exclude: [...configDefaults.exclude, "**/.worktrees/**"],
       environmentOptions: {
         jsdom: {
           url: "http://localhost:3000",

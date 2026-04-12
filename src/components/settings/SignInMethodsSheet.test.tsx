@@ -31,5 +31,7 @@ describe("SignInMethodsSheet", () => {
     );
 
     expect(container.querySelectorAll(".glass-surface-panel").length).toBeGreaterThanOrEqual(4);
+    expect(container.querySelectorAll(".glass-selectable-card").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("owner@example.com").closest(".glass-selectable-card")).toBeInTheDocument();
   });
 });

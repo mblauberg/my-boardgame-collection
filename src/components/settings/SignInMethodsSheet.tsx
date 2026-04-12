@@ -16,7 +16,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
   const prefersReducedMotion = usePrefersReducedMotion();
   const sectionClassName = "glass-surface-panel rounded-2xl p-5 shadow-sm";
   const itemClassName =
-    "flex items-center gap-4 rounded-xl border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40";
+    "glass-selectable-card flex items-center gap-4 rounded-xl px-4 py-3";
 
   const getProviderIcon = (provider: string) => {
     switch (provider) {
@@ -160,7 +160,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
               </div>
             ))
           ) : (
-            <div className="rounded-xl border border-outline/5 bg-surface-container-low/50 px-4 py-4 dark:bg-surface/20">
+            <div className="glass-surface-panel rounded-xl px-4 py-4">
               <p className="text-sm text-on-surface-variant">No social accounts linked yet.</p>
             </div>
           )}
@@ -196,7 +196,7 @@ export function SignInMethodsPanelContent({ summary }: { summary: AccountSecurit
           {summary.emails.map((email) => (
             <div
               key={email.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-outline/10 bg-surface-container-lowest/80 px-4 py-3 dark:bg-surface/40"
+              className="glass-selectable-card flex items-center justify-between gap-3 rounded-xl px-4 py-3"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-on-surface">{email.value}</p>

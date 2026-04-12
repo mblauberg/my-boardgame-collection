@@ -34,4 +34,19 @@ describe("SignInOverlayFrame", () => {
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
+
+  it("closes when Escape is pressed", async () => {
+    const user = userEvent.setup();
+    const onRequestClose = vi.fn();
+
+    renderWithProviders(
+      <SignInOverlayFrame isStandalone onRequestClose={onRequestClose}>
+        <div>Sign in content</div>
+      </SignInOverlayFrame>,
+    );
+
+    await user.keyboard("{Escape}");
+
+    expect(onRequestClose).toHaveBeenCalledTimes(1);
+  });
 });

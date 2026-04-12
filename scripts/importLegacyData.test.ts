@@ -1,16 +1,24 @@
-import { describe, it, expect } from 'vitest';
-import { execSync } from 'child_process';
-import { buildGameTagRows, mapLegacyGameToLibraryEntry } from './importLegacyData.js';
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildGameTagRows, mapLegacyGameToLibraryEntry } from "./importLegacyData.js";
 
-describe('importLegacyData', () => {
-  it('maps owned games into collection library entries with boolean columns', () => {
+async function loadImportLegacyDataModule() {
+  vi.resetModules();
+  return import("./importLegacyData.js");
+}
+
+describe("importLegacyData", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("maps owned games into collection library entries with boolean columns", () => {
     expect(
       mapLegacyGameToLibraryEntry(
         {
-          id: 'game-1',
-          slug: 'heat',
-          name: 'Heat',
-          status: 'owned',
+          id: "game-1",
+          slug: "heat",
+          name: "Heat",
+          status: "owned",
           players_min: 1,
           players_max: 6,
           play_time_min: 30,
@@ -19,33 +27,33 @@ describe('importLegacyData', () => {
           bgg_weight: 2.2,
           category: null,
           summary: null,
-          rationale: 'great with groups',
+          rationale: "great with groups",
           verdict: null,
           verdict_color: null,
         },
-        'user-1',
-        'db-game-1',
+        "user-1",
+        "db-game-1",
       ),
     ).toEqual(
       expect.objectContaining({
-        account_id: 'user-1',
-        game_id: 'db-game-1',
+        account_id: "user-1",
+        game_id: "db-game-1",
         is_saved: false,
         is_loved: false,
         is_in_collection: true,
-        notes: 'great with groups',
+        notes: "great with groups",
       }),
     );
   });
 
-  it('does not create library entries for recommendation-only legacy states', () => {
+  it("does not create library entries for recommendation-only legacy states", () => {
     expect(
       mapLegacyGameToLibraryEntry(
         {
-          id: 'game-2',
-          slug: 'ark-nova',
-          name: 'Ark Nova',
-          status: 'new_rec',
+          id: "game-2",
+          slug: "ark-nova",
+          name: "Ark Nova",
+          status: "new_rec",
           players_min: 1,
           players_max: 4,
           play_time_min: 90,
@@ -55,23 +63,23 @@ describe('importLegacyData', () => {
           category: null,
           summary: null,
           rationale: null,
-          verdict: 'Strong fit',
-          verdict_color: '#22c55e',
+          verdict: "Strong fit",
+          verdict_color: "#22c55e",
         },
-        'user-1',
-        'db-game-2',
+        "user-1",
+        "db-game-2",
       ),
     ).toBeNull();
   });
 
-  it('maps buy games into saved library entries with boolean columns', () => {
+  it("maps buy games into saved library entries with boolean columns", () => {
     expect(
       mapLegacyGameToLibraryEntry(
         {
-          id: 'game-3',
-          slug: 'arcs',
-          name: 'Arcs',
-          status: 'buy',
+          id: "game-3",
+          slug: "arcs",
+          name: "Arcs",
+          status: "buy",
           players_min: 2,
           players_max: 4,
           play_time_min: 60,
@@ -80,21 +88,21 @@ describe('importLegacyData', () => {
           bgg_weight: 3.2,
           category: null,
           summary: null,
-          rationale: 'buy soon',
+          rationale: "buy soon",
           verdict: null,
           verdict_color: null,
         },
-        'user-1',
-        'db-game-3',
+        "user-1",
+        "db-game-3",
       ),
     ).toEqual(
       expect.objectContaining({
-        account_id: 'user-1',
-        game_id: 'db-game-3',
+        account_id: "user-1",
+        game_id: "db-game-3",
         is_saved: true,
         is_loved: false,
         is_in_collection: false,
-        notes: 'buy soon',
+        notes: "buy soon",
       }),
     );
   });
@@ -131,25 +139,36 @@ describe('importLegacyData', () => {
     expect(rows).toEqual([{ game_id: "db-game-1", tag_id: "db-tag-1" }]);
   });
 
-  it('exits with error when required env values are missing', () => {
-    expect(() => {
-      execSync('tsx scripts/importLegacyData.ts', {
-        env: { ...process.env, VITE_SUPABASE_URL: '', SUPABASE_SERVICE_ROLE_KEY: '' },
-        stdio: 'pipe',
-      });
-    }).toThrow();
+  it("exits with error when required env values are missing", async () => {
+    vi.stubEnv("ALLOW_LEGACY_IMPORT_PIPELINE", "1");
+    vi.stubEnv("VITE_SUPABASE_URL", "");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+
+    const { importLegacyData } = await loadImportLegacyDataModule();
+
+    await expect(importLegacyData()).rejects.toThrow(
+      /Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY/i,
+    );
   });
 
-  it('exits with error when the service role key is missing', () => {
-    expect(() => {
-      execSync('tsx scripts/importLegacyData.ts', {
-        env: {
-          ...process.env,
-          VITE_SUPABASE_URL: 'https://example.supabase.co',
-          SUPABASE_SERVICE_ROLE_KEY: '',
-        },
-        stdio: 'pipe',
-      });
-    }).toThrow();
+  it("exits with error when the service role key is missing", async () => {
+    vi.stubEnv("ALLOW_LEGACY_IMPORT_PIPELINE", "1");
+    vi.stubEnv("VITE_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+
+    const { importLegacyData } = await loadImportLegacyDataModule();
+
+    await expect(importLegacyData()).rejects.toThrow(
+      /Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY/i,
+    );
+  });
+
+  it("requires explicit opt-in before running the quarantined legacy import pipeline", async () => {
+    vi.stubEnv("VITE_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "service-role");
+
+    const { importLegacyData } = await loadImportLegacyDataModule();
+
+    await expect(importLegacyData()).rejects.toThrow(/quarantined/i);
   });
 });

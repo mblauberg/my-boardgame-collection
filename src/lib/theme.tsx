@@ -24,10 +24,10 @@ function applyTheme(theme: Theme) {
   // Semi-transparent values trigger native glass blur on iOS 15-25; iOS 26 ignores this.
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute(
-      "content",
-      theme === "dark" ? "rgba(19,19,19,0.8)" : "rgba(247,246,243,0.72)"
-    );
+    /* eslint-disable no-restricted-syntax -- iOS browser chrome requires literal rgba theme-color values */
+    const themeColor = theme === "dark" ? "rgba(19,19,19,0.8)" : "rgba(247,246,243,0.72)";
+    /* eslint-enable no-restricted-syntax */
+    meta.setAttribute("content", themeColor);
   }
 }
 

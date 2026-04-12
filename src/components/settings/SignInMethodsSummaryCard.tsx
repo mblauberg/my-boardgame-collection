@@ -16,6 +16,7 @@ export function SignInMethodsSummaryCard({
 }: SignInMethodsSummaryCardProps) {
   const { theme } = useTheme();
   const hasPasskeys = summary.passkeys.length > 0;
+  const rowClassName = "glass-selectable-card flex items-center justify-between gap-3 rounded-2xl px-4 py-3";
 
   const getProviderIcon = (provider: string) => {
     switch (provider) {
@@ -54,15 +55,15 @@ export function SignInMethodsSummaryCard({
       </div>
 
       {isLoading ? (
-          <div className="mt-5 space-y-3">
-          <div className="h-12 animate-pulse rounded-xl bg-surface-container-high/60" />
-          <div className="h-12 animate-pulse rounded-xl bg-surface-container-high/40" />
-          <div className="h-12 animate-pulse rounded-xl bg-surface-container-high/30" />
+        <div className="mt-5 space-y-3">
+          <div className="glass-selectable-card h-12 animate-pulse rounded-2xl" />
+          <div className="glass-selectable-card h-12 animate-pulse rounded-2xl" />
+          <div className="glass-selectable-card h-12 animate-pulse rounded-2xl" />
         </div>
       ) : (
         <>
-          <div className="mt-5 divide-y divide-outline/10">
-            <div className="flex items-center justify-between gap-3 py-3">
+          <div className="mt-5 space-y-3">
+            <div className={rowClassName}>
               <div className="flex min-w-0 items-center gap-4">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-tertiary/10 text-tertiary">
                   <span className="material-symbols-outlined text-[18px]">mail</span>
@@ -79,7 +80,7 @@ export function SignInMethodsSummaryCard({
               </span>
             </div>
 
-            <div className="flex items-center justify-between gap-3 py-3">
+            <div className={rowClassName}>
               <div className="flex items-center gap-4">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <span className="material-symbols-outlined text-[18px]">passkey</span>
@@ -106,7 +107,7 @@ export function SignInMethodsSummaryCard({
               )}
             </div>
 
-            <div className="flex items-start gap-4 py-3">
+            <div className="glass-selectable-card flex items-start gap-4 rounded-2xl px-4 py-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
                 <span className="material-symbols-outlined text-[18px]">link</span>
               </div>

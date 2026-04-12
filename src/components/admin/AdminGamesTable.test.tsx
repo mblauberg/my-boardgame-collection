@@ -70,6 +70,12 @@ describe("AdminGamesTable", () => {
     // Component renders both desktop table and mobile card list
     expect(screen.getAllByText("Heat").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Wingspan").length).toBeGreaterThan(0);
+    expect(screen.getByPlaceholderText(/search games/i)).toHaveClass(
+      "glass-input-field",
+    );
+    expect(screen.getAllByRole("button", { name: /edit/i })[0]).toHaveClass(
+      "glass-action-button",
+    );
   });
 
   it("shows status for each game", () => {
@@ -94,6 +100,14 @@ describe("AdminGamesTable", () => {
 
     expect(screen.getAllByText("Wingspan").length).toBeGreaterThan(0);
     expect(screen.queryAllByText("Heat")).toHaveLength(0);
+  });
+
+  it("uses shared glass classes for admin controls and cards", () => {
+    const { container } = render(<AdminGamesTable games={games} onEdit={vi.fn()} />);
+
+    expect(screen.getByPlaceholderText(/search/i)).toHaveClass("glass-input-field");
+    expect(screen.getAllByRole("button", { name: /edit/i })[0]).toHaveClass("glass-action-button");
+    expect(container.querySelector(".glass-selectable-card")).toBeInTheDocument();
   });
 
   it("calls onEdit when the edit button is clicked", async () => {

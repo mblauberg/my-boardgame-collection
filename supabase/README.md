@@ -55,7 +55,7 @@ All functions are Deno-based. Shared helpers in `functions/_shared/`:
 | Function | Method | Auth required | Purpose |
 |---|---|---|---|
 | `account-sync-session` | POST | User JWT | Sync Supabase auth state → accounts tables after sign-in |
-| `account-security-summary` | GET | User JWT | Return emails, identities, passkeys for settings UI |
+| `account-security-summary` | POST | User JWT | Return emails, identities, passkeys for settings UI |
 | `passkey-auth-options` | POST | None | Begin conditional passkey sign-in (returns options) |
 | `passkey-auth-verify` | POST | None | Complete passkey sign-in (returns session) |
 | `passkey-register-options` | POST | User JWT | Begin passkey registration |

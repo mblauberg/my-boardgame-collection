@@ -11,14 +11,6 @@ export type LibraryFilters = {
   playTime?: number;
   weight?: number;
   isLoved?: boolean;
-  // Keep legacy for backward compatibility if needed, but we'll focus on the above
-  playersMin?: number;
-  playersMax?: number;
-  playTimeMin?: number;
-  playTimeMax?: number;
-  weightMin?: number;
-  weightMax?: number;
-  maxWeight?: number | null;
 };
 
 export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFilters) {
@@ -64,12 +56,6 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
       }
     }
 
-    if (filters.playersMin != null || filters.playersMax != null) {
-      const { playersMin, playersMax } = entry.game;
-      if (playersMin != null && filters.playersMax != null && playersMin > filters.playersMax) return false;
-      if (playersMax != null && filters.playersMin != null && playersMax < filters.playersMin) return false;
-    }
-
     if (filters.playTime != null) {
       const { playTimeMin, playTimeMax } = entry.game;
       // Handle "3h+" mapping to 180: check if game supports at least 180 mins
@@ -86,30 +72,12 @@ export function filterLibraryEntries(entries: LibraryEntry[], filters: LibraryFi
       }
     }
 
-    if (filters.playTimeMin != null || filters.playTimeMax != null) {
-      const { playTimeMin, playTimeMax } = entry.game;
-      if (playTimeMin != null && filters.playTimeMax != null && playTimeMin > filters.playTimeMax) return false;
-      if (playTimeMax != null && filters.playTimeMin != null && playTimeMax < filters.playTimeMin) return false;
-    }
-
     if (filters.weight != null) {
       const weight = entry.game.bggWeight;
       if (weight != null) {
         if (weight < filters.weight - 0.5 || weight > filters.weight + 0.5) return false;
       } else {
         return false; // No weight data
-      }
-    }
-
-    if (filters.maxWeight != null && entry.game.bggWeight != null && entry.game.bggWeight > filters.maxWeight) {
-      return false;
-    }
-
-    if (filters.weightMin != null || filters.weightMax != null) {
-      const weight = entry.game.bggWeight;
-      if (weight != null) {
-        if (filters.weightMin != null && weight < filters.weightMin) return false;
-        if (filters.weightMax != null && weight > filters.weightMax) return false;
       }
     }
 

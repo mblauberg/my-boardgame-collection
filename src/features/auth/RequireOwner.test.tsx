@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Session } from "@supabase/supabase-js";
 import type { Profile } from "./auth.types";
@@ -126,7 +126,10 @@ function renderWithRouter(
       <ExploreSearchProvider>
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
-            <Route path="/signin" element={<div>Sign In Page</div>} />
+            <Route
+              path="/signin"
+              element={<SignInPageProbe />}
+            />
             <Route
               path="/admin"
               element={
@@ -142,12 +145,25 @@ function renderWithRouter(
   );
 }
 
+function SignInPageProbe() {
+  const location = useLocation();
+  const state = location.state as { returnTo?: string } | null;
+
+  return (
+    <div>
+      <div>Sign In Page</div>
+      <div data-testid="return-to">{state?.returnTo ?? "missing"}</div>
+    </div>
+  );
+}
+
 describe("RequireOwner", () => {
   it("redirects non-owners away from the admin route", async () => {
     renderWithRouter("/admin", viewerFixture);
 
     expect(await screen.findByText(/sign in/i)).toBeInTheDocument();
     expect(screen.queryByText(/admin content/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("return-to")).toHaveTextContent("/admin");
   });
 
   it("redirects unauthenticated users away from the admin route", async () => {
@@ -155,6 +171,7 @@ describe("RequireOwner", () => {
 
     expect(await screen.findByText(/sign in/i)).toBeInTheDocument();
     expect(screen.queryByText(/admin content/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("return-to")).toHaveTextContent("/admin");
   });
 
   it("allows owners to access the admin route", async () => {
