@@ -3,16 +3,21 @@ import { motion } from "framer-motion";
 import { desktopNavRouteDefinitions } from "../../app/router/routes";
 import { getSignInRouteState } from "../../features/auth/signInNavigation";
 import { useProfile } from "../../features/auth/useProfile";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { useSlidingIndicator } from "../../hooks/useSlidingIndicator";
 import { motionTokens } from "../../lib/motion";
 import { useTheme } from "../../lib/theme";
+import { MaterialSymbol } from "../ui/MaterialSymbol";
 
 export function TopNavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useProfile();
   const { theme, toggleTheme } = useTheme();
-  const activeNavIndex = desktopNavRouteDefinitions.findIndex((route) => location.pathname === route.path);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const activeNavIndex = desktopNavRouteDefinitions.findIndex(
+    (route) => location.pathname === route.path,
+  );
   const { containerRef, indicatorStyle } = useSlidingIndicator({
     activeIndex: activeNavIndex,
     selector: "a",
@@ -20,7 +25,8 @@ export function TopNavBar() {
 
   const getLinkClass = (path: string) => {
     const isActive = location.pathname === path;
-    const base = "relative z-10 font-medium font-['Manrope'] tracking-tight transition-colors duration-300 pb-1";
+    const base =
+      "relative z-10 font-medium font-['Manrope'] tracking-tight transition-colors duration-300 pb-1";
     if (isActive) {
       return `${base} text-primary font-extrabold`;
     }
@@ -30,11 +36,16 @@ export function TopNavBar() {
   return (
     <nav className="glass-nav fixed top-0 left-0 right-0 z-50 flex w-full items-center bg-transparent px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] md:px-8 md:py-4">
       <div className="glass-nav pointer-events-none absolute inset-0 -z-10 border-b border-outline-variant/15 bg-surface-bright/72 shadow-ambient" />
-      
+
       <div className="flex-1 min-w-0 text-lg font-black text-primary tracking-tighter md:text-2xl">
-        <Link to="/" className="block truncate">My Boardgame Collection</Link>
+        <Link to="/" className="block truncate">
+          My Boardgame Collection
+        </Link>
       </div>
-      <div ref={containerRef} className="relative hidden md:flex items-center gap-8">
+      <div
+        ref={containerRef}
+        className="relative hidden md:flex items-center gap-8"
+      >
         <motion.div
           data-testid="top-nav-indicator"
           aria-hidden="true"
@@ -47,7 +58,11 @@ export function TopNavBar() {
           transition={motionTokens.spring.soft}
         />
         {desktopNavRouteDefinitions.map((route) => (
-          <Link key={route.path} className={getLinkClass(route.path)} to={route.path}>
+          <Link
+            key={route.path}
+            className={getLinkClass(route.path)}
+            to={route.path}
+          >
             {route.label}
           </Link>
         ))}
@@ -60,8 +75,31 @@ export function TopNavBar() {
           aria-pressed={theme === "dark"}
           className="glass-action-button inline-flex h-14 w-14 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:text-on-surface md:h-10 md:w-10"
         >
-          <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">
-            {theme === "dark" ? "light_mode" : "dark_mode"}
+          <span className="theme-toggle-coin-scene flex h-8 w-8 items-center justify-center md:h-7 md:w-7">
+            <motion.span
+              data-testid="theme-toggle-coin"
+              data-theme-side={theme}
+              className="theme-toggle-coin"
+              initial={false}
+              animate={{ rotateY: theme === "dark" ? 180 : 0 }}
+              transition={{
+                duration: prefersReducedMotion
+                  ? motionTokens.duration.instant
+                  : motionTokens.duration.themeToggle,
+                ease: motionTokens.ease.standard,
+              }}
+            >
+              <MaterialSymbol
+                icon="dark_mode"
+                data-testid="theme-toggle-face-dark"
+                className="theme-toggle-face text-3xl text-on-surface md:text-2xl"
+              />
+              <MaterialSymbol
+                icon="light_mode"
+                data-testid="theme-toggle-face-light"
+                className="theme-toggle-face theme-toggle-face-back text-3xl text-on-surface md:text-2xl"
+              />
+            </motion.span>
           </span>
         </button>
         {isAuthenticated ? (
@@ -70,16 +108,22 @@ export function TopNavBar() {
             aria-label="Open account settings"
             className="glass-action-button flex h-14 w-14 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80 md:h-10 md:w-10"
           >
-            <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">account_circle</span>
+            <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">
+              account_circle
+            </span>
           </Link>
         ) : (
           <button
             type="button"
             aria-label="Open account"
-            onClick={() => navigate("/signin", { state: getSignInRouteState(location) })}
+            onClick={() =>
+              navigate("/signin", { state: getSignInRouteState(location) })
+            }
             className="glass-action-button flex h-14 w-14 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-150 hover:text-on-surface active:opacity-80 md:h-10 md:w-10"
           >
-            <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">account_circle</span>
+            <span className="material-symbols-outlined text-3xl text-on-surface md:text-2xl">
+              account_circle
+            </span>
           </button>
         )}
       </div>

@@ -42,4 +42,9 @@ describe("motion token contract", () => {
     expect(getMotionDurationCssVar("base")).toBe("var(--motion-duration-base)");
     expect(getMotionDurationCssVar("slow")).toBe("var(--motion-duration-slow)");
   });
+
+  it("uses a noticeably slower dedicated duration for the theme-toggle coin flip", () => {
+    expect(motionTokens.duration.themeToggle).toBe(0.72);
+    expect(motionTokens.duration.themeToggle).toBeGreaterThan(motionTokens.duration.slow);
+  });
 });
