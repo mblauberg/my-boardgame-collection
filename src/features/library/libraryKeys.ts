@@ -12,6 +12,7 @@ export const libraryKeys = {
   public: (username: string, listType: LibraryListType) =>
     [...libraryKeys.all, "public", username, listType] as const,
   profileSearch: (query: string) => [...libraryKeys.all, "profile-search", query] as const,
-  explore: (scope?: string | readonly string[]) => [...libraryKeys.all, "explore", scope] as const,
+  explore: (scope?: string | readonly string[], daySeed?: string) =>
+    [...libraryKeys.all, "explore", scope, daySeed] as const,
   exploreSearch: (query: string) => [...libraryKeys.all, "explore-search", query] as const,
 };

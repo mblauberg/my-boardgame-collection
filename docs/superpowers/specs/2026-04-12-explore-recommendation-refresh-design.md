@@ -25,7 +25,7 @@ Improve the Explore page so it:
 - The system must work without user-specific recommendation signals.
 - Missing metadata should not eliminate otherwise useful games.
 - Rotation should be deterministic and stable within a UTC day.
-- Explore should preserve broad catalog coverage by evaluating against the current Explore status set: `owned`, `buy`, `new_rec`, `cut`, and `archived`.
+- Explore should not depend on legacy catalog `status` values by default.
 
 ## Proposed Architecture
 
@@ -66,6 +66,7 @@ Each shelf section should support:
 - `candidatePoolSize`: broader eligible pool considered before trimming
 - `rankingMode`: controls scoring behavior
 - `dedupe`: `"none"` or `"avoid-previous"`
+- `useStatusFilter`: optional explicit override, defaults to `false`
 
 ### Defaults
 
@@ -75,6 +76,7 @@ When a section does not explicitly provide the new fields:
 - `candidatePoolSize`: defaults to `max(displayLimit * 3, 24)`
 - `rankingMode`: defaults to `discovery`
 - `dedupe`: defaults to `avoid-previous` for discovery shelves and `none` for canonical shelves
+- `useStatusFilter`: defaults to `false` for both discovery and canonical shelves
 
 ### Dedupe Policy
 
@@ -98,7 +100,8 @@ When a section does not explicitly provide the new fields:
 For each section:
 
 1. evaluate eligibility using the existing scenario-rule matcher
-   - for Explore, matcher evaluation should be wrapped with the broader Explore status set of `owned`, `buy`, `new_rec`, `cut`, and `archived`
+   - for Explore, matcher evaluation should ignore `status` by default for both discovery and canonical shelves
+   - if `useStatusFilter` is `true`, then `rule.statuses` is respected for that section
 2. build a candidate pool larger than the displayed count
 3. score candidates
 4. if the shelf is a discovery shelf, rotate the candidate pool deterministically for the current UTC day
@@ -113,11 +116,18 @@ Not every current scenario rule should remain a hard filter for discovery shelve
 
 Hard eligibility filters for all shelf types:
 
-- hidden/status rules
+- hidden rules
 - tag inclusion/exclusion rules
 - player-count fit
 - play-time fit
 - category matching when category data is present
+
+Status handling:
+
+- `status` is not a default Explore eligibility filter
+- legacy status values are treated as optional metadata only
+- a shelf must explicitly opt in with `useStatusFilter: true` if it wants status-based filtering in the future
+- canonical shelves do not preserve legacy status filtering; they preserve canonical ordering only
 
 Discovery-shelf soft filters when the source field is missing:
 
@@ -160,6 +170,27 @@ Scoring principles:
 - missing metadata should reduce confidence slightly, not eliminate the game
 - no dependence on user activity data yet
 - future metadata or user-signal boosts should be additive score terms, not a redesign
+
+### Discovery Scoring Contract
+
+Discovery shelves should use a fixed ordered scoring contract so implementations do not drift.
+
+Recommended precedence:
+
+1. rule fit and tag relevance
+2. quality signals: `bgg_rating`, then `bgg_rank`
+3. confidence signals: `bgg_usersrated`
+4. freshness/context signals: `published_year`, time/player fit, weight fit when relevant
+5. completeness/confidence adjustment for missing fields
+6. deterministic seeded tie-break
+
+Implementation contract:
+
+- tag/rule relevance is the strongest discovery input when present
+- quality signals should outweigh freshness
+- confidence signals should stop tiny-sample games from dominating purely on rating
+- missing-field penalties should be lighter than actual rule failures
+- final ties must resolve deterministically using the UTC-day seed plus a stable game identifier
 
 ### Ranking Modes
 

@@ -1,18 +1,42 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockFetchGamesCatalogRows } = vi.hoisted(() => ({
-  mockFetchGamesCatalogRows: vi.fn(),
+const {
+  mockFetchGamesCatalogExploreCandidateRows,
+  mockFetchGamesCatalogRowsByIds,
+  mockBuildExploreDaySeed,
+  mockBuildExploreShelves,
+} = vi.hoisted(() => ({
+  mockFetchGamesCatalogExploreCandidateRows: vi.fn(),
+  mockFetchGamesCatalogRowsByIds: vi.fn(),
+  mockBuildExploreDaySeed: vi.fn(),
+  mockBuildExploreShelves: vi.fn(),
 }));
 
 vi.mock("../games/gamesCatalog", async () => {
   const actual = await vi.importActual<typeof import("../games/gamesCatalog")>("../games/gamesCatalog");
   return {
     ...actual,
-    fetchGamesCatalogRows: mockFetchGamesCatalogRows,
+    fetchGamesCatalogExploreCandidateRows: mockFetchGamesCatalogExploreCandidateRows,
+    fetchGamesCatalogRowsByIds: mockFetchGamesCatalogRowsByIds,
+  };
+});
+
+vi.mock("./exploreRanking", async () => {
+  const actual =
+    await vi.importActual<typeof import("./exploreRanking")>("./exploreRanking");
+
+  mockBuildExploreDaySeed.mockImplementation(actual.buildExploreDaySeed);
+  mockBuildExploreShelves.mockImplementation(actual.buildExploreShelves);
+
+  return {
+    ...actual,
+    buildExploreDaySeed: mockBuildExploreDaySeed,
+    buildExploreShelves: mockBuildExploreShelves,
   };
 });
 
 import { fetchExploreData, resolveExplorePresets } from "./useExploreQuery";
+import { libraryKeys } from "./libraryKeys";
 
 function makeCatalogRow(overrides: Record<string, unknown> = {}) {
   return {
@@ -82,11 +106,14 @@ describe("resolveExplorePresets", () => {
 
 describe("fetchExploreData", () => {
   beforeEach(() => {
-    mockFetchGamesCatalogRows.mockReset();
+    mockFetchGamesCatalogExploreCandidateRows.mockReset();
+    mockFetchGamesCatalogRowsByIds.mockReset();
+    mockBuildExploreDaySeed.mockClear();
+    mockBuildExploreShelves.mockClear();
   });
 
-  it("builds explore shelves from the shared games_catalog view in a single fetch", async () => {
-    mockFetchGamesCatalogRows.mockResolvedValue([
+  it("builds explore shelves from section-scoped candidate queries and hydrates only selected shelf games", async () => {
+    mockFetchGamesCatalogExploreCandidateRows.mockResolvedValue([
       makeCatalogRow(),
       makeCatalogRow({
         id: "game-2",
@@ -107,27 +134,31 @@ describe("fetchExploreData", () => {
         ],
       }),
     ]);
+    mockFetchGamesCatalogRowsByIds.mockResolvedValue([makeCatalogRow()]);
 
     const result = await fetchExploreData(["trending"]);
 
-    expect(mockFetchGamesCatalogRows).toHaveBeenCalledTimes(1);
+    expect(mockFetchGamesCatalogExploreCandidateRows).toHaveBeenCalledTimes(1);
+    expect(mockFetchGamesCatalogRowsByIds).toHaveBeenCalledWith(["game-1", "game-2"]);
     expect(result.shelves).toHaveLength(1);
     expect(result.shelves[0]?.id).toBe("trending");
     expect(result.shelves[0]?.entries[0]?.name).toBe("Heat");
   });
 
   it("keeps cut catalog games eligible for explore shelves", async () => {
-    mockFetchGamesCatalogRows.mockResolvedValue([
-      makeCatalogRow({
-        id: "game-cut",
-        name: "Crokinole",
-        slug: "crokinole",
-        status: "cut",
-        bgg_rating: 8.0,
-        bgg_usersrated: 12000,
-        play_time_max: 30,
-      }),
+    const cutGame = makeCatalogRow({
+      id: "game-cut",
+      name: "Crokinole",
+      slug: "crokinole",
+      status: "cut",
+      bgg_rating: 8.0,
+      bgg_usersrated: 12000,
+      play_time_max: 30,
+    });
+    mockFetchGamesCatalogExploreCandidateRows.mockResolvedValue([
+      cutGame,
     ]);
+    mockFetchGamesCatalogRowsByIds.mockResolvedValue([cutGame]);
 
     const result = await fetchExploreData(["quick-wins"]);
 
@@ -135,8 +166,117 @@ describe("fetchExploreData", () => {
     expect(result.shelves[0]?.entries[0]?.name).toBe("Crokinole");
   });
 
+  it("hydrates multi-section shelves from the selected ids only", async () => {
+    const engineGame = makeCatalogRow({
+      id: "game-engine",
+      name: "Terraforming Mars",
+      slug: "terraforming-mars",
+      tags: [
+        {
+          id: "tag-engine",
+          name: "Engine Building",
+          slug: "engine-building",
+          tag_type: "shared",
+          colour: null,
+          created_at: "2026-04-11T00:00:00Z",
+          updated_at: "2026-04-11T00:00:00Z",
+        },
+      ],
+      tag_slugs: ["engine-building"],
+    });
+    const deckGame = makeCatalogRow({
+      id: "game-deck",
+      name: "Dominion",
+      slug: "dominion",
+      tags: [
+        {
+          id: "tag-deck",
+          name: "Deck Building",
+          slug: "deck-building",
+          tag_type: "shared",
+          colour: null,
+          created_at: "2026-04-11T00:00:00Z",
+          updated_at: "2026-04-11T00:00:00Z",
+        },
+      ],
+      tag_slugs: ["deck-building"],
+    });
+    mockFetchGamesCatalogExploreCandidateRows.mockImplementation(async (section) => {
+      if (section.id === "engine-building") return [engineGame];
+      if (section.id === "deck-building") return [deckGame];
+      return [];
+    });
+    mockFetchGamesCatalogRowsByIds.mockResolvedValue([engineGame, deckGame]);
+
+    const result = await fetchExploreData(["by-mechanic"]);
+
+    const mechanicSections = result.shelves[0]?.sections ?? [];
+
+    expect(mockFetchGamesCatalogExploreCandidateRows).toHaveBeenCalled();
+    expect(mockFetchGamesCatalogExploreCandidateRows).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "engine-building" }),
+    );
+    expect(mockFetchGamesCatalogExploreCandidateRows).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "deck-building" }),
+    );
+    expect(mockFetchGamesCatalogRowsByIds).toHaveBeenCalledWith(["game-deck", "game-engine"]);
+    expect(mechanicSections.find((section) => section.id === "engine-building")?.games).toEqual([
+      expect.objectContaining({ name: "Terraforming Mars" }),
+    ]);
+    expect(mechanicSections.find((section) => section.id === "deck-building")?.games).toEqual([
+      expect.objectContaining({ name: "Dominion" }),
+    ]);
+  });
+
   it("applies exact scenario-rule matching so mechanic shelves do not collapse into the same results", async () => {
-    mockFetchGamesCatalogRows.mockResolvedValue([
+    mockFetchGamesCatalogExploreCandidateRows.mockImplementation(async (section) => {
+      if (section.id === "engine-building") {
+        return [
+          makeCatalogRow({
+            id: "game-engine",
+            name: "Terraforming Mars",
+            slug: "terraforming-mars",
+            tags: [
+              {
+                id: "tag-engine",
+                name: "Engine Building",
+                slug: "engine-building",
+                tag_type: "shared",
+                colour: null,
+                created_at: "2026-04-11T00:00:00Z",
+                updated_at: "2026-04-11T00:00:00Z",
+              },
+            ],
+            tag_slugs: ["engine-building"],
+          }),
+        ];
+      }
+
+      if (section.id === "deck-building") {
+        return [
+          makeCatalogRow({
+            id: "game-deck",
+            name: "Dominion",
+            slug: "dominion",
+            tags: [
+              {
+                id: "tag-deck",
+                name: "Deck Building",
+                slug: "deck-building",
+                tag_type: "shared",
+                colour: null,
+                created_at: "2026-04-11T00:00:00Z",
+                updated_at: "2026-04-11T00:00:00Z",
+              },
+            ],
+            tag_slugs: ["deck-building"],
+          }),
+        ];
+      }
+
+      return [];
+    });
+    mockFetchGamesCatalogRowsByIds.mockResolvedValue([
       makeCatalogRow({
         id: "game-engine",
         name: "Terraforming Mars",
@@ -181,6 +321,55 @@ describe("fetchExploreData", () => {
     ]);
     expect(mechanicSections.find((section) => section.id === "deck-building")?.games).toEqual([
       expect.objectContaining({ name: "Dominion" }),
+    ]);
+  });
+
+  it("delegates shelf assembly to the ranking module with a UTC day seed", async () => {
+    mockFetchGamesCatalogExploreCandidateRows.mockResolvedValue([makeCatalogRow()]);
+    mockFetchGamesCatalogRowsByIds.mockResolvedValue([]);
+    mockBuildExploreDaySeed.mockReturnValue("2026-04-12");
+    mockBuildExploreShelves.mockReturnValue([
+      {
+        id: "trending",
+        emoji: "🔥",
+        label: "Trending Now",
+        description: "Daily rotation",
+        sections: [],
+        entries: [],
+      },
+    ]);
+
+    const result = await fetchExploreData(["trending"]);
+
+    expect(mockFetchGamesCatalogExploreCandidateRows).toHaveBeenCalledTimes(1);
+    expect(mockBuildExploreDaySeed).toHaveBeenCalledWith(expect.any(Date));
+    expect(mockBuildExploreShelves).toHaveBeenCalledWith({
+      games: [
+        expect.objectContaining({
+          id: "game-1",
+          name: "Heat",
+          tags: ["racing"],
+        }),
+      ],
+      presets: expect.arrayContaining([expect.objectContaining({ id: "trending" })]),
+      daySeed: "2026-04-12",
+    });
+    expect(result.shelves).toEqual([
+      expect.objectContaining({
+        id: "trending",
+        title: "Trending Now",
+      }),
+    ]);
+  });
+});
+
+describe("libraryKeys.explore", () => {
+  it("scopes the explore query key by UTC day", () => {
+    expect(libraryKeys.explore(["trending"], "2026-04-12")).toEqual([
+      "library",
+      "explore",
+      ["trending"],
+      "2026-04-12",
     ]);
   });
 });

@@ -155,13 +155,17 @@ export function GameDetailPanel({ game }: GameDetailPanelProps) {
               {hasBayesAverage ? (
                 <div>
                   <span className="text-sm text-on-surface-variant">Bayesian average</span>
-                  <p className="text-xl font-semibold text-on-surface">{game.bggBayesAverage.toFixed(2)}</p>
+                  <p className="text-xl font-semibold text-on-surface">
+                    {game.bggBayesAverage!.toFixed(2)}
+                  </p>
                 </div>
               ) : null}
               {hasUsersRated ? (
                 <div>
                   <span className="text-sm text-on-surface-variant">Users rated</span>
-                  <p className="text-xl font-semibold text-on-surface">{game.bggUsersRated.toLocaleString("en-AU")}</p>
+                  <p className="text-xl font-semibold text-on-surface">
+                    {game.bggUsersRated!.toLocaleString("en-AU")}
+                  </p>
                 </div>
               ) : null}
             </div>

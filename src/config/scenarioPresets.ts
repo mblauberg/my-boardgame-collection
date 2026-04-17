@@ -49,7 +49,26 @@ export type ScenarioSection = {
   label: string;
   description: string;
   rule: Rule;
+  displayLimit?: number;
+  candidatePoolSize?: number;
+  rankingMode?: ShelfRankingMode;
+  dedupe?: ShelfDedupeMode;
+  useStatusFilter?: boolean;
 };
+
+type ShelfRankingMode = 'canonical' | 'discovery';
+type ShelfDedupeMode = 'none' | 'avoid-previous';
+
+function normalizeScenarioSection(section: ScenarioSection): ScenarioSection {
+  return {
+    ...section,
+    displayLimit: section.displayLimit ?? section.rule.limit,
+    candidatePoolSize: section.candidatePoolSize ?? section.rule.limit,
+    rankingMode: section.rankingMode ?? 'discovery',
+    dedupe: section.dedupe ?? 'avoid-previous',
+    useStatusFilter: section.useStatusFilter ?? false,
+  };
+}
 
 export type ScenarioPreset = {
   id: string;
@@ -218,7 +237,7 @@ export function buildScenarioResults(games: ScenarioGame[], presets: ScenarioPre
 // filler, opener, closer, main-event, relaxed, tense, chaotic, cosy, thinky,
 // quick, medium, long, light, medium-weight, heavy
 
-export const scenarioPresets: ScenarioPreset[] = [
+const rawScenarioPresets: ScenarioPreset[] = [
   {
     id: 'for-you',
     emoji: '✨',
@@ -288,6 +307,9 @@ export const scenarioPresets: ScenarioPreset[] = [
         id: 'top-rated-all',
         label: 'Hall of Fame',
         description: 'The highest-rated games of all time.',
+        rankingMode: 'canonical',
+        dedupe: 'none',
+        useStatusFilter: false,
         rule: {
           statuses: ['owned', 'buy', 'new_rec'],
           minRatingsCount: 5000,
@@ -850,3 +872,8 @@ export const scenarioPresets: ScenarioPreset[] = [
     ],
   },
 ];
+
+export const scenarioPresets: ScenarioPreset[] = rawScenarioPresets.map((preset) => ({
+  ...preset,
+  sections: preset.sections.map((section) => normalizeScenarioSection(section)),
+}));

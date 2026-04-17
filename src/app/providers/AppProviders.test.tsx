@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { AppProviders } from "./AppProviders";
 
 const { mockUsePrefersReducedMotion } = vi.hoisted(() => ({
-  mockUsePrefersReducedMotion: vi.fn<() => boolean, []>(() => false),
+  mockUsePrefersReducedMotion: vi.fn(() => false),
 }));
 
 vi.mock("../../hooks/usePrefersReducedMotion", () => ({
