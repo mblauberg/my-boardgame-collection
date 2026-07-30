@@ -173,6 +173,10 @@ describe("AddGameWizardOverlay", () => {
       "wizard-panel",
     );
     expect(screen.getByRole("heading", { name: /find your game/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Powered by BGG" })).toHaveAttribute(
+      "href",
+      "https://boardgamegeek.com",
+    );
   });
 
   it("uses shared glass control styles for wizard controls and result cards", async () => {

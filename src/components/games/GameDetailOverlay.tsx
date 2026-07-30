@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { motionTokens } from "../../lib/motion";
+import { BggAttribution } from "../layout/BggAttribution";
 
 type GameDetailOverlayProps = {
   title: string;
@@ -157,6 +158,7 @@ export function GameDetailOverlay({
         </div>
         <div className="overlay-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-4 md:px-6 md:pt-20 md:pb-6 sm:px-8 sm:pt-24 sm:pb-8">
           {children}
+          <BggAttribution compact />
         </div>
       </motion.div>
     </motion.div>

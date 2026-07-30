@@ -7,6 +7,11 @@ BoardGameGeek rankings data, and the live search and refresh routes use the
 BoardGameGeek XML API. [BGG's XML API terms](https://boardgamegeek.com/wiki/page/XML_API_Terms_of_Use)
 grant use “solely for strictly non-commercial purposes” and require source
 credit and a linked, legible Powered by BGG logo in public-facing uses.
+As of 31 July 2026, a linked, legible “Powered by BGG” text attribution is
+displayed in the global site footer on every route and within the full-screen BGG
+search and game-detail overlays. The official BGG logo download resource could
+not be retrieved during implementation, so no logo asset has been bundled; the
+text link is the documented fallback until an official asset can be sourced.
 
 Data sourced from hand-entered legacy objects in
 `scripts/legacy/assets/board-game-collection.jsx`, which generate

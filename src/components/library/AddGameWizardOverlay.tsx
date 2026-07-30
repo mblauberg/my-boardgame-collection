@@ -24,6 +24,7 @@ import type {
 } from "./addGameWizard.types";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { motionTokens } from "../../lib/motion";
+import { BggAttribution } from "../layout/BggAttribution";
 
 type AddGameWizardOverlayProps = {
   isOpen: boolean;
@@ -472,6 +473,7 @@ export function AddGameWizardOverlay({
               </button>
             )}
           </div>
+          <BggAttribution compact />
         </section>
       </motion.div>
     </motion.div>
