@@ -1,152 +1,129 @@
 # My Boardgame Collection
 
-A personal board-game tracker built with **Vite + React 19 + Supabase**. Manage a shared game catalogue, track your personal collection and saved games, discover what to play next, and share your library publicly.
+A Vite and React app for browsing a shared board-game catalogue, managing
+personal collection and saved lists, and optionally sharing them.
 
-**Live:** <https://my-boardgame-collection.vercel.app>
+Live app: <https://my-boardgame-collection.vercel.app>
 
----
+## Architecture
+
+- **Frontend:** Vite 8, React 19, TypeScript, React Router 7 and TanStack Query
+  form a client-rendered single-page app. This is not a Next.js app.
+- **Backend:** Supabase provides Postgres, Auth, Storage and Deno Edge
+  Functions. The data model separates the shared game catalogue from
+  account-owned library entries, tags and profile settings.
+- **Authentication:** Supabase Auth supports email magic links and configurable
+  Google, Discord and GitHub OAuth. SimpleWebAuthn provides passkey sign-in and
+  registration. Guest library state remains in browser local storage and is
+  merged after sign-in.
+- **Hosting and APIs:** Vercel serves the built SPA and the `/api/bgg-search`
+  and `/api/bgg-refresh` serverless routes. Search uses a server-held
+  BoardGameGeek application token; refresh also verifies an authenticated owner.
+
+See [`src/README.md`](src/README.md) for frontend boundaries,
+[`supabase/README.md`](supabase/README.md) for the backend and
+[`docs/PROVENANCE.md`](docs/PROVENANCE.md) for data and asset rights.
+
+## Security
+
+Supabase Auth sessions are mapped to stable application accounts. Email magic
+links, OAuth and passkeys all establish a Supabase session before account data
+is loaded.
+
+Row-level security is enabled in the migrations for account, profile, library,
+tag, catalogue and storage tables. Policies and narrow public functions allow
+reads of the visible catalogue and explicitly shared profiles or libraries,
+restrict account data to the current account and reserve admin operations for
+the owner role. Database functions and the BGG refresh route perform additional
+authentication or role checks.
+
+The Supabase anon key is a public client identifier, not an administrator
+secret. Before sign-in it can access only operations allowed to the `anon`
+database role, such as public catalogue reads and authentication flows. After
+sign-in the user's JWT supplies the `authenticated` role. The anon key cannot
+bypass row-level security, impersonate another account or grant service-role
+access. `SUPABASE_SERVICE_ROLE_KEY` is privileged and must remain server-side
+and outside version control.
 
 ## Features
 
-- 🎲 **Shared catalogue** — browse the full game library with BGG metadata (ratings, weight, player count, categories)
-- 📚 **Personal library** — track owned games (Collection) and games on your radar (Saved) with sentiment, notes, and tags
-- 🔍 **Explore & Scenarios** — filter and discover what to play; get curated recommendations and cuts based on your library
-- 🔐 **Flexible auth** — email magic links, OAuth (Google, Discord, GitHub), and passkeys (WebAuthn)
-- 👤 **Guest mode** — use the app without signing in; library syncs to your account on first sign-in
-- 🌐 **Public profiles** — optionally share your collection and/or saved list at `/u/<username>`
-- 🌗 **Dark mode** — persistent light/dark theme toggle
-- 🛠 **Owner admin** — catalogue management and BGG metadata refresh for the site owner
+- Browse and search the shared catalogue, including BoardGameGeek metadata.
+- Maintain Collection and Saved lists with loved status, sentiment, notes and
+  tags.
+- Filter the library, explore curated shelves and view scenario groupings.
+- Use guest mode without an account, then merge the local library after
+  sign-in.
+- Opt in to a public profile, collection or saved list at `/u/<username>`.
+- Sign in by email magic link, supported OAuth provider or passkey.
+- Switch between persistent light and dark themes.
+- Manage catalogue entries and refresh BoardGameGeek metadata through the
+  owner-only admin interface.
 
----
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Vite 8, React 19, TypeScript, React Router 7, TanStack Query 5 |
-| Styling | Tailwind CSS 3 + Material Design 3 CSS token system |
-| Backend | Supabase (Postgres, Auth, Storage, Edge Functions) |
-| Auth extras | SimpleWebAuthn (passkeys) |
-| API proxy | Vercel serverless functions |
-| Testing | Vitest + Testing Library |
-| Deployment | Vercel |
-
----
-
-## Getting started
+## Local setup
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 20.19+ or 22.12+
 - npm
-- [Supabase CLI](https://supabase.com/docs/guides/cli) (for local backend)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) and its container runtime
+  for a local backend
+- An approved BoardGameGeek application token for live search
 
-### 1. Clone and install
+### Install and configure
 
 ```bash
-git clone https://github.com/<your-username>/my-boardgame-collection.git
+git clone https://github.com/mblauberg/my-boardgame-collection.git
 cd my-boardgame-collection
 npm install
-```
-
-### 2. Configure environment
-
-```bash
 cp .env.example .env.local
 ```
 
-Fill in the required values:
+Set the Supabase URL and anon key, local site URLs and BoardGameGeek application
+token in `.env.local`. OAuth testing also requires credentials for each enabled
+provider. Do not commit `.env.local` or expose the Supabase service-role key to
+the browser.
 
-```dotenv
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_SITE_URL=http://localhost:5173
-SITE_URL=http://localhost:5173
-BGG_APPLICATION_TOKEN=your-bgg-token
-```
-
-`VITE_AUTH_ENABLED_OAUTH_PROVIDERS` defaults to `google,discord,github` if omitted. Set OAuth provider credentials for local auth testing (see `.env.example`).
-
-### 3. Start the backend
-
-**Option A — Hosted Supabase:** point `.env.local` to your project and run `npm run dev`.
-
-**Option B — Local Supabase CLI:**
+Use a hosted Supabase project by setting its URL and anon key, then run:
 
 ```bash
-supabase start
-supabase db reset   # applies the schema migration
 npm run dev
 ```
 
-### 4. Promote yourself to owner (optional)
+For a local Supabase stack:
 
-After signing in, run this in the Supabase SQL editor or `psql`:
-
-```sql
-update public.profiles set role = 'owner' where email = 'you@example.com';
+```bash
+supabase start
+supabase db reset
+npm run dev
 ```
 
-This unlocks the `/admin` page and the BGG metadata refresh API.
-
----
-
-## Available scripts
+Useful commands:
 
 | Command | Purpose |
 |---|---|
-| `npm run dev` | Start Vite dev server with local API shim |
-| `npm run build` | Type-check + production build |
-| `npm run typecheck` | Type-check all surfaces (app, scripts, edge functions) |
-| `npm run test` | Vitest in watch mode |
-| `npm run test:run` | Vitest one-shot |
-| `npm run migrate:import-bgg` | Import games from BGG CSV export |
-| `npm run migrate:backfill-shared-tags` | Backfill shared tags |
+| `npm run dev` | Start Vite with local `/api` route shims |
+| `npm run build` | Type-check the app and create a production build |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Check the app, scripts and Edge Functions |
+| `npm run test:run` | Run the Vitest suite once |
+| `npm run migrate:import-bgg` | Import the local BoardGameGeek CSV snapshot |
+| `npm run migrate:backfill-shared-tags` | Backfill shared catalogue tags |
 
----
+## Testing and CI
 
-## Project structure
-
-```text
-.
-├── api/             Vercel serverless API routes (BGG search + refresh proxy)
-├── docs/            Design specs, planning docs, auth flow doc
-├── scripts/         Data import and maintenance scripts
-├── src/             React application (see src/README.md)
-├── supabase/
-│   ├── config.toml  Local Supabase CLI config
-│   ├── functions/   Deno Edge Functions (auth, passkeys, email merge)
-│   └── migrations/  Database schema — single rebaseline migration
-└── ui_design/       Design reference docs and mockups
-```
-
-For a detailed breakdown of the source tree, see [`src/README.md`](src/README.md).  
-For backend schema and Edge Function details, see [`supabase/README.md`](supabase/README.md).
-
----
-
-## Schema notes
-
-The schema was rebaselined into a single migration (`supabase/migrations/20260410160430_rebaseline_schema.sql`). If you have pre-rebaseline migrations in your local or linked project, mark them as reverted:
+Tests use Vitest, Testing Library and jsdom, with test files co-located beside
+the source. Run the suite locally with:
 
 ```bash
-supabase migration repair \
-  20260409000000 20260409143000 20260409161000 20260409210000 20260409220000 \
-  20260410000000 20260410000001 20260410000002 20260410000003 20260410144055 \
-  --status reverted --local   # use --linked for hosted
+npm run test:run
 ```
 
----
+The GitHub Actions workflow in [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+runs `npm ci`, linting, full type-checking, the Vitest suite and the production
+build for pull requests and configured branch pushes.
 
-## Deployment
+## Licence
 
-Production runs on Vercel. `vercel.json` configures:
-- `/api/*` → serverless functions
-- `/*` → `index.html` (SPA client-side routing)
-
-TypeScript types for the database are generated via:
-
-```bash
-supabase gen types typescript --local > src/types/database.ts
-```
-
+Project code is available under the [MIT Licence](LICENSE). Third-party data,
+game images, icons, fonts and trademarks keep their own terms and are not
+relicensed under MIT. See [`docs/PROVENANCE.md`](docs/PROVENANCE.md).
