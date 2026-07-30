@@ -41,6 +41,10 @@ describe("AppShell", () => {
     expect(topNavQueries.getByRole("link", { name: "Explore" })).toHaveAttribute("href", "/explore");
     expect(screen.getByRole("button", { name: /toggle dark mode/i })).toBeInTheDocument();
     expect(screen.getByText("Route body")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Powered by BGG" })).toHaveAttribute(
+      "href",
+      "https://boardgamegeek.com",
+    );
   });
 
   it("routes signed-out account access through sign-in overlay state", async () => {

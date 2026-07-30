@@ -16,6 +16,10 @@ describe("GameDetailOverlay", () => {
     await user.click(screen.getByRole("button", { name: /close game details/i }));
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("link", { name: "Powered by BGG" })).toHaveAttribute(
+      "href",
+      "https://boardgamegeek.com",
+    );
   });
 
   it("closes when the backdrop is clicked", async () => {
@@ -62,12 +66,16 @@ describe("GameDetailOverlay", () => {
 
     const closeButton = screen.getByRole("button", { name: /close game details/i });
     const insideButton = screen.getByRole("button", { name: /inside action/i });
+    const bggLink = screen.getByRole("link", { name: "Powered by BGG" });
     const outsideButton = screen.getByRole("button", { name: /outside action/i });
 
     expect(closeButton).toHaveFocus();
 
     await user.tab();
     expect(insideButton).toHaveFocus();
+
+    await user.tab();
+    expect(bggLink).toHaveFocus();
 
     await user.tab();
     expect(closeButton).toHaveFocus();
